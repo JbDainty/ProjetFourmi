@@ -1,0 +1,17 @@
+{
+  "name": "COLOR WORLD — L’Herbier des Couleurs",
+  "short_name": "Herbier",
+  "start_url": "/ProjetFourmi/",
+  "scope": "/ProjetFourmi/",
+  "display": "standalone",
+  "background_color": "#f5f1e7",
+  "theme_color": "#365c49",
+  "icons": [
+    {
+      "src": "/ProjetFourmi/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
