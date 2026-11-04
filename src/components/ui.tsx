@@ -2,11 +2,11 @@ import React from 'react';
 import { Text, TextProps, Pressable, View, StyleSheet, ViewStyle } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 export const C = {
-  paper: '#f5f1e7',
-  card: '#fbf8f0',
+  paper: '#ebe0c9',
+  card: '#f4ead6',
   ink: '#293e34',
-  muted: '#787c6b',
-  line: '#dedccc',
+  muted: '#70694f',
+  line: '#d3c3a3',
   green: '#365c49',
   gold: '#af8b49',
 };
@@ -93,8 +93,10 @@ export const ui = StyleSheet.create({
     borderWidth: 1,
     borderColor: C.line,
     backgroundColor: C.card,
-    borderRadius: 8,
+    borderRadius: 4,
     padding: 24,
+    overflow: 'hidden',
+    zIndex: 0,
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   muted: { color: C.muted },

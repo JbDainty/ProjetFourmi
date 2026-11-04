@@ -8,6 +8,7 @@ const CormorantGaramond_400Regular = require('@expo-google-fonts/cormorant-garam
 const CormorantGaramond_500Medium_Italic = require('@expo-google-fonts/cormorant-garamond/500Medium_Italic/CormorantGaramond_500Medium_Italic.ttf');
 import { GameProvider, useGame } from '../src/state/store';
 import { T, Label, Icon, C, ui } from '../src/components/ui';
+import { PaperTexture } from '../src/components/Paper';
 import { basePath } from '../src/config/paths';
 const nav = [
   { path: '/', name: 'L’Atelier', icon: 'flask-outline' },
@@ -33,7 +34,8 @@ function Shell() {
         .catch(() => {});
   }, []);
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: C.paper }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: C.paper, zIndex: 0 }}>
+      <PaperTexture background />
       <StatusBar style="dark" />
       <View
         style={{

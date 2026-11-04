@@ -39,7 +39,7 @@ async function main() {
     expect(saved.completed['1'].stars).toBe(3);
     await page.getByRole('link', { name: 'Le Grand Herbier' }).click();
     await page.getByRole('button', { name: 'Observer Coquelicot', exact: true }).click();
-    await expect(page.getByText('Papaveraceae', { exact: false })).toBeVisible();
+    await expect(page.getByText('PLANCHE 01 · Papaveraceae', { exact: true })).toBeVisible();
     await page.screenshot({ path: 'test-results/herbier.png', fullPage: true });
     await page.getByRole('button', { name: 'Fermer la planche', exact: true }).click();
     await page.getByRole('link', { name: 'Paramètres', exact: true }).click();

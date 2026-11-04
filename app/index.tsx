@@ -1,3 +1,4 @@
+import { Paper } from '../src/components/Paper';
 import React, { useEffect, useRef, useState } from 'react';
 import { View, ScrollView, Pressable, Modal, Animated, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
@@ -125,7 +126,7 @@ export default function Atelier() {
         Triez les pigments. Révélez la beauté du vivant.
       </T>
       <View style={{ flexDirection: wide ? 'row' : 'column', gap: 23, alignItems: 'stretch' }}>
-        <View
+        <Paper
           style={[
             ui.card,
             {
@@ -417,8 +418,8 @@ export default function Atelier() {
               </Pressable>
             ))}
           </View>
-        </View>
-        <View
+        </Paper>
+        <Paper
           style={[
             ui.card,
             { flex: wide ? 1 : undefined, alignItems: 'center', padding: 21, overflow: 'hidden' },
@@ -429,7 +430,7 @@ export default function Atelier() {
             <Icon name="leaf-outline" size={17} color={C.gold} />
           </View>
           <Botanical index={plant} stage={stage} size={wide ? 260 : 280} />
-          <T serif style={{ fontSize: 31, lineHeight: 34, marginTop: -15 }}>
+          <T serif style={{ fontSize: 31, lineHeight: 34, marginTop: 5 }}>
             {s.name}
           </T>
           <T style={{ fontFamily: 'CormorantItalic', fontSize: 19, color: C.muted, marginTop: 4 }}>
@@ -451,7 +452,7 @@ export default function Atelier() {
           >
             <T style={{ fontSize: 11, color: C.green }}>Observer la planche ↗</T>
           </Pressable>
-        </View>
+        </Paper>
       </View>
       <View style={{ alignItems: 'center', paddingTop: 24 }}>
         <T style={{ fontSize: 10, color: C.muted, letterSpacing: 1 }}>
@@ -469,7 +470,7 @@ export default function Atelier() {
           }}
         >
           <ScrollView style={{ maxHeight: '95%', maxWidth: 480, width: '100%' }}>
-            <View style={[ui.card, { maxWidth: 480, width: '100%', alignItems: 'center' }]}>
+            <Paper style={[ui.card, { maxWidth: 480, width: '100%', alignItems: 'center' }]}>
               <Label>BIENVENUE DANS VOTRE HERBIER</Label>
               <Botanical index={0} stage={0} size={190} />
               <T serif style={{ fontSize: 36, lineHeight: 40, textAlign: 'center' }}>
@@ -482,7 +483,7 @@ export default function Atelier() {
               <Button onPress={() => setSave((v) => ({ ...v, started: true }))}>
                 Commencer la restauration
               </Button>
-            </View>
+            </Paper>
           </ScrollView>
         </View>
       </Modal>
@@ -501,7 +502,7 @@ export default function Atelier() {
           }}
         >
           <ScrollView style={{ maxHeight: '95%', width: '100%', maxWidth: 460 }}>
-            <View style={[ui.card, { alignItems: 'center' }]}>
+            <Paper style={[ui.card, { alignItems: 'center' }]}>
               <Label>
                 {save.current === 100
                   ? 'L’HERBIER RETROUVE SES COULEURS'
@@ -567,7 +568,7 @@ export default function Atelier() {
                   </Button>
                 </>
               )}
-            </View>
+            </Paper>
           </ScrollView>
         </View>
       </Modal>

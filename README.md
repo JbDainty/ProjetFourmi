@@ -123,7 +123,8 @@ Aucun compte, mesure d’audience ou service publicitaire actif. Les ressources 
 - `src/state/economy.ts` : cadeaux, graines et cosmétiques.
 - `src/state/store.tsx` : hydratation et persistance asynchrone.
 - `src/data/botany.ts` : vingt fiches et cinq écosystèmes.
-- `src/components/Botanical.tsx` : dessins SVG originaux, organes et cinq étapes de coloration, détails floraux et agrandissement.
+- `src/components/Paper.tsx` : texture de papier, vieillissement discret et encadrement des cartes.
+- `src/components/Botanical.tsx` : vingt planches à rendu aquarelle en atlas PNG, filtres et masques SVG pour cinq étapes de coloration, détails agrandissables.
 - `src/services/` : son/haptique et contrat des fournisseurs commerciaux.
 
 Les fiches et niveaux sont séparés de la présentation. Étendre le moteur au-delà de 100 niveaux demande de remplacer les bornes explicites et d’ajouter les données : aucune extension n’est annoncée comme automatique.
@@ -132,13 +133,13 @@ Les fiches et niveaux sont séparés de la présentation. Étendre le moteur au-
 
 Les vingt noms et familles ont été contrôlés le 4 novembre 2026 par l’API du **GBIF Backbone Taxonomy** : vingt correspondances exactes, acceptées. Les réponses et URL sont conservées dans `src/data/taxonomy.json`. `python3 scripts/check-botany.py` renouvelle ce contrôle en ligne. Ce contrôle porte sur la nomenclature, pas sur l’ensemble des textes ni sur la conformité scientifique des dessins. Les différences de référentiels (notamment Anemone/Anemonoides et les sous-espèces d’edelweiss) doivent être revues avec TAXREF avant une publication scientifique.
 
-Les descriptions signalent des caractères morphologiques usuels ; les périodes de floraison varient selon altitude et climat. Les dessins vectoriels distinguent notamment capsule et pétales du coquelicot, capitules du bleuet et de la marguerite, folioles et têtes florales du trèfle, clochettes, épis, bractées de l’edelweiss et tépales de l’iris. **Ils restent des illustrations stylisées : ils ne sont pas présentés comme vingt planches naturalistes aquarellées ayant reçu une validation botanique professionnelle.** Une passe d’illustration et de revue des fiches reste nécessaire pour atteindre cette qualité éditoriale du cahier des charges.
+Les descriptions signalent des caractères morphologiques usuels ; les périodes de floraison varient selon altitude et climat. Les vingt illustrations ont été remplacées par des images originales à rendu aquarelle naturaliste : nervures, fleurs, tiges, boutons et fruits propres aux espèces. Elles sont générées pour le projet, et leur provenance est documentée dans `ASSETS.md`. Le fond est un papier ivoire patiné, avec fibres, légères marques d’âge et fins encadrements. **La qualité visuelle ne constitue pas une validation botanique professionnelle.** Une revue indépendante des morphologies et des fiches reste nécessaire avant une publication scientifique.
 
 - GBIF : https://www.gbif.org/species/search
 - TAXREF / INPN : https://inpn.mnhn.fr/programme/referentiel-taxonomique-taxref
 - Plants of the World Online, Kew : https://powo.science.kew.org/
 
-Dessins SVG et son de versement synthétisé créés pour ce projet, sans image commerciale externe. Cormorant Garamond est distribué sous SIL Open Font License ; Ionicons via react-native-vector-icons sous MIT. Les notices sont incluses dans `public/licenses/` et l’export. Voir `ASSETS.md`.
+Illustrations, texture de papier et son de versement synthétisé créés pour ce projet, sans image commerciale externe. Cormorant Garamond est distribué sous SIL Open Font License ; Ionicons via react-native-vector-icons sous MIT. Les notices sont incluses dans `public/licenses/` et l’export. Voir `ASSETS.md`.
 
 ## Commerce et limites avant publication
 
@@ -146,4 +147,4 @@ La boutique fonctionnelle utilise les graines gagnées en jeu pour trois papiers
 
 Avant activation de revenus : intégrer les SDK retenus (Google Play Billing, StoreKit et fournisseur publicitaire), vérifier les achats côté serveur, gérer restauration et révocations, consentement/ATT, plafonnement réel, déclarations de confidentialité et tests sandbox. Les packs, encadrements saisonniers et la suppression des publicités ne sont pas implémentés comme produits achetables.
 
-La base Web jouable, les cent niveaux et la progression sont présents. La finition éditoriale des illustrations, l’équilibrage humain, les tests sur appareils, les achats réels et la préparation finale des boutiques restent à réaliser. La version Web de test est destinée à GitHub Pages. Aucune publication sur Google Play ou l’App Store, ni nouvelle publication de l’environnement cloud, n’est effectuée.
+La base Web jouable, les cent niveaux et la progression sont présents. La revue botanique et éditoriale, l’équilibrage humain, les tests sur appareils, les achats réels et la préparation finale des boutiques restent à réaliser. La version Web de test est destinée à GitHub Pages. Aucune publication sur Google Play ou l’App Store, ni nouvelle publication de l’environnement cloud, n’est effectuée.

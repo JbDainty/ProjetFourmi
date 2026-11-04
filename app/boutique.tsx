@@ -1,3 +1,4 @@
+import { Paper } from '../src/components/Paper';
 import React, { useState } from 'react';
 import { View, ScrollView } from 'react-native';
 import { useGame } from '../src/state/store';
@@ -15,7 +16,7 @@ export default function Boutique() {
         La Boutique
       </T>
       <T style={ui.muted}>Des détails à votre image. Le vivant reste accessible à tous.</T>
-      <View
+      <Paper
         style={[
           ui.card,
           {
@@ -39,14 +40,14 @@ export default function Boutique() {
         <Button disabled={save.daily === day} onPress={() => setSave((s) => dailyReward(s, day))}>
           {save.daily === day ? 'À demain' : 'Recueillir les graines'}
         </Button>
-      </View>
+      </Paper>
       <Label>LES PAPIERS DE L’ATELIER</Label>
       <View style={{ flexDirection: 'row', gap: 18, flexWrap: 'wrap', marginTop: 16 }}>
         {themes.map((t) => {
           const owned = save.owned.includes(t.id),
             active = save.theme === t.id;
           return (
-            <View key={t.id} style={[ui.card, { flex: 1, minWidth: 210 }]}>
+            <Paper key={t.id} style={[ui.card, { flex: 1, minWidth: 210 }]}>
               <View
                 style={{
                   height: 120,
@@ -73,11 +74,11 @@ export default function Boutique() {
               >
                 {active ? 'Papier utilisé' : owned ? 'Utiliser ce papier' : 'Acquérir ce papier'}
               </Button>
-            </View>
+            </Paper>
           );
         })}
       </View>
-      <View style={[ui.card, { marginTop: 25 }]}>
+      <Paper style={[ui.card, { marginTop: 25 }]}>
         <Label>LES AIDES À LA RESTAURATION</Label>
         <T serif style={{ fontSize: 28, marginTop: 10 }}>
           Du temps, jamais de contraintes.
@@ -101,7 +102,7 @@ export default function Boutique() {
           Services commerciaux indisponibles
         </Button>
         {!!note && <T>{note}</T>}
-      </View>
+      </Paper>
     </ScrollView>
   );
 }

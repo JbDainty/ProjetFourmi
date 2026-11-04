@@ -1,3 +1,4 @@
+import { Paper } from '../src/components/Paper';
 import React from 'react';
 import { View, ScrollView, Pressable } from 'react-native';
 import { router } from 'expo-router';
@@ -23,7 +24,7 @@ export default function Carte() {
             Boolean,
           ).length;
         return (
-          <View key={c.name} style={[ui.card, { marginBottom: 20, opacity: open ? 1 : 0.6 }]}>
+          <Paper key={c.name} style={[ui.card, { marginBottom: 20, opacity: open ? 1 : 0.6 }]}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 15 }}>
               <View style={{ flex: 1 }}>
                 <Label>
@@ -113,7 +114,7 @@ export default function Carte() {
                 </View>
               </View>
             )}
-          </View>
+          </Paper>
         );
       })}
     </ScrollView>

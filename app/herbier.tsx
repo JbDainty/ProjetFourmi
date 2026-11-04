@@ -1,3 +1,4 @@
+import { Paper, PaperTexture } from '../src/components/Paper';
 import React, { useState } from 'react';
 import { View, ScrollView, Pressable, Modal, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
@@ -29,10 +30,10 @@ export default function Herbier() {
         style={[ui.row, { marginVertical: 25, justifyContent: 'space-between', flexWrap: 'wrap' }]}
       >
         <View style={ui.row}>
-          <Button secondary={!pigments} onPress={() => setPigments(false)}>
+          <Button secondary={pigments} onPress={() => setPigments(false)}>
             Les planches
           </Button>
-          <Button secondary={pigments} onPress={() => setPigments(true)}>
+          <Button secondary={!pigments} onPress={() => setPigments(true)}>
             Les pigments
           </Button>
         </View>
@@ -44,7 +45,7 @@ export default function Herbier() {
             <T style={ui.muted}>Votre premier pigment vous attend à l’atelier.</T>
           ) : (
             save.pigments.map((p) => (
-              <View key={p.id} style={[ui.card, { width: width < 600 ? '100%' : 230 }]}>
+              <Paper key={p.id} style={[ui.card, { width: width < 600 ? '100%' : 230 }]}>
                 <View
                   style={{
                     height: 75,
@@ -63,7 +64,7 @@ export default function Herbier() {
                 <T style={{ fontSize: 10, marginTop: 10, color: C.muted }}>
                   Découvert le {new Date(p.discovered).toLocaleDateString('fr-FR')}
                 </T>
-              </View>
+              </Paper>
             ))
           )}
         </View>
@@ -90,6 +91,7 @@ export default function Herbier() {
                   },
                 ]}
               >
+                <PaperTexture framed />
                 <View
                   style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}
                 >
@@ -149,7 +151,8 @@ export default function Herbier() {
                 borderRadius: 8,
               }}
             >
-              <View style={{ padding: 26 }}>
+              <View style={{ padding: 26, zIndex: 0 }}>
+                <PaperTexture framed />
                 <View
                   style={{
                     flexDirection: 'row',

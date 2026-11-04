@@ -1,3 +1,4 @@
+import { Paper } from '../src/components/Paper';
 import React, { useState } from 'react';
 import { ScrollView, View, Switch, TextInput } from 'react-native';
 import { useGame } from '../src/state/store';
@@ -32,7 +33,7 @@ export default function Parametres() {
       <T serif style={ui.title}>
         Les réglages du carnet
       </T>
-      <View style={[ui.card, { marginTop: 20 }]}>
+      <Paper style={[ui.card, { marginTop: 20 }]}>
         {options.map((o, i) => (
           <View
             key={o.key}
@@ -60,8 +61,8 @@ export default function Parametres() {
             />
           </View>
         ))}
-      </View>
-      <View style={[ui.card, { marginTop: 22 }]}>
+      </Paper>
+      <Paper style={[ui.card, { marginTop: 22 }]}>
         <Label>VOTRE PARCOURS</Label>
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 26 }}>
           {[
@@ -77,8 +78,8 @@ export default function Parametres() {
             </View>
           ))}
         </View>
-      </View>
-      <View style={[ui.card, { marginTop: 22 }]}>
+      </Paper>
+      <Paper style={[ui.card, { marginTop: 22 }]}>
         <Label>CONSERVER VOTRE HERBIER</Label>
         <T style={{ marginVertical: 14, color: C.muted }}>
           Votre progression est enregistrée automatiquement sur cet appareil. Conservez une copie du
@@ -153,13 +154,14 @@ export default function Parametres() {
         <T accessibilityLiveRegion="polite" style={{ marginTop: 12, fontSize: 12, color: C.muted }}>
           {note || error || 'Sauvegarde locale automatique · format version 2'}
         </T>
-      </View>
-      <View style={[ui.card, { marginTop: 22 }]}>
+      </Paper>
+      <Paper style={[ui.card, { marginTop: 22 }]}>
         <Label>CONFIDENTIALITÉ & CRÉDITS</Label>
         <T style={{ marginTop: 14, fontSize: 13, color: C.muted, lineHeight: 23 }}>
           Aucun compte, aucune mesure d’audience, aucune publicité active. La progression reste dans
-          le stockage local de votre appareil. Les sons et dessins SVG ont été créés pour ce projet.
-          Aucun conseil de consommation ou d’usage médicinal n’est fourni.
+          le stockage local de votre appareil. Les sons, illustrations numériques à rendu aquarelle
+          et textures de papier ont été créés pour ce projet. Aucun conseil de consommation ou
+          d’usage médicinal n’est fourni.
         </T>
         <T style={{ marginTop: 15, fontSize: 12, color: C.muted }}>
           Les périodes de floraison sont indicatives. La nomenclature et les illustrations doivent
@@ -171,7 +173,7 @@ export default function Parametres() {
           COLOR WORLD · Volume I
         </T>
         <T style={{ fontSize: 11, color: C.muted }}>L’Herbier des Couleurs · version 1.0.0</T>
-      </View>
+      </Paper>
     </ScrollView>
   );
 }
