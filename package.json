@@ -17,7 +17,8 @@
     "format": "prettier --write app src scripts tests *.json *.ts *.md",
     "deploy:pages": "node scripts/deploy-pages.mjs",
     "test:pouring": "node --import tsx scripts/pouring-smoke.ts",
-    "test:greenhouse": "node --import tsx scripts/greenhouse-smoke.ts"
+    "test:greenhouse": "node --import tsx scripts/greenhouse-smoke.ts",
+    "test:mobile-herbarium": "node --import tsx scripts/mobile-herbarium-smoke.ts"
   },
   "dependencies": {
     "@expo-google-fonts/alegreya": "^0.4.2",

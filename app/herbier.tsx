@@ -30,11 +30,11 @@ export default function Herbier() {
       <View
         style={[ui.row, { marginVertical: 25, justifyContent: 'space-between', flexWrap: 'wrap' }]}
       >
-        <View style={ui.row}>
-          <Button secondary={pigments} onPress={() => setPigments(false)}>
+        <View style={[ui.row, { flexWrap: 'wrap' }]}>
+          <Button icon="book-outline" secondary={pigments} onPress={() => setPigments(false)}>
             Les planches
           </Button>
-          <Button secondary={!pigments} onPress={() => setPigments(true)}>
+          <Button icon="water-outline" secondary={!pigments} onPress={() => setPigments(true)}>
             Les pigments
           </Button>
         </View>
@@ -205,7 +205,12 @@ export default function Herbier() {
                     ? ` · Achevée le ${new Date(save.completed[(selected + 1) * 5].date).toLocaleDateString('fr-FR')}`
                     : ''}
                 </T>
-                <Button secondary onPress={() => select(null)} style={{ marginTop: 22 }}>
+                <Button
+                  icon="book-outline"
+                  secondary
+                  onPress={() => select(null)}
+                  style={{ marginTop: 22 }}
+                >
                   Refermer la planche
                 </Button>
               </View>

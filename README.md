@@ -47,6 +47,10 @@ Pour une installation reproductible, utiliser `npm ci` avec le fichier `package-
 
 Les annulations, indices et reprises sont gratuits. Les étoiles comparent le nombre de mouvements à un parcours de référence vérifié, **pas à un optimum mathématique**. Rejouer peut améliorer les étoiles sans dupliquer les graines ou les pigments. Une nouvelle espèce s’ouvre après cinq niveaux, un écosystème après vingt. Le niveau 100 termine la collection sans charger de niveau 101.
 
+Sur téléphone et tablette, un timbre botanique accompagne le chapitre dans l’atelier. Il reprend la plante et ses pigments déjà restaurés ; ses cinq points indiquent l’avancement. Toucher le timbre ouvre la planche en grand, puis « Revenir au jeu » retrouve le puzzle et la sélection en cours. La grande planche reste à côté du jeu sur les écrans larges. Les icônes des commandes et de la navigation sont des dessins SVG originaux inspirés des herbiers, avec leurs libellés conservés.
+
+`npm run test:mobile-herbarium` vérifie le timbre, sa progression persistante, l’ouverture sans perte de sélection et les présentations à 320, 390 et 1440 pixels. Comme les autres tests navigateur, il accepte `GAME_TEST_URL` pour viser un serveur de prévisualisation.
+
 ## La serre et ses porte-tubes
 
 La zone de puzzle est un atelier de serre à verrière ancienne, avec une lumière végétale douce et une table en bois. Le décor est une image originale embarquée, distincte des flacons. Les supports sont des éléments SVG : trous, barres de maintien, socle, montants et détails de laiton. Chaque rangée possède son porte-tubes et les configurations à plusieurs rangées utilisent un bâti commun. Les trous restent visibles lorsqu’un flacon est soulevé.
@@ -154,6 +158,8 @@ Aucun compte, mesure d’audience ou service publicitaire actif. Les ressources 
 - `src/components/Paper.tsx` : texture de papier et vieillissement discret.
 - `src/components/FoliageFrame.tsx` : encadrements végétaux adaptatifs, tiges courbes, feuilles nervurées et rameaux d’angle. Les cadres des planches et des chapitres passent du sépia au vert avec la restauration. Les ornements sont non interactifs et restent dans les marges.
 - `src/components/Botanical.tsx` : vingt planches à rendu aquarelle en atlas PNG, filtres et masques SVG pour cinq étapes de coloration, détails agrandissables.
+- `src/components/BotanicalStamp.tsx` : aperçu mobile de la planche courante, timbre dentelé et progression partagée avec l’herbier.
+- `src/components/BotanicalIcon.tsx` : pictogrammes botaniques SVG originaux, communs aux commandes et à la navigation.
 - `src/services/` : son/haptique et contrat des fournisseurs commerciaux.
 
 Les fiches et niveaux sont séparés de la présentation. Étendre le moteur au-delà de 100 niveaux demande de remplacer les bornes explicites et d’ajouter les données : aucune extension n’est annoncée comme automatique.

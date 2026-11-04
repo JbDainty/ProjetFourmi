@@ -4,6 +4,8 @@
 - `assets/illustrations/papier.png` : texture originale de papier ancien générée pour le projet avec le même outil. Le grain, les fibres et les légères marques d’âge sont intégrés en fond sans intercepter les gestes.
 - `src/components/Botanical.tsx` : cadrage des vingt spécimens, filtre d’encre sépia et révélation progressive des tiges, feuillages, fleurs, détails et nuances au moyen de filtres et masques SVG. Les atlas PNG restent inchangés. Les limites réelles de chaque spécimen sont mesurées dans `src/data/illustrations.ts` : le cadrage garde les proportions et exclut les fragments de plantes voisines, même lorsqu’une feuille dépasse un quadrant.
 - `src/components/Paper.tsx` : composition du fond et des planches sur papier ivoire patiné.
+- `src/components/BotanicalIcon.tsx` : pictogrammes SVG originaux dessinés pour le projet : rameaux, feuilles nervurées, fleur, loupe de naturaliste, carnet et graines. Ils remplacent les pictogrammes génériques dans les commandes et la navigation.
+- `src/components/BotanicalStamp.tsx` : timbre dentelé original en SVG, réutilisant les illustrations et les étapes de restauration existantes.
 - `src/components/FoliageFrame.tsx` : ornements SVG originaux créés pour le projet, avec tiges sinueuses, feuilles nervurées et rameaux d’angle. Le tracé s’adapte à la taille de chaque cadre ; sa couleur accompagne la restauration du chapitre ou de la planche. Aucune bordure commerciale ou image de cadre externe.
 - `assets/pour.wav` : son synthétique original généré à partir d’oscillations et de bruit avec une enveloppe douce ; aucune bibliothèque sonore tierce.
 - `public/icon.svg` : dessin original pour l’application Web. Les icônes de soumission aux boutiques restent à préparer.

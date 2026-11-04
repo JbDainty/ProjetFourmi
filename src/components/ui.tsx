@@ -1,7 +1,8 @@
 import React from 'react';
 import { Text, TextProps, Pressable, View, StyleSheet, ViewStyle } from 'react-native';
 import { F } from './fonts';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { BotanicalIcon as Icon, type BotanicalIconName } from './BotanicalIcon';
+export { Icon };
 export const C = {
   paper: '#ebe0c9',
   card: '#f4ead6',
@@ -42,29 +43,20 @@ export function Label({ children }: { children: React.ReactNode }) {
     <T style={{ fontSize: 10, letterSpacing: 2, color: C.muted, fontWeight: '600' }}>{children}</T>
   );
 }
-export function Icon({
-  name,
-  size = 20,
-  color = C.ink,
-}: {
-  name: React.ComponentProps<typeof Ionicons>['name'];
-  size?: number;
-  color?: string;
-}) {
-  return <Ionicons name={name} size={size} color={color} />;
-}
 export function Button({
   children,
   onPress,
   secondary = false,
   disabled = false,
   style,
+  icon = 'leaf-outline',
 }: {
   children: React.ReactNode;
   onPress: () => void;
   secondary?: boolean;
   disabled?: boolean;
   style?: ViewStyle;
+  icon?: BotanicalIconName;
 }) {
   return (
     <Pressable
@@ -82,12 +74,22 @@ export function Button({
           opacity: disabled ? 0.35 : pressed ? 0.7 : 1,
           alignItems: 'center',
           justifyContent: 'center',
+          flexDirection: 'row',
+          gap: 9,
           minHeight: 48,
         },
         style,
       ]}
     >
-      <T style={{ color: secondary ? C.ink : '#fffaf0', fontSize: 13, fontWeight: '500' }}>
+      <Icon name={icon} size={19} color={secondary ? C.green : '#fff4dd'} />
+      <T
+        style={{
+          color: secondary ? C.ink : '#fffaf0',
+          fontSize: 13,
+          fontWeight: '500',
+          flexShrink: 1,
+        }}
+      >
         {children}
       </T>
     </Pressable>

@@ -37,7 +37,11 @@ export default function Boutique() {
             Une petite réserve de 15 graines, chaque jour.
           </T>
         </View>
-        <Button disabled={save.daily === day} onPress={() => setSave((s) => dailyReward(s, day))}>
+        <Button
+          icon="seed-outline"
+          disabled={save.daily === day}
+          onPress={() => setSave((s) => dailyReward(s, day))}
+        >
           {save.daily === day ? 'À demain' : 'Recueillir les graines'}
         </Button>
       </Paper>
@@ -68,6 +72,7 @@ export default function Boutique() {
                 {owned ? 'Dans votre collection' : `${t.cost} graines dorées`}
               </T>
               <Button
+                icon="leaf-outline"
                 secondary
                 disabled={active || (!owned && save.seeds < t.cost)}
                 onPress={() => setSave((s) => acquireTheme(s, t.id))}
@@ -94,6 +99,7 @@ export default function Boutique() {
           commercialisés.
         </T>
         <Button
+          icon="lock-closed-outline"
           secondary
           disabled={!commerce.available}
           onPress={() => setNote('Le fournisseur commercial n’est pas configuré.')}

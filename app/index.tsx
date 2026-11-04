@@ -10,6 +10,7 @@ import levels from '../src/data/levels.json';
 import { species, chapters } from '../src/data/botany';
 import { LiquidBoard } from '../src/components/LiquidBoard';
 import { Botanical } from '../src/components/Botanical';
+import { BotanicalStamp } from '../src/components/BotanicalStamp';
 import { T, Label, Icon, Button, Progress, C, ui } from '../src/components/ui';
 import { feedback } from '../src/services/feedback';
 export default function Atelier() {
@@ -23,7 +24,8 @@ export default function Atelier() {
     [busy, setBusy] = useState(false),
     [pouring, setPouring] = useState<Move | null>(null),
     [reveal, setReveal] = useState(false),
-    [dismissed, setDismissed] = useState(false);
+    [dismissed, setDismissed] = useState(false),
+    [plateOpen, setPlateOpen] = useState(false);
   const fade = useRef(new Animated.Value(0)).current,
     timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const plant = Math.floor((save.current - 1) / 5),
@@ -38,6 +40,7 @@ export default function Atelier() {
     setMessage('');
     setReveal(false);
     setDismissed(false);
+    setPlateOpen(false);
   }, [save.current]);
   useEffect(
     () => () => {
@@ -114,18 +117,29 @@ export default function Atelier() {
   };
   return (
     <ScrollView contentContainerStyle={[ui.page, width < 800 && { padding: 20 }]}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: wide ? 0 : 12,
+        }}
+      >
         <Label>LE CARNET DE RESTAURATION</Label>
         <T style={{ fontSize: 11, color: C.muted }}>
           NIVEAU {String(save.current).padStart(2, '0')} / 100
         </T>
       </View>
-      <T serif style={[ui.title, width < 800 && { fontSize: 34, lineHeight: 38 }]}>
-        {width < 800 ? 'L’Atelier' : <>Un peu de couleur,{`\n`}beaucoup de vie.</>}
-      </T>
-      <T style={{ color: C.muted, marginBottom: width < 800 ? 18 : 28, fontSize: 13 }}>
-        Triez les pigments. Révélez la beauté du vivant.
-      </T>
+      {wide && (
+        <>
+          <T serif style={[ui.title, width < 800 && { fontSize: 34, lineHeight: 38 }]}>
+            {width < 800 ? 'L’Atelier' : <>Un peu de couleur,{`\n`}beaucoup de vie.</>}
+          </T>
+          <T style={{ color: C.muted, marginBottom: width < 800 ? 18 : 28, fontSize: 13 }}>
+            Triez les pigments. Révélez la beauté du vivant.
+          </T>
+        </>
+      )}
       <View style={{ flexDirection: wide ? 'row' : 'column', gap: 23, alignItems: 'stretch' }}>
         <Paper
           style={[
@@ -139,21 +153,73 @@ export default function Atelier() {
             },
           ]}
         >
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <View style={{ flex: 1 }}>
-              <Label>
-                CHAPITRE {chapter + 1} · {chapters[chapter].name.toLocaleUpperCase('fr')}
-              </Label>
-              <T serif style={{ fontSize: width < 800 ? 26 : 30, lineHeight: 36, marginTop: 9 }}>
-                La serre des pigments
+          {!wide ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+              <BotanicalStamp
+                index={plant}
+                stage={stage}
+                disabled={busy}
+                onPress={() => setPlateOpen(true)}
+              />
+              <View style={{ flex: 1 }}>
+                <Label>CHAPITRE {String(chapter + 1).padStart(2, '0')}</Label>
+                <T style={{ fontSize: 12, lineHeight: 17, color: C.muted }}>
+                  {chapters[chapter].name}
+                </T>
+                <T serif style={{ fontSize: width < 360 ? 23 : 26, lineHeight: 30, marginTop: 4 }}>
+                  {s.name}
+                </T>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 6 }}>
+                  <Icon name="leaf-outline" size={15} color={C.green} />
+                  <T style={{ fontSize: 11, lineHeight: 17, color: C.green }}>
+                    {stage} / 5 pigments restaurés
+                  </T>
+                </View>
+              </View>
+            </View>
+          ) : (
+            <>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <View style={{ flex: 1 }}>
+                  <Label>
+                    CHAPITRE {chapter + 1} · {chapters[chapter].name.toLocaleUpperCase('fr')}
+                  </Label>
+                  <T
+                    serif
+                    style={{ fontSize: width < 800 ? 26 : 30, lineHeight: 36, marginTop: 9 }}
+                  >
+                    La serre des pigments
+                  </T>
+                </View>
+                <View style={{ alignItems: 'center' }}>
+                  <Icon name="water-outline" color={C.gold} />
+                  <T style={{ fontSize: 10, color: C.muted, marginTop: 4 }}>
+                    {save.moves} mouvements
+                  </T>
+                </View>
+              </View>
+            </>
+          )}
+          {!wide && (
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: 8,
+                gap: 12,
+              }}
+            >
+              <T style={{ flex: 1, fontSize: 10, lineHeight: 14, color: C.muted }}>
+                Touchez le timbre pour observer la planche
               </T>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Icon name="water-outline" size={15} color={C.gold} />
+                <T style={{ fontSize: 11 }}>{save.moves} mouvements</T>
+              </View>
             </View>
-            <View style={{ alignItems: 'center' }}>
-              <Icon name="water-outline" color={C.gold} />
-              <T style={{ fontSize: 10, color: C.muted, marginTop: 4 }}>{save.moves} mouvements</T>
-            </View>
-          </View>
-          <View style={{ height: 1, backgroundColor: C.line, marginTop: 22 }} />
+          )}
+          <View style={{ height: 1, backgroundColor: C.line, marginTop: wide ? 22 : 10 }} />
           {save.current === 1 && width >= 800 && (
             <T style={{ fontSize: 12, color: C.muted, textAlign: 'center', marginTop: 18 }}>
               Touchez un flacon, puis un autre pour verser.
@@ -242,53 +308,134 @@ export default function Atelier() {
                   opacity: a.disabled ? 0.35 : 1,
                 }}
               >
-                <Icon name={a.icon as 'bulb-outline'} color={C.green} />
+                <Icon size={25} name={a.icon as 'bulb-outline'} color={C.green} />
                 <T style={{ fontSize: 11 }}>{a.name}</T>
               </Pressable>
             ))}
           </View>
         </Paper>
-        <Paper
-          vitality={stage / 5}
-          style={[
-            ui.card,
-            { flex: wide ? 1 : undefined, alignItems: 'center', padding: 21, overflow: 'hidden' },
-          ]}
-        >
-          <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Label>PLANCHE {String(plant + 1).padStart(2, '0')}</Label>
-            <Icon name="leaf-outline" size={17} color={C.gold} />
-          </View>
-          <Botanical index={plant} stage={stage} size={wide ? 260 : 280} />
-          <T serif style={{ fontSize: 31, lineHeight: 34, marginTop: 5 }}>
-            {s.name}
-          </T>
-          <T style={{ fontFamily: F.scientific, fontSize: 19, color: C.muted, marginTop: 4 }}>
-            {s.latin}
-          </T>
-          <View style={{ width: '100%', marginTop: 23 }}>
-            <View
-              style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}
-            >
-              <T style={{ fontSize: 11, color: C.muted }}>Restauration de la planche</T>
-              <T style={{ fontSize: 11, color: C.green }}>{stage} / 5 pigments</T>
-            </View>
-            <Progress value={stage / 5} />
-          </View>
-          <Pressable
-            accessibilityRole="link"
-            onPress={() => router.push({ pathname: '/herbier', params: { plant: String(plant) } })}
-            style={{ paddingTop: 18, paddingBottom: 4 }}
+        {wide && (
+          <Paper
+            testID="atelier-full-plate"
+            vitality={stage / 5}
+            style={[
+              ui.card,
+              { flex: wide ? 1 : undefined, alignItems: 'center', padding: 21, overflow: 'hidden' },
+            ]}
           >
-            <T style={{ fontSize: 11, color: C.green }}>Observer la planche ↗</T>
-          </Pressable>
-        </Paper>
+            <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}>
+              <Label>PLANCHE {String(plant + 1).padStart(2, '0')}</Label>
+              <Icon name="leaf-outline" size={17} color={C.gold} />
+            </View>
+            <Botanical index={plant} stage={stage} size={wide ? 260 : 280} />
+            <T serif style={{ fontSize: 31, lineHeight: 34, marginTop: 5 }}>
+              {s.name}
+            </T>
+            <T style={{ fontFamily: F.scientific, fontSize: 19, color: C.muted, marginTop: 4 }}>
+              {s.latin}
+            </T>
+            <View style={{ width: '100%', marginTop: 23 }}>
+              <View
+                style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}
+              >
+                <T style={{ fontSize: 11, color: C.muted }}>Restauration de la planche</T>
+                <T style={{ fontSize: 11, color: C.green }}>{stage} / 5 pigments</T>
+              </View>
+              <Progress value={stage / 5} />
+            </View>
+            <Pressable
+              accessibilityRole="link"
+              onPress={() =>
+                router.push({ pathname: '/herbier', params: { plant: String(plant) } })
+              }
+              style={{ paddingTop: 18, paddingBottom: 4 }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Icon name="eye-outline" size={18} color={C.green} />
+                <T style={{ fontSize: 11, color: C.green }}>Observer la planche</T>
+              </View>
+            </Pressable>
+          </Paper>
+        )}
       </View>
-      <View style={{ alignItems: 'center', paddingTop: 24 }}>
+      <View style={{ alignItems: 'center', paddingTop: wide ? 24 : 12 }}>
         <T style={{ fontSize: 10, color: C.muted, letterSpacing: 1 }}>
           PRENEZ VOTRE TEMPS. LA NATURE AUSSI.
         </T>
       </View>
+      <Modal
+        visible={plateOpen && save.started}
+        transparent
+        animationType={save.settings.motion ? 'fade' : 'none'}
+        onRequestClose={() => setPlateOpen(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: '#233e31b0',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 20,
+          }}
+        >
+          <ScrollView style={{ width: '100%', maxWidth: 620, maxHeight: '94%' }}>
+            <Paper
+              testID="current-plate-dialog"
+              vitality={stage / 5}
+              style={[ui.card, { alignItems: 'center' }]}
+            >
+              <View
+                style={{
+                  width: '100%',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Label>
+                  PLANCHE {String(plant + 1).padStart(2, '0')} · {s.family}
+                </Label>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Fermer la planche"
+                  onPress={() => setPlateOpen(false)}
+                  style={{
+                    minWidth: 44,
+                    minHeight: 44,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Icon name="close-outline" size={24} />
+                </Pressable>
+              </View>
+              <Botanical index={plant} stage={stage} size={Math.min(width - 100, 370)} />
+              <T serif style={{ fontSize: 33, lineHeight: 39, textAlign: 'center', marginTop: 8 }}>
+                {s.name}
+              </T>
+              <T
+                style={{
+                  fontFamily: F.scientific,
+                  fontSize: 21,
+                  color: C.muted,
+                  textAlign: 'center',
+                }}
+              >
+                {s.latin}
+              </T>
+              <View style={{ width: '100%', marginVertical: 22 }}>
+                <T style={{ fontSize: 12, color: C.muted, textAlign: 'center', marginBottom: 9 }}>
+                  {stage} / 5 pigments restaurés
+                </T>
+                <Progress value={stage / 5} />
+              </View>
+              <Button icon="flask-outline" onPress={() => setPlateOpen(false)}>
+                Revenir au jeu
+              </Button>
+            </Paper>
+          </ScrollView>
+        </View>
+      </Modal>
       <Modal visible={!save.started} transparent animationType="fade">
         <View
           style={{
@@ -310,7 +457,7 @@ export default function Atelier() {
                 Remplissez chaque flacon avec une seule couleur. Les autres flacons doivent être
                 vides. Chaque énigme redonne vie à une planche botanique.
               </T>
-              <Button onPress={() => setSave((v) => ({ ...v, started: true }))}>
+              <Button icon="leaf-outline" onPress={() => setSave((v) => ({ ...v, started: true }))}>
                 Commencer la restauration
               </Button>
             </Paper>
@@ -355,7 +502,9 @@ export default function Atelier() {
                     stage={replay ? stage : Math.max(0, stage - 1)}
                     size={200}
                   />
-                  <Button onPress={restorePigment}>✧ Révéler la couleur</Button>
+                  <Button icon="water-outline" onPress={restorePigment}>
+                    Révéler la couleur
+                  </Button>
                   <Pressable
                     accessibilityRole="button"
                     onPress={() => {
@@ -381,12 +530,11 @@ export default function Atelier() {
                       ? '20 planches · 100 pigments · 5 écosystèmes'
                       : 'Le vivant reprend ses couleurs.'}
                   </T>
-                  <Button onPress={next}>
-                    {save.current === 100
-                      ? 'Contempler mon herbier'
-                      : 'Poursuivre la restauration →'}
+                  <Button icon="arrow-forward-outline" onPress={next}>
+                    {save.current === 100 ? 'Contempler mon herbier' : 'Poursuivre la restauration'}
                   </Button>
                   <Button
+                    icon="book-outline"
                     secondary
                     onPress={() => {
                       setDismissed(true);

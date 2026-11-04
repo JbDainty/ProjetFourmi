@@ -88,6 +88,7 @@ export default function Parametres() {
           supprime la copie locale.
         </T>
         <Button
+          icon="archive-outline"
           secondary
           onPress={() => {
             setBackup(JSON.stringify(save));
@@ -120,6 +121,7 @@ export default function Parametres() {
           <View style={{ gap: 10 }}>
             <T>Remplacer la progression actuelle par cette sauvegarde ?</T>
             <Button
+              icon="book-outline"
               onPress={() => {
                 try {
                   const restored = restore(backup);
@@ -133,12 +135,13 @@ export default function Parametres() {
             >
               Confirmer la restauration
             </Button>
-            <Button secondary onPress={() => setConfirm(false)}>
+            <Button icon="arrow-undo-outline" secondary onPress={() => setConfirm(false)}>
               Annuler
             </Button>
           </View>
         ) : (
           <Button
+            icon="book-outline"
             secondary
             disabled={!backup.trim()}
             onPress={() => {
