@@ -24,7 +24,7 @@ export function PencilNote({ text, handwritten, motion, request }: Props) {
   const textRef = useRef<Text>(null);
 
   useEffect(() => {
-    if (!animated) return;
+    if (!animated || !characters.length) return;
     let cursor = 0;
     let timer: ReturnType<typeof setTimeout>;
     setReveal({ key, count: 0 });

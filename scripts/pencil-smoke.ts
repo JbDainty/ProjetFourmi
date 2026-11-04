@@ -1,6 +1,8 @@
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import levels from '../src/data/levels.json';
+import { botanicalFact } from '../src/data/botanicalFacts';
+import { initial, loadLevel, move } from '../src/state/model';
 import { openScreen } from './navigation-test-helper';
 
 async function main() {
@@ -20,6 +22,7 @@ async function main() {
     await page.goto(url);
     await page.getByRole('button', { name: 'Commencer la restauration' }).click();
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 01');
+    await expect(note).toHaveText(botanicalFact(1));
     await expect(page.getByText(/\b\d+ mouvements?\b/)).toHaveCount(0);
     for (const width of [320, 390]) {
       await page.setViewportSize({ width, height: 844 });
@@ -55,6 +58,22 @@ async function main() {
         attributes: true,
       });
     });
+    // Sample what would be painted, from the click through the final letter.
+    // A search message or a fully rendered hint before typing is a regression.
+    // Keep the recursive sampler as browser JavaScript, without TSX helpers.
+    await page.evaluate(`
+      document.querySelector('[aria-label="Indice"]').addEventListener('click', () => {
+        const frames = [];
+        window.hintPaintFrames = frames;
+        const sample = () => {
+          const node = document.querySelector('[data-testid="hint-writing-text"]');
+          const text = node.textContent || '';
+          frames.push({ text, font: getComputedStyle(node).fontFamily });
+          if (frames.length < 240 && !(text === ${JSON.stringify(fullHint)} && !document.querySelector('[data-testid="hint-pencil"]'))) requestAnimationFrame(sample);
+        };
+        requestAnimationFrame(sample);
+      }, { once: true, capture: true });
+    `);
     await page.getByRole('button', { name: 'Indice', exact: true }).click();
     await expect(page.getByTestId('pencil-note-writing')).toBeVisible();
     await page.waitForTimeout(240);
@@ -65,6 +84,17 @@ async function main() {
     await page.screenshot({ path: 'test-results/pencil-writing.png', fullPage: true });
     await expect(note).toHaveText(fullHint);
     await expect(page.getByTestId('hint-pencil')).toHaveCount(0);
+    const paints = await page.evaluate(
+      () =>
+        (window as unknown as { hintPaintFrames: { text: string; font: string }[] })
+          .hintPaintFrames,
+    );
+    expect(paints.length).toBeGreaterThan(5);
+    expect(paints[0].text).not.toBe(fullHint);
+    expect(paints.every((paint) => fullHint.startsWith(paint.text))).toBe(true);
+    expect(
+      paints.every((paint) => !paint.text || paint.font.includes('HerbariumHandwriting')),
+    ).toBe(true);
     const samples = await page.evaluate(
       () =>
         (window as unknown as { pencilSamples: { text: string; x: number; y: number }[] })
@@ -83,7 +113,7 @@ async function main() {
     await page.getByRole('button', { name: /^Flacon 2,/ }).click();
     await expect(page.getByTestId('hint-pencil')).toHaveCount(0);
     await page.waitForTimeout(180);
-    await expect(note).toHaveText('Touchez un flacon, puis un autre pour verser.');
+    await expect(note).toHaveText(botanicalFact(1));
     await openScreen(page, 'Paramètres');
     await page.getByRole('switch', { name: 'Animations douces' }).click();
     await openScreen(page, 'L’Atelier');
@@ -99,15 +129,48 @@ async function main() {
     );
     await page.screenshot({ path: 'test-results/page-result-movements.png', fullPage: true });
     await page.getByRole('button', { name: 'Passer l’animation' }).click();
+    await expect(page.getByText('VOTRE HERBIER REPREND VIE', { exact: true })).toBeVisible();
+    await expect(page.getByTestId('restoration-botanical-fact')).toHaveText(
+      botanicalFact(1, 'reveal'),
+    );
+    await page.screenshot({ path: 'test-results/restoration-botanical-fact.png', fullPage: true });
     await page.getByRole('button', { name: 'Poursuivre la restauration' }).click();
+    await expect(note).toHaveText(botanicalFact(2));
     await expect(page.getByTestId('page-result-moves')).toHaveCount(0);
     await expect(page.getByText(/\b\d+ mouvements?\b/)).toHaveCount(0);
+    // A new species gets its own annotations, in play and after the reveal.
     await page.setViewportSize({ width: 1440, height: 1000 });
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 02');
     await expect(page.getByText(/\b\d+ mouvements?\b/)).toHaveCount(0);
+    let nextPlant = { ...initial(), started: true };
+    nextPlant.settings.motion = false;
+    for (const level of levels.slice(0, 5)) {
+      nextPlant = loadLevel(nextPlant, level.id);
+      for (const m of level.solution) nextPlant = move(nextPlant, m.from, m.to);
+    }
+    nextPlant = loadLevel(nextPlant, 6);
+    await page.evaluate(
+      (save) => localStorage.setItem('color-world.save', JSON.stringify(save)),
+      nextPlant,
+    );
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(url);
+    await expect(page.getByTestId('current-botanical-stamp')).toHaveAccessibleName(
+      'Ouvrir la planche de Bleuet, 0 pigments sur 5',
+    );
+    await expect(note).toHaveText(botanicalFact(6));
+    expect(botanicalFact(6)).not.toBe(botanicalFact(1));
+    for (const m of levels[5].solution) {
+      await page.getByRole('button', { name: new RegExp(`^Flacon ${m.from + 1},`) }).click();
+      await page.getByRole('button', { name: new RegExp(`^Flacon ${m.to + 1},`) }).click();
+    }
+    await page.getByRole('button', { name: 'Passer l’animation' }).click();
+    await expect(page.getByTestId('restoration-botanical-fact')).toHaveText(
+      botanicalFact(6, 'reveal'),
+    );
     expect(errors).toEqual([]);
     console.log(
-      'Pencil: progressive handwritten hint, moving pencil, repeated request, cancellation, reduced motion, command typography, styled folio and moves only after victory passed.',
+      'Pencil: no painted flash before writing, progressive hint, moving pencil, cancellation, reduced motion, botanical facts per page and species, restoration wording and results-only moves passed.',
     );
   } finally {
     await browser.close();

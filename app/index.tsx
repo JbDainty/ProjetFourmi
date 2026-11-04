@@ -8,6 +8,7 @@ import { loadLevel, move, undo, restoration } from '../src/state/model';
 import { won, solve, pour, Move } from '../src/engine/puzzle';
 import levels from '../src/data/levels.json';
 import { species, chapters } from '../src/data/botany';
+import { botanicalFact } from '../src/data/botanicalFacts';
 import { LiquidBoard } from '../src/components/LiquidBoard';
 import { Botanical } from '../src/components/Botanical';
 import { BotanicalStamp } from '../src/components/BotanicalStamp';
@@ -15,15 +16,14 @@ import { PageFolio } from '../src/components/PageFolio';
 import { PencilNote } from '../src/components/PencilNote';
 import { T, Label, Icon, Button, Progress, C, ui } from '../src/components/ui';
 import { feedback } from '../src/services/feedback';
+type Note = { text: string; kind: 'info' | 'hint'; request: number; pending: boolean };
 export default function Atelier() {
   const { save, setSave } = useGame(),
     { width } = useWindowDimensions(),
     wide = width > 1100;
   const [replay, setReplay] = useState(!!save.completed[save.current]);
   const [selected, setSelected] = useState<number | null>(null),
-    [message, setMessage] = useState(''),
-    [pencilMessage, setPencilMessage] = useState(false),
-    [hintRequest, setHintRequest] = useState(0),
+    [note, setNote] = useState<Note>({ text: '', kind: 'info', request: 0, pending: false }),
     [hint, setHint] = useState<Move | null>(null),
     [busy, setBusy] = useState(false),
     [pouring, setPouring] = useState<Move | null>(null),
@@ -37,12 +37,13 @@ export default function Atelier() {
     chapter = Math.floor((save.current - 1) / 20),
     stage = restoration(save, plant),
     victory = won(save.board);
+  const clearNote = () =>
+    setNote((previous) => ({ ...previous, text: '', kind: 'info', pending: false }));
   useEffect(() => {
     setReplay(!!save.completed[save.current]);
     setSelected(null);
     setHint(null);
-    setMessage('');
-    setPencilMessage(false);
+    clearNote();
     setReveal(false);
     setDismissed(false);
     setPlateOpen(false);
@@ -56,8 +57,7 @@ export default function Atelier() {
   const tap = (index: number) => {
     if (busy || victory) return;
     setHint(null);
-    setMessage('');
-    setPencilMessage(false);
+    clearNote();
     if (selected === null) {
       if (save.board[index].length) setSelected(index);
       return;
@@ -67,7 +67,12 @@ export default function Atelier() {
       return;
     }
     if (!pour(save.board, selected, index)) {
-      setMessage('Versez sur une couleur identique ou dans un flacon vide.');
+      setNote((previous) => ({
+        ...previous,
+        text: 'Versez sur une couleur identique ou dans un flacon vide.',
+        kind: 'info',
+        pending: false,
+      }));
       setSelected(save.board[index].length ? index : null);
       return;
     }
@@ -91,22 +96,22 @@ export default function Atelier() {
   };
   const askHint = () => {
     if (busy || victory) return;
-    setPencilMessage(false);
     setHint(null);
-    setHintRequest((n) => n + 1);
-    setMessage('Recherche d’un chemin de restauration…');
+    setNote((previous) => ({
+      text: '',
+      kind: 'hint',
+      request: previous.request + 1,
+      pending: true,
+    }));
     setBusy(true);
     timer.current = setTimeout(() => {
       const initial = JSON.stringify(save.board) === JSON.stringify(levels[save.current - 1].board);
       const path = initial ? levels[save.current - 1].solution : solve(save.board);
-      if (path?.length) {
-        setHint(path[0]);
-        setMessage(`Versez le flacon ${path[0].from + 1} dans le flacon ${path[0].to + 1}.`);
-      } else
-        setMessage(
-          'Aucun chemin trouvé dans la limite de recherche. Annulez vos derniers mouvements ou recommencez gratuitement.',
-        );
-      setPencilMessage(true);
+      if (path?.length) setHint(path[0]);
+      const explanation = path?.length
+        ? `Versez le flacon ${path[0].from + 1} dans le flacon ${path[0].to + 1}.`
+        : 'Aucun chemin trouvé dans la limite de recherche. Annulez vos derniers mouvements ou recommencez gratuitement.';
+      setNote((previous) => ({ ...previous, text: explanation, kind: 'hint', pending: false }));
       setBusy(false);
     }, 60);
   };
@@ -235,15 +240,10 @@ export default function Atelier() {
             />
           </View>
           <PencilNote
-            text={
-              message ||
-              (save.current === 1
-                ? 'Touchez un flacon, puis un autre pour verser.'
-                : 'Remplissez chaque flacon d’une seule couleur.')
-            }
-            handwritten={pencilMessage}
+            text={note.pending ? '' : note.text || botanicalFact(save.current)}
+            handwritten={note.kind === 'hint'}
             motion={save.settings.motion}
-            request={hintRequest}
+            request={note.request}
           />
           <Paper
             style={{
@@ -267,8 +267,7 @@ export default function Atelier() {
                   setSave(undo);
                   setSelected(null);
                   setHint(null);
-                  setMessage('');
-                  setPencilMessage(false);
+                  clearNote();
                 },
                 disabled: !save.history.length || victory,
               },
@@ -279,8 +278,7 @@ export default function Atelier() {
                   setSave((v) => loadLevel(v, v.current));
                   setSelected(null);
                   setHint(null);
-                  setMessage('');
-                  setPencilMessage(false);
+                  clearNote();
                   setDismissed(false);
                 },
                 disabled: false,
@@ -459,7 +457,8 @@ export default function Atelier() {
               </T>
               <T style={{ color: C.muted, textAlign: 'center', marginVertical: 20 }}>
                 Remplissez chaque flacon avec une seule couleur. Les autres flacons doivent être
-                vides. Chaque énigme redonne vie à une planche botanique.
+                vides. Touchez un flacon, puis un autre pour verser. Chaque énigme redonne vie à une
+                planche botanique.
               </T>
               <Button icon="leaf-outline" onPress={() => setSave((v) => ({ ...v, started: true }))}>
                 Commencer la restauration
@@ -488,8 +487,8 @@ export default function Atelier() {
                 {save.current === 100
                   ? 'L’HERBIER RETROUVE SES COULEURS'
                   : replay
-                    ? 'PIGMENT DÉJÀ RETROUVÉ'
-                    : 'UN NOUVEAU PIGMENT'}
+                    ? 'UNE PAGE À NOUVEAU COLORÉE'
+                    : 'VOTRE HERBIER REPREND VIE'}
               </Label>
               <T serif style={{ fontSize: 32, marginTop: 13, lineHeight: 38 }}>
                 {save.current === 100
@@ -537,14 +536,11 @@ export default function Atelier() {
                   <Animated.View style={{ opacity: fade }}>
                     <Botanical index={plant} stage={stage} size={215} />
                   </Animated.View>
-                  <T style={{ textAlign: 'center', color: C.muted, marginBottom: 18 }}>
-                    {stage === 5
-                      ? 'Planche restaurée et scellée dans votre herbier.'
-                      : 'Une nouvelle nuance a rejoint votre collection.'}
-                    {`\n`}
-                    {save.current === 100
-                      ? '20 planches · 100 pigments · 5 écosystèmes'
-                      : 'Le vivant reprend ses couleurs.'}
+                  <T
+                    testID="restoration-botanical-fact"
+                    style={{ textAlign: 'center', color: C.muted, marginBottom: 18 }}
+                  >
+                    {botanicalFact(save.current, 'reveal')}
                   </T>
                   <Button icon="arrow-forward-outline" onPress={next}>
                     {save.current === 100 ? 'Contempler mon herbier' : 'Poursuivre la restauration'}

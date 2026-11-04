@@ -41,14 +41,14 @@ async function main() {
         );
         expect(partial.completed['1']).toBeUndefined();
         expect(partial.pigments).toHaveLength(0);
-        await expect(page.getByText('UN NOUVEAU PIGMENT')).not.toBeVisible();
+        await expect(page.getByText('VOTRE HERBIER REPREND VIE')).not.toBeVisible();
         await page.getByRole('button', { name: 'Indice', exact: true }).click();
         await expect(page.getByTestId('hint-writing-text')).toHaveText(
           'Versez le flacon 3 dans le flacon 1.',
         );
       }
     }
-    await expect(page.getByText('UN NOUVEAU PIGMENT')).toBeVisible();
+    await expect(page.getByText('VOTRE HERBIER REPREND VIE')).toBeVisible();
     await expect(page.getByTestId('page-result-moves')).toContainText(
       `${levels[0].solution.length} mouvements`,
     );
