@@ -10,6 +10,7 @@ import { T, Label, Icon, Button, C, ui } from '../src/components/ui';
 import { Paper, PaperTexture } from '../src/components/Paper';
 import { GreenhouseBackdrop } from '../src/components/Greenhouse';
 import { SceneVeil } from '../src/components/SceneVeil';
+import { SceneSizeContext } from '../src/components/SceneSize';
 import { HerbariumTitle } from '../src/components/HerbariumTitle';
 import { HerbariumBookButton } from '../src/components/HerbariumBookButton';
 import { basePath } from '../src/config/paths';
@@ -27,6 +28,7 @@ function Shell() {
     path = usePathname(),
     playing = path === '/';
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const [sceneHeight, setSceneHeight] = React.useState(0);
   const { save, ready, error, retry } = useGame();
   React.useEffect(() => {
     if (
@@ -45,17 +47,32 @@ function Shell() {
   };
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: C.paper, zIndex: 0 }}>
-      {playing ? (
-        <>
-          <GreenhouseBackdrop />
-          <SceneVeil
-            tint={
-              save.theme === 'sauge' ? '#ecf0e4' : save.theme === 'rose' ? '#f5eae3' : undefined
-            }
-          />
-        </>
-      ) : (
-        <PaperTexture background />
+      <PaperTexture background />
+      {playing && (
+        <View
+          pointerEvents="none"
+          style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflow: 'hidden' }}
+        >
+          <View
+            testID="greenhouse-world-background"
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: sceneHeight ? sceneHeight + insets.top : '100%',
+            }}
+          >
+            <GreenhouseBackdrop />
+            <SceneVeil
+              ground={C.paper}
+              tint={
+                save.theme === 'sauge' ? '#ecf0e4' : save.theme === 'rose' ? '#f5eae3' : undefined
+              }
+            />
+          </View>
+        </View>
       )}
       <StatusBar style="dark" />
       <View
@@ -117,7 +134,9 @@ function Shell() {
           </Pressable>
         )}
         {ready ? (
-          <Slot />
+          <SceneSizeContext.Provider value={setSceneHeight}>
+            <Slot />
+          </SceneSizeContext.Provider>
         ) : (
           <View style={{ padding: 40, marginTop: 88 }}>
             <T>Ouverture du carnet…</T>
@@ -147,7 +166,12 @@ function Shell() {
                   accessibilityRole="button"
                   accessibilityLabel="Fermer le carnet"
                   onPress={() => setMenuOpen(false)}
-                  style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+                  style={{
+                    width: 44,
+                    height: 44,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
                 >
                   <Icon name="close-outline" size={24} />
                 </Pressable>

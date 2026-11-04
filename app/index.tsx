@@ -14,10 +14,13 @@ import { Botanical } from '../src/components/Botanical';
 import { BotanicalStamp } from '../src/components/BotanicalStamp';
 import { PageFolio } from '../src/components/PageFolio';
 import { HintScroll } from '../src/components/HintScroll';
+import { SceneSizeContext } from '../src/components/SceneSize';
 import { T, Label, Icon, Button, Progress, C, ui } from '../src/components/ui';
 import { feedback } from '../src/services/feedback';
 type Note = { text: string; kind: 'info' | 'hint'; request: number; pending: boolean };
+const scenePadding = { top: 100, bottom: 20 };
 export default function Atelier() {
+  const reportSceneHeight = React.useContext(SceneSizeContext);
   const { save, setSave } = useGame(),
     { width } = useWindowDimensions(),
     wide = width > 1100;
@@ -139,20 +142,23 @@ export default function Atelier() {
         maxWidth: 1180,
         alignSelf: 'center',
         paddingHorizontal: width < 800 ? 18 : 32,
-        paddingTop: 100,
-        paddingBottom: 20,
+        paddingTop: scenePadding.top,
+        paddingBottom: scenePadding.bottom,
       }}
     >
       <View
+        onLayout={(event) =>
+          reportSceneHeight(
+            event.nativeEvent.layout.height + scenePadding.top + scenePadding.bottom,
+          )
+        }
         style={{
-          flex: 1,
           flexDirection: wide ? 'row' : 'column',
           gap: 28,
-          alignItems: 'stretch',
-          justifyContent: 'center',
+          alignItems: wide ? 'flex-start' : 'stretch',
         }}
       >
-        <View testID="integrated-game-scene" style={{ flex: wide ? 1.35 : 1 }}>
+        <View testID="integrated-game-scene" style={{ flex: wide ? 1.35 : undefined }}>
           <PageFolio page={save.current} />
           {!wide ? (
             <View
@@ -219,11 +225,9 @@ export default function Atelier() {
             </T>
           )}
           <View
+            testID="liquid-play-area"
             style={{
-              flex: 1,
-              justifyContent: 'flex-end',
               paddingVertical: 2,
-              minHeight: width < 800 ? 250 : 290,
             }}
           >
             {note.kind === 'info' && !!note.text && (

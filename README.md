@@ -67,6 +67,8 @@ La zone de puzzle est un atelier de serre à verrière ancienne, avec une lumiè
 
 Le flacon est extrait verticalement du support avant de s’incliner pour verser. Au retour, il se redresse et s’aligne au-dessus de son logement avant d’y redescendre. Les emplacements de jeu, les couleurs, les règles et la sauvegarde restent indépendants de ce décor.
 
+La hauteur de la zone de jeu suit les rangées réellement affichées. Une seule rangée reste compacte, même sur un téléphone très haut ; une seconde ajoute la place nécessaire à son porte-tubes. L’espace de levage et de versement au-dessus des flacons est conservé. Le cadrage de la serre suit aussi la hauteur du contenu, et les commandes restent rapprochées du puzzle.
+
 La typographie utilise **Almendra** pour les titres, **Alegreya Sans** pour les textes, **Alegreya en italique** pour les noms scientifiques et **Caveat** pour les annotations au crayon et les commandes du puzzle. Les polices et leurs graisses sont embarquées et restent disponibles hors ligne. Les notices sont incluses dans `public/licenses/`.
 
 ```sh
@@ -74,7 +76,7 @@ La typographie utilise **Almendra** pour les titres, **Alegreya Sans** pour les 
 npm run test:greenhouse
 ```
 
-Ce contrôle vérifie le chargement du décor et des huit variantes typographiques, les supports sur chaque rangée et les affichages mobiles à 320 et 390 pixels de large.
+Ce contrôle vérifie le chargement du décor et des huit variantes typographiques, les supports sur chaque rangée, la hauteur compacte sur les écrans hauts et le passage d’une à deux rangées pour un même puzzle à différentes largeurs.
 
 ## Versement visqueux et pigments mystérieux
 
