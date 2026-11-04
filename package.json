@@ -15,7 +15,8 @@
     "preview": "node scripts/serve.mjs",
     "test:browser": "node --import tsx scripts/browser-smoke.ts",
     "format": "prettier --write app src scripts tests *.json *.ts *.md",
-    "deploy:pages": "node scripts/deploy-pages.mjs"
+    "deploy:pages": "node scripts/deploy-pages.mjs",
+    "test:pouring": "node --import tsx scripts/pouring-smoke.ts"
   },
   "dependencies": {
     "@expo-google-fonts/cormorant-garamond": "^0.4.0",

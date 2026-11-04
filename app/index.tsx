@@ -6,7 +6,8 @@ import { useGame } from '../src/state/store';
 import { loadLevel, move, undo, restoration } from '../src/state/model';
 import { won, solve, pour, Move } from '../src/engine/puzzle';
 import levels from '../src/data/levels.json';
-import { species, chapters, palette, symbols } from '../src/data/botany';
+import { species, chapters } from '../src/data/botany';
+import { LiquidBoard } from '../src/components/LiquidBoard';
 import { Botanical } from '../src/components/Botanical';
 import { T, Label, Icon, Button, Progress, C, ui } from '../src/components/ui';
 import { feedback } from '../src/services/feedback';
@@ -19,12 +20,10 @@ export default function Atelier() {
     [message, setMessage] = useState(''),
     [hint, setHint] = useState<Move | null>(null),
     [busy, setBusy] = useState(false),
-    [pouringTo, setPouringTo] = useState<number | null>(null),
+    [pouring, setPouring] = useState<Move | null>(null),
     [reveal, setReveal] = useState(false),
     [dismissed, setDismissed] = useState(false);
-  const positions = useRef<Record<number, { x: number; y: number }>>({});
-  const tilt = useRef(new Animated.Value(0)).current,
-    fade = useRef(new Animated.Value(0)).current,
+  const fade = useRef(new Animated.Value(0)).current,
     timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const plant = Math.floor((save.current - 1) / 5),
     s = species[plant],
@@ -63,21 +62,22 @@ export default function Atelier() {
       return;
     }
     const from = selected;
-    setPouringTo(index);
-    setBusy(true);
-    feedback(save.settings);
-    tilt.setValue(0);
-    Animated.timing(tilt, {
-      toValue: 1,
-      duration: save.settings.motion ? 430 : 0,
-      useNativeDriver: true,
-    }).start(() => {
+    if (!save.settings.motion) {
+      feedback(save.settings);
       setSave((v) => move(v, from, index));
       setSelected(null);
-      setPouringTo(null);
-      setBusy(false);
-      tilt.setValue(0);
-    });
+      return;
+    }
+    setPouring({ from, to: index });
+    setBusy(true);
+    feedback(save.settings);
+  };
+  const finishPour = () => {
+    if (!pouring) return;
+    setSave((v) => move(v, pouring.from, pouring.to));
+    setSelected(null);
+    setPouring(null);
+    setBusy(false);
   };
   const askHint = () => {
     if (busy || victory) return;
@@ -162,193 +162,21 @@ export default function Atelier() {
             style={{
               flex: 1,
               justifyContent: 'center',
-              paddingVertical: width < 800 ? 22 : 32,
-              minHeight: width < 800 ? 240 : 290,
+              paddingVertical: 8,
+              minHeight: width < 800 ? 250 : 290,
             }}
           >
-            <View
-              style={{
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-                columnGap: save.board.length > 7 ? 15 : 23,
-                rowGap: 25,
-              }}
-            >
-              {save.board.map((tube, i) => {
-                const active = selected === i,
-                  marked = hint?.from === i || hint?.to === i,
-                  complete = tube.length === 4 && tube.every((c) => c === tube[0]);
-                return (
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={`Flacon ${i + 1}, ${tube.length ? tube.map((c) => ['garance', 'sauge', 'ocre', 'bleu', 'mauve', 'vert d’eau', 'terre'][c]).join(', ') : 'vide'}`}
-                    accessibilityState={{ selected: active, disabled: busy || victory }}
-                    key={i}
-                    onLayout={(e) => {
-                      const { x, y } = e.nativeEvent.layout;
-                      positions.current[i] = { x, y };
-                    }}
-                    onPress={() => tap(i)}
-                    style={{ alignItems: 'center', width: save.board.length > 7 ? 47 : 55 }}
-                  >
-                    {pouringTo === i && selected !== null && (
-                      <Animated.View
-                        pointerEvents="none"
-                        style={{
-                          position: 'absolute',
-                          top: -33,
-                          width: 3,
-                          height: 40,
-                          borderRadius: 3,
-                          backgroundColor: palette[save.board[selected].at(-1)!],
-                          opacity: tilt.interpolate({
-                            inputRange: [0, 0.65, 1],
-                            outputRange: [0, 0, 0.9],
-                          }),
-                        }}
-                      />
-                    )}
-                    <Animated.View
-                      style={{
-                        transform: [
-                          {
-                            translateY:
-                              active && pouringTo !== null
-                                ? tilt.interpolate({
-                                    inputRange: [0, 1],
-                                    outputRange: [
-                                      -13,
-                                      (positions.current[pouringTo]?.y ?? 0) -
-                                        (positions.current[i]?.y ?? 0) -
-                                        45,
-                                    ],
-                                  })
-                                : active
-                                  ? -13
-                                  : 0,
-                          },
-                          {
-                            translateX:
-                              active && pouringTo !== null
-                                ? tilt.interpolate({
-                                    inputRange: [0, 1],
-                                    outputRange: [
-                                      0,
-                                      (positions.current[pouringTo]?.x ?? 0) -
-                                        (positions.current[i]?.x ?? 0) -
-                                        25,
-                                    ],
-                                  })
-                                : 0,
-                          },
-                          {
-                            rotate: active
-                              ? tilt.interpolate({
-                                  inputRange: [0, 1],
-                                  outputRange: ['0deg', '38deg'],
-                                })
-                              : '0deg',
-                          },
-                        ],
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: save.board.length > 7 ? 45 : 52,
-                          height: 6,
-                          borderRadius: 4,
-                          borderWidth: 1.4,
-                          borderColor: marked ? C.gold : active ? C.green : '#b2bcb1',
-                          backgroundColor: '#f6f6ee',
-                        }}
-                      />
-                      <View
-                        style={{
-                          width: save.board.length > 7 ? 41 : 48,
-                          height: 149,
-                          borderWidth: 1.2,
-                          borderTopWidth: 0,
-                          borderColor: marked
-                            ? C.gold
-                            : complete
-                              ? C.green
-                              : active
-                                ? C.green
-                                : '#b2bcb1',
-                          borderBottomLeftRadius: 20,
-                          borderBottomRightRadius: 20,
-                          overflow: 'hidden',
-                          paddingHorizontal: 3,
-                          paddingBottom: 3,
-                          justifyContent: 'flex-end',
-                          backgroundColor: '#e6ebe12b',
-                        }}
-                      >
-                        {Array.from({ length: 4 - tube.length }, (_, j) => (
-                          <View
-                            key={`empty${j}`}
-                            style={{ height: 34, borderBottomWidth: 0.5, borderColor: '#d8ddd02a' }}
-                          />
-                        ))}
-                        {[...tube].reverse().map((color, j) => (
-                          <View
-                            key={j}
-                            style={{
-                              height: 34,
-                              backgroundColor: palette[color],
-                              borderTopWidth: 1,
-                              borderColor: '#ffffff44',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}
-                          >
-                            {save.settings.patterns && (
-                              <T style={{ color: '#fff', fontSize: 18 }}>{symbols[color]}</T>
-                            )}
-                          </View>
-                        ))}
-                        <View
-                          pointerEvents="none"
-                          style={{
-                            position: 'absolute',
-                            top: 8,
-                            bottom: 12,
-                            left: 6,
-                            width: 4,
-                            borderRadius: 8,
-                            backgroundColor: '#ffffff45',
-                          }}
-                        />
-                      </View>
-                      {complete && (
-                        <View
-                          style={{
-                            position: 'absolute',
-                            bottom: -10,
-                            right: -4,
-                            backgroundColor: C.card,
-                            borderRadius: 20,
-                          }}
-                        >
-                          <Icon name="checkmark-circle" size={19} color={C.green} />
-                        </View>
-                      )}
-                    </Animated.View>
-                    <T
-                      style={{
-                        fontSize: 10,
-                        color: marked ? C.gold : C.muted,
-                        marginTop: 16,
-                        letterSpacing: 1,
-                      }}
-                    >
-                      {String(i + 1).padStart(2, '0')}
-                    </T>
-                  </Pressable>
-                );
-              })}
-            </View>
+            <LiquidBoard
+              board={save.board}
+              selected={selected}
+              hint={hint}
+              pouring={pouring}
+              disabled={busy || victory}
+              motion={save.settings.motion}
+              patterns={save.settings.patterns}
+              onTap={tap}
+              onFinish={finishPour}
+            />
           </View>
           <T
             accessibilityLiveRegion="polite"

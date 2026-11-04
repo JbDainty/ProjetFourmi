@@ -28,6 +28,7 @@ Pour reproduire l’export GitHub Pages localement :
 EXPO_PUBLIC_BASE_PATH=/ProjetFourmi npm run build:web
 PORT=8083 EXPO_PUBLIC_BASE_PATH=/ProjetFourmi npm run preview
 GAME_TEST_URL=http://localhost:8083/ProjetFourmi/ npm run test:browser
+npm run test:pouring
 ```
 
 Le préfixe est appliqué au routeur, aux ressources, au manifeste et au service worker. Les quatre pages de navigation possèdent une entrée HTML pour fonctionner après un rechargement chez l’hébergeur. `404.html` permet aussi de reprendre les autres routes du site.
@@ -45,6 +46,14 @@ npx expo start --web
 Pour une installation reproductible, utiliser `npm ci` avec le fichier `package-lock.json`. Aucun compte ou secret n’est nécessaire pour jouer. Accepter le tutoriel, sélectionner un flacon source puis sa destination. Le flacon doit être vide ou porter la même couleur au sommet. Un groupe contigu se verse dans la limite des quatre couches. La victoire suit la règle du cahier des charges : chaque flacon non vide est monochrome, même s’il est partiellement rempli.
 
 Les annulations, indices et reprises sont gratuits. Les étoiles comparent le nombre de mouvements à un parcours de référence vérifié, **pas à un optimum mathématique**. Rejouer peut améliorer les étoiles sans dupliquer les graines ou les pigments. Une nouvelle espèce s’ouvre après cinq niveaux, un écosystème après vingt. Le niveau 100 termine la collection sans charger de niveau 101.
+
+## Versement visqueux et pigments mystérieux
+
+Les flacons utilisent un rendu SVG commun au Web et au mobile. Le verre se soulève, s’incline vers la destination, verse un filet continu puis revient à sa place. Les sections colorées conservent leur aire pendant l’inclinaison et leur surface reste soumise à la verticale de la gravité ; un léger décalage transitoire traduit la viscosité. Les ménisques, le reflet du verre, les gouttes et les remous à l’arrivée sont animés séparément. Il s’agit d’un modèle illustratif en deux dimensions, pas d’un solveur de fluide généraliste.
+
+Le liquide quitte la source avant d’atteindre la destination : une petite partie de son volume reste dans le filet en vol. Les teintes évoquent des pierres et résines colorées, avec des reflets nacrés, une faible aura et des particules discrètes. Les couleurs botaniques des planches ne sont pas modifiées.
+
+L’action logique et la sauvegarde sont appliquées une seule fois, après le retour du flacon. Les commandes du puzzle sont bloquées pendant le transfert. Quitter l’atelier interrompt l’animation sans modifier un puzzle devenu invisible. Le réglage « Animations douces » permet toujours des transferts immédiats ; le réglage des symboles reste disponible.
 
 ## Export Web et mode hors ligne
 
@@ -68,7 +77,7 @@ npm run build:web
 npm run test:browser
 ```
 
-Les 17 tests unitaires couvrent les transferts, les refus, la victoire, l’annulation et la reprise, les 100 solutions, le solveur indépendant sur chacun des niveaux, les 100 récompenses, les déblocages, les vingt restaurations, les migrations et la restauration de sauvegardes, ainsi que l’économie.
+Les 23 tests unitaires couvrent les transferts, les refus, la victoire, l’annulation et la reprise, les 100 solutions, le solveur indépendant sur chacun des niveaux, les 100 récompenses, les déblocages, les vingt restaurations, les migrations et la restauration de sauvegardes, ainsi que l’économie. Six tests portent sur la conservation des volumes à différentes inclinaisons, les couches, l’angle de débordement, le volume en vol, le déroulement temporel et les quantités fractionnaires.
 
 Le contrôle navigateur utilise Playwright et Chromium installé dans `/usr/bin/chromium`. Adapter `executablePath` dans `scripts/browser-smoke.ts` sur une autre machine. Il couvre le tutoriel, l’indice, une résolution jouée par clics, la révélation, le rechargement, les réglages d’accessibilité, la fin du niveau 100, l’herbier complet, le mode hors ligne, l’affichage mobile et le cadeau quotidien. Pour préparer le dernier niveau, il injecte une sauvegarde créée en résolvant réellement les niveaux 1 à 99 via le moteur ; il ne prétend pas cliquer les cent niveaux dans le navigateur. Les captures sont générées dans `test-results/`.
 
@@ -116,6 +125,8 @@ Aucun compte, mesure d’audience ou service publicitaire actif. Les ressources 
 ## Organisation
 
 - `app/` : cinq espaces Expo Router, tutoriel et dialogues.
+- `src/animation/liquid.ts` : géométrie des surfaces libres, volumes des couches et chronologie visqueuse.
+- `src/components/LiquidBoard.tsx` : flacons, filet, gouttes, reflets et mouvements des pigments.
 - `src/engine/puzzle.ts` : règles pures, capacités et solveur.
 - `scripts/generate.ts`, `src/data/levels.json` : génération, certificats et 100 configurations.
 - `src/state/model.ts` : progression, récompenses et validation/migration.

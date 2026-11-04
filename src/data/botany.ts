@@ -246,13 +246,13 @@ export const species: Species[] = [
   ),
 ];
 export const palette = [
-  '#bd6255',
-  '#7a9274',
-  '#cfaf64',
-  '#7f91ae',
-  '#ac7c9a',
-  '#6caaa5',
-  '#b6855f',
+  '#b14867',
+  '#548b78',
+  '#c59a41',
+  '#596eaf',
+  '#995ba5',
+  '#419a9b',
+  '#b97743',
 ];
 export const colorNames = [
   'Garance',
