@@ -47,6 +47,8 @@ async function main() {
           'HerbariumMedium',
           'HerbariumBold',
           'HerbariumScientific',
+          'HerbariumHandwriting',
+          'HerbariumHandwritingMedium',
         ].map((family) => document.fonts.load(`16px "${family}"`)),
       );
     });
@@ -64,6 +66,8 @@ async function main() {
       'HerbariumMedium',
       'HerbariumBold',
       'HerbariumScientific',
+      'HerbariumHandwriting',
+      'HerbariumHandwritingMedium',
     ])
       expect(loaded).toContain(family);
     await page.screenshot({ path: 'test-results/greenhouse-desktop.png', fullPage: true });
@@ -95,7 +99,7 @@ async function main() {
     ).toContain('HerbariumDisplay');
     expect(errors).toEqual([]);
     console.log(
-      'Greenhouse: background loaded, all six typefaces loaded, full interface typography, holders for each row, 320px and 390px mobile layouts passed.',
+      'Greenhouse: background loaded, all eight typefaces loaded, full interface typography, holders for each row, 320px and 390px mobile layouts passed.',
     );
   } finally {
     await browser.close();

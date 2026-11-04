@@ -7,6 +7,8 @@
 - `src/components/BotanicalIcon.tsx` : pictogrammes SVG originaux dessinés pour le projet : rameaux, feuilles nervurées, fleur, loupe de naturaliste, carnet et graines. Ils remplacent les pictogrammes génériques dans les commandes et la navigation.
 - `src/components/HerbariumTitle.tsx` : composition typographique originale de frontispice, Almendra en gras, petites capitales et fleuron botanique doré en SVG.
 - `src/components/HerbariumBookButton.tsx` : livre ancien original en SVG, reliure verte, tranche de papier, dorures et plantes gravées. L’animation ouvre la couverture puis révèle le menu ; aucun visuel de couverture externe.
+- `src/components/PageFolio.tsx` : fleuron de pagination original en SVG, rameaux symétriques et chiffre en Almendra.
+- `src/components/PencilNote.tsx` : crayon à papier original dessiné en SVG ; apparition progressive de l’écriture Caveat et positionnement du crayon d’après les lettres et les lignes réellement affichées.
 - `src/components/BotanicalStamp.tsx` : timbre dentelé original en SVG, réutilisant les illustrations et les étapes de restauration existantes.
 - `src/components/FoliageFrame.tsx` : ornements SVG originaux créés pour le projet, avec tiges sinueuses, feuilles nervurées et rameaux d’angle. Le tracé s’adapte à la taille de chaque cadre ; sa couleur accompagne la restauration du chapitre ou de la planche. Aucune bordure commerciale ou image de cadre externe.
 - `assets/pour.wav` : son synthétique original généré à partir d’oscillations et de bruit avec une enveloppe douce ; aucune bibliothèque sonore tierce.
@@ -16,6 +18,7 @@
 - Almendra : Ana Sanfelippo, SIL Open Font License 1.1, pour les titres et la marque. Notice : `public/licenses/Almendra-OFL.txt`.
 - Alegreya Sans : The Alegreya Sans Project Authors, SIL Open Font License 1.1, pour les commandes, textes et annotations. Notice : `public/licenses/Alegreya-Sans-OFL.txt`.
 - Alegreya : The Alegreya Project Authors, SIL Open Font License 1.1, pour les noms scientifiques en italique. Notice : `public/licenses/Alegreya-OFL.txt`.
+- Caveat : The Caveat Project Authors, SIL Open Font License 1.1, pour les commandes manuscrites et les annotations au crayon. Notice : `public/licenses/Caveat-OFL.txt`.
 - `src/components/fonts.ts` : fichiers de polices embarqués et variantes de graisse explicites ; aucun chargement Google Fonts à distance pendant le jeu.
 - Ionicons / react-native-vector-icons : MIT. Notices dans `public/licenses/`.
 - `src/data/taxonomy.json` : résultats d’identification nomenclaturale de l’API GBIF avec URL et date de consultation. Aucun visuel GBIF intégré.

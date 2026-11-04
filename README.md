@@ -51,6 +51,10 @@ L’atelier est une scène de jeu continue : le décor de serre s’étend sous 
 
 La présentation emploie « page » dans l’atelier, la carte et le parcours. Le compteur affiche uniquement la page courante, par exemple « PAGE 04 ». Le titre reprend la composition d’un frontispice botanique ancien, avec petites capitales et fleuron doré. Le bouton du carnet représente un livre relié dont la couverture s’ouvre avant l’affichage du menu. Désactiver « Animations douces » rend l’ouverture immédiate.
 
+Le numéro de page prend la forme d’un folio orné. Le nombre de mouvements reste caché pendant le puzzle et apparaît seulement dans le bilan de la page achevée. Les commandes « Annuler », « Recommencer » et « Indice » utilisent l’écriture manuscrite Caveat. Les indices s’écrivent progressivement en graphite, avec un crayon qui suit les lettres et les retours à la ligne. Redemander un indice relance l’écriture ; jouer, annuler ou recommencer l’interrompt. Le texte complet reste annoncé aux lecteurs d’écran et apparaît immédiatement quand les animations sont désactivées.
+
+`npm run test:pencil` vérifie l’écriture progressive, le déplacement du crayon, la répétition et l’interruption, le mode sans animation, la typographie des commandes à 320 et 390 pixels et le nombre de mouvements réservé au bilan de victoire.
+
 Sur téléphone et tablette, un timbre botanique accompagne le chapitre dans l’atelier. Il reprend la plante et ses pigments déjà restaurés ; ses cinq points indiquent l’avancement. Toucher le timbre ouvre la planche en grand, puis « Revenir au jeu » retrouve le puzzle et la sélection en cours. La grande planche reste à côté du jeu sur les écrans larges. Les icônes des commandes et de la navigation sont des dessins SVG originaux inspirés des herbiers, avec leurs libellés conservés.
 
 `npm run test:mobile-herbarium` vérifie le timbre, sa progression persistante, l’ouverture sans perte de sélection et les présentations à 320, 390 et 1440 pixels. Comme les autres tests navigateur, il accepte `GAME_TEST_URL` pour viser un serveur de prévisualisation.
@@ -61,14 +65,14 @@ La zone de puzzle est un atelier de serre à verrière ancienne, avec une lumiè
 
 Le flacon est extrait verticalement du support avant de s’incliner pour verser. Au retour, il se redresse et s’aligne au-dessus de son logement avant d’y redescendre. Les emplacements de jeu, les couleurs, les règles et la sauvegarde restent indépendants de ce décor.
 
-Toute la typographie utilise maintenant **Almendra** pour les titres, **Alegreya Sans** pour les textes et commandes, et **Alegreya en italique** pour les noms scientifiques. Les polices et leurs graisses sont embarquées et restent disponibles hors ligne. Les notices sont incluses dans `public/licenses/`.
+La typographie utilise **Almendra** pour les titres, **Alegreya Sans** pour les textes, **Alegreya en italique** pour les noms scientifiques et **Caveat** pour les annotations au crayon et les commandes du puzzle. Les polices et leurs graisses sont embarquées et restent disponibles hors ligne. Les notices sont incluses dans `public/licenses/`.
 
 ```sh
 # Après npm run preview :
 npm run test:greenhouse
 ```
 
-Ce contrôle vérifie le chargement du décor et des six variantes typographiques, les supports sur chaque rangée et les affichages mobiles à 320 et 390 pixels de large.
+Ce contrôle vérifie le chargement du décor et des huit variantes typographiques, les supports sur chaque rangée et les affichages mobiles à 320 et 390 pixels de large.
 
 ## Versement visqueux et pigments mystérieux
 
@@ -179,7 +183,7 @@ Les descriptions signalent des caractères morphologiques usuels ; les périodes
 - TAXREF / INPN : https://inpn.mnhn.fr/programme/referentiel-taxonomique-taxref
 - Plants of the World Online, Kew : https://powo.science.kew.org/
 
-Illustrations, texture de papier et son de versement synthétisé créés pour ce projet, sans image commerciale externe. Almendra, Alegreya et Alegreya Sans sont distribuées sous SIL Open Font License ; Ionicons via react-native-vector-icons sous MIT. Les notices sont incluses dans `public/licenses/` et l’export. Voir `ASSETS.md`.
+Illustrations, texture de papier et son de versement synthétisé créés pour ce projet, sans image commerciale externe. Almendra, Alegreya, Alegreya Sans et Caveat sont distribuées sous SIL Open Font License ; Ionicons via react-native-vector-icons sous MIT. Les notices sont incluses dans `public/licenses/` et l’export. Voir `ASSETS.md`.
 
 ## Commerce et limites avant publication
 

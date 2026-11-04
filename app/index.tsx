@@ -11,6 +11,8 @@ import { species, chapters } from '../src/data/botany';
 import { LiquidBoard } from '../src/components/LiquidBoard';
 import { Botanical } from '../src/components/Botanical';
 import { BotanicalStamp } from '../src/components/BotanicalStamp';
+import { PageFolio } from '../src/components/PageFolio';
+import { PencilNote } from '../src/components/PencilNote';
 import { T, Label, Icon, Button, Progress, C, ui } from '../src/components/ui';
 import { feedback } from '../src/services/feedback';
 export default function Atelier() {
@@ -20,6 +22,8 @@ export default function Atelier() {
   const [replay, setReplay] = useState(!!save.completed[save.current]);
   const [selected, setSelected] = useState<number | null>(null),
     [message, setMessage] = useState(''),
+    [pencilMessage, setPencilMessage] = useState(false),
+    [hintRequest, setHintRequest] = useState(0),
     [hint, setHint] = useState<Move | null>(null),
     [busy, setBusy] = useState(false),
     [pouring, setPouring] = useState<Move | null>(null),
@@ -38,6 +42,7 @@ export default function Atelier() {
     setSelected(null);
     setHint(null);
     setMessage('');
+    setPencilMessage(false);
     setReveal(false);
     setDismissed(false);
     setPlateOpen(false);
@@ -52,6 +57,7 @@ export default function Atelier() {
     if (busy || victory) return;
     setHint(null);
     setMessage('');
+    setPencilMessage(false);
     if (selected === null) {
       if (save.board[index].length) setSelected(index);
       return;
@@ -85,6 +91,9 @@ export default function Atelier() {
   };
   const askHint = () => {
     if (busy || victory) return;
+    setPencilMessage(false);
+    setHint(null);
+    setHintRequest((n) => n + 1);
     setMessage('Recherche d’un chemin de restauration…');
     setBusy(true);
     timer.current = setTimeout(() => {
@@ -97,6 +106,7 @@ export default function Atelier() {
         setMessage(
           'Aucun chemin trouvé dans la limite de recherche. Annulez vos derniers mouvements ou recommencez gratuitement.',
         );
+      setPencilMessage(true);
       setBusy(false);
     }, 60);
   };
@@ -138,17 +148,7 @@ export default function Atelier() {
         }}
       >
         <View testID="integrated-game-scene" style={{ flex: wide ? 1.35 : 1 }}>
-          <T
-            style={{
-              fontSize: 11,
-              color: C.muted,
-              letterSpacing: 1.5,
-              textAlign: 'center',
-              marginBottom: 9,
-            }}
-          >
-            PAGE {String(save.current).padStart(2, '0')}
-          </T>
+          <PageFolio page={save.current} />
           {!wide ? (
             <View
               style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 8 }}
@@ -189,12 +189,6 @@ export default function Atelier() {
                     La serre des pigments
                   </T>
                 </View>
-                <View style={{ alignItems: 'center' }}>
-                  <Icon name="water-outline" color={C.gold} />
-                  <T style={{ fontSize: 10, color: C.muted, marginTop: 4 }}>
-                    {save.moves} mouvements
-                  </T>
-                </View>
               </View>
             </>
           )}
@@ -211,10 +205,6 @@ export default function Atelier() {
               <T style={{ flex: 1, fontSize: 10, lineHeight: 14, color: C.muted }}>
                 Touchez le timbre pour observer la planche
               </T>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <Icon name="water-outline" size={15} color={C.gold} />
-                <T style={{ fontSize: 11 }}>{save.moves} mouvements</T>
-              </View>
             </View>
           )}
 
@@ -244,25 +234,17 @@ export default function Atelier() {
               onFinish={finishPour}
             />
           </View>
-          <T
-            accessibilityLiveRegion="polite"
-            style={{
-              minHeight: 38,
-              backgroundColor: '#f4ead6e8',
-              borderRadius: 18,
-              paddingVertical: 8,
-              paddingHorizontal: 12,
-              textAlign: 'center',
-              fontSize: 12,
-              color: C.muted,
-              marginBottom: 12,
-            }}
-          >
-            {message ||
+          <PencilNote
+            text={
+              message ||
               (save.current === 1
                 ? 'Touchez un flacon, puis un autre pour verser.'
-                : 'Remplissez chaque flacon d’une seule couleur.')}
-          </T>
+                : 'Remplissez chaque flacon d’une seule couleur.')
+            }
+            handwritten={pencilMessage}
+            motion={save.settings.motion}
+            request={hintRequest}
+          />
           <Paper
             style={{
               flexDirection: 'row',
@@ -285,6 +267,8 @@ export default function Atelier() {
                   setSave(undo);
                   setSelected(null);
                   setHint(null);
+                  setMessage('');
+                  setPencilMessage(false);
                 },
                 disabled: !save.history.length || victory,
               },
@@ -295,6 +279,8 @@ export default function Atelier() {
                   setSave((v) => loadLevel(v, v.current));
                   setSelected(null);
                   setHint(null);
+                  setMessage('');
+                  setPencilMessage(false);
                   setDismissed(false);
                 },
                 disabled: false,
@@ -311,12 +297,22 @@ export default function Atelier() {
                   alignItems: 'center',
                   gap: 7,
                   flex: 1,
-                  padding: 10,
+                  paddingVertical: 10,
+                  paddingHorizontal: 2,
                   opacity: a.disabled ? 0.35 : 1,
                 }}
               >
                 <Icon size={25} name={a.icon as 'bulb-outline'} color={C.green} />
-                <T style={{ fontSize: 11 }}>{a.name}</T>
+                <T
+                  style={{
+                    fontFamily: F.handwritingMedium,
+                    fontSize: Math.min(22, width / 18.5),
+                    lineHeight: 27,
+                    color: C.green,
+                  }}
+                >
+                  {a.name}
+                </T>
               </Pressable>
             ))}
           </Paper>
@@ -502,6 +498,18 @@ export default function Atelier() {
               </T>
               <T style={{ color: C.gold, fontSize: 24, marginTop: 8 }}>
                 {'★'.repeat(save.completed[save.current]?.stars ?? 1)}
+              </T>
+              <T
+                testID="page-result-moves"
+                style={{
+                  fontFamily: F.handwriting,
+                  fontSize: 23,
+                  lineHeight: 29,
+                  color: C.muted,
+                  marginTop: 4,
+                }}
+              >
+                Page achevée en {save.moves} {save.moves === 1 ? 'mouvement' : 'mouvements'}.
               </T>
               {!reveal ? (
                 <>

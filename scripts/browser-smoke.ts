@@ -21,7 +21,9 @@ async function main() {
     await expect(page.getByRole('button', { name: 'Commencer la restauration' })).not.toBeVisible();
     await page.screenshot({ path: 'test-results/atelier-desktop.png', fullPage: true });
     await page.getByRole('button', { name: 'Indice', exact: true }).click();
-    await expect(page.getByText('Versez le flacon 2 dans le flacon 1.')).toBeVisible();
+    await expect(page.getByTestId('hint-writing-text')).toHaveText(
+      'Versez le flacon 2 dans le flacon 1.',
+    );
     for (const [step, m] of levels[0].solution.entries()) {
       await page.getByRole('button', { name: new RegExp(`^Flacon ${m.from + 1},`) }).click();
       await page.getByRole('button', { name: new RegExp(`^Flacon ${m.to + 1},`) }).click();
@@ -41,10 +43,15 @@ async function main() {
         expect(partial.pigments).toHaveLength(0);
         await expect(page.getByText('UN NOUVEAU PIGMENT')).not.toBeVisible();
         await page.getByRole('button', { name: 'Indice', exact: true }).click();
-        await expect(page.getByText('Versez le flacon 3 dans le flacon 1.')).toBeVisible();
+        await expect(page.getByTestId('hint-writing-text')).toHaveText(
+          'Versez le flacon 3 dans le flacon 1.',
+        );
       }
     }
     await expect(page.getByText('UN NOUVEAU PIGMENT')).toBeVisible();
+    await expect(page.getByTestId('page-result-moves')).toContainText(
+      `${levels[0].solution.length} mouvements`,
+    );
     await page.getByRole('button', { name: /Révéler la couleur/ }).click();
     await page.waitForTimeout(1450);
     await page.screenshot({ path: 'test-results/pigment.png', fullPage: true });

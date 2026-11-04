@@ -6,6 +6,8 @@ export const F = {
   medium: 'HerbariumMedium',
   bold: 'HerbariumBold',
   scientific: 'HerbariumScientific',
+  handwriting: 'HerbariumHandwriting',
+  handwritingMedium: 'HerbariumHandwritingMedium',
 } as const;
 export const botanicalFonts = {
   [F.display]: require('@expo-google-fonts/almendra/400Regular/Almendra_400Regular.ttf'),
@@ -14,4 +16,6 @@ export const botanicalFonts = {
   [F.medium]: require('@expo-google-fonts/alegreya-sans/500Medium/AlegreyaSans_500Medium.ttf'),
   [F.bold]: require('@expo-google-fonts/alegreya-sans/700Bold/AlegreyaSans_700Bold.ttf'),
   [F.scientific]: require('@expo-google-fonts/alegreya/500Medium_Italic/Alegreya_500Medium_Italic.ttf'),
+  [F.handwriting]: require('@expo-google-fonts/caveat/400Regular/Caveat_400Regular.ttf'),
+  [F.handwritingMedium]: require('@expo-google-fonts/caveat/500Medium/Caveat_500Medium.ttf'),
 };
