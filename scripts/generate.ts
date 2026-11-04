@@ -33,7 +33,8 @@ for (let id = 1; id <= 100; id++) {
       board[j].push(...board[i].splice(-n));
       reverse.unshift({ from: j, to: i });
     }
-    if (won(board) || unique.has(key(board))) continue;
+    // Reject already separated colors as trivial starting layouts, even if partial.
+    if (board.every((t) => t.every((c) => c === t[0])) || unique.has(key(board))) continue;
     // Independently verify the exact reverse certificate under the real pouring rules.
     let verify = board;
     for (const m of reverse) {

@@ -43,7 +43,7 @@ npm install
 npx expo start --web
 ```
 
-Pour une installation reproductible, utiliser `npm ci` avec le fichier `package-lock.json`. Aucun compte ou secret n’est nécessaire pour jouer. Accepter le tutoriel, sélectionner un flacon source puis sa destination. Le flacon doit être vide ou porter la même couleur au sommet. Un groupe contigu se verse dans la limite des quatre couches. La victoire suit la règle du cahier des charges : chaque flacon non vide est monochrome, même s’il est partiellement rempli.
+Pour une installation reproductible, utiliser `npm ci` avec le fichier `package-lock.json`. Aucun compte ou secret n’est nécessaire pour jouer. Accepter le tutoriel, sélectionner un flacon source puis sa destination. Le flacon doit être vide ou porter la même couleur au sommet. Un groupe contigu se verse dans la limite des quatre couches. Pour gagner, chaque flacon doit être vide ou contenir quatre couches de la même couleur. Une couleur encore répartie entre des flacons partiellement remplis ne valide pas le niveau. Les 100 solutions, les indices et les parcours de référence sont vérifiés avec cette condition. Les configurations de départ et les récompenses déjà enregistrées sont conservées.
 
 Les annulations, indices et reprises sont gratuits. Les étoiles comparent le nombre de mouvements à un parcours de référence vérifié, **pas à un optimum mathématique**. Rejouer peut améliorer les étoiles sans dupliquer les graines ou les pigments. Une nouvelle espèce s’ouvre après cinq niveaux, un écosystème après vingt. Le niveau 100 termine la collection sans charger de niveau 101.
 
@@ -77,7 +77,7 @@ npm run build:web
 npm run test:browser
 ```
 
-Les 23 tests unitaires couvrent les transferts, les refus, la victoire, l’annulation et la reprise, les 100 solutions, le solveur indépendant sur chacun des niveaux, les 100 récompenses, les déblocages, les vingt restaurations, les migrations et la restauration de sauvegardes, ainsi que l’économie. Six tests portent sur la conservation des volumes à différentes inclinaisons, les couches, l’angle de débordement, le volume en vol, le déroulement temporel et les quantités fractionnaires.
+Les 26 tests unitaires couvrent les transferts, les refus, la victoire, l’annulation et la reprise, les 100 solutions, le solveur indépendant sur chacun des niveaux, les 100 récompenses, les déblocages, les vingt restaurations, les migrations et la restauration de sauvegardes, ainsi que l’économie. Six tests portent sur la conservation des volumes à différentes inclinaisons, les couches, l’angle de débordement, le volume en vol, le déroulement temporel et les quantités fractionnaires.
 
 Le contrôle navigateur utilise Playwright et Chromium installé dans `/usr/bin/chromium`. Adapter `executablePath` dans `scripts/browser-smoke.ts` sur une autre machine. Il couvre le tutoriel, l’indice, une résolution jouée par clics, la révélation, le rechargement, les réglages d’accessibilité, la fin du niveau 100, l’herbier complet, le mode hors ligne, l’affichage mobile et le cadeau quotidien. Pour préparer le dernier niveau, il injecte une sauvegarde créée en résolvant réellement les niveaux 1 à 99 via le moteur ; il ne prétend pas cliquer les cent niveaux dans le navigateur. Les captures sont générées dans `test-results/`.
 

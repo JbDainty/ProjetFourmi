@@ -20,7 +20,7 @@ export function pour(board: Board, from: number, to: number): Board | null {
 export const won = (b: Board): boolean =>
   b.length > 0 &&
   b.some((t) => t.length) &&
-  b.every((t) => t.length === 0 || t.every((c) => c === t[0]));
+  b.every((t) => t.length === 0 || (t.length === CAPACITY && t.every((c) => c === t[0])));
 export function moves(b: Board): Move[] {
   const result: Move[] = [];
   let emptyUsed = -1;

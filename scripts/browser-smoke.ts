@@ -21,10 +21,27 @@ async function main() {
     await page.screenshot({ path: 'test-results/atelier-desktop.png', fullPage: true });
     await page.getByRole('button', { name: 'Indice', exact: true }).click();
     await expect(page.getByText('Versez le flacon 2 dans le flacon 1.')).toBeVisible();
-    for (const m of levels[0].solution) {
+    for (const [step, m] of levels[0].solution.entries()) {
       await page.getByRole('button', { name: new RegExp(`^Flacon ${m.from + 1},`) }).click();
       await page.getByRole('button', { name: new RegExp(`^Flacon ${m.to + 1},`) }).click();
       await page.waitForTimeout(550);
+      if (step === levels[0].solution.length - 2) {
+        await expect(page.getByTestId('liquid-board-idle')).toBeVisible();
+        const partial = await page.evaluate(() =>
+          JSON.parse(localStorage.getItem('color-world.save')!),
+        );
+        expect(partial.board.every((tube: number[]) => tube.every((c) => c === tube[0]))).toBe(
+          true,
+        );
+        expect(partial.board.some((tube: number[]) => tube.length > 0 && tube.length < 4)).toBe(
+          true,
+        );
+        expect(partial.completed['1']).toBeUndefined();
+        expect(partial.pigments).toHaveLength(0);
+        await expect(page.getByText('UN NOUVEAU PIGMENT')).not.toBeVisible();
+        await page.getByRole('button', { name: 'Indice', exact: true }).click();
+        await expect(page.getByText('Versez le flacon 3 dans le flacon 1.')).toBeVisible();
+      }
     }
     await expect(page.getByText('UN NOUVEAU PIGMENT')).toBeVisible();
     await page.getByRole('button', { name: /Révéler la couleur/ }).click();

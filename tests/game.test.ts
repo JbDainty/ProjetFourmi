@@ -28,8 +28,10 @@ describe('tri de liquides', () => {
     expect(pour([[0], [1]], 0, 1)).toBeNull();
     expect(pour(b, 0, 9)).toBeNull();
   });
-  it('détecte la victoire suivant la règle monochrome, y compris les flacons partiels', () => {
-    expect(won([[0, 0], [1], []])).toBe(true);
+  it('exige des flacons vides ou pleins et monochromes pour gagner', () => {
+    expect(won([[0, 0], [1], []])).toBe(false);
+    expect(won([[0, 0], [1, 1, 1, 1], [0, 0], []])).toBe(false);
+    expect(won([[0, 0, 0, 0], [1, 1, 1, 1], [], []])).toBe(true);
     expect(won([[0, 1], []])).toBe(false);
     expect(won([[], []])).toBe(false);
   });
@@ -162,4 +164,38 @@ describe('économie et reprise finale', () => {
   });
   it('refuse une collection de pigments falsifiée', () =>
     expect(() => restore(JSON.stringify({ ...initial(), pigments: [{}] }))).toThrow());
+});
+
+describe('couleurs intégralement regroupées', () => {
+  const partial = [[0, 0], [1, 1, 1, 1], [0, 0], []];
+  it('continue le puzzle sans récompense avec une couleur répartie en demi-flacons', () => {
+    const s = { ...initial(), board: clone(partial) };
+    expect(won(s.board)).toBe(false);
+    expect(reward(s)).toBe(s);
+    expect(s.pigments).toHaveLength(0);
+    const completed = move(s, 0, 2);
+    expect(won(completed.board)).toBe(true);
+    expect(completed.pigments).toHaveLength(1);
+    expect(completed.seeds).toBe(s.seeds + 10);
+    expect(completed.completed[1]).toBeDefined();
+  });
+  it('propose un indice de consolidation quand toutes les couleurs sont déjà séparées', () => {
+    const path = solve(partial);
+    expect(path).not.toBeNull();
+    expect(path).toHaveLength(1);
+    expect(won(pour(partial, path![0].from, path![0].to)!)).toBe(true);
+  });
+  it('reprend une ancienne victoire partielle sans effacer ni dupliquer les récompenses', () => {
+    let earned = initial();
+    for (const m of levels[0].solution) earned = move(earned, m.from, m.to);
+    const legacy = { ...earned, board: clone(partial), history: [], moves: 5 };
+    const restored = restore(JSON.stringify(legacy));
+    expect(restored.completed).toEqual(earned.completed);
+    expect(restored.pigments).toEqual(earned.pigments);
+    expect(won(restored.board)).toBe(false);
+    const completed = move(restored, 0, 2);
+    expect(won(completed.board)).toBe(true);
+    expect(completed.seeds).toBe(earned.seeds);
+    expect(completed.pigments).toEqual(earned.pigments);
+  });
 });

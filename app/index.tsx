@@ -191,7 +191,7 @@ export default function Atelier() {
             {message ||
               (save.current === 1
                 ? 'Touchez un flacon, puis un autre pour verser.'
-                : 'Une couleur par flacon, un pigment pour l’herbier.')}
+                : 'Remplissez chaque flacon d’une seule couleur.')}
           </T>
           <View
             style={{
@@ -305,8 +305,8 @@ export default function Atelier() {
                 Les couleurs ont disparu.{`\n`}Faisons-les renaître.
               </T>
               <T style={{ color: C.muted, textAlign: 'center', marginVertical: 20 }}>
-                Rassemblez les liquides de même couleur dans les flacons. Chaque énigme redonne vie
-                à une planche botanique.
+                Remplissez chaque flacon avec une seule couleur. Les autres flacons doivent être
+                vides. Chaque énigme redonne vie à une planche botanique.
               </T>
               <Button onPress={() => setSave((v) => ({ ...v, started: true }))}>
                 Commencer la restauration
