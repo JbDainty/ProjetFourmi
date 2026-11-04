@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "COLOR WORLD — L’Herbier des Couleurs",
+    "slug": "color-world-herbier",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "colorworld",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.colorworld.herbier"
+    },
+    "android": {
+      "package": "com.colorworld.herbier",
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "name": "COLOR WORLD",
+      "shortName": "Herbier",
+      "themeColor": "#315649",
+      "backgroundColor": "#f4f0e5"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-asset",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "enableBackgroundRecording": false
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

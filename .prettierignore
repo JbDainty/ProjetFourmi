@@ -1,0 +1,7 @@
+node_modules
+dist
+.expo
+package-lock.json
+src/data/levels.json
+src/data/taxonomy.json
+public/licenses

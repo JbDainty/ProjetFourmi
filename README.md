@@ -1,0 +1,149 @@
+# COLOR WORLD — L’Herbier des Couleurs
+
+Jeu de tri de pigments en français, réalisé avec Expo SDK 54, React Native, Expo Router et TypeScript strict. Les cent niveaux se répartissent entre cinq écosystèmes et vingt espèces. Chaque première victoire révèle un cinquième de la planche et ajoute un pigment daté à la collection.
+
+## Tester le jeu sans rien installer
+
+Adresse de la version de test : **https://jbdainty.github.io/ProjetFourmi/**
+
+Ouvrir le lien dans un navigateur sur ordinateur ou téléphone, puis choisir « Commencer la restauration ». La progression est enregistrée sur cet appareil ; elle n’est pas partagée automatiquement avec un autre téléphone ou navigateur. Aucun paiement ni publicité n’est actif.
+
+Les fichiers sources sont conservés sur https://github.com/JbDainty/ProjetFourmi. La branche `master` contient le code source, et la branche `gh-pages` contient le site compilé. Pour activer l’adresse, ouvrir **Settings → Pages → Build and deployment → Deploy from a branch**, sélectionner **gh-pages** et **/ (root)**, puis **Save**. Le premier déploiement peut prendre quelques minutes.
+
+L’accès fourni à cet espace de travail permet l’envoi des fichiers, mais l’API GitHub a refusé l’activation de Pages (HTTP 403). Si le site n’est pas encore actif, ce réglage doit donc être enregistré par le propriétaire du dépôt.
+
+Pour envoyer une nouvelle version Web après des modifications :
+
+```sh
+npm test
+npm run typecheck
+npm run deploy:pages
+```
+
+Le script compile le jeu avec le bon préfixe et met à jour la branche `gh-pages` sans envoi forcé. Il nécessite l’accès Git en écriture au dépôt et une identité Git configurée. Il ne change ni la visibilité du dépôt ni ses paramètres d’hébergement.
+
+Pour reproduire l’export GitHub Pages localement :
+
+```sh
+EXPO_PUBLIC_BASE_PATH=/ProjetFourmi npm run build:web
+PORT=8083 EXPO_PUBLIC_BASE_PATH=/ProjetFourmi npm run preview
+GAME_TEST_URL=http://localhost:8083/ProjetFourmi/ npm run test:browser
+```
+
+Le préfixe est appliqué au routeur, aux ressources, au manifeste et au service worker. Les quatre pages de navigation possèdent une entrée HTML pour fonctionner après un rechargement chez l’hébergeur. `404.html` permet aussi de reprendre les autres routes du site.
+
+## Jouer dans le navigateur
+
+Node.js 22 LTS ou 24, npm et un navigateur récent sont nécessaires.
+
+```sh
+cd /workspace/ProjetFourmi
+npm install
+npx expo start --web
+```
+
+Pour une installation reproductible, utiliser `npm ci` avec le fichier `package-lock.json`. Aucun compte ou secret n’est nécessaire pour jouer. Accepter le tutoriel, sélectionner un flacon source puis sa destination. Le flacon doit être vide ou porter la même couleur au sommet. Un groupe contigu se verse dans la limite des quatre couches. La victoire suit la règle du cahier des charges : chaque flacon non vide est monochrome, même s’il est partiellement rempli.
+
+Les annulations, indices et reprises sont gratuits. Les étoiles comparent le nombre de mouvements à un parcours de référence vérifié, **pas à un optimum mathématique**. Rejouer peut améliorer les étoiles sans dupliquer les graines ou les pigments. Une nouvelle espèce s’ouvre après cinq niveaux, un écosystème après vingt. Le niveau 100 termine la collection sans charger de niveau 101.
+
+## Export Web et mode hors ligne
+
+```sh
+npm run build:web
+npm run preview
+```
+
+`dist/` contient le site de production. Le serveur local écoute le port 8081 (`PORT` permet de le changer). Pour héberger le site, servir ce dossier à la racine d’un domaine HTTPS et rediriger les routes sans fichier vers `index.html` ; ne pas rediriger les fichiers manquants vers du HTML. Les routes `/herbier`, `/carte`, `/boutique` et `/parametres` sont des routes d’application.
+
+Le service worker met les ressources en cache à la première visite complète de l’export de production. Il permet ensuite une reprise hors ligne. HTTPS est requis en dehors du serveur local. Le serveur Expo de développement ne fournit pas ce cache. L’installation PWA dépend du navigateur ; le manifeste utilise une icône SVG, et des icônes PNG adaptées aux boutiques restent à préparer.
+
+## Vérifications
+
+```sh
+npm test
+npm run typecheck
+npx expo install --check
+npm run build:web
+# Dans un autre terminal après npm run preview :
+npm run test:browser
+```
+
+Les 17 tests unitaires couvrent les transferts, les refus, la victoire, l’annulation et la reprise, les 100 solutions, le solveur indépendant sur chacun des niveaux, les 100 récompenses, les déblocages, les vingt restaurations, les migrations et la restauration de sauvegardes, ainsi que l’économie.
+
+Le contrôle navigateur utilise Playwright et Chromium installé dans `/usr/bin/chromium`. Adapter `executablePath` dans `scripts/browser-smoke.ts` sur une autre machine. Il couvre le tutoriel, l’indice, une résolution jouée par clics, la révélation, le rechargement, les réglages d’accessibilité, la fin du niveau 100, l’herbier complet, le mode hors ligne, l’affichage mobile et le cadeau quotidien. Pour préparer le dernier niveau, il injecte une sauvegarde créée en résolvant réellement les niveaux 1 à 99 via le moteur ; il ne prétend pas cliquer les cent niveaux dans le navigateur. Les captures sont générées dans `test-results/`.
+
+```sh
+npm run levels
+```
+
+Régénère les cent configurations de manière déterministe. Le générateur utilise des mouvements inverses légaux, rejoue leurs certificats avec le moteur de versement et cherche une solution indépendante. Les tests vérifient de nouveau chaque solution. Les budgets de couleurs augmentent de 2 à 7 et le brassage augmente progressivement. L’unicité est vérifiée indépendamment de l’ordre des flacons. Un équilibrage par des joueurs reste nécessaire.
+
+L’indice utilise un chemin complet trouvé par le solveur depuis l’état courant. Il ne propose jamais un mouvement aléatoire. La recherche est plafonnée à 250 000 états et 140 mouvements pour préserver la réactivité ; si elle n’aboutit pas, l’interface propose d’annuler ou de recommencer, sans prétendre fournir une solution.
+
+## Android et iOS
+
+Les mêmes routes, règles, SVG et sauvegardes sont partagés. Les bundles Metro/Hermes Android et iOS ont été exportés dans l’environnement cloud. **Cela ne constitue pas un essai sur appareil ni une compilation signée.**
+
+Pour essayer sur un téléphone compatible avec le SDK 54, lancer `npx expo start`, puis ouvrir avec une version compatible d’Expo Go. Pour des compilations natives locales :
+
+```sh
+# Android Studio, SDK Android et JDK 17 configurés :
+npm run android
+# Uniquement sur macOS avec Xcode et CocoaPods :
+npm run ios
+```
+
+Pour construire via EAS (compte Expo et certificats des plateformes nécessaires) :
+
+```sh
+npx eas-cli login
+npx eas-cli build:configure
+npx eas-cli build --platform android --profile preview
+npx eas-cli build --platform android --profile production
+npx eas-cli build --platform ios --profile production
+```
+
+`eas.json` prépare les profils APK de test et de production. Remplacer les identifiants `com.colorworld.herbier` par ceux du propriétaire avant les inscriptions en boutique. Aucun compte, certificat, signature ou téléversement n’a été créé. Vérifier aussi sons, haptique, gestes, zones sûres, petits écrans et sauvegardes sur de vrais iPhone et Android avant soumission.
+
+## Sauvegarde et confidentialité
+
+AsyncStorage conserve le document `color-world.save` (localStorage sur Web). Le format est versionné (`version: 2`) et le lecteur migre le format précédent, complète les options manquantes et rejette les données incohérentes. Le puzzle, son historique, les étoiles, pigments datés, graines, thèmes et paramètres sont enregistrés après les actions, dans une file d’écriture ordonnée. L’interface attend la lecture initiale avant toute écriture. Une erreur de lecture n’écrase pas la sauvegarde ; une erreur d’écriture affiche une action de nouvelle tentative.
+
+Les réglages permettent de copier le document JSON et de restaurer une copie après validation et confirmation. La sauvegarde est locale, sans synchronisation serveur. Effacer les données de l’application ou du navigateur la supprime. Les cadeaux quotidiens suivent l’horloge locale : aucune promesse de protection contre sa manipulation.
+
+Aucun compte, mesure d’audience ou service publicitaire actif. Les ressources de jeu et polices sont embarquées. Les paramètres proposent sons, haptique, animations et symboles indépendants des couleurs. Aucune donnée de santé ou recommandation de consommation végétale.
+
+## Organisation
+
+- `app/` : cinq espaces Expo Router, tutoriel et dialogues.
+- `src/engine/puzzle.ts` : règles pures, capacités et solveur.
+- `scripts/generate.ts`, `src/data/levels.json` : génération, certificats et 100 configurations.
+- `src/state/model.ts` : progression, récompenses et validation/migration.
+- `src/state/pigments.ts` : découverte des pigments.
+- `src/state/economy.ts` : cadeaux, graines et cosmétiques.
+- `src/state/store.tsx` : hydratation et persistance asynchrone.
+- `src/data/botany.ts` : vingt fiches et cinq écosystèmes.
+- `src/components/Botanical.tsx` : dessins SVG originaux, organes et cinq étapes de coloration, détails floraux et agrandissement.
+- `src/services/` : son/haptique et contrat des fournisseurs commerciaux.
+
+Les fiches et niveaux sont séparés de la présentation. Étendre le moteur au-delà de 100 niveaux demande de remplacer les bornes explicites et d’ajouter les données : aucune extension n’est annoncée comme automatique.
+
+## Botanique et ressources
+
+Les vingt noms et familles ont été contrôlés le 4 novembre 2026 par l’API du **GBIF Backbone Taxonomy** : vingt correspondances exactes, acceptées. Les réponses et URL sont conservées dans `src/data/taxonomy.json`. `python3 scripts/check-botany.py` renouvelle ce contrôle en ligne. Ce contrôle porte sur la nomenclature, pas sur l’ensemble des textes ni sur la conformité scientifique des dessins. Les différences de référentiels (notamment Anemone/Anemonoides et les sous-espèces d’edelweiss) doivent être revues avec TAXREF avant une publication scientifique.
+
+Les descriptions signalent des caractères morphologiques usuels ; les périodes de floraison varient selon altitude et climat. Les dessins vectoriels distinguent notamment capsule et pétales du coquelicot, capitules du bleuet et de la marguerite, folioles et têtes florales du trèfle, clochettes, épis, bractées de l’edelweiss et tépales de l’iris. **Ils restent des illustrations stylisées : ils ne sont pas présentés comme vingt planches naturalistes aquarellées ayant reçu une validation botanique professionnelle.** Une passe d’illustration et de revue des fiches reste nécessaire pour atteindre cette qualité éditoriale du cahier des charges.
+
+- GBIF : https://www.gbif.org/species/search
+- TAXREF / INPN : https://inpn.mnhn.fr/programme/referentiel-taxonomique-taxref
+- Plants of the World Online, Kew : https://powo.science.kew.org/
+
+Dessins SVG et son de versement synthétisé créés pour ce projet, sans image commerciale externe. Cormorant Garamond est distribué sous SIL Open Font License ; Ionicons via react-native-vector-icons sous MIT. Les notices sont incluses dans `public/licenses/` et l’export. Voir `ASSETS.md`.
+
+## Commerce et limites avant publication
+
+La boutique fonctionnelle utilise les graines gagnées en jeu pour trois papiers cosmétiques. Les indices et annulations restent gratuits. `CommerceAdapter` définit les points d’intégration des fournisseurs natifs, avec un adaptateur indisponible par défaut. La politique des interstitiels est désactivée, configurable et réservée aux transitions de niveaux. **Aucun paiement ni visionnage de publicité n’est simulé comme une transaction réelle.**
+
+Avant activation de revenus : intégrer les SDK retenus (Google Play Billing, StoreKit et fournisseur publicitaire), vérifier les achats côté serveur, gérer restauration et révocations, consentement/ATT, plafonnement réel, déclarations de confidentialité et tests sandbox. Les packs, encadrements saisonniers et la suppression des publicités ne sont pas implémentés comme produits achetables.
+
+La base Web jouable, les cent niveaux et la progression sont présents. La finition éditoriale des illustrations, l’équilibrage humain, les tests sur appareils, les achats réels et la préparation finale des boutiques restent à réaliser. La version Web de test est destinée à GitHub Pages. Aucune publication sur Google Play ou l’App Store, ni nouvelle publication de l’environnement cloud, n’est effectuée.
