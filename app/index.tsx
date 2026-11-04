@@ -19,6 +19,7 @@ import { ChapterVignette } from '../src/components/ChapterVignette';
 import { SpellIcon } from '../src/components/SpellIcon';
 import { PageFolio } from '../src/components/PageFolio';
 import { HintScroll } from '../src/components/HintScroll';
+import { MistakeLeaves } from '../src/components/MistakeLeaves';
 import { SceneSizeContext } from '../src/components/SceneSize';
 import { T, Label, Icon, Button, Progress, C, ui } from '../src/components/ui';
 import { feedback } from '../src/services/feedback';
@@ -80,8 +81,9 @@ export default function Atelier() {
     if (!pour(save.board, selected, index)) {
       setNote((previous) => ({
         ...previous,
-        text: 'Versez sur une couleur identique ou dans un flacon vide.',
+        text: 'Versez sur une couleur identique\nou dans un flacon vide.',
         kind: 'info',
+        request: previous.request + 1,
         pending: false,
       }));
       setSelected(save.board[index].length ? index : null);
@@ -200,20 +202,12 @@ export default function Atelier() {
             }}
           >
             {note.kind === 'info' && !!note.text && (
-              <T
-                accessibilityLiveRegion="polite"
-                style={{
-                  position: 'absolute',
-                  top: 12,
-                  left: 8,
-                  right: 8,
-                  textAlign: 'center',
-                  fontSize: 12,
-                  color: C.muted,
-                }}
-              >
-                {note.text}
-              </T>
+              <MistakeLeaves
+                key={note.request}
+                text={note.text}
+                motion={save.settings.motion}
+                onDismiss={clearNote}
+              />
             )}
             <LiquidBoard
               integrated

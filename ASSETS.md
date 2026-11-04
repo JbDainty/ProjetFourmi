@@ -13,6 +13,7 @@
 - `src/components/StampPrompt.tsx` : courte invitation italique et petites lueurs dorées originales pour l’observation de la planche.
 - `src/components/HerbariumBookButton.tsx` : livre ancien original en SVG, reliure verte, tranche de papier, dorures et plantes gravées. L’animation ouvre la couverture puis révèle le menu ; aucun visuel de couverture externe.
 - `src/components/PageFolio.tsx` : fleuron de pagination original en SVG, rameaux symétriques et chiffre en Almendra.
+- `src/components/MistakeLeaves.tsx` : feuille porteuse du conseil, nervures, ombre et quatre petites feuilles originales en SVG. Chute douce, balancement puis disparition ; texte manuscrit Caveat, taille adaptée aux petits écrans. Aucune image ou animation tierce.
 - `src/components/PencilNote.tsx` : crayon à papier original dessiné en SVG ; apparition progressive de l’écriture Caveat et positionnement du crayon d’après les lettres et les lignes réellement affichées.
 - `src/components/HintScroll.tsx` : parchemin original en SVG, papier patiné embarqué, bords irréguliers, rouleaux ombrés et discret filigrane végétal. Les deux rouleaux s’écartent avant le début de l’écriture. La texture réutilise `papier.png` sans modification de l’image.
 - `src/components/BotanicalStamp.tsx` : timbre dentelé original en SVG, réutilisant les illustrations et les étapes de restauration existantes.

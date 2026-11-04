@@ -21,7 +21,8 @@
     "test:mobile-herbarium": "node --import tsx scripts/mobile-herbarium-smoke.ts",
     "test:pencil": "node --import tsx scripts/pencil-smoke.ts",
     "test:victory": "node --import tsx scripts/victory-smoke.ts",
-    "test:book": "node --import tsx scripts/book-smoke.ts"
+    "test:book": "node --import tsx scripts/book-smoke.ts",
+    "test:mistake": "node --import tsx scripts/mistake-smoke.ts"
   },
   "dependencies": {
     "@expo-google-fonts/alegreya": "^0.4.2",
