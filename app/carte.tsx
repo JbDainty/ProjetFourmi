@@ -7,8 +7,10 @@ import { useGame } from '../src/state/store';
 import { unlocked, loadLevel } from '../src/state/model';
 import { T, Label, Icon, Progress, C, ui } from '../src/components/ui';
 import { Botanical } from '../src/components/Botanical';
+import { PageTurnContext } from '../src/components/PageTurn';
 export default function Carte() {
   const { save, setSave } = useGame();
+  const turnPage = React.useContext(PageTurnContext);
   return (
     <ScrollView contentContainerStyle={ui.page}>
       <Label>LE CARNET D’EXPLORATION</Label>
@@ -71,8 +73,10 @@ export default function Carte() {
                     key={id}
                     disabled={!available}
                     onPress={() => {
-                      setSave((s) => loadLevel(s, id));
-                      router.push('/');
+                      turnPage(id, () => {
+                        setSave((s) => loadLevel(s, id));
+                        router.push('/');
+                      });
                     }}
                     style={{
                       width: 46,

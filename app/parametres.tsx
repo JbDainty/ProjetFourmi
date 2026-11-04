@@ -14,7 +14,7 @@ export default function Parametres() {
     {
       key: 'sound',
       name: 'Sons de l’atelier',
-      detail: 'Les versements et le vent léger dans les feuilles.',
+      detail: 'Versements, vent dans les feuilles et mélodie de restauration.',
     },
     {
       key: 'haptics',

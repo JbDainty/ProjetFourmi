@@ -2,6 +2,8 @@ import { F } from '../src/components/fonts';
 import { Paper } from '../src/components/Paper';
 import { VictoryPaper } from '../src/components/VictoryPaper';
 import { StampPrompt } from '../src/components/StampPrompt';
+import { VictoryAction } from '../src/components/VictoryAction';
+import { PageTurnContext } from '../src/components/PageTurn';
 import React, { useEffect, useRef, useState } from 'react';
 import { View, ScrollView, Pressable, Modal, Animated, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
@@ -24,6 +26,8 @@ type Note = { text: string; kind: 'info' | 'hint'; request: number; pending: boo
 const scenePadding = { top: 100, bottom: 20 };
 export default function Atelier() {
   const reportSceneHeight = React.useContext(SceneSizeContext);
+  const turnPage = React.useContext(PageTurnContext);
+  const scroll = useRef<ScrollView>(null);
   const { save, setSave } = useGame(),
     { width } = useWindowDimensions(),
     wide = width > 1100;
@@ -46,6 +50,7 @@ export default function Atelier() {
   const clearNote = () =>
     setNote((previous) => ({ ...previous, text: '', kind: 'info', pending: false }));
   useEffect(() => {
+    scroll.current?.scrollTo({ y: 0, animated: false });
     setReplay(!!save.completed[save.current]);
     setSelected(null);
     setHint(null);
@@ -133,11 +138,14 @@ export default function Atelier() {
   };
   const next = () => {
     setDismissed(true);
-    if (save.current < 100) setSave((v) => loadLevel(v, v.current + 1));
-    else router.push('/herbier');
+    if (save.current < 100) {
+      const target = save.current + 1;
+      turnPage(target, () => setSave((v) => loadLevel(v, target)));
+    } else router.push('/herbier');
   };
   return (
     <ScrollView
+      ref={scroll}
       style={{ flex: 1 }}
       contentContainerStyle={{
         flexGrow: 1,
@@ -448,7 +456,13 @@ export default function Atelier() {
                 vides. Touchez un flacon, puis un autre pour verser. Chaque énigme redonne vie à une
                 planche botanique.
               </T>
-              <Button icon="leaf-outline" onPress={() => setSave((v) => ({ ...v, started: true }))}>
+              <Button
+                icon="leaf-outline"
+                onPress={() => {
+                  setSave((v) => ({ ...v, started: true }));
+                  turnPage(1, () => {});
+                }}
+              >
                 Commencer la restauration
               </Button>
             </Paper>
@@ -471,7 +485,11 @@ export default function Atelier() {
         >
           <ScrollView style={{ maxHeight: '95%', width: '100%', maxWidth: 460 }}>
             {victory && !dismissed && save.started && (
-              <VictoryPaper motion={save.settings.motion} sound={save.settings.sound}>
+              <VictoryPaper
+                motion={save.settings.motion}
+                sound={save.settings.sound}
+                celebrate={stage === 5 && save.current % 5 === 0 && !replay}
+              >
                 <Label>
                   {save.current === 100
                     ? 'L’HERBIER RETROUVE SES COULEURS'
@@ -506,9 +524,9 @@ export default function Atelier() {
                       stage={replay ? stage : Math.max(0, stage - 1)}
                       size={200}
                     />
-                    <Button icon="water-outline" onPress={restorePigment}>
+                    <VictoryAction icon="water-outline" onPress={restorePigment}>
                       Révéler la couleur
-                    </Button>
+                    </VictoryAction>
                     <Pressable
                       accessibilityRole="button"
                       onPress={() => {
@@ -517,7 +535,9 @@ export default function Atelier() {
                       }}
                       style={{ padding: 16 }}
                     >
-                      <T style={{ fontSize: 12, color: C.muted }}>Passer l’animation</T>
+                      <T style={{ fontFamily: F.scientific, fontSize: 16, color: C.muted }}>
+                        Passer l’animation
+                      </T>
                     </Pressable>
                   </>
                 ) : (
@@ -531,22 +551,21 @@ export default function Atelier() {
                     >
                       {botanicalFact(save.current, 'reveal')}
                     </T>
-                    <Button icon="arrow-forward-outline" onPress={next}>
+                    <VictoryAction icon="arrow-forward-outline" onPress={next}>
                       {save.current === 100
                         ? 'Contempler mon herbier'
                         : 'Poursuivre la restauration'}
-                    </Button>
-                    <Button
+                    </VictoryAction>
+                    <VictoryAction
                       icon="book-outline"
                       secondary
                       onPress={() => {
                         setDismissed(true);
                         router.push('/herbier');
                       }}
-                      style={{ marginTop: 10 }}
                     >
                       Ouvrir l’herbier
-                    </Button>
+                    </VictoryAction>
                   </>
                 )}
               </VictoryPaper>

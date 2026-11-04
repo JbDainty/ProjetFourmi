@@ -11,6 +11,8 @@ import { Paper, PaperTexture } from '../src/components/Paper';
 import { GreenhouseBackdrop } from '../src/components/Greenhouse';
 import { SceneVeil } from '../src/components/SceneVeil';
 import { SceneSizeContext } from '../src/components/SceneSize';
+import { PageTurn, PageTurnContext, type TurningPage } from '../src/components/PageTurn';
+import { restoration } from '../src/state/model';
 import { HerbariumTitle } from '../src/components/HerbariumTitle';
 import { HerbariumBookButton } from '../src/components/HerbariumBookButton';
 import { basePath } from '../src/config/paths';
@@ -30,6 +32,31 @@ function Shell() {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [sceneHeight, setSceneHeight] = React.useState(0);
   const { save, ready, error, retry } = useGame();
+  const [turn, setTurn] = React.useState<TurningPage | null>(null);
+  const pendingTurn = React.useRef<(() => void) | null>(null);
+  const turning = React.useRef(false);
+  const turnPage = (target: number, commit: () => void) => {
+    if (turning.current) return;
+    if (!save.settings.motion) {
+      commit();
+      return;
+    }
+    turning.current = true;
+    pendingTurn.current = commit;
+    const plant = Math.floor((save.current - 1) / 5);
+    setTurn({
+      id: Date.now(),
+      from: save.started ? save.current : 0,
+      to: target,
+      plant,
+      stage: restoration(save, plant),
+    });
+  };
+  const commitTurn = () => {
+    const commit = pendingTurn.current;
+    pendingTurn.current = null;
+    commit?.();
+  };
   React.useEffect(() => {
     if (
       Platform.OS === 'web' &&
@@ -135,7 +162,9 @@ function Shell() {
         )}
         {ready ? (
           <SceneSizeContext.Provider value={setSceneHeight}>
-            <Slot />
+            <PageTurnContext.Provider value={turnPage}>
+              <Slot />
+            </PageTurnContext.Provider>
           </SceneSizeContext.Provider>
         ) : (
           <View style={{ padding: 40, marginTop: 88 }}>
@@ -212,6 +241,17 @@ function Shell() {
           </ScrollView>
         </View>
       </Modal>
+      {turn && (
+        <PageTurn
+          key={turn.id}
+          page={turn}
+          onCovered={commitTurn}
+          onFinished={() => {
+            turning.current = false;
+            setTurn(null);
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }
