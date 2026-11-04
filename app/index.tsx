@@ -124,7 +124,7 @@ export default function Atelier() {
         maxWidth: 1180,
         alignSelf: 'center',
         paddingHorizontal: width < 800 ? 18 : 32,
-        paddingTop: 86,
+        paddingTop: 100,
         paddingBottom: 20,
       }}
     >
@@ -147,7 +147,7 @@ export default function Atelier() {
               marginBottom: 9,
             }}
           >
-            NIVEAU {String(save.current).padStart(2, '0')} / 100
+            PAGE {String(save.current).padStart(2, '0')}
           </T>
           {!wide ? (
             <View

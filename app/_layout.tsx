@@ -10,6 +10,8 @@ import { T, Label, Icon, Button, C, ui } from '../src/components/ui';
 import { Paper, PaperTexture } from '../src/components/Paper';
 import { GreenhouseBackdrop } from '../src/components/Greenhouse';
 import { SceneVeil } from '../src/components/SceneVeil';
+import { HerbariumTitle } from '../src/components/HerbariumTitle';
+import { HerbariumBookButton } from '../src/components/HerbariumBookButton';
 import { basePath } from '../src/config/paths';
 const nav = [
   { path: '/', name: 'L’Atelier', icon: 'flask-outline' },
@@ -65,45 +67,22 @@ function Shell() {
           left: 0,
           right: 0,
           zIndex: 20,
-          paddingTop: 12,
+          paddingTop: 6,
           paddingHorizontal: mobile ? 16 : 28,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: 10,
+          gap: 4,
         }}
       >
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Ouvrir le carnet"
-          onPress={() => setMenuOpen(true)}
-          style={({ pressed }) => ({
-            width: 48,
-            height: 48,
-            borderRadius: 24,
-            backgroundColor: '#f4ead6e8',
-            borderWidth: 1,
-            borderColor: '#b8a778',
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: pressed ? 0.7 : 1,
-          })}
-        >
-          <Icon name="book-outline" color={C.green} size={27} />
-        </Pressable>
-        <T
-          serif
-          accessibilityRole="header"
-          style={{
-            flex: 1,
-            textAlign: 'center',
-            fontSize: mobile ? 25 : 32,
-            lineHeight: mobile ? 25 : 38,
-            color: C.green,
-          }}
-        >
-          L’Herbier{mobile ? '\n' : ' '}des Couleurs
-        </T>
+        <HerbariumBookButton
+          open={menuOpen}
+          motion={save.settings.motion}
+          onOpen={() => setMenuOpen(true)}
+        />
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <HerbariumTitle compact={mobile} />
+        </View>
         <View
           accessible
           accessibilityLabel={`Graines dorées : ${save.seeds}`}
@@ -123,13 +102,13 @@ function Shell() {
           <T style={{ fontSize: 16 }}>{save.seeds}</T>
         </View>
       </View>
-      <View style={{ flex: 1, paddingTop: playing ? 0 : 88 }}>
+      <View style={{ flex: 1, paddingTop: playing ? 0 : 100 }}>
         {error && (
           <Pressable
             onPress={retry}
             style={{
               padding: 12,
-              marginTop: playing ? 88 : 0,
+              marginTop: playing ? 100 : 0,
               backgroundColor: '#f0dfcf',
               zIndex: 21,
             }}
@@ -173,9 +152,9 @@ function Shell() {
                   <Icon name="close-outline" size={24} />
                 </Pressable>
               </View>
-              <T serif style={{ fontSize: 32, lineHeight: 36, marginBottom: 16 }}>
-                L’Herbier des Couleurs
-              </T>
+              <View style={{ alignItems: 'center', marginBottom: 20 }}>
+                <HerbariumTitle compact={mobile} />
+              </View>
               <Button
                 icon="flask-outline"
                 onPress={() => (playing ? setMenuOpen(false) : navigate('/'))}

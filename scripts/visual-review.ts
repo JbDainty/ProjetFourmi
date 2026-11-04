@@ -53,7 +53,7 @@ async function main() {
     await page.screenshot({ path: 'test-results/herbarium-detail.png', fullPage: true });
     await page.getByRole('button', { name: 'Fermer la planche', exact: true }).click();
     await openScreen(page, 'Écosystèmes');
-    await page.getByText(/CHAPITRE 01 · NIVEAUX/).waitFor();
+    await page.getByText(/CHAPITRE 01 · PAGES/).waitFor();
     await page.waitForTimeout(250);
     await page.screenshot({ path: 'test-results/botanical-chapter-frame.png', fullPage: true });
     expect(errors).toEqual([]);

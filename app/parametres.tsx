@@ -67,7 +67,7 @@ export default function Parametres() {
         <Label>VOTRE PARCOURS</Label>
         <View style={{ flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 26 }}>
           {[
-            [Object.keys(save.completed).length, 'niveaux'],
+            [Object.keys(save.completed).length, 'pages'],
             [Object.values(save.completed).reduce((n, l) => n + l.stars, 0), 'étoiles'],
             [save.pigments.length, 'pigments'],
           ].map(([n, l]) => (

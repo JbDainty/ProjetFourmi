@@ -89,8 +89,8 @@ export default function Boutique() {
           Du temps, jamais de contraintes.
         </T>
         <T style={{ color: C.muted, marginTop: 8 }}>
-          Les indices, les annulations et les 100 niveaux sont gratuits. Votre progression botanique
-          ne dépend d’aucun achat ni d’aucune publicité.
+          Les indices, les annulations et toutes les pages du carnet sont gratuites. Votre
+          progression botanique ne dépend d’aucun achat ni d’aucune publicité.
         </T>
         <View style={ui.rule} />
         <T style={{ fontSize: 12, color: C.muted }}>

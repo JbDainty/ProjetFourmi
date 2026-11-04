@@ -49,6 +49,8 @@ Les annulations, indices et reprises sont gratuits. Les étoiles comparent le no
 
 L’atelier est une scène de jeu continue : le décor de serre s’étend sous le titre et les flacons. L’ATH flottant présente « L’Herbier des Couleurs », les graines et un bouton de carnet. Ce bouton ouvre le menu du jeu, avec la reprise de la partie, l’herbier, les écosystèmes, la boutique et les réglages. Il remplace la barre d’onglets et le panneau latéral. Ouvrir puis refermer le carnet conserve la sélection et le puzzle ; quitter l’atelier interrompt un versement en cours avant sa validation.
 
+La présentation emploie « page » dans l’atelier, la carte et le parcours. Le compteur affiche uniquement la page courante, par exemple « PAGE 04 ». Le titre reprend la composition d’un frontispice botanique ancien, avec petites capitales et fleuron doré. Le bouton du carnet représente un livre relié dont la couverture s’ouvre avant l’affichage du menu. Désactiver « Animations douces » rend l’ouverture immédiate.
+
 Sur téléphone et tablette, un timbre botanique accompagne le chapitre dans l’atelier. Il reprend la plante et ses pigments déjà restaurés ; ses cinq points indiquent l’avancement. Toucher le timbre ouvre la planche en grand, puis « Revenir au jeu » retrouve le puzzle et la sélection en cours. La grande planche reste à côté du jeu sur les écrans larges. Les icônes des commandes et de la navigation sont des dessins SVG originaux inspirés des herbiers, avec leurs libellés conservés.
 
 `npm run test:mobile-herbarium` vérifie le timbre, sa progression persistante, l’ouverture sans perte de sélection et les présentations à 320, 390 et 1440 pixels. Comme les autres tests navigateur, il accepte `GAME_TEST_URL` pour viser un serveur de prévisualisation.

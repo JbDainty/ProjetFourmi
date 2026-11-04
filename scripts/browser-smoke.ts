@@ -49,9 +49,9 @@ async function main() {
     await page.waitForTimeout(1450);
     await page.screenshot({ path: 'test-results/pigment.png', fullPage: true });
     await page.getByRole('button', { name: /Poursuivre la restauration/ }).click();
-    await expect(page.getByText('NIVEAU 02 / 100')).toBeVisible();
+    await expect(page.getByText('PAGE 02')).toBeVisible();
     await page.reload();
-    await expect(page.getByText('NIVEAU 02 / 100')).toBeVisible();
+    await expect(page.getByText('PAGE 02')).toBeVisible();
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('color-world.save')!));
     expect(saved.pigments.length).toBe(1);
     expect(saved.completed['1'].stars).toBe(3);
@@ -97,7 +97,7 @@ async function main() {
     });
     await context.setOffline(true);
     await page.goto(testUrl);
-    await expect(page.getByText('NIVEAU 100 / 100')).toBeVisible();
+    await expect(page.getByText('PAGE 100')).toBeVisible();
     await context.setOffline(false);
     const mobile = await browser.newContext({
         viewport: { width: 390, height: 844 },

@@ -32,7 +32,7 @@ export default function Carte() {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 15 }}>
               <View style={{ flex: 1 }}>
                 <Label>
-                  CHAPITRE {String(i + 1).padStart(2, '0')} · NIVEAUX {i * 20 + 1}—{i * 20 + 20}
+                  CHAPITRE {String(i + 1).padStart(2, '0')} · PAGES {i * 20 + 1}—{i * 20 + 20}
                 </Label>
                 <T serif style={{ fontSize: 32, lineHeight: 38, marginVertical: 9 }}>
                   {c.name}
@@ -67,7 +67,7 @@ export default function Carte() {
                 return (
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={`Niveau ${id}${available ? '' : ', verrouillé'}`}
+                    accessibilityLabel={`Page ${id}${available ? '' : ', verrouillée'}`}
                     key={id}
                     disabled={!available}
                     onPress={() => {
