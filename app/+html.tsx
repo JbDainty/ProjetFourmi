@@ -12,7 +12,7 @@ export default function Root({ children }: { children: React.ReactNode }) {
           content="Retrouvez les couleurs de vingt plantes européennes dans un jeu de tri de pigments et un herbier à restaurer."
         />
         <link rel="manifest" href={`${basePath}/manifest.json`} />
-        <title>COLOR WORLD — L’Herbier des Couleurs</title>
+        <title>L’Herbier des Couleurs</title>
         <ScrollViewStyleReset />
       </head>
       <body>{children}</body>

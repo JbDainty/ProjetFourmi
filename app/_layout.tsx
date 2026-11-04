@@ -1,13 +1,15 @@
 import React from 'react';
-import { View, Pressable, ScrollView, useWindowDimensions, Platform } from 'react-native';
+import { View, Pressable, ScrollView, Modal, useWindowDimensions, Platform } from 'react-native';
 import { Slot, usePathname, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { botanicalFonts } from '../src/components/fonts';
 import { GameProvider, useGame } from '../src/state/store';
-import { T, Label, Icon, C, ui } from '../src/components/ui';
-import { PaperTexture } from '../src/components/Paper';
+import { T, Label, Icon, Button, C, ui } from '../src/components/ui';
+import { Paper, PaperTexture } from '../src/components/Paper';
+import { GreenhouseBackdrop } from '../src/components/Greenhouse';
+import { SceneVeil } from '../src/components/SceneVeil';
 import { basePath } from '../src/config/paths';
 const nav = [
   { path: '/', name: 'L’Atelier', icon: 'flask-outline' },
@@ -17,9 +19,12 @@ const nav = [
   { path: '/parametres', name: 'Paramètres', icon: 'options-outline' },
 ] as const;
 function Shell() {
+  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions(),
     mobile = width < 800,
-    path = usePathname();
+    path = usePathname(),
+    playing = path === '/';
+  const [menuOpen, setMenuOpen] = React.useState(false);
   const { save, ready, error, retry } = useGame();
   React.useEffect(() => {
     if (
@@ -32,132 +37,178 @@ function Shell() {
         .register(`${basePath}/sw.js`, { scope: `${basePath}/` })
         .catch(() => {});
   }, []);
+  const navigate = (destination: (typeof nav)[number]['path']) => {
+    setMenuOpen(false);
+    router.push(destination);
+  };
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: C.paper, zIndex: 0 }}>
-      <PaperTexture background />
+      {playing ? (
+        <>
+          <GreenhouseBackdrop />
+          <SceneVeil
+            tint={
+              save.theme === 'sauge' ? '#ecf0e4' : save.theme === 'rose' ? '#f5eae3' : undefined
+            }
+          />
+        </>
+      ) : (
+        <PaperTexture background />
+      )}
       <StatusBar style="dark" />
       <View
+        pointerEvents="box-none"
+        testID="game-hud"
         style={{
-          height: mobile ? 77 : 96,
-          paddingHorizontal: mobile ? 22 : 40,
+          position: 'absolute',
+          top: insets.top,
+          left: 0,
+          right: 0,
+          zIndex: 20,
+          paddingTop: 12,
+          paddingHorizontal: mobile ? 16 : 28,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottomWidth: 1,
-          borderColor: C.line,
+          gap: 10,
         }}
       >
-        <View style={ui.row}>
-          <View style={{ borderWidth: 1, borderColor: C.gold, padding: 9, borderRadius: 30 }}>
-            <Icon name="leaf-outline" color={C.green} size={24} />
-          </View>
-          <View>
-            <T serif style={{ fontSize: mobile ? 23 : 29, letterSpacing: mobile ? 1.5 : 2.5 }}>
-              COLOR WORLD
-            </T>
-            <Label>L’HERBIER DES COULEURS</Label>
-          </View>
-        </View>
-        <View style={ui.row}>
-          <Icon name="sparkles-outline" color={C.gold} />
-          <T style={{ fontSize: 15 }}>{save.seeds}</T>
-          {!mobile && <T style={{ color: C.muted, fontSize: 12 }}>graines dorées</T>}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Ouvrir le carnet"
+          onPress={() => setMenuOpen(true)}
+          style={({ pressed }) => ({
+            width: 48,
+            height: 48,
+            borderRadius: 24,
+            backgroundColor: '#f4ead6e8',
+            borderWidth: 1,
+            borderColor: '#b8a778',
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: pressed ? 0.7 : 1,
+          })}
+        >
+          <Icon name="book-outline" color={C.green} size={27} />
+        </Pressable>
+        <T
+          serif
+          accessibilityRole="header"
+          style={{
+            flex: 1,
+            textAlign: 'center',
+            fontSize: mobile ? 25 : 32,
+            lineHeight: mobile ? 25 : 38,
+            color: C.green,
+          }}
+        >
+          L’Herbier{mobile ? '\n' : ' '}des Couleurs
+        </T>
+        <View
+          accessible
+          accessibilityLabel={`Graines dorées : ${save.seeds}`}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 5,
+            minHeight: 42,
+            minWidth: 58,
+            paddingHorizontal: 9,
+            borderRadius: 22,
+            backgroundColor: '#f4ead6e8',
+          }}
+        >
+          <Icon name="seed-outline" color={C.gold} size={22} />
+          <T style={{ fontSize: 16 }}>{save.seeds}</T>
         </View>
       </View>
-      <View style={{ flex: 1, flexDirection: mobile ? 'column' : 'row' }}>
-        {!mobile && (
-          <View
+      <View style={{ flex: 1, paddingTop: playing ? 0 : 88 }}>
+        {error && (
+          <Pressable
+            onPress={retry}
             style={{
-              width: 224,
-              padding: 24,
-              paddingTop: 37,
-              borderRightWidth: 1,
-              borderColor: C.line,
+              padding: 12,
+              marginTop: playing ? 88 : 0,
+              backgroundColor: '#f0dfcf',
+              zIndex: 21,
             }}
           >
-            <Label>VOTRE CARNET</Label>
-            <View style={{ gap: 9, marginTop: 22 }}>
-              {nav.map((n) => (
+            <T accessibilityRole="alert">{error}</T>
+          </Pressable>
+        )}
+        {ready ? (
+          <Slot />
+        ) : (
+          <View style={{ padding: 40, marginTop: 88 }}>
+            <T>Ouverture du carnet…</T>
+          </View>
+        )}
+      </View>
+      <Modal
+        visible={menuOpen}
+        transparent
+        animationType={save.settings.motion ? 'fade' : 'none'}
+        onRequestClose={() => setMenuOpen(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: '#1e342bd4',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+          }}
+        >
+          <ScrollView style={{ width: '100%', maxWidth: 430, maxHeight: '94%' }}>
+            <Paper testID="game-carnet-menu" style={[ui.card, { padding: 26 }]}>
+              <View style={[ui.row, { justifyContent: 'space-between' }]}>
+                <Label>VOTRE CARNET</Label>
                 <Pressable
-                  accessibilityRole="link"
-                  accessibilityLabel={n.name}
-                  key={n.path}
-                  onPress={() => router.push(n.path)}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 13,
-                    padding: 13,
-                    borderRadius: 5,
-                    backgroundColor: path === n.path ? '#e6e9db' : 'transparent',
-                  }}
+                  accessibilityRole="button"
+                  accessibilityLabel="Fermer le carnet"
+                  onPress={() => setMenuOpen(false)}
+                  style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
                 >
-                  <Icon name={n.icon} size={20} color={path === n.path ? C.green : C.muted} />
-                  <T style={{ fontSize: 12, color: path === n.path ? C.green : C.muted }}>
-                    {n.name}
-                  </T>
+                  <Icon name="close-outline" size={24} />
                 </Pressable>
-              ))}
-            </View>
-            <View style={{ marginTop: 'auto', paddingTop: 50 }}>
-              <Icon name="flower-outline" size={30} color={C.gold} />
-              <T serif style={{ fontSize: 20, marginTop: 12 }}>
-                Chaque couleur est{`\n`}une découverte.
+              </View>
+              <T serif style={{ fontSize: 32, lineHeight: 36, marginBottom: 16 }}>
+                L’Herbier des Couleurs
               </T>
-              <T style={{ fontSize: 10, marginTop: 15, color: C.muted, letterSpacing: 1 }}>
-                VOLUME I · FLORE D’EUROPE
-              </T>
-            </View>
-          </View>
-        )}
-        <View style={{ flex: 1 }}>
-          {error && (
-            <Pressable onPress={retry} style={{ padding: 12, backgroundColor: '#f0dfcf' }}>
-              <T accessibilityRole="alert">{error}</T>
-            </Pressable>
-          )}
-          {ready ? (
-            <Slot />
-          ) : (
-            <View style={{ padding: 40 }}>
-              <T>Ouverture du carnet…</T>
-            </View>
-          )}
-        </View>
-        {mobile && (
-          <View
-            style={{
-              flexDirection: 'row',
-              borderTopWidth: 1,
-              borderColor: C.line,
-              backgroundColor: C.card,
-            }}
-          >
-            {nav.map((n) => (
-              <Pressable
-                accessibilityRole="link"
-                accessibilityLabel={n.name}
-                key={n.path}
-                onPress={() => router.push(n.path)}
-                style={{ flex: 1, alignItems: 'center', paddingVertical: 13, gap: 3 }}
+              <Button
+                icon="flask-outline"
+                onPress={() => (playing ? setMenuOpen(false) : navigate('/'))}
               >
-                <Icon name={n.icon} color={path === n.path ? C.green : C.muted} />
-                <T style={{ fontSize: 9, color: path === n.path ? C.green : C.muted }}>
-                  {n.path === '/'
-                    ? 'Atelier'
-                    : n.path === '/herbier'
-                      ? 'Herbier'
-                      : n.path === '/carte'
-                        ? 'Carte'
-                        : n.path === '/boutique'
-                          ? 'Boutique'
-                          : 'Réglages'}
-                </T>
-              </Pressable>
-            ))}
-          </View>
-        )}
-      </View>
+                Reprendre la partie
+              </Button>
+              <View style={{ gap: 7, marginTop: 18 }}>
+                {nav.map((n) => (
+                  <Pressable
+                    key={n.path}
+                    accessibilityRole="link"
+                    accessibilityLabel={n.name}
+                    onPress={() => navigate(n.path)}
+                    style={({ pressed }) => ({
+                      flexDirection: 'row',
+                      gap: 14,
+                      alignItems: 'center',
+                      minHeight: 48,
+                      paddingHorizontal: 12,
+                      borderRadius: 20,
+                      backgroundColor:
+                        path === n.path ? '#dde4cf' : pressed ? '#e8ddc5' : 'transparent',
+                    })}
+                  >
+                    <Icon name={n.icon} size={25} color={C.green} />
+                    <T style={{ fontSize: 16 }}>{n.name}</T>
+                  </Pressable>
+                ))}
+              </View>
+            </Paper>
+          </ScrollView>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

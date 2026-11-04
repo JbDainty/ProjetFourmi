@@ -1,3 +1,4 @@
+import { openScreen } from './navigation-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { initial } from '../src/state/model';
@@ -21,6 +22,15 @@ async function main() {
     save.settings.motion = false;
     await page.evaluate((s) => localStorage.setItem('color-world.save', JSON.stringify(s)), save);
     await page.reload();
+    await expect(page.getByTestId('game-hud')).toBeVisible();
+    await expect(page.getByRole('heading', { name: /L’Herbier\s+des Couleurs/ })).toBeVisible();
+    await expect(page.getByText('COLOR WORLD', { exact: true })).toHaveCount(0);
+    await expect(page.getByRole('link')).toHaveCount(0);
+    expect(
+      await page
+        .getByTestId('liquid-board-idle')
+        .evaluate((node) => getComputedStyle(node).backgroundColor),
+    ).toBe('rgba(0, 0, 0, 0)');
     const stamp = page.getByTestId('current-botanical-stamp');
     await expect(stamp).toHaveAccessibleName('Ouvrir la planche de Coquelicot, 0 pigments sur 5');
     await expect(page.getByTestId('atelier-full-plate')).toHaveCount(0);
@@ -29,6 +39,13 @@ async function main() {
     const first = levels[0].solution[0];
     await page.getByRole('button', { name: new RegExp(`^Flacon ${first.from + 1},`) }).click();
     const before = await page.evaluate(() => localStorage.getItem('color-world.save'));
+    await page.getByRole('button', { name: 'Ouvrir le carnet' }).click();
+    await expect(page.getByTestId('game-carnet-menu')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Le Grand Herbier', exact: true })).toBeVisible();
+    await page.screenshot({ path: 'test-results/game-carnet-menu.png', fullPage: true });
+    await page.getByRole('button', { name: 'Reprendre la partie' }).click();
+    await expect(page.getByTestId('game-carnet-menu')).toHaveCount(0);
+    expect(await page.evaluate(() => localStorage.getItem('color-world.save'))).toBe(before);
     await stamp.click();
     const dialog = page.getByTestId('current-plate-dialog');
     await expect(dialog).toBeVisible();
@@ -68,18 +85,20 @@ async function main() {
         path: `test-results/mobile-integrated-${width}.png`,
         fullPage: true,
       });
-      await page.getByRole('link', { name: 'Le Grand Herbier' }).click();
+      await openScreen(page, 'Le Grand Herbier');
       await expect(
         page.getByRole('button', { name: 'Les pigments', exact: true }),
       ).toBeInViewport();
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
         width,
       );
-      await page.getByRole('link', { name: 'L’Atelier' }).click();
+      await openScreen(page, 'L’Atelier');
     }
     await page.setViewportSize({ width: 1440, height: 1000 });
     await expect(page.getByTestId('atelier-full-plate')).toBeVisible();
     await expect(stamp).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Le Grand Herbier', exact: true })).toHaveCount(0);
+    await page.screenshot({ path: 'test-results/game-hud-desktop.png', fullPage: true });
     expect(errors).toEqual([]);
     console.log(
       'Mobile herbarium: stamp restoration, persistence, modal without losing selection or moves, no lower plate, botanical icons, 320/390px layouts and desktop plate passed.',

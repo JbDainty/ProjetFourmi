@@ -1,3 +1,4 @@
+import { openScreen } from './navigation-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { initial, loadLevel, move, type Save } from '../src/state/model';
 import levels from '../src/data/levels.json';
@@ -32,7 +33,7 @@ async function main() {
     await page.reload();
     await page.waitForLoadState('networkidle');
     await page.screenshot({ path: 'test-results/herbarium-restored.png', fullPage: true });
-    await page.getByRole('link', { name: 'Le Grand Herbier' }).click();
+    await openScreen(page, 'Le Grand Herbier');
     await page.setViewportSize({ width: 1440, height: 3900 });
     await page.waitForLoadState('networkidle');
     await page.screenshot({ path: 'test-results/herbarium-all-20.png', fullPage: true });
@@ -51,7 +52,7 @@ async function main() {
     await page.waitForTimeout(700);
     await page.screenshot({ path: 'test-results/herbarium-detail.png', fullPage: true });
     await page.getByRole('button', { name: 'Fermer la planche', exact: true }).click();
-    await page.getByRole('link', { name: 'Écosystèmes' }).click();
+    await openScreen(page, 'Écosystèmes');
     await page.getByText(/CHAPITRE 01 · NIVEAUX/).waitFor();
     await page.waitForTimeout(250);
     await page.screenshot({ path: 'test-results/botanical-chapter-frame.png', fullPage: true });

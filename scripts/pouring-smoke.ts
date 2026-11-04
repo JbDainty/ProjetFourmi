@@ -1,3 +1,4 @@
+import { openScreen } from './navigation-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { initial, loadLevel, move, type Save } from '../src/state/model';
@@ -27,7 +28,12 @@ async function main() {
     await expect(page.getByTestId('liquid-board-pouring')).toBeVisible();
     await page.locator('#pour-jet').waitFor();
     await page.waitForTimeout(170);
-    expect((await page.locator('#pour-jet').boundingBox())!.height).toBeGreaterThan(30);
+    await expect
+      .poll(async () => (await page.locator('#pour-jet').boundingBox())?.height ?? 0, {
+        timeout: 1200,
+        intervals: [40],
+      })
+      .toBeGreaterThan(30);
     const first = await page.locator('#pour-jet').getAttribute('d');
     await page.waitForTimeout(100);
     expect(await page.locator('#pour-jet').getAttribute('d')).not.toBe(first);
@@ -43,13 +49,13 @@ async function main() {
     await tube(2).click();
     await tube(1).click();
     await page.locator('#pour-jet').waitFor();
-    await page.getByRole('link', { name: 'Le Grand Herbier' }).click();
+    await openScreen(page, 'Le Grand Herbier');
     await page.waitForTimeout(1900);
     expect((await saved()).moves).toBe(0);
     expect((await saved()).board).toEqual(before.board);
-    await page.getByRole('link', { name: 'Paramètres', exact: true }).click();
+    await openScreen(page, 'Paramètres');
     await page.getByRole('switch', { name: 'Animations douces' }).click();
-    await page.getByRole('link', { name: 'L’Atelier' }).click();
+    await openScreen(page, 'L’Atelier');
     await tube(2).click();
     await tube(1).click();
     await expect(page.getByTestId('liquid-board-idle')).toBeVisible();

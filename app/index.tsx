@@ -116,45 +116,43 @@ export default function Atelier() {
     else router.push('/herbier');
   };
   return (
-    <ScrollView contentContainerStyle={[ui.page, width < 800 && { padding: 20 }]}>
+    <ScrollView
+      style={{ flex: 1 }}
+      contentContainerStyle={{
+        flexGrow: 1,
+        width: '100%',
+        maxWidth: 1180,
+        alignSelf: 'center',
+        paddingHorizontal: width < 800 ? 18 : 32,
+        paddingTop: 86,
+        paddingBottom: 20,
+      }}
+    >
       <View
         style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: wide ? 0 : 12,
+          flex: 1,
+          flexDirection: wide ? 'row' : 'column',
+          gap: 28,
+          alignItems: 'stretch',
+          justifyContent: 'center',
         }}
       >
-        <Label>LE CARNET DE RESTAURATION</Label>
-        <T style={{ fontSize: 11, color: C.muted }}>
-          NIVEAU {String(save.current).padStart(2, '0')} / 100
-        </T>
-      </View>
-      {wide && (
-        <>
-          <T serif style={[ui.title, width < 800 && { fontSize: 34, lineHeight: 38 }]}>
-            {width < 800 ? 'L’Atelier' : <>Un peu de couleur,{`\n`}beaucoup de vie.</>}
+        <View testID="integrated-game-scene" style={{ flex: wide ? 1.35 : 1 }}>
+          <T
+            style={{
+              fontSize: 11,
+              color: C.muted,
+              letterSpacing: 1.5,
+              textAlign: 'center',
+              marginBottom: 9,
+            }}
+          >
+            NIVEAU {String(save.current).padStart(2, '0')} / 100
           </T>
-          <T style={{ color: C.muted, marginBottom: width < 800 ? 18 : 28, fontSize: 13 }}>
-            Triez les pigments. Révélez la beauté du vivant.
-          </T>
-        </>
-      )}
-      <View style={{ flexDirection: wide ? 'row' : 'column', gap: 23, alignItems: 'stretch' }}>
-        <Paper
-          style={[
-            ui.card,
-            {
-              flex: wide ? 1.35 : undefined,
-              padding: wide ? 30 : 20,
-              minHeight: width < 800 ? 430 : 500,
-              backgroundColor:
-                save.theme === 'sauge' ? '#ecf0e4' : save.theme === 'rose' ? '#f5eae3' : C.card,
-            },
-          ]}
-        >
           {!wide ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+            <View
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 8 }}
+            >
               <BotanicalStamp
                 index={plant}
                 stage={stage}
@@ -219,7 +217,7 @@ export default function Atelier() {
               </View>
             </View>
           )}
-          <View style={{ height: 1, backgroundColor: C.line, marginTop: wide ? 22 : 10 }} />
+
           {save.current === 1 && width >= 800 && (
             <T style={{ fontSize: 12, color: C.muted, textAlign: 'center', marginTop: 18 }}>
               Touchez un flacon, puis un autre pour verser.
@@ -228,12 +226,13 @@ export default function Atelier() {
           <View
             style={{
               flex: 1,
-              justifyContent: 'center',
-              paddingVertical: 8,
+              justifyContent: 'flex-end',
+              paddingVertical: 2,
               minHeight: width < 800 ? 250 : 290,
             }}
           >
             <LiquidBoard
+              integrated
               board={save.board}
               selected={selected}
               hint={hint}
@@ -249,6 +248,10 @@ export default function Atelier() {
             accessibilityLiveRegion="polite"
             style={{
               minHeight: 38,
+              backgroundColor: '#f4ead6e8',
+              borderRadius: 18,
+              paddingVertical: 8,
+              paddingHorizontal: 12,
               textAlign: 'center',
               fontSize: 12,
               color: C.muted,
@@ -260,14 +263,18 @@ export default function Atelier() {
                 ? 'Touchez un flacon, puis un autre pour verser.'
                 : 'Remplissez chaque flacon d’une seule couleur.')}
           </T>
-          <View
+          <Paper
             style={{
               flexDirection: 'row',
               justifyContent: 'center',
               gap: 8,
-              borderTopWidth: 1,
-              borderColor: C.line,
-              paddingTop: 20,
+              paddingVertical: 8,
+              paddingHorizontal: 12,
+              borderRadius: 30,
+              backgroundColor: '#f4ead6ee',
+              width: '100%',
+              maxWidth: 420,
+              alignSelf: 'center',
             }}
           >
             {[
@@ -312,15 +319,21 @@ export default function Atelier() {
                 <T style={{ fontSize: 11 }}>{a.name}</T>
               </Pressable>
             ))}
-          </View>
-        </Paper>
+          </Paper>
+        </View>
         {wide && (
           <Paper
             testID="atelier-full-plate"
             vitality={stage / 5}
             style={[
               ui.card,
-              { flex: wide ? 1 : undefined, alignItems: 'center', padding: 21, overflow: 'hidden' },
+              {
+                flex: wide ? 1 : undefined,
+                alignSelf: 'flex-start',
+                alignItems: 'center',
+                padding: 21,
+                overflow: 'hidden',
+              },
             ]}
           >
             <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -357,11 +370,6 @@ export default function Atelier() {
             </Pressable>
           </Paper>
         )}
-      </View>
-      <View style={{ alignItems: 'center', paddingTop: wide ? 24 : 12 }}>
-        <T style={{ fontSize: 10, color: C.muted, letterSpacing: 1 }}>
-          PRENEZ VOTRE TEMPS. LA NATURE AUSSI.
-        </T>
       </View>
       <Modal
         visible={plateOpen && save.started}

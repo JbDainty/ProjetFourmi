@@ -47,6 +47,7 @@ type Props = {
   disabled: boolean;
   motion: boolean;
   patterns: boolean;
+  integrated?: boolean;
   onTap: (index: number) => void;
   onFinish: () => void;
 };
@@ -60,6 +61,7 @@ function LiquidBoardDrawing({
   disabled,
   motion,
   patterns,
+  integrated = false,
   onTap,
   onFinish,
 }: Props) {
@@ -456,15 +458,15 @@ function LiquidBoardDrawing({
         overflow: 'hidden',
         borderRadius: 24,
         borderWidth: 0,
-        backgroundColor: '#dbe3cf',
+        backgroundColor: integrated ? 'transparent' : '#dbe3cf',
       }}
       onLayout={(e) => {
         const next = Math.round(e.nativeEvent.layout.width);
         if (next && next !== width) setWidth(next);
       }}
     >
-      <GreenhouseBackdrop />
-      <FoliageFrame scene />
+      {!integrated && <GreenhouseBackdrop />}
+      {!integrated && <FoliageFrame scene />}
       {!!width && (
         <>
           <Svg

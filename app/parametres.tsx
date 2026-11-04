@@ -175,7 +175,7 @@ export default function Parametres() {
           Le statut exact des contrôles est documenté dans le README.
         </T>
         <T serif style={{ fontSize: 24, marginTop: 22 }}>
-          COLOR WORLD · Volume I
+          L’Herbier des Couleurs · Volume I
         </T>
         <T style={{ fontSize: 11, color: C.muted }}>L’Herbier des Couleurs · version 1.0.0</T>
       </Paper>

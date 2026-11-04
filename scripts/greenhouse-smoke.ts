@@ -1,3 +1,4 @@
+import { openScreen } from './navigation-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { initial, loadLevel, move, type Save } from '../src/state/model';
@@ -85,7 +86,7 @@ async function main() {
     await page.waitForLoadState('networkidle');
     await expect(page.locator('g[id^="tube-rack-"]')).toHaveCount(4);
     await page.screenshot({ path: 'test-results/greenhouse-two-racks.png', fullPage: true });
-    await page.getByRole('link', { name: 'Le Grand Herbier' }).click();
+    await openScreen(page, 'Le Grand Herbier');
     expect(
       await page
         .getByText('Le Grand Herbier', { exact: true })

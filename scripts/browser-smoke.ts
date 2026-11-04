@@ -1,3 +1,4 @@
+import { openScreen } from './navigation-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import levels from '../src/data/levels.json';
@@ -54,14 +55,14 @@ async function main() {
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('color-world.save')!));
     expect(saved.pigments.length).toBe(1);
     expect(saved.completed['1'].stars).toBe(3);
-    await page.getByRole('link', { name: 'Le Grand Herbier' }).click();
+    await openScreen(page, 'Le Grand Herbier');
     await page.getByRole('button', { name: 'Observer Coquelicot', exact: true }).click();
     await expect(page.getByText('PLANCHE 01 · Papaveraceae', { exact: true })).toBeVisible();
     await page.screenshot({ path: 'test-results/herbier.png', fullPage: true });
     await page.getByRole('button', { name: 'Fermer la planche', exact: true }).click();
-    await page.getByRole('link', { name: 'Paramètres', exact: true }).click();
+    await openScreen(page, 'Paramètres');
     await page.getByRole('switch', { name: 'Symboles dans les liquides' }).click();
-    await page.getByRole('link', { name: 'L’Atelier' }).click();
+    await openScreen(page, 'L’Atelier');
     await expect(page.getByText('✦', { exact: true }).first()).toBeVisible();
     // Seed the result of legitimately solving levels 1–99, then play the final level through the UI.
     let end: Save = {
@@ -88,7 +89,7 @@ async function main() {
     await page.getByRole('button', { name: 'Contempler mon herbier' }).click();
     await expect(page.getByText('20 / 20 PLANCHES RESTAURÉES')).toBeVisible();
     await page.reload();
-    await page.getByRole('link', { name: 'Le Grand Herbier' }).click();
+    await openScreen(page, 'Le Grand Herbier');
     await expect(page.getByText('20 / 20 PLANCHES RESTAURÉES')).toBeVisible();
     // The service worker caches a complete installed export, not just the visited screen.
     await page.evaluate(async () => {
@@ -111,7 +112,7 @@ async function main() {
     await expect(mp.getByRole('button', { name: 'Indice', exact: true })).toBeInViewport();
     await mp.screenshot({ path: 'test-results/atelier-mobile.png', fullPage: true });
     expect(await mp.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
-    await mp.getByRole('link', { name: 'La Boutique' }).click();
+    await openScreen(mp, 'La Boutique');
     await mp.getByRole('button', { name: 'Recueillir les graines' }).click();
     await expect(mp.getByRole('button', { name: 'À demain' })).toBeDisabled();
     expect(errors).toEqual([]);

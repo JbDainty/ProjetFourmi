@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "COLOR WORLD — L’Herbier des Couleurs",
+    "name": "L’Herbier des Couleurs",
     "slug": "color-world-herbier",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -12,14 +12,12 @@
     },
     "android": {
       "package": "com.colorworld.herbier",
-      "blockedPermissions": [
-        "android.permission.RECORD_AUDIO"
-      ]
+      "blockedPermissions": ["android.permission.RECORD_AUDIO"]
     },
     "web": {
       "bundler": "metro",
       "output": "single",
-      "name": "COLOR WORLD",
+      "name": "L’Herbier des Couleurs",
       "shortName": "Herbier",
       "themeColor": "#315649",
       "backgroundColor": "#f4f0e5"
