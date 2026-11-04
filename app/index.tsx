@@ -1,5 +1,7 @@
 import { F } from '../src/components/fonts';
 import { Paper } from '../src/components/Paper';
+import { VictoryPaper } from '../src/components/VictoryPaper';
+import { StampPrompt } from '../src/components/StampPrompt';
 import React, { useEffect, useRef, useState } from 'react';
 import { View, ScrollView, Pressable, Modal, Animated, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
@@ -121,7 +123,7 @@ export default function Atelier() {
   };
   const restorePigment = () => {
     setReveal(true);
-    feedback(save.settings, true);
+    feedback({ ...save.settings, sound: false }, true);
     fade.setValue(0);
     Animated.timing(fade, {
       toValue: 1,
@@ -171,19 +173,11 @@ export default function Atelier() {
             onOpen={() => setPlateOpen(true)}
           />
           {!wide && (
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginTop: 8,
-                gap: 12,
-              }}
-            >
-              <T style={{ flex: 1, fontSize: 10, lineHeight: 14, color: C.muted }}>
-                Touchez le timbre pour observer la planche
-              </T>
-            </View>
+            <StampPrompt
+              onPress={() => setPlateOpen(true)}
+              disabled={busy}
+              motion={save.settings.motion}
+            />
           )}
 
           {save.current === 1 && width >= 800 && (
@@ -476,83 +470,87 @@ export default function Atelier() {
           }}
         >
           <ScrollView style={{ maxHeight: '95%', width: '100%', maxWidth: 460 }}>
-            <Paper style={[ui.card, { alignItems: 'center' }]}>
-              <Label>
-                {save.current === 100
-                  ? 'L’HERBIER RETROUVE SES COULEURS'
-                  : replay
-                    ? 'UNE PAGE À NOUVEAU COLORÉE'
-                    : 'VOTRE HERBIER REPREND VIE'}
-              </Label>
-              <T serif style={{ fontSize: 32, marginTop: 13, lineHeight: 38 }}>
-                {save.current === 100
-                  ? 'Votre collection est complète.'
-                  : s.organs[(save.current - 1) % 5]}
-              </T>
-              <T style={{ color: C.gold, fontSize: 24, marginTop: 8 }}>
-                {'★'.repeat(save.completed[save.current]?.stars ?? 1)}
-              </T>
-              <T
-                testID="page-result-moves"
-                style={{
-                  fontFamily: F.handwriting,
-                  fontSize: 23,
-                  lineHeight: 29,
-                  color: C.muted,
-                  marginTop: 4,
-                }}
-              >
-                Page achevée en {save.moves} {save.moves === 1 ? 'mouvement' : 'mouvements'}.
-              </T>
-              {!reveal ? (
-                <>
-                  <Botanical
-                    index={plant}
-                    stage={replay ? stage : Math.max(0, stage - 1)}
-                    size={200}
-                  />
-                  <Button icon="water-outline" onPress={restorePigment}>
-                    Révéler la couleur
-                  </Button>
-                  <Pressable
-                    accessibilityRole="button"
-                    onPress={() => {
-                      fade.setValue(1);
-                      setReveal(true);
-                    }}
-                    style={{ padding: 16 }}
-                  >
-                    <T style={{ fontSize: 12, color: C.muted }}>Passer l’animation</T>
-                  </Pressable>
-                </>
-              ) : (
-                <>
-                  <Animated.View style={{ opacity: fade }}>
-                    <Botanical index={plant} stage={stage} size={215} />
-                  </Animated.View>
-                  <T
-                    testID="restoration-botanical-fact"
-                    style={{ textAlign: 'center', color: C.muted, marginBottom: 18 }}
-                  >
-                    {botanicalFact(save.current, 'reveal')}
-                  </T>
-                  <Button icon="arrow-forward-outline" onPress={next}>
-                    {save.current === 100 ? 'Contempler mon herbier' : 'Poursuivre la restauration'}
-                  </Button>
-                  <Button
-                    icon="book-outline"
-                    secondary
-                    onPress={() => {
-                      setDismissed(true);
-                      router.push('/herbier');
-                    }}
-                    style={{ marginTop: 10 }}
-                  >
-                    Ouvrir l’herbier
-                  </Button>
-                </>
-              )}
-            </Paper>
+            {victory && !dismissed && save.started && (
+              <VictoryPaper motion={save.settings.motion} sound={save.settings.sound}>
+                <Label>
+                  {save.current === 100
+                    ? 'L’HERBIER RETROUVE SES COULEURS'
+                    : replay
+                      ? 'UNE PAGE À NOUVEAU COLORÉE'
+                      : 'VOTRE HERBIER REPREND VIE'}
+                </Label>
+                <T serif style={{ fontSize: 32, marginTop: 13, lineHeight: 38 }}>
+                  {save.current === 100
+                    ? 'Votre collection est complète.'
+                    : s.organs[(save.current - 1) % 5]}
+                </T>
+                <T style={{ color: C.gold, fontSize: 24, marginTop: 8 }}>
+                  {'★'.repeat(save.completed[save.current]?.stars ?? 1)}
+                </T>
+                <T
+                  testID="page-result-moves"
+                  style={{
+                    fontFamily: F.handwriting,
+                    fontSize: 23,
+                    lineHeight: 29,
+                    color: C.muted,
+                    marginTop: 4,
+                  }}
+                >
+                  Page achevée en {save.moves} {save.moves === 1 ? 'mouvement' : 'mouvements'}.
+                </T>
+                {!reveal ? (
+                  <>
+                    <Botanical
+                      index={plant}
+                      stage={replay ? stage : Math.max(0, stage - 1)}
+                      size={200}
+                    />
+                    <Button icon="water-outline" onPress={restorePigment}>
+                      Révéler la couleur
+                    </Button>
+                    <Pressable
+                      accessibilityRole="button"
+                      onPress={() => {
+                        fade.setValue(1);
+                        setReveal(true);
+                      }}
+                      style={{ padding: 16 }}
+                    >
+                      <T style={{ fontSize: 12, color: C.muted }}>Passer l’animation</T>
+                    </Pressable>
+                  </>
+                ) : (
+                  <>
+                    <Animated.View style={{ opacity: fade }}>
+                      <Botanical index={plant} stage={stage} size={215} />
+                    </Animated.View>
+                    <T
+                      testID="restoration-botanical-fact"
+                      style={{ textAlign: 'center', color: C.muted, marginBottom: 18 }}
+                    >
+                      {botanicalFact(save.current, 'reveal')}
+                    </T>
+                    <Button icon="arrow-forward-outline" onPress={next}>
+                      {save.current === 100
+                        ? 'Contempler mon herbier'
+                        : 'Poursuivre la restauration'}
+                    </Button>
+                    <Button
+                      icon="book-outline"
+                      secondary
+                      onPress={() => {
+                        setDismissed(true);
+                        router.push('/herbier');
+                      }}
+                      style={{ marginTop: 10 }}
+                    >
+                      Ouvrir l’herbier
+                    </Button>
+                  </>
+                )}
+              </VictoryPaper>
+            )}
           </ScrollView>
         </View>
       </Modal>

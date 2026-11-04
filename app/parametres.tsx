@@ -11,7 +11,11 @@ export default function Parametres() {
     [note, setNote] = useState(''),
     [confirm, setConfirm] = useState(false);
   const options: { key: keyof Settings; name: string; detail: string }[] = [
-    { key: 'sound', name: 'Sons de l’atelier', detail: 'Un léger murmure à chaque versement.' },
+    {
+      key: 'sound',
+      name: 'Sons de l’atelier',
+      detail: 'Les versements et le vent léger dans les feuilles.',
+    },
     {
       key: 'haptics',
       name: 'Vibrations légères',

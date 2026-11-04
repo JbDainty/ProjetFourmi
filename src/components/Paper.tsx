@@ -31,10 +31,16 @@ export function PaperTexture({
     </View>
   );
 }
-export function Paper({ children, style, vitality, ...props }: ViewProps & { vitality?: number }) {
+export function Paper({
+  children,
+  style,
+  vitality,
+  frame = true,
+  ...props
+}: ViewProps & { vitality?: number; frame?: boolean }) {
   return (
     <View {...props} style={[{ overflow: 'hidden', zIndex: 0 }, style]}>
-      <PaperTexture framed vitality={vitality} />
+      <PaperTexture framed={frame} vitality={vitality} />
       {children}
     </View>
   );

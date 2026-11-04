@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { createAudioPlayer } from 'expo-audio';
 import { Settings } from '../state/model';
+import { prepareLeafWind } from './leafWind';
 let player: ReturnType<typeof createAudioPlayer> | undefined;
 export function feedback(settings: Settings, success = false) {
   if (settings.haptics && Platform.OS !== 'web')
@@ -9,6 +10,7 @@ export function feedback(settings: Settings, success = false) {
       success ? Haptics.ImpactFeedbackStyle.Medium : Haptics.ImpactFeedbackStyle.Light,
     ).catch(() => {});
   if (settings.sound) {
+    prepareLeafWind();
     try {
       player ??= createAudioPlayer(require('../../assets/pour.wav'));
       void player.seekTo(0);

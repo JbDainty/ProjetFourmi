@@ -56,28 +56,16 @@ export function ChapterVignette({
       )}
       <View style={{ flex: 1, paddingLeft: compact ? 0 : 10 }}>
         <T
-          style={{
-            alignSelf: 'flex-end',
-            marginRight: 6,
-            transform: [{ rotate: '3deg' }],
-            fontFamily: F.handwriting,
-            fontSize: compact ? 18 : 22,
-            lineHeight: 23,
-            color: '#8b754d',
-          }}
-        >
-          Chapitre {['I', 'II', 'III', 'IV', 'V'][chapter]}
-        </T>
-        <T
+          testID="chapter-landscape-caption"
           style={{
             fontFamily: F.scientific,
-            fontSize: compact ? 15 : 19,
+            fontSize: compact ? 14 : 19,
             lineHeight: compact ? 20 : 24,
             color: '#746c53',
             marginTop: 1,
           }}
         >
-          {chapters[chapter].name}
+          {chapters[chapter].name}, chapitre {chapter + 1}
         </T>
         <T
           testID="current-species-heading"

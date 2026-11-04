@@ -19,7 +19,8 @@
     "test:pouring": "node --import tsx scripts/pouring-smoke.ts",
     "test:greenhouse": "node --import tsx scripts/greenhouse-smoke.ts",
     "test:mobile-herbarium": "node --import tsx scripts/mobile-herbarium-smoke.ts",
-    "test:pencil": "node --import tsx scripts/pencil-smoke.ts"
+    "test:pencil": "node --import tsx scripts/pencil-smoke.ts",
+    "test:victory": "node --import tsx scripts/victory-smoke.ts"
   },
   "dependencies": {
     "@expo-google-fonts/alegreya": "^0.4.2",
