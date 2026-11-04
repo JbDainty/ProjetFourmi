@@ -10,21 +10,35 @@ import Svg, { Path } from 'react-native-svg';
 import { F } from './fonts';
 import { C } from './ui';
 
-type Props = { text: string; handwritten: boolean; motion: boolean; request: number };
-export function PencilNote({ text, handwritten, motion, request }: Props) {
+type Props = {
+  text: string;
+  handwritten: boolean;
+  motion: boolean;
+  request: number;
+  ready?: boolean;
+  bare?: boolean;
+};
+export function PencilNote({
+  text,
+  handwritten,
+  motion,
+  request,
+  ready = true,
+  bare = false,
+}: Props) {
   const key = text + '\0' + request;
   const characters = Array.from(text);
   const animated = handwritten && motion;
   const [reveal, setReveal] = useState({ key, count: animated ? 0 : characters.length });
-  const count = !animated ? characters.length : reveal.key === key ? reveal.count : 0;
+  const count = !ready ? 0 : !animated ? characters.length : reveal.key === key ? reveal.count : 0;
   const prefix = characters.slice(0, count).join('');
-  const writing = animated && count < characters.length;
+  const writing = ready && animated && count < characters.length;
   const [pen, setPen] = useState({ x: 0, y: 21 });
   const [width, setWidth] = useState(0);
   const textRef = useRef<Text>(null);
 
   useEffect(() => {
-    if (!animated || !characters.length) return;
+    if (!ready || !animated || !characters.length) return;
     let cursor = 0;
     let timer: ReturnType<typeof setTimeout>;
     setReveal({ key, count: 0 });
@@ -44,7 +58,7 @@ export function PencilNote({ text, handwritten, motion, request }: Props) {
     };
     timer = setTimeout(write, 80);
     return () => clearTimeout(timer);
-  }, [key, animated]);
+  }, [key, animated, ready]);
 
   // Native Text supplies line geometry. On the web, a DOM Range locates the
   // final letter precisely, including wrapping and the actual bundled font.
@@ -84,17 +98,17 @@ export function PencilNote({ text, handwritten, motion, request }: Props) {
     <View
       testID={writing ? 'pencil-note-writing' : 'pencil-note-idle'}
       accessible
-      accessibilityLabel={text}
+      accessibilityLabel={ready ? text : undefined}
       accessibilityLiveRegion="polite"
       onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
       style={{
-        minHeight: 44,
-        backgroundColor: '#f4ead6ee',
-        borderRadius: 18,
-        paddingVertical: 8,
-        paddingLeft: 14,
-        paddingRight: handwritten ? 36 : 14,
-        marginBottom: 12,
+        minHeight: bare ? 27 : 44,
+        backgroundColor: bare ? 'transparent' : '#f4ead6ee',
+        borderRadius: bare ? 0 : 18,
+        paddingVertical: bare ? 0 : 8,
+        paddingLeft: bare ? 0 : 14,
+        paddingRight: bare ? 26 : handwritten ? 36 : 14,
+        marginBottom: bare ? 0 : 12,
       }}
     >
       {/* Reserve the final paragraph height so the tubes stay still while writing. */}
@@ -117,9 +131,9 @@ export function PencilNote({ text, handwritten, motion, request }: Props) {
           lettering,
           {
             position: 'absolute',
-            top: 8,
-            left: 14,
-            right: handwritten ? 36 : 14,
+            top: bare ? 0 : 8,
+            left: bare ? 0 : 14,
+            right: bare ? 26 : handwritten ? 36 : 14,
             textAlign: handwritten ? 'left' : 'center',
           },
         ]}
@@ -133,8 +147,8 @@ export function PencilNote({ text, handwritten, motion, request }: Props) {
           accessible={false}
           style={{
             position: 'absolute',
-            left: 14 + pen.x,
-            top: 8 + pen.y - 35,
+            left: (bare ? 0 : 14) + pen.x,
+            top: (bare ? 0 : 8) + pen.y - 35,
             width: 29,
             height: 37,
             transform: [{ rotate: `${Math.sin(count * 1.7) * 3}deg` }],

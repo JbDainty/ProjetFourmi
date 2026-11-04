@@ -13,7 +13,7 @@ import { LiquidBoard } from '../src/components/LiquidBoard';
 import { Botanical } from '../src/components/Botanical';
 import { BotanicalStamp } from '../src/components/BotanicalStamp';
 import { PageFolio } from '../src/components/PageFolio';
-import { PencilNote } from '../src/components/PencilNote';
+import { HintScroll } from '../src/components/HintScroll';
 import { T, Label, Icon, Button, Progress, C, ui } from '../src/components/ui';
 import { feedback } from '../src/services/feedback';
 type Note = { text: string; kind: 'info' | 'hint'; request: number; pending: boolean };
@@ -226,6 +226,22 @@ export default function Atelier() {
               minHeight: width < 800 ? 250 : 290,
             }}
           >
+            {note.kind === 'info' && !!note.text && (
+              <T
+                accessibilityLiveRegion="polite"
+                style={{
+                  position: 'absolute',
+                  top: 12,
+                  left: 8,
+                  right: 8,
+                  textAlign: 'center',
+                  fontSize: 12,
+                  color: C.muted,
+                }}
+              >
+                {note.text}
+              </T>
+            )}
             <LiquidBoard
               integrated
               board={save.board}
@@ -239,12 +255,19 @@ export default function Atelier() {
               onFinish={finishPour}
             />
           </View>
-          <PencilNote
-            text={note.pending ? '' : note.text || botanicalFact(save.current)}
-            handwritten={note.kind === 'hint'}
-            motion={save.settings.motion}
-            request={note.request}
-          />
+          <View
+            testID="hint-scroll-slot"
+            style={{ minHeight: 64, justifyContent: 'center', marginBottom: 8 }}
+          >
+            {note.kind === 'hint' && (
+              <HintScroll
+                text={note.text}
+                pending={note.pending}
+                motion={save.settings.motion}
+                request={note.request}
+              />
+            )}
+          </View>
           <Paper
             style={{
               flexDirection: 'row',

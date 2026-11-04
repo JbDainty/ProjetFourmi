@@ -22,7 +22,8 @@ async function main() {
     await page.goto(url);
     await page.getByRole('button', { name: 'Commencer la restauration' }).click();
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 01');
-    await expect(note).toHaveText(botanicalFact(1));
+    await expect(note).toHaveCount(0);
+    await expect(page.getByTestId('hint-scroll')).toHaveCount(0);
     await expect(page.getByText(/\b\d+ mouvements?\b/)).toHaveCount(0);
     for (const width of [320, 390]) {
       await page.setViewportSize({ width, height: 844 });
@@ -67,14 +68,25 @@ async function main() {
         window.hintPaintFrames = frames;
         const sample = () => {
           const node = document.querySelector('[data-testid="hint-writing-text"]');
-          const text = node.textContent || '';
-          frames.push({ text, font: getComputedStyle(node).fontFamily });
+          const text = node?.textContent || '';
+          frames.push({ text, font: node ? getComputedStyle(node).fontFamily : '', rolling: !!document.querySelector('[data-testid="hint-scroll-unrolling"]'), pencil: !!document.querySelector('[data-testid="hint-pencil"]') });
           if (frames.length < 240 && !(text === ${JSON.stringify(fullHint)} && !document.querySelector('[data-testid="hint-pencil"]'))) requestAnimationFrame(sample);
         };
         requestAnimationFrame(sample);
       }, { once: true, capture: true });
     `);
     await page.getByRole('button', { name: 'Indice', exact: true }).click();
+    await expect(page.getByTestId('hint-scroll-unrolling')).toBeVisible();
+    await expect(note).toHaveText('');
+    await expect(page.getByTestId('hint-pencil')).toHaveCount(0);
+    const rolledWidth = (await page.locator('#hint-parchment-sheet').boundingBox())!.width;
+    await page.waitForTimeout(180);
+    expect((await page.locator('#hint-parchment-sheet').boundingBox())!.width).toBeGreaterThan(
+      rolledWidth,
+    );
+    await expect(note).toHaveText('');
+    await expect(page.getByTestId('hint-pencil')).toHaveCount(0);
+    await page.screenshot({ path: 'test-results/hint-scroll-unrolling.png', fullPage: true });
     await expect(page.getByTestId('pencil-note-writing')).toBeVisible();
     await page.waitForTimeout(240);
     const partial = (await note.textContent())!;
@@ -86,11 +98,18 @@ async function main() {
     await expect(page.getByTestId('hint-pencil')).toHaveCount(0);
     const paints = await page.evaluate(
       () =>
-        (window as unknown as { hintPaintFrames: { text: string; font: string }[] })
-          .hintPaintFrames,
+        (
+          window as unknown as {
+            hintPaintFrames: { text: string; font: string; rolling: boolean; pencil: boolean }[];
+          }
+        ).hintPaintFrames,
     );
     expect(paints.length).toBeGreaterThan(5);
     expect(paints[0].text).not.toBe(fullHint);
+    expect(paints.some((paint) => paint.rolling)).toBe(true);
+    expect(
+      paints.filter((paint) => paint.rolling).every((paint) => paint.text === '' && !paint.pencil),
+    ).toBe(true);
     expect(paints.every((paint) => fullHint.startsWith(paint.text))).toBe(true);
     expect(
       paints.every((paint) => !paint.text || paint.font.includes('HerbariumHandwriting')),
@@ -107,18 +126,26 @@ async function main() {
         Math.min(...writingSamples.map((sample) => sample.x)),
     ).toBeGreaterThan(40);
     await page.screenshot({ path: 'test-results/pencil-note-complete.png', fullPage: true });
-    // Asking again replays the writing; touching a tube cancels it immediately.
+    // Asking again rewinds the paper; a tube touch cancels either phase.
+    await page.getByRole('button', { name: 'Indice', exact: true }).click();
+    await expect(page.getByTestId('hint-scroll-unrolling')).toBeVisible();
+    await expect(note).toHaveText('');
+    await page.getByRole('button', { name: /^Flacon 2,/ }).click();
+    await expect(page.getByTestId('hint-scroll')).toHaveCount(0);
+    await page.getByRole('button', { name: /^Flacon 2,/ }).click();
     await page.getByRole('button', { name: 'Indice', exact: true }).click();
     await expect(page.getByTestId('hint-pencil')).toBeVisible();
     await page.getByRole('button', { name: /^Flacon 2,/ }).click();
-    await expect(page.getByTestId('hint-pencil')).toHaveCount(0);
+    await expect(page.getByTestId('hint-scroll')).toHaveCount(0);
     await page.waitForTimeout(180);
-    await expect(note).toHaveText(botanicalFact(1));
+    await expect(note).toHaveCount(0);
     await openScreen(page, 'Paramètres');
     await page.getByRole('switch', { name: 'Animations douces' }).click();
     await openScreen(page, 'L’Atelier');
     await page.getByRole('button', { name: 'Indice', exact: true }).click();
     await expect(note).toHaveText(fullHint);
+    await expect(page.getByTestId('hint-scroll-open')).toBeVisible();
+    await expect(page.getByTestId('hint-scroll-unrolling')).toHaveCount(0);
     await expect(page.getByTestId('hint-pencil')).toHaveCount(0);
     for (const m of levels[0].solution) {
       await page.getByRole('button', { name: new RegExp(`^Flacon ${m.from + 1},`) }).click();
@@ -135,7 +162,8 @@ async function main() {
     );
     await page.screenshot({ path: 'test-results/restoration-botanical-fact.png', fullPage: true });
     await page.getByRole('button', { name: 'Poursuivre la restauration' }).click();
-    await expect(note).toHaveText(botanicalFact(2));
+    await expect(note).toHaveCount(0);
+    await expect(page.getByTestId('hint-scroll')).toHaveCount(0);
     await expect(page.getByTestId('page-result-moves')).toHaveCount(0);
     await expect(page.getByText(/\b\d+ mouvements?\b/)).toHaveCount(0);
     // A new species gets its own annotations, in play and after the reveal.
@@ -158,7 +186,8 @@ async function main() {
     await expect(page.getByTestId('current-botanical-stamp')).toHaveAccessibleName(
       'Ouvrir la planche de Bleuet, 0 pigments sur 5',
     );
-    await expect(note).toHaveText(botanicalFact(6));
+    await expect(note).toHaveCount(0);
+    await expect(page.getByTestId('hint-scroll')).toHaveCount(0);
     expect(botanicalFact(6)).not.toBe(botanicalFact(1));
     for (const m of levels[5].solution) {
       await page.getByRole('button', { name: new RegExp(`^Flacon ${m.from + 1},`) }).click();
@@ -170,7 +199,7 @@ async function main() {
     );
     expect(errors).toEqual([]);
     console.log(
-      'Pencil: no painted flash before writing, progressive hint, moving pencil, cancellation, reduced motion, botanical facts per page and species, restoration wording and results-only moves passed.',
+      'Parchment: invisible before hint, animated unrolling before writing, no flash, repeated requests, cancellation in both phases, reduced motion and botanical facts only after restoration passed.',
     );
   } finally {
     await browser.close();
