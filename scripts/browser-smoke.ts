@@ -6,6 +6,7 @@ const testUrl = (process.env.GAME_TEST_URL || 'http://localhost:8081/').replace(
 async function main() {
   const browser = await chromium.launch({
     executablePath: '/usr/bin/chromium',
+    proxy: process.env.GAME_TEST_PROXY ? { server: process.env.GAME_TEST_PROXY } : undefined,
     args: ['--no-sandbox'],
   });
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } }),

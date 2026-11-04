@@ -8,9 +8,9 @@ Adresse de la version de test : **https://jbdainty.github.io/ProjetFourmi/**
 
 Ouvrir le lien dans un navigateur sur ordinateur ou téléphone, puis choisir « Commencer la restauration ». La progression est enregistrée sur cet appareil ; elle n’est pas partagée automatiquement avec un autre téléphone ou navigateur. Aucun paiement ni publicité n’est actif.
 
-Les fichiers sources sont conservés sur https://github.com/JbDainty/ProjetFourmi. La branche `master` contient le code source, et la branche `gh-pages` contient le site compilé. Pour activer l’adresse, ouvrir **Settings → Pages → Build and deployment → Deploy from a branch**, sélectionner **gh-pages** et **/ (root)**, puis **Save**. Le premier déploiement peut prendre quelques minutes.
+Les fichiers sources sont conservés sur https://github.com/JbDainty/ProjetFourmi. La branche `master` contient le code source, et la branche `gh-pages` contient le site compilé. GitHub Pages est activé sur **gh-pages / (root)**. Le site est accessible à l’adresse ci-dessus ; aucune installation ni activation supplémentaire n’est nécessaire pour jouer.
 
-L’accès fourni à cet espace de travail permet l’envoi des fichiers, mais l’API GitHub a refusé l’activation de Pages (HTTP 403). Si le site n’est pas encore actif, ce réglage doit donc être enregistré par le propriétaire du dépôt.
+Après l’envoi d’une nouvelle version sur `gh-pages`, GitHub reconstruit automatiquement le site en quelques minutes. Son état est visible dans l’onglet **Actions** et dans **Settings → Pages** du dépôt.
 
 Pour envoyer une nouvelle version Web après des modifications :
 
