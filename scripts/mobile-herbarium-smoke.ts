@@ -25,7 +25,7 @@ async function main() {
     await expect(page.getByTestId('game-hud')).toBeVisible();
     await expect(page.getByText('PAGE 01', { exact: true })).toBeVisible();
     await expect(page.getByText(/NIVEAU|\/ 100/)).toHaveCount(0);
-    await expect(page.getByRole('heading', { name: /L’Herbier\s+des Couleurs/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Herbier\s+des couleurs/ })).toBeVisible();
     await expect(page.getByText('COLOR WORLD', { exact: true })).toHaveCount(0);
     await expect(page.getByRole('link')).toHaveCount(0);
     expect(
@@ -123,6 +123,43 @@ async function main() {
       path: 'test-results/botanical-book-title-mobile.png',
       fullPage: true,
     });
+    const livingTitle = animated.getByTestId('game-hud').getByTestId('herbarium-book-title');
+    const flowerMove = levels[3].solution[0];
+    await animated
+      .getByRole('button', { name: new RegExp(`^Flacon ${flowerMove.from + 1},`) })
+      .click();
+    const savedBeforeFlowers = await animated.evaluate(() =>
+      localStorage.getItem('color-world.save'),
+    );
+    await livingTitle.getByRole('button', { name: 'Faire fleurir le titre' }).click();
+    await expect(livingTitle.getByTestId('title-vines-growing')).toHaveCount(1);
+    const stem = livingTitle.getByTestId('title-vine-stem');
+    const firstStem = await stem.getAttribute('stroke-dashoffset');
+    await expect.poll(() => stem.getAttribute('stroke-dashoffset')).not.toBe(firstStem);
+    await expect(livingTitle.getByTestId('title-vines-bloomed')).toHaveCount(1);
+    await expect(livingTitle.getByTestId('title-vine-flower')).toHaveCount(4);
+    expect(await animated.evaluate(() => localStorage.getItem('color-world.save'))).toBe(
+      savedBeforeFlowers,
+    );
+    // Only the destination is tapped: the source selected before flowering survives.
+    await animated
+      .getByRole('button', { name: new RegExp(`^Flacon ${flowerMove.to + 1},`) })
+      .click();
+    await expect(animated.getByTestId('liquid-board-pouring')).toBeVisible();
+    await expect(animated.getByTestId('liquid-board-idle')).toBeVisible();
+    await expect
+      .poll(
+        async () =>
+          JSON.parse((await animated.evaluate(() => localStorage.getItem('color-world.save')))!)
+            .moves,
+      )
+      .toBe(1);
+    await animated.getByRole('button', { name: 'Annuler', exact: true }).click();
+    await expect(animated.getByTestId('game-carnet-menu')).toHaveCount(0);
+    await animated.screenshot({
+      path: 'test-results/living-title-bloomed-mobile.png',
+      fullPage: true,
+    });
     await animated.evaluate(() => {
       const cover = document.getElementById('antique-book-cover')!;
       const frames = new Set<string>();
@@ -141,10 +178,16 @@ async function main() {
     await animated.getByRole('button', { name: 'Reprendre la partie' }).click();
     await expect(animated.getByTestId('game-carnet-menu')).toHaveCount(0);
     await expect(animated.getByText('PAGE 04', { exact: true })).toBeVisible();
+    await openScreen(animated, 'Paramètres');
+    await animated.getByRole('switch', { name: 'Animations douces' }).click();
+    await openScreen(animated, 'L’Atelier');
+    await livingTitle.getByRole('button', { name: 'Faire fleurir le titre' }).click();
+    await expect(livingTitle.getByTestId('title-vines-bloomed')).toHaveCount(1);
+    await expect(livingTitle.getByTestId('title-vines-growing')).toHaveCount(0);
     await animated.close();
     expect(errors).toEqual([]);
     console.log(
-      'Mobile herbarium: stamp restoration, persistence, modal without losing selection or moves, no lower plate, botanical icons, 320/390px layouts and desktop plate passed.',
+      'Living herbarium: growing title vines and flowers, selection preserved through bloom, reduced motion, stamp restoration, persistence, organic chapter and 320/390px layouts passed.',
     );
   } finally {
     await browser.close();

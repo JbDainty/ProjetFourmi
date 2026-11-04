@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "L’Herbier des Couleurs",
+    "name": "Herbier des couleurs",
     "slug": "color-world-herbier",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -17,7 +17,7 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "name": "L’Herbier des Couleurs",
+      "name": "Herbier des couleurs",
       "shortName": "Herbier",
       "themeColor": "#315649",
       "backgroundColor": "#f4f0e5"

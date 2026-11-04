@@ -98,7 +98,7 @@ function Shell() {
           onOpen={() => setMenuOpen(true)}
         />
         <View style={{ flex: 1, alignItems: 'center' }}>
-          <HerbariumTitle compact={mobile} />
+          <HerbariumTitle compact={mobile} motion={save.settings.motion} />
         </View>
         <View
           accessible
@@ -177,7 +177,7 @@ function Shell() {
                 </Pressable>
               </View>
               <View style={{ alignItems: 'center', marginBottom: 20 }}>
-                <HerbariumTitle compact={mobile} />
+                <HerbariumTitle compact={mobile} motion={save.settings.motion} />
               </View>
               <Button
                 icon="flask-outline"

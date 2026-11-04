@@ -36,7 +36,7 @@ async function main() {
         ),
     ).toBe(true);
     await expect(page.locator('g[id^="tube-rack-"]')).toHaveCount(2);
-    const title = page.getByText('La serre des pigments', { exact: true });
+    const title = page.getByTestId('current-species-heading');
     expect(await title.evaluate((node) => getComputedStyle(node).fontFamily)).toContain(
       'HerbariumDisplay',
     );

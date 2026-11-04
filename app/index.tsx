@@ -7,11 +7,12 @@ import { useGame } from '../src/state/store';
 import { loadLevel, move, undo, restoration } from '../src/state/model';
 import { won, solve, pour, Move } from '../src/engine/puzzle';
 import levels from '../src/data/levels.json';
-import { species, chapters } from '../src/data/botany';
+import { species } from '../src/data/botany';
 import { botanicalFact } from '../src/data/botanicalFacts';
 import { LiquidBoard } from '../src/components/LiquidBoard';
 import { Botanical } from '../src/components/Botanical';
-import { BotanicalStamp } from '../src/components/BotanicalStamp';
+import { ChapterVignette } from '../src/components/ChapterVignette';
+import { SpellIcon } from '../src/components/SpellIcon';
 import { PageFolio } from '../src/components/PageFolio';
 import { HintScroll } from '../src/components/HintScroll';
 import { SceneSizeContext } from '../src/components/SceneSize';
@@ -160,49 +161,15 @@ export default function Atelier() {
       >
         <View testID="integrated-game-scene" style={{ flex: wide ? 1.35 : undefined }}>
           <PageFolio page={save.current} />
-          {!wide ? (
-            <View
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 8 }}
-            >
-              <BotanicalStamp
-                index={plant}
-                stage={stage}
-                disabled={busy}
-                onPress={() => setPlateOpen(true)}
-              />
-              <View style={{ flex: 1 }}>
-                <Label>CHAPITRE {String(chapter + 1).padStart(2, '0')}</Label>
-                <T style={{ fontSize: 12, lineHeight: 17, color: C.muted }}>
-                  {chapters[chapter].name}
-                </T>
-                <T serif style={{ fontSize: width < 360 ? 23 : 26, lineHeight: 30, marginTop: 4 }}>
-                  {s.name}
-                </T>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 6 }}>
-                  <Icon name="leaf-outline" size={15} color={C.green} />
-                  <T style={{ fontSize: 11, lineHeight: 17, color: C.green }}>
-                    {stage} / 5 pigments restaurés
-                  </T>
-                </View>
-              </View>
-            </View>
-          ) : (
-            <>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <View style={{ flex: 1 }}>
-                  <Label>
-                    CHAPITRE {chapter + 1} · {chapters[chapter].name.toLocaleUpperCase('fr')}
-                  </Label>
-                  <T
-                    serif
-                    style={{ fontSize: width < 800 ? 26 : 30, lineHeight: 36, marginTop: 9 }}
-                  >
-                    La serre des pigments
-                  </T>
-                </View>
-              </View>
-            </>
-          )}
+          <ChapterVignette
+            plant={plant}
+            chapter={chapter}
+            stage={stage}
+            compact={!wide}
+            narrow={width < 360}
+            busy={busy}
+            onOpen={() => setPlateOpen(true)}
+          />
           {!wide && (
             <View
               style={{
@@ -289,7 +256,7 @@ export default function Atelier() {
             {[
               {
                 name: 'Annuler',
-                icon: 'arrow-undo-outline',
+                icon: 'undo' as const,
                 action: () => {
                   setSave(undo);
                   setSelected(null);
@@ -300,7 +267,7 @@ export default function Atelier() {
               },
               {
                 name: 'Recommencer',
-                icon: 'refresh-outline',
+                icon: 'restart' as const,
                 action: () => {
                   setSave((v) => loadLevel(v, v.current));
                   setSelected(null);
@@ -310,7 +277,7 @@ export default function Atelier() {
                 },
                 disabled: false,
               },
-              { name: 'Indice', icon: 'bulb-outline', action: askHint, disabled: victory },
+              { name: 'Indice', icon: 'hint' as const, action: askHint, disabled: victory },
             ].map((a) => (
               <Pressable
                 key={a.name}
@@ -327,7 +294,7 @@ export default function Atelier() {
                   opacity: a.disabled ? 0.35 : 1,
                 }}
               >
-                <Icon size={25} name={a.icon as 'bulb-outline'} color={C.green} />
+                <SpellIcon size={36} name={a.icon} />
                 <T
                   style={{
                     fontFamily: F.handwritingMedium,

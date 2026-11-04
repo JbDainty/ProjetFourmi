@@ -175,9 +175,9 @@ export default function Parametres() {
           Le statut exact des contrôles est documenté dans le README.
         </T>
         <T serif style={{ fontSize: 24, marginTop: 22 }}>
-          L’Herbier des Couleurs · Volume I
+          Herbier des couleurs · Volume I
         </T>
-        <T style={{ fontSize: 11, color: C.muted }}>L’Herbier des Couleurs · version 1.0.0</T>
+        <T style={{ fontSize: 11, color: C.muted }}>Herbier des couleurs · version 1.0.0</T>
       </Paper>
     </ScrollView>
   );

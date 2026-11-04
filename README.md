@@ -1,4 +1,4 @@
-# L’Herbier des Couleurs
+# Herbier des couleurs
 
 Jeu de tri de pigments en français, réalisé avec Expo SDK 54, React Native, Expo Router et TypeScript strict. Les cent niveaux se répartissent entre cinq écosystèmes et vingt espèces. Chaque première victoire révèle un cinquième de la planche et ajoute un pigment daté à la collection.
 
@@ -47,9 +47,11 @@ Pour une installation reproductible, utiliser `npm ci` avec le fichier `package-
 
 Les annulations, indices et reprises sont gratuits. Les étoiles comparent le nombre de mouvements à un parcours de référence vérifié, **pas à un optimum mathématique**. Rejouer peut améliorer les étoiles sans dupliquer les graines ou les pigments. Une nouvelle espèce s’ouvre après cinq niveaux, un écosystème après vingt. Le niveau 100 termine la collection sans charger de niveau 101.
 
-L’atelier est une scène de jeu continue : le décor de serre s’étend sous le titre et les flacons. L’ATH flottant présente « L’Herbier des Couleurs », les graines et un bouton de carnet. Ce bouton ouvre le menu du jeu, avec la reprise de la partie, l’herbier, les écosystèmes, la boutique et les réglages. Il remplace la barre d’onglets et le panneau latéral. Ouvrir puis refermer le carnet conserve la sélection et le puzzle ; quitter l’atelier interrompt un versement en cours avant sa validation.
+L’atelier est une scène de jeu continue : le décor de serre s’étend sous le titre et les flacons. L’ATH flottant présente « Herbier des couleurs », les graines et un bouton de carnet. Ce bouton ouvre le menu du jeu, avec la reprise de la partie, l’herbier, les écosystèmes, la boutique et les réglages. Il remplace la barre d’onglets et le panneau latéral. Ouvrir puis refermer le carnet conserve la sélection et le puzzle ; quitter l’atelier interrompt un versement en cours avant sa validation.
 
 La présentation emploie « page » dans l’atelier, la carte et le parcours. Le compteur affiche uniquement la page courante, par exemple « PAGE 04 ». Le titre reprend la composition d’un frontispice botanique ancien, avec petites capitales et fleuron doré. Le bouton du carnet représente un livre relié dont la couverture s’ouvre avant l’affichage du menu. Désactiver « Animations douces » rend l’ouverture immédiate.
+
+Toucher « Herbier des couleurs » fait pousser des lianes qui s’entrelacent dans le titre, puis éclore de petites fleurs. Un nouveau toucher relance la floraison. Cette animation est décorative et conserve la sélection et la progression ; les fleurs apparaissent immédiatement lorsque les animations sont désactivées. Le chapitre se présente comme une vignette de livre : numéro romain manuscrit, nom du paysage en italique, plante et rameau de cinq feuilles indiquant les nuances retrouvées. Les commandes du puzzle portent des symboles botaniques dorés : rameau de retour, couronne fleurie de renaissance et loupe enchantée.
 
 Le numéro de page prend la forme d’un folio orné. Le nombre de mouvements reste caché pendant le puzzle et apparaît seulement dans le bilan de la page achevée. Les commandes « Annuler », « Recommencer » et « Indice » utilisent l’écriture manuscrite Caveat. Avant une demande d’indice, la zone sous les flacons reste vide, sans cadre ni texte. Au clic, un parchemin patiné se déroule horizontalement, puis l’indice s’écrit en graphite avec un crayon qui suit les lettres et les retours à la ligne. Redemander un indice relance les deux étapes ; jouer, annuler ou recommencer les interrompt. L’indice complet est annoncé aux lecteurs d’écran après le déroulement. Parchemin et texte apparaissent immédiatement quand les animations sont désactivées.
 
@@ -59,7 +61,7 @@ Les anecdotes botaniques apparaissent après la révélation des couleurs. Cinq 
 
 Sur téléphone et tablette, un timbre botanique accompagne le chapitre dans l’atelier. Il reprend la plante et ses pigments déjà restaurés ; ses cinq points indiquent l’avancement. Toucher le timbre ouvre la planche en grand, puis « Revenir au jeu » retrouve le puzzle et la sélection en cours. La grande planche reste à côté du jeu sur les écrans larges. Les icônes des commandes et de la navigation sont des dessins SVG originaux inspirés des herbiers, avec leurs libellés conservés.
 
-`npm run test:mobile-herbarium` vérifie le timbre, sa progression persistante, l’ouverture sans perte de sélection et les présentations à 320, 390 et 1440 pixels. Comme les autres tests navigateur, il accepte `GAME_TEST_URL` pour viser un serveur de prévisualisation.
+`npm run test:mobile-herbarium` vérifie la floraison du titre, la conservation de la sélection pendant cette animation, le mode sans animation, le timbre, sa progression persistante et les présentations à 320, 390 et 1440 pixels. Comme les autres tests navigateur, il accepte `GAME_TEST_URL` pour viser un serveur de prévisualisation.
 
 ## La serre et ses porte-tubes
 

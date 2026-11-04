@@ -6,6 +6,9 @@
 - `src/components/Paper.tsx` : composition du fond et des planches sur papier ivoire patiné.
 - `src/components/BotanicalIcon.tsx` : pictogrammes SVG originaux dessinés pour le projet : rameaux, feuilles nervurées, fleur, loupe de naturaliste, carnet et graines. Ils remplacent les pictogrammes génériques dans les commandes et la navigation.
 - `src/components/HerbariumTitle.tsx` : composition typographique originale de frontispice, Almendra en gras, petites capitales et fleuron botanique doré en SVG.
+- `src/components/TitleVines.tsx` : lianes ornementales originales, feuilles nervurées et fleurs décoratives en SVG. Les tiges se dessinent, les feuilles se déploient et les fleurs éclosent au toucher du titre.
+- `src/components/ChapterVignette.tsx` : mise en page originale inspirée des annotations d’un livre botanique, rameaux discrets, chapitre manuscrit et progression exprimée par cinq feuilles.
+- `src/components/SpellIcon.tsx` : trois dessins SVG originaux pour les commandes du jeu, avec dorures, nervures, croissant, graines, fleurs et étoiles. Aucun symbole commercial externe.
 - `src/components/HerbariumBookButton.tsx` : livre ancien original en SVG, reliure verte, tranche de papier, dorures et plantes gravées. L’animation ouvre la couverture puis révèle le menu ; aucun visuel de couverture externe.
 - `src/components/PageFolio.tsx` : fleuron de pagination original en SVG, rameaux symétriques et chiffre en Almendra.
 - `src/components/PencilNote.tsx` : crayon à papier original dessiné en SVG ; apparition progressive de l’écriture Caveat et positionnement du crayon d’après les lettres et les lignes réellement affichées.
