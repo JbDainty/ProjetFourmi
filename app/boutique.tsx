@@ -52,8 +52,8 @@ export default function Boutique() {
                 style={{
                   height: 120,
                   backgroundColor: t.color,
-                  borderWidth: 1,
-                  borderColor: C.line,
+                  borderWidth: 0,
+                  borderRadius: 18,
                   alignItems: 'center',
                   justifyContent: 'center',
                   marginBottom: 20,

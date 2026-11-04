@@ -24,7 +24,11 @@ export default function Carte() {
             Boolean,
           ).length;
         return (
-          <Paper key={c.name} style={[ui.card, { marginBottom: 20, opacity: open ? 1 : 0.6 }]}>
+          <Paper
+            vitality={count / 20}
+            key={c.name}
+            style={[ui.card, { marginBottom: 20, opacity: open ? 1 : 0.6 }]}
+          >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 15 }}>
               <View style={{ flex: 1 }}>
                 <Label>

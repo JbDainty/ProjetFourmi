@@ -249,6 +249,7 @@ export default function Atelier() {
           </View>
         </Paper>
         <Paper
+          vitality={stage / 5}
           style={[
             ui.card,
             { flex: wide ? 1 : undefined, alignItems: 'center', padding: 21, overflow: 'hidden' },

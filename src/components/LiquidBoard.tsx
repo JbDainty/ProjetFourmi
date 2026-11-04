@@ -17,6 +17,7 @@ import Svg, {
 import { type Board, type Move, pour } from '../engine/puzzle';
 import { palette, symbols, colorNames } from '../data/botany';
 import { C } from './ui';
+import { FoliageFrame } from './FoliageFrame';
 import { F } from './fonts';
 import { GreenhouseBackdrop, RackDefinitions, TubeRack, RackStand } from './Greenhouse';
 import {
@@ -453,9 +454,8 @@ function LiquidBoardDrawing({
         width: '100%',
         height: width ? height : 260,
         overflow: 'hidden',
-        borderRadius: 5,
-        borderWidth: 1,
-        borderColor: '#8d9d78',
+        borderRadius: 24,
+        borderWidth: 0,
         backgroundColor: '#dbe3cf',
       }}
       onLayout={(e) => {
@@ -464,6 +464,7 @@ function LiquidBoardDrawing({
       }}
     >
       <GreenhouseBackdrop />
+      <FoliageFrame scene />
       {!!width && (
         <>
           <Svg

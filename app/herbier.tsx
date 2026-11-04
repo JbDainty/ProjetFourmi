@@ -51,7 +51,7 @@ export default function Herbier() {
                   style={{
                     height: 75,
                     backgroundColor: p.shade,
-                    borderRadius: 4,
+                    borderRadius: 14,
                     marginBottom: 16,
                   }}
                 />
@@ -85,12 +85,12 @@ export default function Herbier() {
                   ui.card,
                   {
                     width: width < 600 ? '100%' : width < 1100 ? '47%' : '31%',
-                    padding: 15,
+                    padding: 24,
                     alignItems: 'center',
                   },
                 ]}
               >
-                <PaperTexture framed />
+                <PaperTexture framed vitality={stage / 5} />
                 <View
                   style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}
                 >
@@ -145,11 +145,14 @@ export default function Herbier() {
                 maxWidth: 700,
                 maxHeight: '95%',
                 backgroundColor: C.paper,
-                borderRadius: 8,
+                borderRadius: 28,
               }}
             >
               <View style={{ padding: 26, zIndex: 0 }}>
-                <PaperTexture framed />
+                <PaperTexture
+                  framed
+                  vitality={selected === null ? 0 : restoration(save, selected) / 5}
+                />
                 <View
                   style={{
                     flexDirection: 'row',

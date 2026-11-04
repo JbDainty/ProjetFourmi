@@ -105,7 +105,7 @@ export default function Parametres() {
           style={{
             borderWidth: 1,
             borderColor: C.line,
-            borderRadius: 5,
+            borderRadius: 14,
             minHeight: 100,
             maxHeight: 180,
             padding: 14,

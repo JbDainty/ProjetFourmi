@@ -50,6 +50,11 @@ async function main() {
     await page.getByRole('button', { name: 'Agrandir l’illustration' }).click();
     await page.waitForTimeout(700);
     await page.screenshot({ path: 'test-results/herbarium-detail.png', fullPage: true });
+    await page.getByRole('button', { name: 'Fermer la planche', exact: true }).click();
+    await page.getByRole('link', { name: 'Écosystèmes' }).click();
+    await page.getByText(/CHAPITRE 01 · NIVEAUX/).waitFor();
+    await page.waitForTimeout(250);
+    await page.screenshot({ path: 'test-results/botanical-chapter-frame.png', fullPage: true });
     expect(errors).toEqual([]);
     console.log(
       'Visual review: original and restored plate, twenty species, enlarged detail rendered without browser errors.',

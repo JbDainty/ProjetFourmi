@@ -151,7 +151,8 @@ Aucun compte, mesure d’audience ou service publicitaire actif. Les ressources 
 - `src/state/economy.ts` : cadeaux, graines et cosmétiques.
 - `src/state/store.tsx` : hydratation et persistance asynchrone.
 - `src/data/botany.ts` : vingt fiches et cinq écosystèmes.
-- `src/components/Paper.tsx` : texture de papier, vieillissement discret et encadrement des cartes.
+- `src/components/Paper.tsx` : texture de papier et vieillissement discret.
+- `src/components/FoliageFrame.tsx` : encadrements végétaux adaptatifs, tiges courbes, feuilles nervurées et rameaux d’angle. Les cadres des planches et des chapitres passent du sépia au vert avec la restauration. Les ornements sont non interactifs et restent dans les marges.
 - `src/components/Botanical.tsx` : vingt planches à rendu aquarelle en atlas PNG, filtres et masques SVG pour cinq étapes de coloration, détails agrandissables.
 - `src/services/` : son/haptique et contrat des fournisseurs commerciaux.
 
