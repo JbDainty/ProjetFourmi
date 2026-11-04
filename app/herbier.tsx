@@ -1,3 +1,4 @@
+import { F } from '../src/components/fonts';
 import { Paper, PaperTexture } from '../src/components/Paper';
 import React, { useState } from 'react';
 import { View, ScrollView, Pressable, Modal, useWindowDimensions } from 'react-native';
@@ -58,9 +59,7 @@ export default function Herbier() {
                   {p.name}
                 </T>
                 <T style={{ fontSize: 12, color: C.muted }}>{species[p.species].name}</T>
-                <T style={{ fontFamily: 'CormorantItalic', fontSize: 16 }}>
-                  {species[p.species].latin}
-                </T>
+                <T style={{ fontFamily: F.scientific, fontSize: 16 }}>{species[p.species].latin}</T>
                 <T style={{ fontSize: 10, marginTop: 10, color: C.muted }}>
                   Découvert le {new Date(p.discovered).toLocaleDateString('fr-FR')}
                 </T>
@@ -112,9 +111,7 @@ export default function Herbier() {
                 <T serif style={{ fontSize: 25 }}>
                   {s.name}
                 </T>
-                <T style={{ fontFamily: 'CormorantItalic', fontSize: 17, color: C.muted }}>
-                  {s.latin}
-                </T>
+                <T style={{ fontFamily: F.scientific, fontSize: 17, color: C.muted }}>{s.latin}</T>
                 <View style={{ width: '100%', marginTop: 18 }}>
                   <Progress value={stage / 5} />
                   <T style={{ textAlign: 'center', fontSize: 10, color: C.muted, marginTop: 7 }}>
@@ -190,7 +187,7 @@ export default function Herbier() {
                 <T serif style={{ fontSize: 38, lineHeight: 44, marginTop: 20 }}>
                   {species[selected].name}
                 </T>
-                <T style={{ fontFamily: 'CormorantItalic', fontSize: 24, color: C.muted }}>
+                <T style={{ fontFamily: F.scientific, fontSize: 24, color: C.muted }}>
                   {species[selected].latin}
                 </T>
                 <View style={ui.rule} />

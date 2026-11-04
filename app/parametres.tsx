@@ -1,3 +1,4 @@
+import { F } from '../src/components/fonts';
 import { Paper } from '../src/components/Paper';
 import React, { useState } from 'react';
 import { ScrollView, View, Switch, TextInput } from 'react-native';
@@ -112,6 +113,7 @@ export default function Parametres() {
             color: C.ink,
             fontSize: 12,
             textAlignVertical: 'top',
+            fontFamily: F.body,
           }}
         />
         {confirm ? (

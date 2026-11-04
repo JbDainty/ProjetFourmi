@@ -4,8 +4,7 @@ import { Slot, usePathname, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
-const CormorantGaramond_400Regular = require('@expo-google-fonts/cormorant-garamond/400Regular/CormorantGaramond_400Regular.ttf');
-const CormorantGaramond_500Medium_Italic = require('@expo-google-fonts/cormorant-garamond/500Medium_Italic/CormorantGaramond_500Medium_Italic.ttf');
+import { botanicalFonts } from '../src/components/fonts';
 import { GameProvider, useGame } from '../src/state/store';
 import { T, Label, Icon, C, ui } from '../src/components/ui';
 import { PaperTexture } from '../src/components/Paper';
@@ -53,7 +52,7 @@ function Shell() {
             <Icon name="leaf-outline" color={C.green} size={24} />
           </View>
           <View>
-            <T serif style={{ fontSize: mobile ? 24 : 29, letterSpacing: 3 }}>
+            <T serif style={{ fontSize: mobile ? 23 : 29, letterSpacing: mobile ? 1.5 : 2.5 }}>
               COLOR WORLD
             </T>
             <Label>L’HERBIER DES COULEURS</Label>
@@ -163,10 +162,7 @@ function Shell() {
   );
 }
 export default function Layout() {
-  const [loaded, error] = useFonts({
-    Cormorant: CormorantGaramond_400Regular,
-    CormorantItalic: CormorantGaramond_500Medium_Italic,
-  });
+  const [loaded, error] = useFonts(botanicalFonts);
   if (!loaded && !error) return null;
   return (
     <SafeAreaProvider>

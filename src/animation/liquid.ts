@@ -129,13 +129,15 @@ export function receive(tube: Layer[], color: number, units: number): Layer[] {
   return result;
 }
 export function timeline(count: number) {
-  const lift = 300,
+  const lift = 450,
+    extraction = 180,
     flow = 700 + count * 150,
     flight = 140,
     settle = 180,
-    returnTime = 300;
+    returnTime = 420;
   return {
     lift,
+    extraction,
     flow,
     flight,
     settle,
@@ -148,7 +150,10 @@ export function timeline(count: number) {
 export function samplePour(elapsed: number, count: number) {
   const t = timeline(count);
   return {
-    approach: smooth(elapsed / t.lift),
+    extraction: smooth(elapsed / t.extraction),
+    approach: smooth((elapsed - t.extraction) / (t.lift - t.extraction)),
+    returnTravel: smooth((elapsed - t.returnStart) / (t.returnTime * 0.56)),
+    insertion: smooth((elapsed - t.returnStart - t.returnTime * 0.56) / (t.returnTime * 0.44)),
     sent: smooth((elapsed - t.lift) / t.flow),
     arrived: smooth((elapsed - t.lift - t.flight) / t.flow),
     head: clamp((elapsed - t.lift) / t.flight),

@@ -47,6 +47,21 @@ Pour une installation reproductible, utiliser `npm ci` avec le fichier `package-
 
 Les annulations, indices et reprises sont gratuits. Les étoiles comparent le nombre de mouvements à un parcours de référence vérifié, **pas à un optimum mathématique**. Rejouer peut améliorer les étoiles sans dupliquer les graines ou les pigments. Une nouvelle espèce s’ouvre après cinq niveaux, un écosystème après vingt. Le niveau 100 termine la collection sans charger de niveau 101.
 
+## La serre et ses porte-tubes
+
+La zone de puzzle est un atelier de serre à verrière ancienne, avec une lumière végétale douce et une table en bois. Le décor est une image originale embarquée, distincte des flacons. Les supports sont des éléments SVG : trous, barres de maintien, socle, montants et détails de laiton. Chaque rangée possède son porte-tubes et les configurations à plusieurs rangées utilisent un bâti commun. Les trous restent visibles lorsqu’un flacon est soulevé.
+
+Le flacon est extrait verticalement du support avant de s’incliner pour verser. Au retour, il se redresse et s’aligne au-dessus de son logement avant d’y redescendre. Les emplacements de jeu, les couleurs, les règles et la sauvegarde restent indépendants de ce décor.
+
+Toute la typographie utilise maintenant **Almendra** pour les titres, **Alegreya Sans** pour les textes et commandes, et **Alegreya en italique** pour les noms scientifiques. Les polices et leurs graisses sont embarquées et restent disponibles hors ligne. Les notices sont incluses dans `public/licenses/`.
+
+```sh
+# Après npm run preview :
+npm run test:greenhouse
+```
+
+Ce contrôle vérifie le chargement du décor et des six variantes typographiques, les supports sur chaque rangée et les affichages mobiles à 320 et 390 pixels de large.
+
 ## Versement visqueux et pigments mystérieux
 
 Les flacons utilisent un rendu SVG commun au Web et au mobile. Le verre se soulève, s’incline vers la destination, verse un filet continu puis revient à sa place. Les sections colorées conservent leur aire pendant l’inclinaison et leur surface reste soumise à la verticale de la gravité ; un léger décalage transitoire traduit la viscosité. Les ménisques, le reflet du verre, les gouttes et les remous à l’arrivée sont animés séparément. Il s’agit d’un modèle illustratif en deux dimensions, pas d’un solveur de fluide généraliste.
@@ -77,7 +92,7 @@ npm run build:web
 npm run test:browser
 ```
 
-Les 26 tests unitaires couvrent les transferts, les refus, la victoire, l’annulation et la reprise, les 100 solutions, le solveur indépendant sur chacun des niveaux, les 100 récompenses, les déblocages, les vingt restaurations, les migrations et la restauration de sauvegardes, ainsi que l’économie. Six tests portent sur la conservation des volumes à différentes inclinaisons, les couches, l’angle de débordement, le volume en vol, le déroulement temporel et les quantités fractionnaires.
+Les 27 tests unitaires couvrent les transferts, les refus, la victoire, l’annulation et la reprise, les 100 solutions, le solveur indépendant sur chacun des niveaux, les 100 récompenses, les déblocages, les vingt restaurations, les migrations et la restauration de sauvegardes, ainsi que l’économie. Sept tests portent sur la sortie et le retour dans les porte-tubes, la conservation des volumes à différentes inclinaisons, les couches, l’angle de débordement, le volume en vol, le déroulement temporel et les quantités fractionnaires.
 
 Le contrôle navigateur utilise Playwright et Chromium installé dans `/usr/bin/chromium`. Adapter `executablePath` dans `scripts/browser-smoke.ts` sur une autre machine. Il couvre le tutoriel, l’indice, une résolution jouée par clics, la révélation, le rechargement, les réglages d’accessibilité, la fin du niveau 100, l’herbier complet, le mode hors ligne, l’affichage mobile et le cadeau quotidien. Pour préparer le dernier niveau, il injecte une sauvegarde créée en résolvant réellement les niveaux 1 à 99 via le moteur ; il ne prétend pas cliquer les cent niveaux dans le navigateur. Les captures sont générées dans `test-results/`.
 
@@ -126,6 +141,8 @@ Aucun compte, mesure d’audience ou service publicitaire actif. Les ressources 
 
 - `app/` : cinq espaces Expo Router, tutoriel et dialogues.
 - `src/animation/liquid.ts` : géométrie des surfaces libres, volumes des couches et chronologie visqueuse.
+- `src/components/Greenhouse.tsx` : décor de serre, porte-tubes et bâti des rangées.
+- `src/components/fonts.ts` : familles et variantes typographiques embarquées.
 - `src/components/LiquidBoard.tsx` : flacons, filet, gouttes, reflets et mouvements des pigments.
 - `src/engine/puzzle.ts` : règles pures, capacités et solveur.
 - `scripts/generate.ts`, `src/data/levels.json` : génération, certificats et 100 configurations.
@@ -150,7 +167,7 @@ Les descriptions signalent des caractères morphologiques usuels ; les périodes
 - TAXREF / INPN : https://inpn.mnhn.fr/programme/referentiel-taxonomique-taxref
 - Plants of the World Online, Kew : https://powo.science.kew.org/
 
-Illustrations, texture de papier et son de versement synthétisé créés pour ce projet, sans image commerciale externe. Cormorant Garamond est distribué sous SIL Open Font License ; Ionicons via react-native-vector-icons sous MIT. Les notices sont incluses dans `public/licenses/` et l’export. Voir `ASSETS.md`.
+Illustrations, texture de papier et son de versement synthétisé créés pour ce projet, sans image commerciale externe. Almendra, Alegreya et Alegreya Sans sont distribuées sous SIL Open Font License ; Ionicons via react-native-vector-icons sous MIT. Les notices sont incluses dans `public/licenses/` et l’export. Voir `ASSETS.md`.
 
 ## Commerce et limites avant publication
 

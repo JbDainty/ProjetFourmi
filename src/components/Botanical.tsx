@@ -12,6 +12,7 @@ import Svg, {
   Line,
   Text as SvgText,
 } from 'react-native-svg';
+import { F } from './fonts';
 import { species } from '../data/botany';
 import { illustrationAtlases } from '../data/illustrations';
 
@@ -118,10 +119,24 @@ function BotanicalDrawing({ index, stage, size = 330, labels = true }: Props) {
             strokeWidth=".45"
             opacity=".55"
           />
-          <SvgText x="32" y="486" fontSize="8" fill="#806c4d" letterSpacing="1.6">
+          <SvgText
+            x="32"
+            y="486"
+            fontSize="8"
+            fontFamily={F.medium}
+            fill="#806c4d"
+            letterSpacing="1.6"
+          >
             PL. {String(index + 1).padStart(2, '0')}
           </SvgText>
-          <SvgText x="329" y="486" textAnchor="end" fontSize="8" fill="#806c4d" fontStyle="italic">
+          <SvgText
+            x="329"
+            y="486"
+            textAnchor="end"
+            fontSize="8"
+            fill="#806c4d"
+            fontFamily={F.scientific}
+          >
             Flore d’Europe · {s.family}
           </SvgText>
         </>

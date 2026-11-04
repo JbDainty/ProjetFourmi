@@ -1,5 +1,6 @@
 import React from 'react';
 import { Text, TextProps, Pressable, View, StyleSheet, ViewStyle } from 'react-native';
+import { F } from './fonts';
 import Ionicons from '@expo/vector-icons/Ionicons';
 export const C = {
   paper: '#ebe0c9',
@@ -11,13 +12,28 @@ export const C = {
   gold: '#af8b49',
 };
 export function T({ serif = false, style, ...props }: TextProps & { serif?: boolean }) {
+  const flattened = StyleSheet.flatten(style) || {};
+  const { fontWeight, ...textStyle } = flattened;
+  const weight = fontWeight === 'bold' ? 700 : Number(fontWeight || 400);
+  const font =
+    flattened.fontFamily ||
+    (serif
+      ? weight >= 600
+        ? F.displayBold
+        : F.display
+      : weight >= 600
+        ? F.bold
+        : weight >= 500
+          ? F.medium
+          : F.body);
+  const lineHeight =
+    typeof flattened.fontSize === 'number'
+      ? Math.max(22, Math.round(flattened.fontSize * (serif ? 1.16 : 1.3)))
+      : 22;
   return (
     <Text
       {...props}
-      style={[
-        { fontFamily: serif ? 'Cormorant' : 'System', fontSize: 14, color: C.ink, lineHeight: 22 },
-        style,
-      ]}
+      style={[{ fontFamily: font, fontSize: 14, color: C.ink, lineHeight }, textStyle]}
     />
   );
 }

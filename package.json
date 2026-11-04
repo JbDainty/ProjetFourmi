@@ -16,10 +16,13 @@
     "test:browser": "node --import tsx scripts/browser-smoke.ts",
     "format": "prettier --write app src scripts tests *.json *.ts *.md",
     "deploy:pages": "node scripts/deploy-pages.mjs",
-    "test:pouring": "node --import tsx scripts/pouring-smoke.ts"
+    "test:pouring": "node --import tsx scripts/pouring-smoke.ts",
+    "test:greenhouse": "node --import tsx scripts/greenhouse-smoke.ts"
   },
   "dependencies": {
-    "@expo-google-fonts/cormorant-garamond": "^0.4.0",
+    "@expo-google-fonts/alegreya": "^0.4.2",
+    "@expo-google-fonts/alegreya-sans": "^0.4.2",
+    "@expo-google-fonts/almendra": "^0.4.1",
     "@expo/vector-icons": "^15.0.0",
     "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "~54.0.0",

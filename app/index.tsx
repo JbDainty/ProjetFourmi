@@ -1,3 +1,4 @@
+import { F } from '../src/components/fonts';
 import { Paper } from '../src/components/Paper';
 import React, { useEffect, useRef, useState } from 'react';
 import { View, ScrollView, Pressable, Modal, Animated, useWindowDimensions } from 'react-native';
@@ -144,7 +145,7 @@ export default function Atelier() {
                 CHAPITRE {chapter + 1} · {chapters[chapter].name.toLocaleUpperCase('fr')}
               </Label>
               <T serif style={{ fontSize: width < 800 ? 26 : 30, lineHeight: 36, marginTop: 9 }}>
-                L’atelier des pigments
+                La serre des pigments
               </T>
             </View>
             <View style={{ alignItems: 'center' }}>
@@ -261,7 +262,7 @@ export default function Atelier() {
           <T serif style={{ fontSize: 31, lineHeight: 34, marginTop: 5 }}>
             {s.name}
           </T>
-          <T style={{ fontFamily: 'CormorantItalic', fontSize: 19, color: C.muted, marginTop: 4 }}>
+          <T style={{ fontFamily: F.scientific, fontSize: 19, color: C.muted, marginTop: 4 }}>
             {s.latin}
           </T>
           <View style={{ width: '100%', marginTop: 23 }}>

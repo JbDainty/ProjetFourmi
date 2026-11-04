@@ -12,10 +12,13 @@ import Svg, {
   Line,
   Text as SvgText,
   ClipPath,
+  Rect,
 } from 'react-native-svg';
 import { type Board, type Move, pour } from '../engine/puzzle';
 import { palette, symbols, colorNames } from '../data/botany';
 import { C } from './ui';
+import { F } from './fonts';
+import { GreenhouseBackdrop, RackDefinitions, TubeRack, RackStand } from './Greenhouse';
 import {
   type Point,
   INNER,
@@ -69,7 +72,10 @@ function LiquidBoardDrawing({
   const id = (name: string) => `liquid-${unique}-${name}`;
   const compact = board.length > 7,
     scale = Math.min(1, width / 290) * (compact ? 0.88 : 1);
-  const columns = Math.min(board.length, Math.max(2, Math.floor(width / (compact ? 55 : 66))));
+  const columns = Math.min(
+    board.length,
+    Math.max(2, Math.floor(width / (compact ? 55 : Math.max(54, 66 * scale)))),
+  );
   const rowHeight = GLASS_HEIGHT * scale + 36,
     top = 90 * scale,
     rows = Math.ceil(board.length / columns),
@@ -81,6 +87,21 @@ function LiquidBoardDrawing({
       spacing = width / columns;
     return { x: (width - n * spacing) / 2 + (col + 0.5) * spacing, y: top + row * rowHeight };
   });
+  const racks = useMemo(
+    () =>
+      Array.from({ length: rows }, (_, row) => {
+        const n = Math.min(columns, board.length - row * columns),
+          spacing = width / columns;
+        return {
+          centers: Array.from(
+            { length: n },
+            (_, col) => (width - n * spacing) / 2 + (col + 0.5) * spacing,
+          ),
+          y: top + row * rowHeight,
+        };
+      }),
+    [width, scale, rows, columns, board.length, rowHeight, top],
+  );
   const baseLayers = useMemo(() => board.map(layers), [board]);
   const after = pouring ? pour(board, pouring.from, pouring.to) : null;
   const count = pouring && after ? board[pouring.from].length - after[pouring.from].length : 0;
@@ -148,16 +169,17 @@ function LiquidBoardDrawing({
     const angle = contactAngle(units) * direction * (1 - state.settling * 0.09);
     const lip = rotate({ x: direction * 20 * scale, y: 12 * scale }, angle);
     const hold = { x: target.x - lip.x, y: target.y + MOUTH_Y * scale - 45 * scale - lip.y };
-    const approach = state.approach,
-      back = state.returning;
+    const approach = state.approach;
     const elevated = {
       x: mix(source.x, hold.x, approach),
-      y: mix(source.y - 10 * scale, hold.y, approach) - Math.sin(approach * Math.PI) * 35 * scale,
+      y:
+        mix(source.y - mix(10, 94, state.extraction) * scale, hold.y, approach) +
+        Math.sin(approach * Math.PI) * 6 * scale,
     };
     poses[pouring.from] = {
-      x: mix(elevated.x, source.x, back),
-      y: mix(elevated.y, source.y, back) - Math.sin(back * Math.PI) * 10 * scale,
-      angle: angle * approach * (1 - back),
+      x: mix(elevated.x, source.x, state.returnTravel),
+      y: mix(elevated.y, source.y - 94 * scale, state.returnTravel) + 94 * scale * state.insertion,
+      angle: angle * approach * (1 - state.returnTravel),
     };
     const actualLip = rotate(
       { x: direction * 20 * scale, y: 12 * scale },
@@ -300,7 +322,7 @@ function LiquidBoardDrawing({
                     textAnchor="middle"
                     fill="#fff8e9"
                     fontSize="16"
-                    fontWeight="600"
+                    fontFamily={F.bold}
                   >
                     {symbols[layer.color]}
                   </SvgText>
@@ -344,9 +366,10 @@ function LiquidBoardDrawing({
           )}
         </G>
         {levelComplete && (
-          <G opacity=".75">
+          <G opacity=".9" transform="translate(17 15)">
+            <Circle cx="0" cy="169" r="5.4" fill="#e8e6c6" />
             <Path
-              d="M-4 169-1 172 5 165"
+              d="M-3 169-1 171 3 166"
               stroke="#507f6f"
               strokeWidth="1.4"
               fill="none"
@@ -426,21 +449,32 @@ function LiquidBoardDrawing({
   return (
     <View
       testID={pouring ? 'liquid-board-pouring' : 'liquid-board-idle'}
-      style={{ width: '100%', height: width ? height : 260 }}
+      style={{
+        width: '100%',
+        height: width ? height : 260,
+        overflow: 'hidden',
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: '#8d9d78',
+        backgroundColor: '#dbe3cf',
+      }}
       onLayout={(e) => {
         const next = Math.round(e.nativeEvent.layout.width);
         if (next && next !== width) setWidth(next);
       }}
     >
+      <GreenhouseBackdrop />
       {!!width && (
         <>
           <Svg
             id="liquid-scene"
+            style={{ position: 'relative', zIndex: 1 }}
             pointerEvents="none"
             width={width}
             height={height}
             viewBox={`0 0 ${width} ${height}`}
           >
+            <RackDefinitions prefix={id('rack')} />
             <Defs>
               <ClipPath id={id('inside')}>
                 <Path d={polygonPath(INNER)} />
@@ -499,30 +533,58 @@ function LiquidBoardDrawing({
                     opacity={0.65 + 0.2 * Math.sin(time * 0.8 + i)}
                   />
                 )}
-                <Ellipse
-                  cx={p.x}
-                  cy={p.y + 163 * scale}
-                  rx={24 * scale}
-                  ry={3 * scale}
-                  fill="#705a3b"
-                  opacity=".09"
+              </G>
+            ))}
+            <RackStand racks={racks} width={width} scale={scale} prefix={id('rack')} />
+            {racks.map((rack, i) => (
+              <TubeRack
+                key={`rack-back-${i}`}
+                {...rack}
+                width={width}
+                scale={scale}
+                prefix={id('rack')}
+              />
+            ))}
+            {board.map((_, i) => (pouring?.from === i ? null : renderTube(i)))}
+            {board.map((_, i) => (pouring?.from === i ? null : front(i)))}
+            {stream()}
+            {pouring && front(pouring.to)}
+            {racks.map((rack, i) => (
+              <TubeRack
+                key={`rack-front-${i}`}
+                {...rack}
+                width={width}
+                scale={scale}
+                prefix={id('rack')}
+                front
+              />
+            ))}
+            {layout.map((p, i) => (
+              <G key={`label-${i}`}>
+                <Rect
+                  x={p.x - 11 * scale}
+                  y={p.y + 181 * scale}
+                  width={22 * scale}
+                  height={14 * scale}
+                  rx={2 * scale}
+                  fill="#f5e7c8"
+                  fillOpacity=".96"
+                  stroke="#997d4c"
+                  strokeWidth=".5"
                 />
                 <SvgText
                   x={p.x}
-                  y={p.y + 184 * scale}
-                  fill={hint?.from === i || hint?.to === i ? C.gold : C.muted}
+                  y={p.y + 191 * scale}
+                  fill={hint?.from === i || hint?.to === i ? '#8b5f29' : '#324b3d'}
                   textAnchor="middle"
-                  fontSize="10"
+                  fontSize={10 * scale}
+                  fontFamily={F.medium}
                   letterSpacing="1"
                 >
                   {String(i + 1).padStart(2, '0')}
                 </SvgText>
               </G>
             ))}
-            {board.map((_, i) => (pouring?.from === i ? null : renderTube(i)))}
-            {board.map((_, i) => (pouring?.from === i ? null : front(i)))}
-            {stream()}
-            {pouring && front(pouring.to)}
             {pouring && renderTube(pouring.from)}
             {pouring && front(pouring.from)}
           </Svg>
@@ -536,6 +598,7 @@ function LiquidBoardDrawing({
               onPress={() => onTap(i)}
               style={{
                 position: 'absolute',
+                zIndex: 2,
                 left: p.x - 28 * scale,
                 top: p.y - 12 * scale,
                 width: 56 * scale,

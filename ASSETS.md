@@ -6,7 +6,12 @@
 - `src/components/Paper.tsx` : composition du fond et des planches sur papier ivoire patiné avec fins encadrements.
 - `assets/pour.wav` : son synthétique original généré à partir d’oscillations et de bruit avec une enveloppe douce ; aucune bibliothèque sonore tierce.
 - `public/icon.svg` : dessin original pour l’application Web. Les icônes de soumission aux boutiques restent à préparer.
-- Cormorant Garamond : Christian Thalmann, SIL Open Font License 1.1. Notice : `public/licenses/Cormorant-OFL.txt`.
+- `assets/illustrations/serre.png` : décor original de serre ancienne à rendu aquarelle, généré pour COLOR WORLD avec l’outil de génération d’images OpenAI le 4 novembre 2026. Les flacons et supports ne sont pas intégrés à cette image : ils sont dessinés et animés indépendamment pour s’adapter à chaque niveau.
+- `src/components/Greenhouse.tsx` : porte-tubes en bois, logements ouverts, pieds, traverses, vis en laiton et support commun pour les rangées multiples. Aucune ressource de mobilier commerciale.
+- Almendra : Ana Sanfelippo, SIL Open Font License 1.1, pour les titres et la marque. Notice : `public/licenses/Almendra-OFL.txt`.
+- Alegreya Sans : The Alegreya Sans Project Authors, SIL Open Font License 1.1, pour les commandes, textes et annotations. Notice : `public/licenses/Alegreya-Sans-OFL.txt`.
+- Alegreya : The Alegreya Project Authors, SIL Open Font License 1.1, pour les noms scientifiques en italique. Notice : `public/licenses/Alegreya-OFL.txt`.
+- `src/components/fonts.ts` : fichiers de polices embarqués et variantes de graisse explicites ; aucun chargement Google Fonts à distance pendant le jeu.
 - Ionicons / react-native-vector-icons : MIT. Notices dans `public/licenses/`.
 - `src/data/taxonomy.json` : résultats d’identification nomenclaturale de l’API GBIF avec URL et date de consultation. Aucun visuel GBIF intégré.
 
