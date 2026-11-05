@@ -45,3 +45,7 @@ Les licences des dépendances JavaScript sont également disponibles dans leurs 
 
 - `src/components/BookEntrance.tsx` : film SVG original de couverture patinée, dorures, feuillets projetés, feuilles volantes et poussières lumineuses. La page de signature réutilise le papier et les bordures végétales existants. Aucune vidéo ou animation tierce.
 - `src/components/SeedPouch.tsx` : bourse botanique originale en SVG, liens noués, graine nervurée, feuille et dorure ; balancement fini toutes les dix secondes, désactivable avec les animations.
+
+- `src/components/OpeningScene.web.tsx` : scène Three.js originale créée pour le prologue. Livre articulé, couverture, reliure, bandes en laiton, tranches, neuf feuillets souples, sept pages volantes, quarante-deux feuilles, tiges, fleurs et pollen ; matériaux et textures de cuir, bois, tranche et gravure dessinés par code pour la scène. Papier patiné et plantes utilisent les fichiers existants, sans modification. Aucun modèle 3D, effet, vidéo ou son tiers supplémentaire.
+- `src/components/OpeningSceneFallback.tsx` : scène SVG texturée pour les applications natives et les navigateurs sans WebGL, avec la même durée et la même sortie vers la signature.
+- Three.js : auteurs three.js, licence MIT ; notice incluse dans `public/licenses/Three-MIT.txt`.

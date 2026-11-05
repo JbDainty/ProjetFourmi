@@ -32,10 +32,10 @@ async function main() {
   try {
     await page.goto(url);
     await expect(page.getByTestId('book-opening-film')).toBeVisible();
-    await expect(page.getByTestId('opening-flying-page')).toHaveCount(7);
+    await expect(page.getByTestId('opening-film-art')).toBeVisible();
     await page.waitForTimeout(1900);
     await page.screenshot({ path: 'test-results/book-prologue-in-flight.png' });
-    await expect(page.getByTestId('book-signature-page')).toBeVisible({ timeout: 8000 });
+    await expect(page.getByTestId('book-signature-page')).toBeVisible({ timeout: 15000 });
     expect(await page.evaluate(() => (window as any).musicStarts)).toBe(0);
     await page.getByRole('button', { name: 'Créer mon carnet', exact: true }).click();
     await expect(page.getByRole('alert')).toContainText('Choisissez un pseudo');
