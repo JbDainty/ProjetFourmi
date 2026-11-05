@@ -1,11 +1,18 @@
-Herbier des couleurs — Original cosy soundscape
+Herbier des couleurs — Acoustic chamber soundscape
 
-CC0 1.0 applies exclusively to the five original compositions and recordings in
-assets/music/*.mp3, assets/reveal-celebration.wav, assets/pour.wav,
-assets/pour-2.wav, assets/pour-3.wav, assets/pour-4.wav, and their synthesis script
-scripts/generate-cozy-audio.py. No third-party recordings or compositions used.
-These tracks are original works for this project, not recordings or arrangements
-of Snowflakes, MAIKY, Artlist or any other existing composition.
+The original compositions/arrangements, scripts/generate-cozy-audio.py and the
+original glass sound assets/vial-complete.wav are dedicated under CC0 1.0.
+The five music MP3s and both reveal cues use FluidR3 GM acoustic instrument
+samples (Frank Wen and Toby Smithe, MIT); see FluidR3-MIT.txt for their notice.
+No SoundFont is distributed in the game.
+
+The four pour WAVs derive from a CC0 recording by jackthemurray:
+https://freesound.org/people/jackthemurray/sounds/433589/
+https://commons.wikimedia.org/wiki/File:433589_jackthemurray_stream-river-water-up-close.wav
+assets/audio-source/soft-stream.flac is its 12–18 second mono excerpt.
+Edits: resampling, rumble removal, treble softening, short fades and level matching.
+These assets are reusable without royalties. No MAIKY/Artlist music is included.
+Verified sources, licenses and SHA256 hashes: scripts/audio-sources.json.
 https://creativecommons.org/publicdomain/zero/1.0/
 
 Creative Commons Legal Code
