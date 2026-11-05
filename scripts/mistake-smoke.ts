@@ -1,7 +1,7 @@
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { initial, move } from '../src/state/model';
-import { openScreen } from './navigation-test-helper';
+import { openCarnet, openScreen } from './navigation-test-helper';
 
 async function main() {
   const browser = await chromium.launch({
@@ -23,11 +23,13 @@ async function main() {
     save.settings = { ...save.settings, motion, sound: false, music: false, haptics: false };
     await page.evaluate((s) => localStorage.setItem('color-world.save', JSON.stringify(s)), save);
     await page.goto(url);
+    await openCarnet(page);
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 01');
     await expect(leaf).toHaveCount(0);
   };
   try {
     await page.goto(url);
+    await openCarnet(page);
     await seed(true);
     const saveBefore = await page.evaluate(() => localStorage.getItem('color-world.save'));
     const boardBefore = (await page.getByTestId('liquid-board-idle').boundingBox())!;

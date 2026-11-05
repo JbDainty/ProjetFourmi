@@ -2,7 +2,7 @@ import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { initial, loadLevel, move, type Save } from '../src/state/model';
 import levels from '../src/data/levels.json';
-import { openScreen } from './navigation-test-helper';
+import { openCarnet, openScreen } from './navigation-test-helper';
 
 async function main() {
   const browser = await chromium.launch({
@@ -58,6 +58,7 @@ async function main() {
   const seed = async (save: Save) => {
     await page.evaluate((s) => localStorage.setItem('color-world.save', JSON.stringify(s)), save);
     await page.goto(url);
+    await openCarnet(page);
     await expect(page.getByTestId('page-folio')).toHaveText(
       `PAGE ${String(save.current).padStart(2, '0')}`,
     );
@@ -69,9 +70,11 @@ async function main() {
   };
   try {
     await page.goto(url);
+    await openCarnet(page);
     const first = { ...initial(), started: true };
     await seed(first);
-    expect(await loops()).toHaveLength(0); // No autoplay on save reload.
+    // Entry gesture starts music before the first puzzle interaction.
+    await expect.poll(async () => (await loops()).length).toBe(1);
     expect(await cueCount(0.72)).toBe(0);
     await tube(0).click();
     await expect.poll(async () => (await loops()).length).toBe(1);
@@ -129,6 +132,7 @@ async function main() {
       )
       .toBe(false);
     await page.reload();
+    await openCarnet(page);
     await expect(
       page.getByRole('switch', { name: 'Musique des écosystèmes', exact: true }),
     ).not.toBeChecked();

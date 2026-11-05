@@ -11,7 +11,7 @@ import {
   restore,
   unlocked,
 } from '../src/state/model';
-import { acquireTheme, dailyReward } from '../src/state/economy';
+import { acquireTheme } from '../src/state/economy';
 import { species } from '../src/data/botany';
 describe('tri de liquides', () => {
   it('transfère tout le groupe supérieur dans la capacité disponible', () => {
@@ -129,12 +129,6 @@ describe('sauvegardes', () => {
 });
 
 describe('économie et reprise finale', () => {
-  it('ne répète pas la récompense quotidienne', () => {
-    const a = dailyReward(initial(), '2026-11-04');
-    expect(a.seeds).toBe(40);
-    expect(dailyReward(a, '2026-11-04').seeds).toBe(40);
-    expect(dailyReward(a, '2026-11-05').seeds).toBe(55);
-  });
   it('refuse un thème trop cher puis ne le facture qu’une fois', () => {
     const s = initial();
     expect(acquireTheme(s, 'rose')).toBe(s);
@@ -176,7 +170,7 @@ describe('couleurs intégralement regroupées', () => {
     const completed = move(s, 0, 2);
     expect(won(completed.board)).toBe(true);
     expect(completed.pigments).toHaveLength(1);
-    expect(completed.seeds).toBe(s.seeds + 10);
+    expect(completed.seeds).toBe(s.seeds + 1);
     expect(completed.completed[1]).toBeDefined();
   });
   it('propose un indice de consolidation quand toutes les couleurs sont déjà séparées', () => {

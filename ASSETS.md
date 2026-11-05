@@ -42,3 +42,6 @@
 - `src/data/taxonomy.json` : résultats d’identification nomenclaturale de l’API GBIF avec URL et date de consultation. Aucun visuel GBIF intégré.
 
 Les licences des dépendances JavaScript sont également disponibles dans leurs paquets npm. Ne pas présenter le contrôle nomenclatural comme une certification des dessins ou comme une validation INPN. Les images numériques ne sont pas présentées comme des aquarelles historiques authentiques.
+
+- `src/components/BookEntrance.tsx` : film SVG original de couverture patinée, dorures, feuillets projetés, feuilles volantes et poussières lumineuses. La page de signature réutilise le papier et les bordures végétales existants. Aucune vidéo ou animation tierce.
+- `src/components/SeedPouch.tsx` : bourse botanique originale en SVG, liens noués, graine nervurée, feuille et dorure ; balancement fini toutes les dix secondes, désactivable avec les animations.

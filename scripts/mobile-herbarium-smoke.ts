@@ -1,4 +1,4 @@
-import { openScreen } from './navigation-test-helper';
+import { openCarnet, openScreen } from './navigation-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { initial, loadLevel, move } from '../src/state/model';
@@ -17,11 +17,13 @@ async function main() {
   mkdirSync('test-results', { recursive: true });
   try {
     await page.goto(url);
+    await openCarnet(page);
     const save = initial();
     save.started = true;
     save.settings.motion = false;
     await page.evaluate((s) => localStorage.setItem('color-world.save', JSON.stringify(s)), save);
     await page.reload();
+    await openCarnet(page);
     await expect(page.getByTestId('game-hud')).toBeVisible();
     await expect(page.getByText('PAGE 01', { exact: true })).toBeVisible();
     await expect(page.getByText(/NIVEAU|\/ 100/)).toHaveCount(0);
@@ -73,6 +75,7 @@ async function main() {
     await page.getByRole('button', { name: 'Poursuivre la restauration' }).click();
     await expect(stamp).toHaveAccessibleName('Ouvrir la planche de Coquelicot, 1 pigments sur 5');
     await page.reload();
+    await openCarnet(page);
     await expect(stamp).toHaveAccessibleName('Ouvrir la planche de Coquelicot, 1 pigments sur 5');
     await stamp.click();
     await expect(dialog.getByText('1 / 5 pigments restaurés')).toBeVisible();

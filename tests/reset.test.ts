@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import { initial, loadLevel, move, resetProgress, restore } from '../src/state/model';
-import { acquireTheme, dailyReward } from '../src/state/economy';
+import { acquireTheme } from '../src/state/economy';
 import levels from '../src/data/levels.json';
 
 it('resets the journey and cosmetics to a fresh save while preserving accessibility preferences', () => {
@@ -9,7 +9,7 @@ it('resets the journey and cosmetics to a fresh save while preserving accessibil
     save = loadLevel(save, level.id);
     for (const m of level.solution) save = move(save, m.from, m.to);
   }
-  save = dailyReward(save, '2026-11-05');
+  save = { ...save, seeds: 200, nickname: 'Camille' };
   save = acquireTheme(save, 'sauge');
   save = loadLevel(save, 7);
   const next = levels[6].solution[0];

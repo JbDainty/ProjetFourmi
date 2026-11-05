@@ -3,7 +3,7 @@ import { mkdirSync } from 'node:fs';
 import levels from '../src/data/levels.json';
 import { botanicalFact } from '../src/data/botanicalFacts';
 import { initial, loadLevel, move } from '../src/state/model';
-import { openScreen } from './navigation-test-helper';
+import { openCarnet, openScreen } from './navigation-test-helper';
 
 async function main() {
   const browser = await chromium.launch({
@@ -21,7 +21,7 @@ async function main() {
   const note = page.getByTestId('hint-writing-text');
   try {
     await page.goto(url);
-    await page.getByRole('button', { name: 'Commencer la restauration' }).click();
+    await openCarnet(page);
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 01');
     await expect(note).toHaveCount(0);
     await expect(page.getByTestId('hint-scroll')).toHaveCount(0);
@@ -184,6 +184,7 @@ async function main() {
     );
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(url);
+    await openCarnet(page);
     await expect(page.getByTestId('current-botanical-stamp')).toHaveAccessibleName(
       'Ouvrir la planche de Bleuet, 0 pigments sur 5',
     );

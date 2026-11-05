@@ -1,4 +1,4 @@
-import { openScreen } from './navigation-test-helper';
+import { openCarnet, openScreen } from './navigation-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { initial, loadLevel, move, type Save } from '../src/state/model';
 import levels from '../src/data/levels.json';
@@ -15,8 +15,7 @@ async function main() {
   mkdirSync('test-results', { recursive: true });
   try {
     await page.goto(url);
-    await page.getByRole('button', { name: 'Commencer la restauration' }).click();
-    await expect(page.getByRole('button', { name: 'Commencer la restauration' })).not.toBeVisible();
+    await openCarnet(page);
     await page.waitForLoadState('networkidle');
     await page.screenshot({ path: 'test-results/herbarium-unrestored.png', fullPage: true });
     let save: Save = {
@@ -31,6 +30,7 @@ async function main() {
     save = loadLevel(save, 1);
     await page.evaluate((s) => localStorage.setItem('color-world.save', JSON.stringify(s)), save);
     await page.reload();
+    await openCarnet(page);
     await page.waitForLoadState('networkidle');
     await page.screenshot({ path: 'test-results/herbarium-restored.png', fullPage: true });
     await openScreen(page, 'Le Grand Herbier');

@@ -8,7 +8,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, ScrollView, Pressable, Modal, Animated, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
 import { useGame } from '../src/state/store';
-import { loadLevel, move, undo, restoration } from '../src/state/model';
+import { loadLevel, move, undo, restoration, currentHint, purchaseHint } from '../src/state/model';
 import { won, solve, pour, Move } from '../src/engine/puzzle';
 import levels from '../src/data/levels.json';
 import { species } from '../src/data/botany';
@@ -43,6 +43,7 @@ export default function Atelier() {
   const [replay, setReplay] = useState(!!save.completed[save.current]);
   const [tubeReward, setTubeReward] = useState<TubeReward | null>(null);
   const [winReady, setWinReady] = useState(won(save.board));
+  const hintPending = useRef(false);
   const rewardId = useRef(0),
     revealPlayed = useRef(false);
   const stopPour = useRef<() => void>(() => {}),
@@ -76,6 +77,10 @@ export default function Atelier() {
     setDismissed(false);
     setPlateOpen(false);
     setTubeReward(null);
+    if (timer.current) clearTimeout(timer.current);
+    hintPending.current = false;
+    setBusy(false);
+    setPouring(null);
     revealPlayed.current = false;
     stopPour.current();
     stopReveal.current();
@@ -161,7 +166,18 @@ export default function Atelier() {
     setBusy(false);
   };
   const askHint = () => {
-    if (busy || victory) return;
+    if (busy || victory || hintPending.current) return;
+    const owned = currentHint(save);
+    if (!owned && save.seeds < 1) {
+      setNote((previous) => ({
+        text: 'Votre réserve est vide. Obtenez trois étoiles sur une page pour gagner une graine.',
+        kind: 'hint',
+        request: previous.request + 1,
+        pending: false,
+      }));
+      return;
+    }
+    hintPending.current = true;
     setHint(null);
     setNote((previous) => ({
       text: '',
@@ -170,14 +186,31 @@ export default function Atelier() {
       pending: true,
     }));
     setBusy(true);
+    const boardKey = JSON.stringify(save.board),
+      page = save.current;
     timer.current = setTimeout(() => {
-      const initial = JSON.stringify(save.board) === JSON.stringify(levels[save.current - 1].board);
-      const path = initial ? levels[save.current - 1].solution : solve(save.board);
-      if (path?.length) setHint(path[0]);
-      const explanation = path?.length
-        ? `Versez le flacon ${path[0].from + 1} dans le flacon ${path[0].to + 1}.`
-        : 'Aucun chemin trouvé dans la limite de recherche. Annulez vos derniers mouvements ou recommencez gratuitement.';
-      setNote((previous) => ({ ...previous, text: explanation, kind: 'hint', pending: false }));
+      const isInitial = boardKey === JSON.stringify(levels[page - 1].board);
+      let suggestion = owned ?? (isInitial ? levels[page - 1].solution : solve(save.board))?.[0];
+      if (suggestion) {
+        const proposed = suggestion;
+        let accepted = false;
+        setSave((value) => {
+          if (value.current !== page || JSON.stringify(value.board) !== boardKey) return value;
+          const next = purchaseHint(value, proposed);
+          accepted = !!currentHint(next);
+          return next;
+        });
+        if (accepted) setHint(proposed);
+        else suggestion = undefined;
+      }
+      setNote((previous) => ({
+        ...previous,
+        pending: false,
+        text: suggestion
+          ? `Versez le flacon ${suggestion.from + 1} dans le flacon ${suggestion.to + 1}.`
+          : 'Aucun chemin trouvé. Aucune graine dépensée. Annulez vos derniers mouvements ou recommencez.',
+      }));
+      hintPending.current = false;
       setBusy(false);
     }, 60);
   };
@@ -403,6 +436,14 @@ export default function Atelier() {
                 >
                   {a.name}
                 </T>
+                {a.name === 'Indice' && (
+                  <T
+                    testID="hint-seed-price"
+                    style={{ fontSize: 11, color: C.muted, fontFamily: F.scientific }}
+                  >
+                    {currentHint(save) ? 'Déjà cueilli' : '1 graine'}
+                  </T>
+                )}
               </Pressable>
             ))}
           </Paper>
@@ -530,41 +571,6 @@ export default function Atelier() {
           </ScrollView>
         </View>
       </Modal>
-      <Modal visible={!save.started} transparent animationType="fade">
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: '#233e31b0',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 20,
-          }}
-        >
-          <ScrollView style={{ maxHeight: '95%', maxWidth: 480, width: '100%' }}>
-            <Paper style={[ui.card, { maxWidth: 480, width: '100%', alignItems: 'center' }]}>
-              <Label>BIENVENUE DANS VOTRE HERBIER</Label>
-              <Botanical index={0} stage={0} size={190} />
-              <T serif style={{ fontSize: 36, lineHeight: 40, textAlign: 'center' }}>
-                Les couleurs ont disparu.{`\n`}Faisons-les renaître.
-              </T>
-              <T style={{ color: C.muted, textAlign: 'center', marginVertical: 20 }}>
-                Remplissez chaque flacon avec une seule couleur. Les autres flacons doivent être
-                vides. Touchez un flacon, puis un autre pour verser. Chaque énigme redonne vie à une
-                planche botanique.
-              </T>
-              <Button
-                icon="leaf-outline"
-                onPress={() => {
-                  setSave((v) => ({ ...v, started: true }));
-                  turnPage(1, () => {});
-                }}
-              >
-                Commencer la restauration
-              </Button>
-            </Paper>
-          </ScrollView>
-        </View>
-      </Modal>
       <Modal
         visible={victory && winReady && !dismissed && save.started}
         transparent
@@ -635,6 +641,19 @@ export default function Atelier() {
                     Meilleur résultat conservé : {'★'.repeat(save.completed[save.current].stars)}
                   </T>
                 )}
+                <T
+                  testID="page-seed-reward"
+                  style={{
+                    fontFamily: F.scientific,
+                    color: C.green,
+                    textAlign: 'center',
+                    marginTop: 12,
+                  }}
+                >
+                  {earnedStars === 3
+                    ? 'Trois étoiles : une graine a rejoint votre réserve.'
+                    : 'Trois étoiles feront éclore une nouvelle graine.'}
+                </T>
                 {earnedStars < 3 && replayAction}
                 {!reveal ? (
                   <>

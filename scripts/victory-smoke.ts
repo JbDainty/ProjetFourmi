@@ -1,3 +1,4 @@
+import { openCarnet } from './navigation-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { initial, loadLevel, move, type Save } from '../src/state/model';
@@ -47,6 +48,7 @@ async function main() {
     save.settings = { ...save.settings, motion, sound, music: false, haptics: false };
     await page.evaluate((s) => localStorage.setItem('color-world.save', JSON.stringify(s)), save);
     await page.goto(url);
+    await openCarnet(page);
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 04');
   };
   const finish = async () => {
@@ -57,6 +59,7 @@ async function main() {
   };
   try {
     await page.goto(url);
+    await openCarnet(page);
     await seed(true, true);
     await expect(page.getByTestId('chapter-landscape-caption')).toHaveText(
       'Les prairies fleuries, chapitre 1',

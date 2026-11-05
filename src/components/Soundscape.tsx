@@ -1,6 +1,11 @@
 import { useEffect } from 'react';
 import { AppState, Platform } from 'react-native';
-import { configureAmbience, disposeAmbience, unlockAmbience } from '../services/ambience';
+import {
+  configureAmbience,
+  disposeAmbience,
+  unlockAmbience,
+  prepareAmbience,
+} from '../services/ambience';
 import { setAudioForeground } from '../services/audioFocus';
 import { stopBotanicalCues } from '../services/botanicalAudio';
 
@@ -15,6 +20,9 @@ export function Soundscape({
   started: boolean;
   ecosystem: number;
 }) {
+  useEffect(() => {
+    if (music) prepareAmbience(ecosystem);
+  }, [music, ecosystem]);
   useEffect(() => {
     configureAmbience(music && started, ecosystem);
   }, [music, started, ecosystem]);

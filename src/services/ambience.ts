@@ -119,6 +119,27 @@ function applyLevels() {
   current?.level(ambienceVolume * musicAttenuation(), musicAttenuation() < 1 ? 90 : 1400);
   if (musicAttenuation() < 1) retiring.forEach((voice) => voice.level(0, 90));
 }
+function bufferFor(index: number, context: AudioContext) {
+  if (!buffers.has(index))
+    buffers.set(
+      index,
+      fetch(Asset.fromModule(ambienceTracks[index].source).uri)
+        .then((response) => {
+          if (!response.ok) throw Error('Music unavailable');
+          return response.arrayBuffer();
+        })
+        .then((bytes) => context.decodeAudioData(bytes)),
+    );
+  return buffers.get(index)!;
+}
+/** Decode the opening track while the book is being signed; never play yet. */
+export function prepareAmbience(ecosystem: number) {
+  if (Platform.OS !== 'web') return;
+  const context = sharedAudioContext();
+  if (!context) return;
+  const index = Math.max(0, Math.min(4, ecosystem));
+  void bufferFor(index, context).catch(() => buffers.delete(index));
+}
 let pendingChapter: number | undefined;
 async function reconcile() {
   if (!desired()) {
@@ -155,17 +176,7 @@ async function reconcile() {
         return;
       }
       if (context.state === 'suspended') await context.resume();
-      if (!buffers.has(next))
-        buffers.set(
-          next,
-          fetch(Asset.fromModule(ambienceTracks[next].source).uri)
-            .then((response) => {
-              if (!response.ok) throw Error('Music unavailable');
-              return response.arrayBuffer();
-            })
-            .then((bytes) => context.decodeAudioData(bytes)),
-        );
-      buffer = await buffers.get(next);
+      buffer = await bufferFor(next, context);
     }
     if (token !== generation || !desired() || next !== chapter) return;
     retiring.forEach((old) => old.stop());

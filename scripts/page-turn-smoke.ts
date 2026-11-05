@@ -3,7 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { initial, loadLevel, move } from '../src/state/model';
 import levels from '../src/data/levels.json';
 import { species } from '../src/data/botany';
-import { openScreen } from './navigation-test-helper';
+import { openCarnet, openScreen } from './navigation-test-helper';
 
 function beforeWin(id: number, motion: boolean, sound: boolean) {
   let save = { ...initial(), started: true };
@@ -55,6 +55,7 @@ async function main() {
       beforeWin(id, motion, sound),
     );
     await page.goto(url);
+    await openCarnet(page);
     await expect(page.getByTestId('page-folio')).toHaveText(`PAGE ${String(id).padStart(2, '0')}`);
   };
   const finish = async (id: number) => {
@@ -133,6 +134,7 @@ async function main() {
   };
   try {
     await page.goto(url);
+    await openCarnet(page);
     await scenario(4, true, true); // Same specimen: one sheet and one quiet cue.
     await scenario(5, true, true); // Coquelicot -> Bleuet, uncoloured destination.
     await page.setViewportSize({ width: 320, height: 740 });

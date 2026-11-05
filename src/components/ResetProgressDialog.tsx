@@ -74,11 +74,11 @@ export function ResetProgressDialog({
                   papiers acquis seront effacés de cet appareil.
                 </T>
                 <T style={{ color: C.muted }}>
-                  Vous recommencerez à la page 1 avec les 25 graines de départ. Vos réglages de son
-                  et d’accessibilité seront conservés.
+                  Vous recommencerez à la page 1 avec une graine de départ. Vos réglages de son et
+                  d’accessibilité seront conservés.
                 </T>
                 <T style={{ color: '#805747' }}>
-                  Sans copie de sauvegarde, votre progression sera perdue.
+                  Votre pseudo sera effacé et le livre s’ouvrira à nouveau pour un nouveau départ.
                 </T>
                 <Button icon="arrow-forward-outline" onPress={() => setStep(2)}>
                   Continuer vers la confirmation
@@ -91,8 +91,8 @@ export function ResetProgressDialog({
               <>
                 <T style={{ fontSize: 16, color: C.muted }}>
                   Confirmez-vous l’effacement de votre progression ? Cette action remplace votre
-                  sauvegarde actuelle par un nouvel herbier. Sans copie de sauvegarde, vous ne
-                  pourrez pas retrouver vos anciennes données.
+                  sauvegarde actuelle par un nouvel herbier. Vous ne pourrez pas retrouver vos
+                  anciennes données.
                 </T>
                 {/* Cancellation is first; the destructive action also waits for a fresh gesture. */}
                 <Button icon="leaf-outline" secondary disabled={pending} onPress={onCancel}>

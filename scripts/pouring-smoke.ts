@@ -1,4 +1,4 @@
-import { openScreen } from './navigation-test-helper';
+import { openCarnet, openScreen } from './navigation-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { initial, loadLevel, move, type Save } from '../src/state/model';
@@ -20,8 +20,7 @@ async function main() {
   mkdirSync('test-results', { recursive: true });
   try {
     await page.goto(url);
-    await page.getByRole('button', { name: 'Commencer la restauration' }).click();
-    await expect(page.getByRole('button', { name: 'Commencer la restauration' })).not.toBeVisible();
+    await openCarnet(page);
     const before = await saved();
     await tube(2).click();
     await tube(1).click();
@@ -61,6 +60,7 @@ async function main() {
     await expect(page.getByTestId('liquid-board-idle')).toBeVisible();
     expect((await saved()).moves).toBe(1);
     await page.reload();
+    await openCarnet(page);
     expect((await saved()).settings.motion).toBe(false);
     // A mobile transfer from the upper row into a lower-row flask.
     let last: Save = {
@@ -76,6 +76,7 @@ async function main() {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.evaluate((s) => localStorage.setItem('color-world.save', JSON.stringify(s)), last);
     await page.goto(url);
+    await openCarnet(page);
     await tube(3).click();
     await tube(6).click();
     await page.locator('#pour-jet').waitFor();

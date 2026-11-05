@@ -1,10 +1,10 @@
 import { chromium, expect, type Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { initial, loadLevel, move } from '../src/state/model';
-import { acquireTheme, dailyReward } from '../src/state/economy';
+import { acquireTheme } from '../src/state/economy';
 import levels from '../src/data/levels.json';
 import { firstPageAttempt } from './test-fixtures';
-import { openScreen } from './navigation-test-helper';
+import { openCarnet, openScreen } from './navigation-test-helper';
 
 function progressedSave() {
   let save = { ...initial(), started: true };
@@ -12,7 +12,7 @@ function progressedSave() {
     save = loadLevel(save, level.id);
     for (const m of level.solution) save = move(save, m.from, m.to);
   }
-  save = acquireTheme(dailyReward(save, '2026-11-05'), 'sauge');
+  save = acquireTheme({ ...save, seeds: 200, nickname: 'Camille' }, 'sauge');
   save = loadLevel(save, 9);
   const next = levels[8].solution[0];
   save = move(save, next.from, next.to);
@@ -39,6 +39,7 @@ async function rewards(page: Page, url: string) {
   `,
   });
   await page.goto(url);
+  await openCarnet(page);
   const fixture = firstPageAttempt(0);
   fixture.save.settings.motion = true;
   await page.evaluate(
@@ -46,6 +47,7 @@ async function rewards(page: Page, url: string) {
     fixture.save,
   );
   await page.goto(url);
+  await openCarnet(page);
   const tube = (n: number) => page.getByRole('button', { name: new RegExp(`^Flacon ${n + 1},`) });
   await tube(fixture.last.from).click();
   await tube(fixture.last.to).click();
@@ -93,7 +95,7 @@ async function rewards(page: Page, url: string) {
   ).toBe(2);
   expect(
     await page.evaluate(() => JSON.parse(localStorage.getItem('color-world.save')!).seeds),
-  ).toBe(won.seeds);
+  ).toBe(won.seeds + 1);
   // Replay is available before revealing the pigment as well.
   await page.getByRole('button', { name: 'Rejouer la page' }).click();
   await expect(page.getByTestId('book-page-turn')).toHaveCount(0);
@@ -102,6 +104,7 @@ async function rewards(page: Page, url: string) {
   await page.setViewportSize({ width: 320, height: 740 });
   await page.evaluate((s) => localStorage.setItem('color-world.save', JSON.stringify(s)), low.save);
   await page.goto(url);
+  await openCarnet(page);
   await tube(low.last.from).click();
   await tube(low.last.to).click();
   await expect(page.getByTestId('reward-stars-settled')).toBeAttached();
@@ -136,6 +139,7 @@ async function rewards(page: Page, url: string) {
     finalSave,
   );
   await page.goto(url);
+  await openCarnet(page);
   const last = levels[99].solution.at(-1)!;
   await tube(last.from).click();
   await tube(last.to).click();
@@ -161,6 +165,7 @@ async function resetting(page: Page, url: string) {
     localStorage.setItem('herbarium.test.sentinel', 'keep');
   }, save);
   await page.goto(url);
+  await openCarnet(page);
   await openScreen(page, 'Paramètres');
   const start = page.getByRole('button', { name: 'Remettre ma progression à zéro' });
   const warning = page.getByTestId('reset-progress-warning');
@@ -210,22 +215,20 @@ async function resetting(page: Page, url: string) {
   await expect(confirm.getByRole('alert')).toContainText('n’a pas pu être enregistré');
   expect(await stored()).toEqual(save);
   await confirm.getByRole('button', { name: 'Conserver ma progression' }).click();
-  await page.getByRole('button', { name: 'Créer une copie de sauvegarde' }).click();
-  expect(
-    JSON.parse(await page.getByRole('textbox', { name: 'Contenu de la sauvegarde' }).inputValue()),
-  ).toEqual(save);
+  await expect(page.getByRole('button', { name: 'Créer une copie de sauvegarde' })).toHaveCount(0);
+  await expect(page.getByRole('textbox', { name: 'Contenu de la sauvegarde' })).toHaveCount(0);
   await page.evaluate(`Storage.prototype.setItem = window.savedSetItem;`);
   await start.click();
   await expect(warning).toBeVisible();
   await page.getByRole('button', { name: 'Continuer vers la confirmation' }).click();
   await confirm.getByRole('button', { name: 'Oui, effacer ma progression' }).click();
-  await expect(page.getByRole('button', { name: 'Commencer la restauration' })).toBeVisible();
+  await expect(page.getByTestId('book-signature-page')).toBeVisible();
   expect(await stored()).toEqual({ ...initial(), settings: save.settings });
   expect(await page.evaluate(() => localStorage.getItem('herbarium.test.sentinel'))).toBe('keep');
   await page.reload();
-  await expect(page.getByRole('button', { name: 'Commencer la restauration' })).toBeVisible();
+  await expect(page.getByTestId('book-signature-page')).toBeVisible();
   expect(await stored()).toEqual({ ...initial(), settings: save.settings });
-  await page.getByRole('button', { name: 'Commencer la restauration' }).click();
+  await openCarnet(page);
   await expect(page.getByTestId('page-folio')).toHaveText('PAGE 01');
   await expect(page.getByText('✦', { exact: true }).first()).toBeVisible();
 }

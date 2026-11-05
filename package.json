@@ -28,7 +28,8 @@
     "test:stars": "node --import tsx scripts/stars-smoke.ts",
     "test:reward-reset": "node --import tsx scripts/reward-reset-smoke.ts",
     "test:page-turn": "node --import tsx scripts/page-turn-smoke.ts",
-    "test:soundscape": "node --import tsx scripts/soundscape-smoke.ts"
+    "test:soundscape": "node --import tsx scripts/soundscape-smoke.ts",
+    "test:journey": "node --import tsx scripts/journey-smoke.ts"
   },
   "dependencies": {
     "@expo-google-fonts/alegreya": "^0.4.2",

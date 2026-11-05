@@ -1,3 +1,4 @@
+import { openCarnet } from './navigation-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { initial, loadLevel, move, type Save } from '../src/state/model';
@@ -42,6 +43,7 @@ async function main() {
     save.settings = { ...save.settings, motion, sound, music: false, haptics: false };
     await page.evaluate((s) => localStorage.setItem('color-world.save', JSON.stringify(s)), save);
     await page.goto(url);
+    await openCarnet(page);
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 05');
   };
   const finish = async () => {
@@ -52,6 +54,7 @@ async function main() {
   };
   try {
     await page.goto(url);
+    await openCarnet(page);
     await seed(true, true);
     await finish();
     await expect.poll(async () => (await cues()).length).toBe(1);
@@ -114,17 +117,16 @@ async function main() {
     await button.click();
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 06');
     await expect(page.getByTestId('book-page-turn')).toHaveCount(0);
-    // The first opening also turns a page; a normal save reload does not.
+    // Fresh journeys now use the cinematic prologue and signature, not a tutorial modal.
     await page.evaluate(
       (s) => localStorage.setItem('color-world.save', JSON.stringify(s)),
       initial(),
     );
     await page.goto(url);
-    await page.getByRole('button', { name: 'Commencer la restauration' }).click();
-    await expect(page.getByTestId('book-page-turn')).toBeVisible();
-    await expect(page.getByTestId('book-page-turn')).toHaveCount(0);
-    await page.reload();
+    await openCarnet(page);
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 01');
+    await page.reload();
+    await openCarnet(page);
     await expect(page.getByTestId('book-page-turn')).toHaveCount(0);
     expect(errors).toEqual([]);
     console.log(

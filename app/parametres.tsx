@@ -4,16 +4,16 @@ import { Paper } from '../src/components/Paper';
 import React, { useState } from 'react';
 import { View, Switch, TextInput } from 'react-native';
 import { useGame } from '../src/state/store';
-import { restore, Settings } from '../src/state/model';
+import { normalizeNickname, Settings } from '../src/state/model';
 import { T, Label, Button, C, ui } from '../src/components/ui';
 import { ResetProgressDialog } from '../src/components/ResetProgressDialog';
 import { router } from 'expo-router';
 import { unlockAmbience } from '../src/services/ambience';
+import { AccountConnections } from '../src/components/AccountConnections';
 export default function Parametres() {
   const { save, setSave, error, reset } = useGame(),
-    [backup, setBackup] = useState(''),
-    [note, setNote] = useState(''),
-    [confirm, setConfirm] = useState(false);
+    [nickname, setNickname] = useState(save.nickname),
+    [note, setNote] = useState('');
   const [resetOpen, setResetOpen] = useState(false);
   const options: { key: keyof Settings; name: string; detail: string }[] = [
     {
@@ -47,7 +47,7 @@ export default function Parametres() {
     <BookScrollView contentContainerStyle={ui.page}>
       <Label>À VOTRE RYTHME</Label>
       <T serif style={ui.title}>
-        Les réglages du carnet
+        {save.nickname ? `Le carnet de ${save.nickname}` : 'Les réglages du carnet'}
       </T>
       <Paper style={[ui.card, { marginTop: 20 }]}>
         {options.map((o, i) => (
@@ -97,84 +97,48 @@ export default function Parametres() {
         </View>
       </Paper>
       <Paper style={[ui.card, { marginTop: 22 }]}>
-        <Label>CONSERVER VOTRE HERBIER</Label>
-        <T style={{ marginVertical: 14, color: C.muted }}>
-          Votre progression est enregistrée automatiquement sur cet appareil. Conservez une copie du
-          texte ci-dessous pour la transférer ou la restaurer. Effacer les données du navigateur
-          supprime la copie locale.
-        </T>
-        <Button
-          icon="archive-outline"
-          secondary
-          onPress={() => {
-            setBackup(JSON.stringify(save));
-            setNote('Copie générée. Sélectionnez et conservez le texte dans un fichier.');
-          }}
-        >
-          Créer une copie de sauvegarde
-        </Button>
+        <Label>VOTRE SIGNATURE</Label>
         <TextInput
-          accessibilityLabel="Contenu de la sauvegarde"
-          multiline
-          value={backup}
-          onChangeText={setBackup}
-          placeholder="Votre sauvegarde JSON…"
+          accessibilityLabel="Votre pseudo"
+          value={nickname}
+          onChangeText={setNickname}
+          maxLength={24}
+          placeholder="Votre nom de botaniste"
           style={{
-            borderWidth: 1,
-            borderColor: C.line,
-            borderRadius: 14,
-            minHeight: 100,
-            maxHeight: 180,
-            padding: 14,
-            marginVertical: 16,
+            fontFamily: F.handwritingMedium,
+            fontSize: 27,
             color: C.ink,
-            fontSize: 12,
-            textAlignVertical: 'top',
-            fontFamily: F.body,
+            borderBottomWidth: 1,
+            borderColor: C.line,
+            minHeight: 56,
+            marginVertical: 14,
+            padding: 8,
           }}
         />
-        {confirm ? (
-          <View style={{ gap: 10 }}>
-            <T>Remplacer la progression actuelle par cette sauvegarde ?</T>
-            <Button
-              icon="book-outline"
-              onPress={() => {
-                try {
-                  const restored = restore(backup);
-                  setSave(() => restored);
-                  setNote('Votre herbier a été restauré.');
-                } catch (e) {
-                  setNote(e instanceof Error ? e.message : 'Sauvegarde non reconnue.');
-                }
-                setConfirm(false);
-              }}
-            >
-              Confirmer la restauration
-            </Button>
-            <Button icon="arrow-undo-outline" secondary onPress={() => setConfirm(false)}>
-              Annuler
-            </Button>
-          </View>
-        ) : (
-          <Button
-            icon="book-outline"
-            secondary
-            disabled={!backup.trim()}
-            onPress={() => {
-              try {
-                restore(backup);
-                setConfirm(true);
-              } catch (e) {
-                setNote(e instanceof Error ? e.message : 'Sauvegarde non reconnue.');
-              }
-            }}
-          >
-            Restaurer cette copie
-          </Button>
+        <Button
+          icon="leaf-outline"
+          secondary
+          onPress={() => {
+            const name = normalizeNickname(nickname);
+            if (name.length < 2) {
+              setNote('Choisissez un pseudo de 2 à 24 caractères.');
+              return;
+            }
+            setSave((s) => ({ ...s, nickname: name }));
+            setNickname(name);
+            setNote('Votre signature a été mise à jour.');
+          }}
+        >
+          Modifier ma signature
+        </Button>
+        {!!note && (
+          <T accessibilityLiveRegion="polite" style={{ color: C.muted, marginTop: 10 }}>
+            {note}
+          </T>
         )}
-        <T accessibilityLiveRegion="polite" style={{ marginTop: 12, fontSize: 12, color: C.muted }}>
-          {note || error || 'Sauvegarde locale automatique · format version 2'}
-        </T>
+        <View style={ui.rule} />
+        <AccountConnections />
+        {!!error && <T accessibilityRole="alert">{error}</T>}
       </Paper>
       <Paper style={[ui.card, { marginTop: 22, gap: 14 }]}>
         <Label>UN NOUVEAU DÉPART</Label>
@@ -196,8 +160,6 @@ export default function Parametres() {
           onConfirm={async () => {
             const success = await reset();
             if (success) {
-              setBackup('');
-              setConfirm(false);
               setNote('');
               setResetOpen(false);
               router.replace('/');
@@ -209,12 +171,13 @@ export default function Parametres() {
       <Paper style={[ui.card, { marginTop: 22 }]}>
         <Label>CONFIDENTIALITÉ & CRÉDITS</Label>
         <T style={{ marginTop: 14, fontSize: 13, color: C.muted, lineHeight: 23 }}>
-          Aucun compte, aucune mesure d’audience, aucune publicité active. La progression reste dans
-          le stockage local de votre appareil. Illustrations et papier ont été créés pour ce projet.
-          Les compositions originales sont sous CC0, avec instruments acoustiques FluidR3 sous MIT.
-          L’eau du ruisseau a été enregistrée par jackthemurray sous CC0. Ces ressources sont
-          réutilisables sans redevances ; leurs notices sont incluses dans le jeu. Aucun conseil de
-          consommation ou d’usage médicinal n’est fourni.
+          Aucune mesure d’audience, aucune publicité active. La connexion Apple et Google n’est pas
+          encore activée. La progression reste dans le stockage local de votre appareil.
+          Illustrations et papier ont été créés pour ce projet. Les compositions originales sont
+          sous CC0, avec instruments acoustiques FluidR3 sous MIT. L’eau du ruisseau a été
+          enregistrée par jackthemurray sous CC0. Ces ressources sont réutilisables sans redevances
+          ; leurs notices sont incluses dans le jeu. Aucun conseil de consommation ou d’usage
+          médicinal n’est fourni.
         </T>
         <T style={{ marginTop: 15, fontSize: 12, color: C.muted }}>
           Les périodes de floraison sont indicatives. La nomenclature et les illustrations doivent

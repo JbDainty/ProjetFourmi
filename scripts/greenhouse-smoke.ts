@@ -1,4 +1,4 @@
-import { openScreen } from './navigation-test-helper';
+import { openCarnet, openScreen } from './navigation-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { initial, loadLevel, move, type Save } from '../src/state/model';
@@ -23,8 +23,7 @@ async function main() {
   };
   try {
     await page.goto(url);
-    await page.getByRole('button', { name: 'Commencer la restauration' }).click();
-    await expect(page.getByRole('button', { name: 'Commencer la restauration' })).not.toBeVisible();
+    await openCarnet(page);
     await page.waitForLoadState('networkidle');
     expect(
       await page
@@ -113,6 +112,7 @@ async function main() {
     );
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(url);
+    await openCarnet(page);
     await expect(page.locator('g[id^="tube-rack-"]')).toHaveCount(2);
     const fiveInOneRow = await tightPlayArea();
     await page.screenshot({
@@ -126,6 +126,7 @@ async function main() {
     await page.evaluate((s) => localStorage.setItem('color-world.save', JSON.stringify(s)), save);
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(url);
+    await openCarnet(page);
     await page.waitForLoadState('networkidle');
     await expect(page.locator('g[id^="tube-rack-"]')).toHaveCount(4);
     const twoRows = await tightPlayArea();

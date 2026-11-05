@@ -1,6 +1,5 @@
 import levels from '../data/levels.json';
-import { Board, clone, pour, won } from '../engine/puzzle';
-import { levelSeeds } from './economy';
+import { Board, clone, pour, won, type Move } from '../engine/puzzle';
 import { discoverPigment, Pigment } from './pigments';
 import { pageStars } from './stars';
 
@@ -14,6 +13,9 @@ export type Settings = {
 export type Save = {
   version: 2;
   started: boolean;
+  nickname: string;
+  attemptRewarded: boolean;
+  paidHints: Record<string, Move>;
   current: number;
   completed: Record<string, { stars: number; date: string }>;
   seeds: number;
@@ -30,9 +32,12 @@ export function initial(): Save {
   return {
     version: 2,
     started: false,
+    nickname: '',
+    attemptRewarded: false,
+    paidHints: {},
     current: 1,
     completed: {},
-    seeds: 25,
+    seeds: 1,
     pigments: [],
     board: clone(levels[0].board),
     history: [],
@@ -53,10 +58,17 @@ export const restoration = (s: Save, index: number) =>
 export const unlocked = (s: Save, id: number) => id === 1 || !!s.completed[String(id - 1)];
 export function loadLevel(s: Save, id: number): Save {
   if (id < 1 || id > 100 || !unlocked(s, id)) return s;
-  return { ...s, current: id, board: clone(levels[id - 1].board), history: [], moves: 0 };
+  return {
+    ...s,
+    current: id,
+    board: clone(levels[id - 1].board),
+    history: [],
+    moves: 0,
+    attemptRewarded: false,
+  };
 }
 export function reward(s: Save, now = new Date().toISOString()): Save {
-  if (!won(s.board)) return s;
+  if (!won(s.board) || s.attemptRewarded) return s;
   const id = s.current,
     first = !s.completed[id],
     stars = pageStars(s.moves, levels[id - 1].par);
@@ -70,7 +82,8 @@ export function reward(s: Save, now = new Date().toISOString()): Save {
         date: s.completed[id]?.date ?? now,
       },
     },
-    seeds: s.seeds + (first ? levelSeeds(id) : 0),
+    attemptRewarded: true,
+    seeds: s.seeds + (stars === 3 ? 1 : 0),
     pigments: first ? [...s.pigments, discoverPigment(id, now)] : s.pigments,
   };
 }
@@ -150,6 +163,32 @@ export function restore(raw: string | null): Save {
     )
       throw Error('Pigment invalide.');
   }
+  if (v.nickname !== undefined && (typeof v.nickname !== 'string' || v.nickname.length > 80))
+    throw Error('Pseudo invalide.');
+  if (v.attemptRewarded !== undefined && typeof v.attemptRewarded !== 'boolean')
+    throw Error('Récompense de tentative invalide.');
+  if (v.paidHints !== undefined) {
+    if (!v.paidHints || typeof v.paidHints !== 'object' || Array.isArray(v.paidHints))
+      throw Error('Indices invalides.');
+    for (const [encoded, hint] of Object.entries(v.paidHints)) {
+      const divider = encoded.indexOf('|');
+      const id = Number(encoded.slice(0, divider));
+      const board = JSON.parse(encoded.slice(divider + 1));
+      if (
+        divider < 1 ||
+        !Number.isInteger(id) ||
+        id < 1 ||
+        id > 100 ||
+        !validBoard(board) ||
+        board.flat().sort().join(',') !== levels[id - 1].board.flat().sort().join(',') ||
+        !hint ||
+        !Number.isInteger(hint.from) ||
+        !Number.isInteger(hint.to) ||
+        !pour(board, hint.from, hint.to)
+      )
+        throw Error('Indice enregistré invalide.');
+    }
+  }
   if (v.settings && Object.values(v.settings).some((value) => typeof value !== 'boolean'))
     throw Error('Paramètres invalides.');
   if (v.theme && !['ivoire', 'sauge', 'rose'].includes(v.theme)) throw Error('Thème invalide.');
@@ -164,6 +203,9 @@ export function restore(raw: string | null): Save {
     ...initial(),
     ...v,
     version: 2,
+    nickname: typeof v.nickname === 'string' ? normalizeNickname(v.nickname) : '',
+    attemptRewarded: v.attemptRewarded ?? (!!v.completed[v.current] && won(v.board)),
+    paidHints: v.paidHints ?? {},
     settings: {
       ...initial().settings,
       ...v.settings,
@@ -171,5 +213,32 @@ export function restore(raw: string | null): Save {
         typeof v.settings?.music === 'boolean' ? v.settings.music : (v.settings?.sound ?? true),
     },
     owned: Array.isArray(v.owned) ? v.owned : ['ivoire'],
+  };
+}
+
+/** A nickname names a local carnet; it is never presented as an authenticated account. */
+export function normalizeNickname(value: string): string {
+  return value
+    .normalize('NFC')
+    .replace(/[\u0000-\u001f\u007f-\u009f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 24);
+}
+const hintKey = (s: Save) => `${s.current}|${JSON.stringify(s.board)}`;
+export const currentHint = (s: Save): Move | undefined => s.paidHints[hintKey(s)];
+/** Charge only for a valid, newly revealed suggestion; duplicate taps are idempotent. */
+export function purchaseHint(s: Save, suggestion: Move): Save {
+  if (
+    won(s.board) ||
+    currentHint(s) ||
+    s.seeds < 1 ||
+    !pour(s.board, suggestion.from, suggestion.to)
+  )
+    return s;
+  return {
+    ...s,
+    seeds: s.seeds - 1,
+    paidHints: { ...s.paidHints, [hintKey(s)]: { ...suggestion } },
   };
 }

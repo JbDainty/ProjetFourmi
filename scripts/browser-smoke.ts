@@ -1,4 +1,4 @@
-import { openScreen } from './navigation-test-helper';
+import { openCarnet, openScreen } from './navigation-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import levels from '../src/data/levels.json';
@@ -18,8 +18,7 @@ async function main() {
   mkdirSync('test-results', { recursive: true });
   try {
     await page.goto(testUrl);
-    await page.getByRole('button', { name: 'Commencer la restauration' }).click();
-    await expect(page.getByRole('button', { name: 'Commencer la restauration' })).not.toBeVisible();
+    await openCarnet(page);
     await page.screenshot({ path: 'test-results/atelier-desktop.png', fullPage: true });
     await page.getByRole('button', { name: 'Indice', exact: true }).click();
     await expect(page.getByTestId('hint-writing-text')).toHaveText(
@@ -44,10 +43,7 @@ async function main() {
         expect(partial.pigments).toHaveLength(0);
         await expect(page.getByText('VOTRE HERBIER REPREND VIE')).not.toBeVisible();
         await page.getByRole('button', { name: 'Indice', exact: true }).click();
-        const consolidation = solve(partial.board)![0];
-        await expect(page.getByTestId('hint-writing-text')).toHaveText(
-          `Versez le flacon ${consolidation.from + 1} dans le flacon ${consolidation.to + 1}.`,
-        );
+        await expect(page.getByTestId('hint-writing-text')).toContainText('Votre réserve est vide');
       }
     }
     await expect(page.getByText('VOTRE HERBIER REPREND VIE')).toBeVisible();
@@ -60,6 +56,7 @@ async function main() {
     await page.getByRole('button', { name: /Poursuivre la restauration/ }).click();
     await expect(page.getByText('PAGE 02')).toBeVisible();
     await page.reload();
+    await openCarnet(page);
     await expect(page.getByText('PAGE 02')).toBeVisible();
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('color-world.save')!));
     expect(saved.pigments.length).toBe(1);
@@ -86,6 +83,7 @@ async function main() {
     end = loadLevel(end, 100);
     await page.evaluate((s) => localStorage.setItem('color-world.save', JSON.stringify(s)), end);
     await page.reload();
+    await openCarnet(page);
     for (const m of levels[99].solution) {
       const visible = await page.getByText('L’HERBIER RETROUVE SES COULEURS').isVisible();
       if (visible) break;
@@ -98,6 +96,7 @@ async function main() {
     await page.getByRole('button', { name: 'Contempler mon herbier' }).click();
     await expect(page.getByText('20 / 20 PLANCHES RESTAURÉES')).toBeVisible();
     await page.reload();
+    await openCarnet(page);
     await openScreen(page, 'Le Grand Herbier');
     await expect(page.getByText('20 / 20 PLANCHES RESTAURÉES')).toBeVisible();
     // The service worker caches a complete installed export, not just the visited screen.
@@ -106,6 +105,7 @@ async function main() {
     });
     await context.setOffline(true);
     await page.goto(testUrl);
+    await openCarnet(page);
     await expect(page.getByText('PAGE 100')).toBeVisible();
     await context.setOffline(false);
     const mobile = await browser.newContext({
@@ -116,17 +116,16 @@ async function main() {
       mp = await mobile.newPage();
     mp.on('pageerror', (e) => errors.push(e.message));
     await mp.goto(testUrl);
-    await mp.getByRole('button', { name: 'Commencer la restauration' }).click();
-    await expect(mp.getByRole('button', { name: 'Commencer la restauration' })).not.toBeVisible();
+    await openCarnet(mp);
     await expect(mp.getByRole('button', { name: 'Indice', exact: true })).toBeInViewport();
     await mp.screenshot({ path: 'test-results/atelier-mobile.png', fullPage: true });
     expect(await mp.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
     await openScreen(mp, 'La Boutique');
-    await mp.getByRole('button', { name: 'Recueillir les graines' }).click();
-    await expect(mp.getByRole('button', { name: 'À demain' })).toBeDisabled();
+    await expect(mp.getByRole('button', { name: 'Recueillir les graines' })).toHaveCount(0);
+    await expect(mp.getByText('UNE GRAINE POUR UN CONSEIL')).toBeVisible();
     expect(errors).toEqual([]);
     console.log(
-      'Browser: tutorial, valid hint, pour, reward, persistence, herbarium, accessibility, level 100, offline, mobile and daily reward passed.',
+      'Browser: signed carnet, paid valid hint and empty reserve, pour, reward, persistence, herbarium, accessibility, level 100, offline, mobile and no daily gift passed.',
     );
   } finally {
     await browser.close();

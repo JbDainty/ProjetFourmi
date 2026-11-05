@@ -2,7 +2,7 @@ import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { initial, loadLevel, move } from '../src/state/model';
 import levels from '../src/data/levels.json';
-import { openScreen } from './navigation-test-helper';
+import { openCarnet, openScreen } from './navigation-test-helper';
 
 function twoRows(motion: boolean) {
   let save = { ...initial(), started: true };
@@ -36,11 +36,13 @@ async function main() {
       twoRows(motion),
     );
     await page.goto(url);
+    await openCarnet(page);
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 100');
     await expect(hud).toBeInViewport();
   };
   try {
     await page.goto(url);
+    await openCarnet(page);
     await seed(true);
     const before = await page.evaluate(() => localStorage.getItem('color-world.save'));
     await expect(page.locator('g[id^="tube-rack-"]')).toHaveCount(4);
@@ -117,6 +119,7 @@ async function main() {
     await page.evaluate((s) => localStorage.setItem('color-world.save', JSON.stringify(s)), small);
     await page.setViewportSize({ width: 390, height: 1000 });
     await page.goto(url);
+    await openCarnet(page);
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 01');
     await expect(hud).toBeInViewport();
     await expect(top).toHaveCount(0);

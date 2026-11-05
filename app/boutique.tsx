@@ -5,11 +5,10 @@ import { View } from 'react-native';
 import { useGame } from '../src/state/store';
 import { commerce } from '../src/services/commerce';
 import { T, Label, Button, Icon, C, ui } from '../src/components/ui';
-import { themes, acquireTheme, dailyReward } from '../src/state/economy';
+import { themes, acquireTheme } from '../src/state/economy';
 export default function Boutique() {
   const { save, setSave } = useGame(),
     [note, setNote] = useState('');
-  const day = new Date().toLocaleDateString('sv-SE');
   return (
     <BookScrollView contentContainerStyle={ui.page}>
       <Label>LES PETITS PLAISIRS DU CARNET</Label>
@@ -17,34 +16,15 @@ export default function Boutique() {
         La Boutique
       </T>
       <T style={ui.muted}>Des détails à votre image. Le vivant reste accessible à tous.</T>
-      <Paper
-        style={[
-          ui.card,
-          {
-            marginVertical: 25,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 20,
-            flexWrap: 'wrap',
-          },
-        ]}
-      >
-        <Icon name="sunny-outline" size={38} color={C.gold} />
-        <View style={{ flex: 1, minWidth: 170 }}>
-          <T serif style={{ fontSize: 27 }}>
-            Le rendez-vous du jour
-          </T>
-          <T style={{ fontSize: 12, color: C.muted }}>
-            Une petite réserve de 15 graines, chaque jour.
-          </T>
-        </View>
-        <Button
-          icon="seed-outline"
-          disabled={save.daily === day}
-          onPress={() => setSave((s) => dailyReward(s, day))}
-        >
-          {save.daily === day ? 'À demain' : 'Recueillir les graines'}
-        </Button>
+      <Paper style={[ui.card, { marginVertical: 25, gap: 12 }]}>
+        <Label>UNE GRAINE POUR UN CONSEIL</Label>
+        <T>
+          Chaque page terminée avec trois étoiles vous offre une graine. Un nouvel indice coûte une
+          graine ; relire le même conseil ne coûte rien.
+        </T>
+        <T style={{ color: C.muted }}>
+          Rejouez une page pour tenter de décrocher trois étoiles et faire pousser votre réserve.
+        </T>
       </Paper>
       <Label>LES PAPIERS DE L’ATELIER</Label>
       <View style={{ flexDirection: 'row', gap: 18, flexWrap: 'wrap', marginTop: 16 }}>
@@ -90,8 +70,8 @@ export default function Boutique() {
           Du temps, jamais de contraintes.
         </T>
         <T style={{ color: C.muted, marginTop: 8 }}>
-          Les indices, les annulations et toutes les pages du carnet sont gratuites. Votre
-          progression botanique ne dépend d’aucun achat ni d’aucune publicité.
+          Un nouvel indice coûte une graine. Annuler, recommencer et explorer les pages reste
+          gratuit. Votre progression botanique ne dépend d’aucun achat ni d’aucune publicité.
         </T>
         <View style={ui.rule} />
         <T style={{ fontSize: 12, color: C.muted }}>

@@ -1,3 +1,4 @@
+import { openCarnet } from './navigation-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import levels from '../src/data/levels.json';
@@ -16,6 +17,7 @@ async function main() {
   mkdirSync('test-results', { recursive: true });
   try {
     await page.goto(url);
+    await openCarnet(page);
     for (const [extra, stars] of [
       [0, 3],
       [1, 3],
@@ -29,6 +31,7 @@ async function main() {
         fixture.save,
       );
       await page.goto(url);
+      await openCarnet(page);
       await expect(page.getByTestId('page-star-target')).toHaveCount(0);
       await expect(page.getByTestId('page-result-moves')).toHaveCount(0);
       await page
@@ -52,7 +55,7 @@ async function main() {
         JSON.parse(localStorage.getItem('color-world.save')!),
       );
       expect(stored.completed[1].stars).toBe(stars);
-      expect(stored.seeds).toBe(35);
+      expect(stored.seeds).toBe(fixture.save.seeds + (stars === 3 ? 1 : 0));
       expect(stored.pigments).toHaveLength(1);
     }
     const replay = attempt(3, true);
@@ -62,6 +65,7 @@ async function main() {
       replay.save,
     );
     await page.goto(url);
+    await openCarnet(page);
     await page
       .getByRole('button', { name: new RegExp(`^Flacon ${replay.last.from + 1},`) })
       .click();

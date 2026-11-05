@@ -20,6 +20,8 @@ import { basePath } from '../src/config/paths';
 import { BookChromeContext, bookHeaderHeight } from '../src/components/BookScrollView';
 import { Soundscape } from '../src/components/Soundscape';
 import { unlockAmbience } from '../src/services/ambience';
+import { SeedPouch } from '../src/components/SeedPouch';
+import { BookEntrance } from '../src/components/BookEntrance';
 const nav = [
   { path: '/', name: 'L’Atelier', icon: 'flask-outline' },
   { path: '/herbier', name: 'Le Grand Herbier', icon: 'book-outline' },
@@ -35,7 +37,11 @@ function Shell() {
     playing = path === '/';
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [sceneHeight, setSceneHeight] = React.useState(0);
-  const { save, ready, error, retry } = useGame();
+  const { save, setSave, ready, error, retry } = useGame();
+  const [sessionOpen, setSessionOpen] = React.useState(false);
+  React.useEffect(() => {
+    if (!save.started) setSessionOpen(false);
+  }, [save.started]);
   const [turn, setTurn] = React.useState<TurningPage | null>(null);
   const pendingTurn = React.useRef<(() => void) | null>(null);
   const turning = React.useRef(false);
@@ -100,24 +106,7 @@ function Shell() {
         <View style={{ flex: 1, alignItems: 'center' }}>
           <HerbariumTitle compact={mobile} motion={save.settings.motion} />
         </View>
-        <View
-          accessible
-          accessibilityLabel={`Graines dorées : ${save.seeds}`}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 5,
-            minHeight: 42,
-            minWidth: 58,
-            paddingHorizontal: 9,
-            borderRadius: 22,
-            backgroundColor: '#f4ead6e8',
-          }}
-        >
-          <Icon name="seed-outline" color={C.gold} size={22} />
-          <T style={{ fontSize: 16 }}>{save.seeds}</T>
-        </View>
+        <SeedPouch count={save.seeds} motion={save.settings.motion} />
       </View>
       {error && (
         <Pressable
@@ -139,9 +128,9 @@ function Shell() {
       style={{ flex: 1, backgroundColor: C.paper, zIndex: 0 }}
     >
       <Soundscape
-        music={save.settings.music}
+        music={ready && save.settings.music}
         sound={save.settings.sound}
-        started={save.started}
+        started={ready && save.started && sessionOpen}
         ecosystem={Math.floor((save.current - 1) / 20)}
       />
       <PaperTexture background />
@@ -172,7 +161,12 @@ function Shell() {
         </View>
       )}
       <StatusBar style="dark" />
-      <View style={{ flex: 1 }}>
+      <View
+        style={{ flex: 1 }}
+        aria-hidden={!save.started || !sessionOpen}
+        accessibilityElementsHidden={!save.started || !sessionOpen}
+        importantForAccessibility={!save.started || !sessionOpen ? 'no-hide-descendants' : 'auto'}
+      >
         {ready ? (
           <SceneSizeContext.Provider value={setSceneHeight}>
             <PageTurnContext.Provider value={turnPage}>
@@ -205,7 +199,11 @@ function Shell() {
           <ScrollView style={{ width: '100%', maxWidth: 430, maxHeight: '94%' }}>
             <Paper testID="game-carnet-menu" style={[ui.card, { padding: 26 }]}>
               <View style={[ui.row, { justifyContent: 'space-between' }]}>
-                <Label>VOTRE CARNET</Label>
+                <Label>
+                  {save.nickname
+                    ? `LE CARNET DE ${save.nickname.toLocaleUpperCase('fr')}`
+                    : 'VOTRE CARNET'}
+                </Label>
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel="Fermer le carnet"
@@ -256,6 +254,19 @@ function Shell() {
           </ScrollView>
         </View>
       </Modal>
+      {ready && (!save.started || !sessionOpen) && (
+        <BookEntrance
+          key={save.started ? 'returning' : 'new-journey'}
+          returning={save.started}
+          nickname={save.nickname}
+          motion={save.settings.motion}
+          onEnter={(nickname) => {
+            unlockAmbience();
+            setSessionOpen(true);
+            if (!save.started) setSave((value) => ({ ...value, nickname, started: true }));
+          }}
+        />
+      )}
       {turn && (
         <PageTurn
           key={turn.id}
