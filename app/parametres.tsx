@@ -6,11 +6,14 @@ import { View, Switch, TextInput } from 'react-native';
 import { useGame } from '../src/state/store';
 import { restore, Settings } from '../src/state/model';
 import { T, Label, Button, C, ui } from '../src/components/ui';
+import { ResetProgressDialog } from '../src/components/ResetProgressDialog';
+import { router } from 'expo-router';
 export default function Parametres() {
-  const { save, setSave, error } = useGame(),
+  const { save, setSave, error, reset } = useGame(),
     [backup, setBackup] = useState(''),
     [note, setNote] = useState(''),
     [confirm, setConfirm] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
   const options: { key: keyof Settings; name: string; detail: string }[] = [
     {
       key: 'sound',
@@ -165,6 +168,36 @@ export default function Parametres() {
           {note || error || 'Sauvegarde locale automatique · format version 2'}
         </T>
       </Paper>
+      <Paper style={[ui.card, { marginTop: 22, gap: 14 }]}>
+        <Label>UN NOUVEAU DÉPART</Label>
+        <T serif style={{ fontSize: 28 }}>
+          Recommencer l’herbier
+        </T>
+        <T style={{ color: C.muted }}>
+          Repartir de la première page en effaçant votre progression. Un avertissement et une
+          seconde confirmation vous seront demandés.
+        </T>
+        <Button icon="refresh-outline" secondary onPress={() => setResetOpen(true)}>
+          Remettre ma progression à zéro
+        </Button>
+      </Paper>
+      {resetOpen && (
+        <ResetProgressDialog
+          motion={save.settings.motion}
+          onCancel={() => setResetOpen(false)}
+          onConfirm={async () => {
+            const success = await reset();
+            if (success) {
+              setBackup('');
+              setConfirm(false);
+              setNote('');
+              setResetOpen(false);
+              router.replace('/');
+            }
+            return success;
+          }}
+        />
+      )}
       <Paper style={[ui.card, { marginTop: 22 }]}>
         <Label>CONFIDENTIALITÉ & CRÉDITS</Label>
         <T style={{ marginTop: 14, fontSize: 13, color: C.muted, lineHeight: 23 }}>

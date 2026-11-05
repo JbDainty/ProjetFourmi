@@ -49,6 +49,10 @@ Les annulations, indices et reprises sont gratuits. Les étoiles sont désormais
 
 Le bilan affiche les étoiles de la tentative actuelle ; la collection conserve toujours le meilleur score enregistré, y compris les étoiles gagnées avant ce rééquilibrage. Une tentative moins bonne n’efface ni étoiles, ni graines, ni pigments, ni date de première réussite. Rejouer peut améliorer les étoiles sans dupliquer les graines ou les pigments. Une nouvelle espèce s’ouvre après cinq pages, un écosystème après vingt. La page 100 termine la collection sans charger de page 101.
 
+Les étoiles du bilan sont des fleurs étoilées originales, dorées et nervurées. Elles éclosent l’une après l’autre, avec un petit rebond et des éclats de pollen qui se dissipent ; les étoiles non obtenues restent en contour. L’effet est fini, se joue une fois par réussite et ne recommence pas à la révélation du pigment. Sans animations, les étoiles apparaissent directement. Un libellé accessible annonce le résultat complet sur trois étoiles.
+
+« Rejouer la page » est disponible dès le bilan, avant ou après la révélation, y compris à la page 100. Lorsque des étoiles restent à gagner, ce bouton apparaît près du résultat ; sinon il est placé parmi les actions du bilan. Il retourne au plateau initial de la même page avec l’animation de feuillet, remet à zéro les mouvements, l’historique et les états temporaires, et garde les étoiles déjà acquises, pigments, graines et préférences. Une nouvelle réussite rouvre bien le bilan et peut améliorer le meilleur score sans dupliquer les gains.
+
 L’atelier est une scène de jeu continue : le décor de serre s’étend sous le titre et les flacons. L’ATH présente « Herbier des couleurs », les graines et un bouton de carnet. Il appartient au contenu qui défile : en descendant, tout le bandeau sort de l’écran sans recouvrir les tubes ni les commandes. Ce bouton ouvre le menu du jeu, avec la reprise de la partie, l’herbier, les écosystèmes, la boutique et les réglages. Il remplace la barre d’onglets et le panneau latéral. Ouvrir puis refermer le carnet conserve la sélection et le puzzle ; quitter l’atelier interrompt un versement en cours avant sa validation.
 
 Les écrans du carnet partagent `BookScrollView` : le bandeau reste dans le flux, y compris dans l’herbier, les écosystèmes, la boutique et les réglages. Lorsque le contenu dépasse l’écran, une petite flèche végétale « Haut » est placée dans un pied de page, à droite, après les commandes. Elle devient visible en arrivant en bas et remonte au début sans toucher à la progression. Le retour est doux avec les animations activées et immédiat autrement. Le pied de page ne se superpose pas au jeu ; il est absent lorsque tout tient déjà à l’écran. Son calcul de débordement exclut sa propre hauteur pour éviter une apparition artificielle après redimensionnement. `npm run test:scroll` couvre le défilement d’un puzzle à deux rangées, le retour, les petits et grands écrans, l’herbier et la conservation de la sauvegarde.
@@ -92,6 +96,7 @@ La typographie utilise **Almendra** pour les titres, **Alegreya Sans** pour les 
 npm run test:greenhouse
 npm run test:scroll
 npm run test:stars
+npm run test:reward-reset
 ```
 
 Ce contrôle vérifie le chargement du décor et des huit variantes typographiques, les supports sur chaque rangée, la hauteur compacte sur les écrans hauts et le passage d’une à deux rangées pour un même puzzle à différentes largeurs.
@@ -178,6 +183,12 @@ npx eas-cli build --platform ios --profile production
 ## Sauvegarde et confidentialité
 
 AsyncStorage conserve le document `color-world.save` (localStorage sur Web). Le format est versionné (`version: 2`) et le lecteur migre le format précédent, complète les options manquantes et rejette les données incohérentes. Le puzzle, son historique, les étoiles, pigments datés, graines, thèmes et paramètres sont enregistrés après les actions, dans une file d’écriture ordonnée. L’interface attend la lecture initiale avant toute écriture. Une erreur de lecture n’écrase pas la sauvegarde ; une erreur d’écriture affiche une action de nouvelle tentative.
+
+Dans les paramètres, « Remettre ma progression à zéro » ouvre d’abord un avertissement détaillant la perte des pages, étoiles, plantes restaurées, pigments, graines gagnées et papiers acquis. « Continuer vers la confirmation » ouvre une seconde étape avec une nouvelle action explicite « Oui, effacer ma progression ». Annuler ou fermer à l’une ou l’autre étape ne modifie aucune donnée et recommence le processus depuis le premier avertissement à la prochaine ouverture. Le bouton final reste brièvement désactivé à son apparition pour qu’un double appui rapide sur la première action ne puisse pas déclencher l’effacement.
+
+La remise à zéro attend la fin des écritures précédentes puis enregistre une nouvelle sauvegarde avant de remplacer la progression en mémoire. Si l’écriture échoue, le dialogue reste ouvert avec une erreur et le parcours reste disponible en mémoire. Après succès, le joueur retrouve le tutoriel et la première page, avec 25 graines de départ, le papier d’ivoire et une collection vide. Les réglages de son, vibrations, animations et symboles sont conservés. Seule la clé du jeu est remplacée ; les autres données du navigateur et les ressources hors ligne ne sont pas effacées.
+
+`npm run test:reward-reset` contrôle l’éclosion successive, l’absence de répétition à la révélation, les reprises avant/après révélation et sur la dernière page, les gains conservés, le mode sans animations et l’affichage à 320 pixels. Les remises à zéro sont testées dans une session isolée avec des données fictives : annulation aux deux étapes, Échap, double appui, échec simulé du stockage, effacement final, rechargement et conservation des préférences et des autres clés.
 
 Les réglages permettent de copier le document JSON et de restaurer une copie après validation et confirmation. La sauvegarde est locale, sans synchronisation serveur. Effacer les données de l’application ou du navigateur la supprime. Les cadeaux quotidiens suivent l’horloge locale : aucune promesse de protection contre sa manipulation.
 

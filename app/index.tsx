@@ -25,6 +25,7 @@ import { BookScrollView, bookHeaderHeight } from '../src/components/BookScrollVi
 import { T, Label, Icon, Button, Progress, C, ui } from '../src/components/ui';
 import { feedback } from '../src/services/feedback';
 import { pageStars, starLimits } from '../src/state/stars';
+import { RewardStars } from '../src/components/RewardStars';
 type Note = { text: string; kind: 'info' | 'hint'; request: number; pending: boolean };
 const scenePadding = { top: 0, bottom: 20 };
 export default function Atelier() {
@@ -50,6 +51,7 @@ export default function Atelier() {
     chapter = Math.floor((save.current - 1) / 20),
     stage = restoration(save, plant),
     victory = won(save.board);
+  const earnedStars = pageStars(save.moves, levels[save.current - 1].par);
   const clearNote = () =>
     setNote((previous) => ({ ...previous, text: '', kind: 'info', pending: false }));
   useEffect(() => {
@@ -147,6 +149,30 @@ export default function Atelier() {
       turnPage(target, () => setSave((v) => loadLevel(v, target)));
     } else router.push('/herbier');
   };
+  const replayPage = () => {
+    const current = save.current;
+    setDismissed(true);
+    turnPage(current, () => {
+      if (timer.current) clearTimeout(timer.current);
+      setSelected(null);
+      setHint(null);
+      clearNote();
+      setReveal(false);
+      setPlateOpen(false);
+      setBusy(false);
+      setPouring(null);
+      setReplay(true);
+      fade.setValue(0);
+      scroll.current?.scrollTo({ y: 0, animated: false });
+      setSave((value) => loadLevel(value, current));
+      setDismissed(false);
+    });
+  };
+  const replayAction = (
+    <VictoryAction icon="refresh-outline" secondary onPress={replayPage}>
+      Rejouer la page
+    </VictoryAction>
+  );
   return (
     <BookScrollView
       ref={scroll}
@@ -501,13 +527,7 @@ export default function Atelier() {
                     ? 'Votre collection est complète.'
                     : s.organs[(save.current - 1) % 5]}
                 </T>
-                <T
-                  testID="page-earned-stars"
-                  accessibilityLabel={`${pageStars(save.moves, levels[save.current - 1].par)} étoiles pour cette page`}
-                  style={{ color: C.gold, fontSize: 24, marginTop: 8 }}
-                >
-                  {'★'.repeat(pageStars(save.moves, levels[save.current - 1].par))}
-                </T>
+                <RewardStars count={earnedStars} motion={save.settings.motion} />
                 <T
                   testID="page-result-moves"
                   style={{
@@ -534,8 +554,7 @@ export default function Atelier() {
                   Minimum : {levels[save.current - 1].par} · Objectif ★★★ :{' '}
                   {starLimits(levels[save.current - 1].par).three}
                 </T>
-                {(save.completed[save.current]?.stars ?? 0) >
-                  pageStars(save.moves, levels[save.current - 1].par) && (
+                {(save.completed[save.current]?.stars ?? 0) > earnedStars && (
                   <T
                     testID="page-saved-best-stars"
                     style={{
@@ -549,6 +568,7 @@ export default function Atelier() {
                     Meilleur résultat conservé : {'★'.repeat(save.completed[save.current].stars)}
                   </T>
                 )}
+                {earnedStars < 3 && replayAction}
                 {!reveal ? (
                   <>
                     <Botanical
@@ -588,17 +608,20 @@ export default function Atelier() {
                         ? 'Contempler mon herbier'
                         : 'Poursuivre la restauration'}
                     </VictoryAction>
-                    <VictoryAction
-                      icon="book-outline"
-                      secondary
-                      onPress={() => {
-                        setDismissed(true);
-                        router.push('/herbier');
-                      }}
-                    >
-                      Ouvrir l’herbier
-                    </VictoryAction>
                   </>
+                )}
+                {earnedStars === 3 && replayAction}
+                {reveal && (
+                  <VictoryAction
+                    icon="book-outline"
+                    secondary
+                    onPress={() => {
+                      setDismissed(true);
+                      router.push('/herbier');
+                    }}
+                  >
+                    Ouvrir l’herbier
+                  </VictoryAction>
                 )}
               </VictoryPaper>
             )}

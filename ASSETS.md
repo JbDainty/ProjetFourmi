@@ -9,6 +9,7 @@
 - `src/components/TitleVines.tsx` : lianes ornementales originales, feuilles nervurées et fleurs décoratives en SVG. Les tiges se dessinent, les feuilles se déploient et les fleurs éclosent au toucher du titre.
 - `src/components/ChapterVignette.tsx` : mise en page originale inspirée des annotations d’un livre botanique, rameaux discrets, chapitre manuscrit et progression exprimée par cinq feuilles.
 - `src/components/SpellIcon.tsx` : trois dessins SVG originaux pour les commandes du jeu, avec dorures, nervures, croissant, graines, fleurs et étoiles. Aucun symbole commercial externe.
+- `src/components/RewardStars.tsx` : trois fleurs étoilées originales en SVG, cinq pétales nervurés, cœur de pollen, petits rameaux, dorure et éclats discrets. Éclosion successive et contours des étoiles non obtenues ; aucune image, bibliothèque d’animation ou ressource tierce.
 - `src/components/VictoryPaper.tsx` : lianes originales en SVG qui se dessinent sur les marges de la page de réussite, avec feuilles nervurées et vrilles. Elles remplacent l’encadrement statique sur cet écran et ne prennent pas les gestes.
 - `src/components/StampPrompt.tsx` : courte invitation italique et petites lueurs dorées originales pour l’observation de la planche.
 - `src/components/HerbariumBookButton.tsx` : livre ancien original en SVG, reliure verte, tranche de papier, dorures et plantes gravées. L’animation ouvre la couverture puis révèle le menu ; aucun visuel de couverture externe.

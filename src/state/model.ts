@@ -37,6 +37,10 @@ export function initial(): Save {
     daily: null,
   };
 }
+/** A new journey keeps accessibility preferences, never earned progress or themes. */
+export function resetProgress(s: Save): Save {
+  return { ...initial(), settings: { ...s.settings } };
+}
 export const restoration = (s: Save, index: number) =>
   Array.from({ length: 5 }, (_, i) => !!s.completed[String(index * 5 + i + 1)]).filter(Boolean)
     .length;
