@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { cpSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
+import { cpSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,8 +27,9 @@ try {
   }
   for (const field of ['user.name', 'user.email'])
     run('git', ['config', field, readGit('config', field)], stage);
-  for (const file of readdirSync(stage))
-    if (file !== '.git') rmSync(join(stage, file), { recursive: true, force: true });
+  // Retain hashed assets from earlier builds: already-open games can still request
+  // their files while the new version installs. The current export overwrites
+  // entry points and the service worker, which only precaches its own manifest.
   cpSync(join(root, 'dist'), stage, { recursive: true });
   run('git', ['add', '--all'], stage);
   const changes = execFileSync('git', ['status', '--porcelain'], {
