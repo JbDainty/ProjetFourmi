@@ -1,9 +1,10 @@
-Herbier des couleurs — Plant celebration
+Herbier des couleurs — Plant restoration music
 
-This CC0 dedication applies exclusively to assets/plant-celebration.wav
-and its original composition and synthesis script scripts/generate-plant-celebration.py.
-Created for this project in 2026; no third-party samples or recordings.
-https://creativecommons.org/publicdomain/zero/1.0/
+The original composition and arrangement are dedicated under CC0 1.0.
+The current assets/plant-celebration.wav is rendered with FluidR3 GM acoustic
+instrument samples, copyright Frank Wen and Toby Smithe, under MIT.
+See FluidR3-MIT.txt and cozy-audio-CC0.txt for the complete source notices.
+Reproduction: scripts/generate-cozy-audio.py --soundfont /path/to/FluidR3_GM.sf2
 
 Creative Commons Legal Code
 

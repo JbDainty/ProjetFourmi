@@ -7,6 +7,7 @@ import { preparePageSounds } from './pageSounds';
 import { preparePourSounds } from './pourSound';
 import { prepareRevealMelody } from './revealMelody';
 import { unlockAmbience } from './ambience';
+import { prepareVialChime } from './vialChime';
 export function feedback(settings: Settings, success = false) {
   unlockAmbience();
   if (settings.haptics && Platform.OS !== 'web')
@@ -19,5 +20,6 @@ export function feedback(settings: Settings, success = false) {
     preparePageSounds();
     preparePourSounds();
     prepareRevealMelody();
+    prepareVialChime();
   }
 }

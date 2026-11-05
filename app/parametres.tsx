@@ -19,12 +19,13 @@ export default function Parametres() {
     {
       key: 'sound',
       name: 'Sons de l’atelier',
-      detail: 'Versements, pages du livre, vent et félicitations sonores.',
+      detail: 'Eau du ruisseau, tintement des fioles, pages, vent et félicitations.',
     },
     {
       key: 'music',
       name: 'Musique des écosystèmes',
-      detail: 'Cinq ambiances originales, très discrètes. Le fond baisse pendant les bruitages.',
+      detail:
+        'Harpe, cordes et bois doux. Cinq ambiances discrètes qui baissent pendant les bruitages.',
     },
     {
       key: 'haptics',
@@ -209,10 +210,11 @@ export default function Parametres() {
         <Label>CONFIDENTIALITÉ & CRÉDITS</Label>
         <T style={{ marginTop: 14, fontSize: 13, color: C.muted, lineHeight: 23 }}>
           Aucun compte, aucune mesure d’audience, aucune publicité active. La progression reste dans
-          le stockage local de votre appareil. Les sons, illustrations numériques à rendu aquarelle
-          et textures de papier ont été créés pour ce projet. Les cinq musiques d’écosystème sont
-          des compositions originales dédiées au domaine public sous CC0 1.0, réutilisables sans
-          redevances. Aucun conseil de consommation ou d’usage médicinal n’est fourni.
+          le stockage local de votre appareil. Illustrations et papier ont été créés pour ce projet.
+          Les compositions originales sont sous CC0, avec instruments acoustiques FluidR3 sous MIT.
+          L’eau du ruisseau a été enregistrée par jackthemurray sous CC0. Ces ressources sont
+          réutilisables sans redevances ; leurs notices sont incluses dans le jeu. Aucun conseil de
+          consommation ou d’usage médicinal n’est fourni.
         </T>
         <T style={{ marginTop: 15, fontSize: 12, color: C.muted }}>
           Les périodes de floraison sont indicatives. La nomenclature et les illustrations doivent

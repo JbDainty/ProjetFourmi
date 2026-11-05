@@ -30,6 +30,7 @@ import { playPourSound } from '../src/services/pourSound';
 import { playRevealMelody } from '../src/services/revealMelody';
 import { playPlantMelody } from '../src/services/plantMelody';
 import { completedByPour, type TubeReward } from '../src/animation/tubeReward';
+import { playVialChime } from '../src/services/vialChime';
 type Note = { text: string; kind: 'info' | 'hint'; request: number; pending: boolean };
 const scenePadding = { top: 0, bottom: 20 };
 export default function Atelier() {
@@ -45,7 +46,8 @@ export default function Atelier() {
   const rewardId = useRef(0),
     revealPlayed = useRef(false);
   const stopPour = useRef<() => void>(() => {}),
-    stopReveal = useRef<() => void>(() => {});
+    stopReveal = useRef<() => void>(() => {}),
+    stopChime = useRef<() => void>(() => {});
   const [selected, setSelected] = useState<number | null>(null),
     [note, setNote] = useState<Note>({ text: '', kind: 'info', request: 0, pending: false }),
     [hint, setHint] = useState<Move | null>(null),
@@ -77,12 +79,14 @@ export default function Atelier() {
     revealPlayed.current = false;
     stopPour.current();
     stopReveal.current();
+    stopChime.current();
   }, [save.current]);
   useEffect(
     () => () => {
       if (timer.current) clearTimeout(timer.current);
       stopPour.current();
       stopReveal.current();
+      stopChime.current();
     },
     [],
   );
@@ -104,8 +108,11 @@ export default function Atelier() {
   }, [dismissed, victory]);
   const commitPour = (from: number, to: number) => {
     const after = pour(save.board, from, to);
-    if (after && completedByPour(save.board, after, to))
+    if (after && completedByPour(save.board, after, to)) {
       setTubeReward({ id: ++rewardId.current, tube: to, color: after[to][0] });
+      stopChime.current();
+      stopChime.current = playVialChime(save.settings.sound);
+    }
     setSave((value) => move(value, from, to));
   };
   const tap = (index: number) => {
@@ -215,6 +222,7 @@ export default function Atelier() {
       revealPlayed.current = false;
       stopPour.current();
       stopReveal.current();
+      stopChime.current();
       fade.setValue(0);
       scroll.current?.scrollTo({ y: 0, animated: false });
       setSave((value) => loadLevel(value, current));
@@ -348,6 +356,7 @@ export default function Atelier() {
                   clearNote();
                   setTubeReward(null);
                   stopPour.current();
+                  stopChime.current();
                 },
                 disabled: !save.history.length || victory,
               },
@@ -362,6 +371,7 @@ export default function Atelier() {
                   setDismissed(false);
                   setTubeReward(null);
                   stopPour.current();
+                  stopChime.current();
                 },
                 disabled: false,
               },

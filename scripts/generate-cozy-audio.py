@@ -1,149 +1,228 @@
-"""Original CC0 compositions and synthesized water foley for the game.
+"""Render original chamber arrangements, CC0 recorded water and a small glass chime.
 
-No recordings, samples, copied melodies or third-party soundfonts. NumPy/SciPy
-render soft felt-piano, plucked strings, airy pads and sparse bell harmonics.
-FFmpeg encodes the five circular arrangements as compact MP3 files.
-Run from the repository root: python3 scripts/generate-cozy-audio.py
+Requires NumPy, SciPy, ffmpeg, libfluidsynth and the MIT FluidR3 GM SoundFont.
+python3 scripts/generate-cozy-audio.py --soundfont /path/to/FluidR3_GM.sf2
+Provenance, download URLs and verified SHA256: scripts/audio-sources.json.
+The 142 MB SoundFont is a build-time input, never an application dependency.
 """
-import math
+import argparse
+import ctypes as C
+import ctypes.util
+import hashlib
+import json
 import subprocess
 import wave
 from pathlib import Path
 import numpy as np
 from scipy.signal import butter, sosfilt
 
-RATE = 22050
+RATE = 32000
+args = argparse.ArgumentParser()
+args.add_argument('--soundfont', type=Path, required=True)
+font = args.parse_args().soundfont
+sources = json.loads(Path('scripts/audio-sources.json').read_text())
+assert hashlib.sha256(font.read_bytes()).hexdigest() == sources['instruments']['soundfont_sha256'], 'Unexpected SoundFont'
+lib = C.CDLL(ctypes.util.find_library('fluidsynth'))
 
 
-def add(track, data, start):
-    index = round(start * RATE) % len(track)
-    end = index + len(data)
-    if end <= len(track):
-        track[index:end] += data
-    else:
-        split = len(track) - index
-        track[index:] += data[:split]
-        track[:len(data) - split] += data[split:]
+def api(name, result, *types):
+    f = getattr(lib, name)
+    f.restype, f.argtypes = result, list(types)
+    return f
 
 
-def tone(midi, length, kind='piano'):
-    t = np.arange(round(length * RATE)) / RATE
-    f = 440 * 2 ** ((midi - 69) / 12)
-    result = np.zeros(len(t))
-    if kind == 'bell':
-        partials = [(1, 1), (2.76, .13), (5.4, .025)]
-    else:
-        partials = [(k * math.sqrt(1 + .00012 * k * k), 1 / k ** 2.1) for k in range(1, 7)]
-    for harmonic, amplitude in partials:
-        result += amplitude * np.sin(2 * np.pi * f * harmonic * t) * np.exp(-t * (.8 + harmonic * .19))
-    attack = .04 if kind == 'piano' else .025
-    envelope = (1 - np.exp(-t / attack)) * np.minimum(1, np.maximum(0, length - t) / .6)
-    return result * envelope
+ptr, integer = C.c_void_p, C.c_int
+settings_new = api('new_fluid_settings', ptr)
+settings_num = api('fluid_settings_setnum', integer, ptr, C.c_char_p, C.c_double)
+settings_int = api('fluid_settings_setint', integer, ptr, C.c_char_p, integer)
+synth_new = api('new_fluid_synth', ptr, ptr)
+load = api('fluid_synth_sfload', integer, ptr, C.c_char_p, integer)
+program = api('fluid_synth_program_change', integer, ptr, integer, integer)
+control = api('fluid_synth_cc', integer, ptr, integer, integer, integer)
+on = api('fluid_synth_noteon', integer, ptr, integer, integer, integer)
+off = api('fluid_synth_noteoff', integer, ptr, integer, integer)
+write = api('fluid_synth_write_float', integer, ptr, integer, ptr, integer, integer, ptr, integer, integer)
+synth_delete = api('delete_fluid_synth', None, ptr)
+settings_delete = api('delete_fluid_settings', None, ptr)
+
+# Harp, cello, orchestral strings, flute/clarinet, acoustic piano; no synth patches.
+PROGRAMS = [46, 42, 48, 73, 0]
+PANS = [43, 78, 57, 85, 51]
+VOLUMES = [88, 52, 46, 61, 59]
 
 
-def pcm(samples, peak=.62):
-    samples = np.tanh(samples * 1.2)
+def note(events, start, duration, channel, pitch, velocity):
+    events.append((max(0, round(start * RATE)), 1, channel, pitch, velocity))
+    events.append((max(0, round((start + duration) * RATE)), 0, channel, pitch, 0))
+
+
+def render(events, seconds, wood=73):
+    settings = settings_new()
+    settings_num(settings, b'synth.sample-rate', RATE)
+    settings_num(settings, b'synth.gain', .45)
+    settings_num(settings, b'synth.reverb.room-size', .58)
+    settings_num(settings, b'synth.reverb.damp', .72)
+    settings_num(settings, b'synth.reverb.width', 45)
+    settings_num(settings, b'synth.reverb.level', .19)
+    settings_int(settings, b'synth.chorus.active', 0)
+    settings_int(settings, b'synth.cpu-cores', 1)
+    synth = synth_new(settings)
+    if load(synth, str(font).encode(), 1) < 0:
+        raise RuntimeError('Could not load acoustic instrument bank')
+    for channel, patch in enumerate(PROGRAMS):
+        program(synth, channel, wood if channel == 3 else patch)
+        control(synth, channel, 7, VOLUMES[channel])
+        control(synth, channel, 10, PANS[channel])
+        control(synth, channel, 91, 25)
+    output = np.zeros((round(seconds * RATE), 2), dtype=np.float32)
+    cursor = 0
+    try:
+        for frame, kind, channel, pitch, velocity in sorted(events):
+            frame = min(len(output), frame)
+            if frame > cursor:
+                block = output[cursor:frame]
+                assert write(synth, frame-cursor, block.ctypes.data, 0, 2, block.ctypes.data, 1, 2) == 0
+                cursor = frame
+            (on(synth, channel, pitch, velocity) if kind else off(synth, channel, pitch))
+        if cursor < len(output):
+            block = output[cursor:]
+            write(synth, len(block), block.ctypes.data, 0, 2, block.ctypes.data, 1, 2)
+    finally:
+        synth_delete(synth)
+        settings_delete(settings)
+    return output.astype(np.float64)
+
+
+def finish(samples, peak=.48, edge=.04):
+    # Warm acoustic detail, softened bow/hammer transients; no bright synthetic pad.
+    samples = sosfilt(butter(2, 3600, fs=RATE, output='sos'), samples, axis=0)
+    samples = sosfilt(butter(2, 55, fs=RATE, btype='highpass', output='sos'), samples, axis=0)
+    count = round(edge * RATE)
+    ramp = np.sin(np.linspace(0, np.pi/2, count)) ** 2
+    samples[:count] *= ramp[:, None] if samples.ndim == 2 else ramp
+    samples[-count:] *= ramp[::-1, None] if samples.ndim == 2 else ramp[::-1]
     samples *= peak / max(1e-9, np.max(np.abs(samples)))
-    return np.round(samples * 32767).astype('<i2').tobytes()
+    return np.round(samples * 32767).astype('<i2')
 
 
-def wav(name, samples, peak=.42):
+def wav(name, samples, rate=RATE):
     with wave.open(str(Path('assets') / name), 'wb') as out:
-        out.setparams((1, 2, RATE, 0, 'NONE', 'not compressed'))
-        out.writeframes(pcm(samples, peak))
+        out.setparams((2 if samples.ndim == 2 else 1, 2, rate, 0, 'NONE', 'not compressed'))
+        out.writeframes(samples.tobytes())
 
 
 tracks = [
-    ('prairies', 'Clairière d’ivoire', 60, [48, 45, 53, 55, 52, 53, 50, 55], [4, 3, 4, 4, 3, 4, 3, 4], 'piano'),
-    ('sous-bois', 'Murmures du sous-bois', 56, [45, 50, 48, 43, 45, 53, 50, 52], [3, 3, 4, 4, 3, 4, 3, 3], 'piano'),
-    ('zones-humides', 'Reflets des roseaux', 64, [53, 50, 46, 48, 45, 46, 55, 48], [4, 3, 4, 4, 3, 4, 3, 4], 'bell'),
-    ('montagnes', 'Lumière des cimes', 58, [50, 47, 55, 57, 54, 55, 52, 57], [4, 3, 4, 4, 3, 4, 3, 4], 'bell'),
-    ('mediterranee', 'Brise de garrigue', 62, [55, 52, 48, 50, 47, 48, 45, 50], [4, 3, 4, 4, 3, 4, 3, 4], 'strings'),
+    ('prairies', 'Clairière d’ivoire', 60, [48, 45, 53, 55, 52, 53, 50, 55], [4,3,4,4,3,4,3,4], 73),
+    ('sous-bois', 'Murmures du sous-bois', 56, [45, 50, 48, 43, 45, 53, 50, 52], [3,3,4,4,3,4,3,4], 71),
+    ('zones-humides', 'Reflets des roseaux', 64, [53, 50, 46, 48, 45, 46, 55, 48], [4,3,4,4,3,4,3,4], 73),
+    ('montagnes', 'Lumière des cimes', 58, [50, 47, 55, 57, 54, 55, 52, 57], [4,3,4,4,3,4,3,4], 73),
+    ('mediterranee', 'Brise de garrigue', 62, [55, 52, 48, 50, 47, 48, 45, 50], [4,3,4,4,3,4,3,4], 71),
 ]
-Path('assets/music').mkdir(exist_ok=True)
-for index, (name, title, bpm, roots, thirds, instrument) in enumerate(tracks):
+# Phrase contours: chord steps, including sixths and ninths resolved to chord tones.
+phrases = [
+    [(0.5, 12, 1.4), (2.4, 16, 1.6), (4.5, 19, 1.8), (6.7, 14, 1.1)],
+    [(0.8, 19, 1.8), (3.1, 16, 1.4), (5.3, 14, 1.2), (6.9, 12, 1.0)],
+    [(0.4, 16, 2.1), (3.3, 19, 1.6), (5.4, 21, 1.1), (7.0, 19, .8)],
+    [(1.2, 14, 1.3), (3.0, 12, 2.0), (5.7, 7, 1.7)],
+]
+for index, (name, title, bpm, roots, thirds, wood) in enumerate(tracks):
     beat = 60 / bpm
     duration = 64 * beat
-    song = np.zeros(round(duration * RATE))
-    for chord, (root, third) in enumerate(zip(roots, thirds)):
-        start = chord * 8 * beat
-        # Soft sustained voicing, crossfaded across bar boundaries.
-        length = 8 * beat + 1.6
-        t = np.arange(round(length * RATE)) / RATE
-        envelope = np.minimum(1, t / 1.1) * np.minimum(1, np.maximum(0, length - t) / 1.6)
-        pad = np.zeros(len(t))
-        for pitch in [root, root + 7, root + third + 12]:
-            frequency = 440 * 2 ** ((pitch - 69) / 12)
-            pad += .014 * (np.sin(2 * np.pi * frequency * t) + .08 * np.sin(2 * np.pi * frequency * 2 * t))
-        add(song, pad * envelope, start)
-        add(song, tone(root, 4 * beat, 'piano') * .06, start + .1 * beat)
-        # Two different original phrases per chord; sparse, unrushed notes.
-        offsets = [(.65, root + 24), (2.45, root + third + 24), (4.6, root + 19), (6.8, root + 26)]
-        if index == 1: offsets = [(.9, root + 19), (3.4, root + 24), (5.3, root + third + 24)]
-        if index == 2: offsets = [(.4, root + 24), (2.7, root + 31), (5.0, root + third + 24), (7.1, root + 26)]
-        if index == 3: offsets = [(1.3, root + 31), (3.7, root + 28), (6.0, root + 24)]
-        if index == 4: offsets = [(.4, root + 19), (1.9, root + third + 12), (4.5, root + 24), (6.4, root + 19)]
-        for position, pitch in offsets:
-            kind = 'bell' if instrument == 'bell' and position > 4 else 'piano'
-            add(song, tone(pitch, 4.5, kind) * (.06 if kind == 'bell' else .11), start + position * beat)
-        if instrument == 'strings':
-            add(song, tone(root + 7, 2.5, 'strings') * .07, start + 3.2 * beat)
-    dry = song.copy()
-    for seconds, gain in [(.19, .13), (.37, .085), (.61, .045), (.83, .022)]:
-        song += gain * np.roll(dry, round(seconds * RATE))
-    # Circular lowpass keeps the start/end filter history continuous.
-    sos = butter(2, 3100, fs=RATE, output='sos')
-    song = sosfilt(sos, np.concatenate([song[-RATE:], song]))[RATE:]
-    # Very short eased edges suppress encoder-boundary clicks on every loop.
-    edge = round(.035 * RATE)
-    ramp = np.sin(np.linspace(0, np.pi / 2, edge)) ** 2
-    song[:edge] *= ramp
-    song[-edge:] *= ramp[::-1]
-    output = Path('assets/music') / (name + '.mp3')
-    subprocess.run(['ffmpeg', '-hide_banner', '-loglevel', 'error', '-y', '-f', 's16le', '-ar', str(RATE), '-ac', '1',
-                    '-i', 'pipe:0', '-codec:a', 'libmp3lame', '-b:a', '96k', '-write_xing', '1',
-                    '-metadata', 'title=' + title, '-metadata', 'artist=Herbier des couleurs',
-                    '-metadata', 'copyright=CC0 1.0 Universal', str(output)], input=pcm(song), check=True)
-    print(f'{output}: original circular arrangement, {duration:.2f}s, {bpm} BPM, CC0')
+    events = []
+    rng = np.random.default_rng(7100 + index)
+    # Two full passes render the preceding release/reverb naturally into the loop.
+    for cycle in range(2):
+        for chord, (root, third) in enumerate(zip(roots, thirds)):
+            start = cycle * duration + chord * 8 * beat
+            dynamic = [0, -4, -1, 2, -3, 1, -2, -5][chord]
+            note(events, start+.06, 7.6*beat, 1, root-12, 36+dynamic)
+            # Restrained upper strings with an independent inner voice.
+            for pitch in [root+7, root+third+12]:
+                note(events, start+.19, 7.3*beat, 2, pitch, 30+dynamic)
+            note(events, start+4.15*beat, 3.2*beat, 2, root+14, 22+dynamic)
+            # Harp broken chords change inversion/rhythm instead of repeating a beep motif.
+            arpeggio = [0, 7, 12+third, 19, 12, 7, 14, 12+third]
+            if index % 2: arpeggio = [0, 12+third, 7, 19, 14, 7, 12, 7]
+            for j, interval in enumerate(arpeggio):
+                if index == 3 and j in [2, 5]: continue
+                human = rng.uniform(-.025,.025)
+                note(events, start+(j+.14)*beat+human, 1.9*beat, 0, root+interval, int(43+dynamic+rng.integers(-4,5)))
+            # Main woodwind melody, breathing space and varied four-phrase development.
+            for at, interval, length in phrases[(chord+index) % len(phrases)]:
+                if interval == 16: interval = 12+third
+                if index == 3 and interval > 19: interval -= 12
+                note(events, start+at*beat, length*beat, 3, root+interval, 38+dynamic)
+            # A soft answering piano line only in the second half of alternating phrases.
+            if chord % 2 == index % 2:
+                for at, pitch in [(4.9, root+19), (6.0, root+12+third), (7.1, root+14)]:
+                    note(events, start+at*beat, 1.6*beat, 4, pitch, 34+dynamic)
+    song = render(events, 2*duration+3, wood)
+    song = song[round(duration*RATE):round(2*duration*RATE)]
+    data = finish(song, .46)
+    output = Path('assets/music') / (name+'.mp3')
+    subprocess.run(['ffmpeg','-v','error','-y','-f','s16le','-ar',str(RATE),'-ac','2','-i','pipe:0',
+                    '-codec:a','libmp3lame','-b:a','128k','-write_xing','1','-metadata','title='+title,
+                    '-metadata','artist=Herbier des couleurs','-metadata','copyright=Original score CC0; FluidR3 instruments MIT',str(output)], input=data.tobytes(),check=True)
+    print(f'{name}: {duration:.2f}s, harp/cello/strings/woodwind/piano chamber arrangement', flush=True)
 
-reveal = np.zeros(round(3.2 * RATE))
-for start, pitch, level in [(0.03, 72, .18), (.34, 76, .16), (.73, 79, .17), (1.13, 81, .13), (1.5, 79, .13)]:
-    data = tone(pitch, min(2.1, 3.2 - start), 'piano') * level
-    add(reveal, data, start)
-for pitch in [60, 64, 67]: add(reveal, tone(pitch, 1.8) * .045, 1.35)
-reveal[-round(.25 * RATE):] *= np.linspace(1, 0, round(.25 * RATE))
-wav('reveal-celebration.wav', reveal, .58)
+# Both reveal cues use the same quiet acoustic palette, never the former sine tones.
+for name, duration, long in [('reveal-celebration.wav',3.2,False),('plant-celebration.wav',5.6,True)]:
+    events=[]
+    for at,pitch in [(0.02,60),(.13,64),(.27,67),(.44,72),(.78,76),(1.22,74),(1.65,72)]:
+        note(events,at,1.2,0,pitch,45)
+    note(events,.55,1.3,3,72,33)
+    for p in [48,55,64]: note(events,.1,1.9,2,p,25)
+    if long:
+        for at,pitch in [(2.0,67),(2.4,71),(2.8,74),(3.25,76),(3.7,72)]: note(events,at,1.15,0,pitch,42)
+        note(events,2.3,1.6,3,76,31)
+        for p in [48,55,60,64]: note(events,2.5,1.8,2,p,24)
+    samples=render(events,duration)
+    # Longer release to silence, without truncating a flute/strings sustain abruptly.
+    tail=round(.55*RATE)
+    samples[-tail:]*=np.linspace(1,0,tail)[:,None]**1.5
+    wav(name,finish(samples,.42))
 
-rng = np.random.default_rng(12506)
-for units in range(1, 5):
-    duration = .70 + units * .15 + .12
-    n = round(duration * RATE)
-    t = np.arange(n) / RATE
-    noise = rng.normal(0, 1, n)
-    water = sosfilt(butter(2, [130, 2100], fs=RATE, btype='bandpass', output='sos'), noise) * .065
-    envelope = np.minimum(1, t / .09) * np.minimum(1, (duration - t) / .16)
-    water *= (.75 + .12 * np.sin(t * 31) + .08 * np.sin(t * 53)) * envelope
-    for start in np.linspace(.07, duration - .10, 17 + units * 4):
-        length = min(.09, duration - start)
-        local = np.arange(round(length * RATE)) / RATE
-        frequency = rng.uniform(380, 1450)
-        bubble = .026 * np.sin(2 * np.pi * (frequency * local + frequency * 2 * local ** 2))
-        bubble *= (1 - np.exp(-local * 1200)) * np.exp(-local * rng.uniform(45, 90))
-        pos = round(start * RATE); size = min(len(bubble), n - pos)
-        water[pos:pos + size] += bubble[:size]
-    water *= np.minimum(1, (duration - t) / .05)
-    wav('pour.wav' if units == 1 else f'pour-{units}.wav', water, .32)
-    print(f'pour {units}: {duration:.2f}s, original soft water foley')
+# Real CC0 stream recording: excerpt, rumble removal, light treble roll-off and short fades.
+water_path=Path('assets/audio-source/soft-stream.flac')
+assert hashlib.sha256(water_path.read_bytes()).hexdigest()==sources['water']['excerpt_sha256']
+raw=subprocess.check_output(['ffmpeg','-v','error','-i',str(water_path),'-ar',str(RATE),'-ac','1','-f','f32le','pipe:1'])
+water=np.frombuffer(raw,dtype='<f4').astype(np.float64)
+water=sosfilt(butter(2,100,fs=RATE,btype='highpass',output='sos'),water)
+water=sosfilt(butter(2,3900,fs=RATE,output='sos'),water)
+for units in range(1,5):
+    duration=.70+units*.15+.12
+    start=round((.28+units*.61)*RATE)
+    excerpt=water[start:start+round(duration*RATE)].copy()
+    excerpt[:round(.055*RATE)]*=np.linspace(0,1,round(.055*RATE))**1.4
+    excerpt[-round(.12*RATE):]*=np.linspace(1,0,round(.12*RATE))**1.4
+    wav('pour.wav' if units==1 else f'pour-{units}.wav',finish(excerpt,.32,.012))
 
-legal = Path('public/licenses/plant-celebration-CC0.txt').read_text().split('Creative Commons Legal Code', 1)[1]
-Path('public/licenses/cozy-audio-CC0.txt').write_text('''Herbier des couleurs — Original cosy soundscape
+# One small damped glass resonance, not a bright bell or repeated reward sequence.
+t=np.arange(round(.72*RATE))/RATE
+chime=np.zeros_like(t)
+for frequency, level, decay in [(1320,1,11),(2119,.17,16),(3670,.025,25)]:
+    chime+=level*np.sin(2*np.pi*frequency*t)*np.exp(-decay*t)
+chime*=(1-np.exp(-t*1100))*np.minimum(1,(.72-t)/.12)
+wav('vial-complete.wav',finish(chime,.30,.002))
 
-CC0 1.0 applies exclusively to the five original compositions and recordings in
-assets/music/*.mp3, assets/reveal-celebration.wav, assets/pour.wav,
-assets/pour-2.wav, assets/pour-3.wav, assets/pour-4.wav, and their synthesis script
-scripts/generate-cozy-audio.py. No third-party recordings or compositions used.
-These tracks are original works for this project, not recordings or arrangements
-of Snowflakes, MAIKY, Artlist or any other existing composition.
+# Original scores and glass are CC0. The river excerpt already is CC0.
+# Instrument sample attribution stays explicit rather than relicensing a sound bank.
+legal=Path('public/licenses/cozy-audio-CC0.txt').read_text().split('Creative Commons Legal Code',1)[1]
+Path('public/licenses/cozy-audio-CC0.txt').write_text('''Herbier des couleurs — Acoustic chamber soundscape
+
+The original compositions/arrangements, scripts/generate-cozy-audio.py and the
+original glass sound assets/vial-complete.wav are dedicated under CC0 1.0.
+The five music MP3s and both reveal cues use FluidR3 GM acoustic instrument
+samples (Frank Wen and Toby Smithe, MIT); see FluidR3-MIT.txt for their notice.
+No SoundFont is distributed in the game.
+
+The four pour WAVs derive from a CC0 recording by jackthemurray:
+https://freesound.org/people/jackthemurray/sounds/433589/
+https://commons.wikimedia.org/wiki/File:433589_jackthemurray_stream-river-water-up-close.wav
+assets/audio-source/soft-stream.flac is its 12–18 second mono excerpt.
+Edits: resampling, rumble removal, treble softening, short fades and level matching.
+These assets are reusable without royalties. No MAIKY/Artlist music is included.
+Verified sources, licenses and SHA256 hashes: scripts/audio-sources.json.
 https://creativecommons.org/publicdomain/zero/1.0/
 
 Creative Commons Legal Code'''+legal)

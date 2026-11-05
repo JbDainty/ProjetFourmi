@@ -30,6 +30,7 @@ async function main() {
         gain: (this as any).testGain,
         loop: this.loop,
         duration: this.buffer?.duration,
+        channels: this.buffer?.numberOfChannels,
         start: performance.now(),
         offset: args[1] || 0,
         ended: false,
@@ -44,6 +45,7 @@ async function main() {
       (window as any).voices.map((v: any) => ({
         loop: v.loop,
         duration: v.duration,
+        channels: v.channels,
         start: v.start,
         offset: v.offset,
         ended: v.ended,
@@ -70,9 +72,11 @@ async function main() {
     const first = { ...initial(), started: true };
     await seed(first);
     expect(await loops()).toHaveLength(0); // No autoplay on save reload.
+    expect(await cueCount(0.72)).toBe(0);
     await tube(0).click();
     await expect.poll(async () => (await loops()).length).toBe(1);
     await expect.poll(async () => (await loops())[0]?.gain).toBeCloseTo(0.08, 2);
+    expect((await loops())[0].channels).toBe(2);
     const tapped = await page.evaluate(() => performance.now());
     await tube(2).click();
     await expect
@@ -84,10 +88,14 @@ async function main() {
     expect(pour.gain).toBeCloseTo(0.26, 2);
     await expect.poll(async () => (await loops())[0]?.gain).toBeCloseTo(0.08 * 0.35, 2);
     await expect.poll(async () => (await loops())[0]?.gain, { timeout: 6000 }).toBeCloseTo(0.08, 2);
+    expect(await cueCount(0.72)).toBe(0); // Partial pours must not ring.
     // Complete a colour before victory, checking a growing decorative stem.
     await transfer(1, 2);
     await transfer(0, 1);
     await expect(page.getByTestId('completed-vial-bloom')).toBeAttached();
+    await expect.poll(() => cueCount(0.72)).toBe(1);
+    const glass = (await voices()).find((v: any) => Math.abs(v.duration - 0.72) < 0.01)!;
+    expect(glass.gain).toBeCloseTo(0.14, 2);
     const stem = page.getByTestId('vial-bloom-stem');
     const dash = await stem.getAttribute('stroke-dashoffset');
     await expect.poll(() => stem.getAttribute('stroke-dashoffset')).not.toBe(dash);
@@ -100,9 +108,11 @@ async function main() {
     await expect(tube(0)).toBeEnabled();
     await transfer(0, 2);
     await expect(page.getByTestId('victory-living-paper')).toBeVisible();
+    await expect.poll(() => cueCount(0.72)).toBe(2);
     expect(await cueCount(3.2)).toBe(0);
     await page.getByRole('button', { name: 'Révéler la couleur' }).click();
     await expect.poll(() => cueCount(3.2)).toBe(1);
+    expect((await voices()).find((v: any) => Math.abs(v.duration - 3.2) < 0.01)!.channels).toBe(2);
     await expect.poll(async () => (await loops())[0]?.gain).toBeCloseTo(0.08 * 0.16, 3);
     await expect.poll(async () => (await loops())[0]?.gain, { timeout: 7000 }).toBeCloseTo(0.08, 2);
     expect(await cueCount(3.2)).toBe(1);
@@ -194,9 +204,28 @@ async function main() {
     await transfer(0, 1);
     await expect(page.getByTestId('completed-vial-seal')).toBeAttached();
     expect(await voices()).toEqual([]);
+    // Sound is independent of animations, and moving a full vial must not ring again.
+    calm.settings.sound = true;
+    await seed(calm);
+    await transfer(0, 2);
+    await transfer(1, 2);
+    await transfer(0, 1);
+    await expect.poll(() => cueCount(0.72)).toBe(1);
+    await transfer(1, 3);
+    await expect(tube(3)).toHaveAttribute(
+      'aria-label',
+      /vert sauge, vert sauge, vert sauge, vert sauge/,
+    );
+    expect(await cueCount(0.72)).toBe(1);
+    // A hidden game immediately stops a currently ringing vial.
+    await page.evaluate(() => {
+      Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    await expect.poll(async () => (await voices()).filter((v: any) => !v.ended).length).toBe(0);
     expect(errors).toEqual([]);
     console.log(
-      'Soundscape passed: gesture-only music, five ecosystems, independent persistent settings, foreground pause/resume, quiet mix/duck/release, flow-timed pour, one reveal melody, growing vial bloom and reduced-motion seal.',
+      'Soundscape passed: gesture-only music, five ecosystems, independent persistent settings, foreground pause/resume, quiet mix/duck/release, flow-timed recorded water, stereo chamber cues, quiet glass exactly once per completed colour (mute/reduced motion/full relocation), growing vial bloom and reduced-motion seal.',
     );
   } finally {
     await browser.close();

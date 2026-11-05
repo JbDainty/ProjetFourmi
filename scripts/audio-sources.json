@@ -1,0 +1,22 @@
+{
+  "checked": "2026-11-05",
+  "water": {
+    "title": "stream river water up close",
+    "author": "jackthemurray",
+    "original": "https://freesound.org/people/jackthemurray/sounds/433589/",
+    "mirror": "https://commons.wikimedia.org/wiki/File:433589_jackthemurray_stream-river-water-up-close.wav",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/5/54/433589_jackthemurray_stream-river-water-up-close.wav?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "license": "CC0 1.0",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "original_sha256": "be201d2fd0d110fc3ef5d8af060e5ac48439fd54e9f26ce6b69825182748a95b",
+    "excerpt": "12–18 seconds, downmixed and resampled to 22050 Hz FLAC; no generated noise layer",
+    "excerpt_sha256": "fc3cac44005de1a20d82a973101e2b56ada6b0aafd8490fceac57fc70fddaf58"
+  },
+  "instruments": {
+    "name": "FluidR3 GM",
+    "license": "MIT",
+    "authors": ["Frank Wen", "Toby Smithe"],
+    "source": "https://deb.debian.org/debian/pool/main/f/fluid-soundfont/fluid-soundfont-gm_3.1-6_all.deb",
+    "soundfont_sha256": "74594e8f4250680adf590507a306655a299935343583256f3b722c48a1bc1cb0"
+  }
+}
