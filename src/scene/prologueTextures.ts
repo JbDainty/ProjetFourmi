@@ -16,6 +16,11 @@ export const prologueTextureAssets = {
 export type PrologueTextures = {
   -readonly [K in keyof typeof prologueTextureAssets]: THREE.Texture;
 };
-export type OpeningSceneProps = { progress: number; onReady?: () => void; onLoading?: () => void };
+export type OpeningSceneProps = {
+  progress: number;
+  progressSource?: () => number;
+  onReady?: () => void;
+  onLoading?: () => void;
+};
 export const disposePrologueTextures = (textures: PrologueTextures) =>
   Object.values(textures).forEach((t) => t.dispose());

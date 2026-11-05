@@ -31,6 +31,14 @@ async function main() {
   await page.addInitScript({
     content: `
     window.pageCues = [];
+    window.pageGeometryChanges = 0;
+    new MutationObserver(records => {
+      for (const record of records) {
+        const node = record.target;
+        if (node instanceof SVGElement && node.closest('[data-testid="book-page-turn"]'))
+          window.pageGeometryChanges++;
+      }
+    }).observe(document, { subtree: true, attributes: true });
     const connect = AudioNode.prototype.connect;
     AudioNode.prototype.connect = function(target, ...args) {
       if (this instanceof AudioBufferSourceNode && target instanceof GainNode) this.cueGain = target;
@@ -84,7 +92,16 @@ async function main() {
           .poll(() =>
             page
               .getByTestId('book-page-curl')
-              .evaluateAll((nodes) => new Set(nodes.map((n) => n.getAttribute('d'))).size),
+              .evaluateAll(
+                (nodes) =>
+                  new Set(
+                    nodes.map(
+                      (n) =>
+                        getComputedStyle(n.closest('[data-testid="book-turning-sheet"]')!)
+                          .transform,
+                    ),
+                  ).size,
+              ),
           )
           .toBeGreaterThan(2);
         await page.screenshot({ path: `test-results/riffle-page-${id}-in-flight.png` });
@@ -153,6 +170,7 @@ async function main() {
     await expect.poll(async () => (await cues()).length).toBe(1);
     expect((await cues())[0].duration).toBeCloseTo(1.85, 2);
     expect(errors).toEqual([]);
+    expect(await page.evaluate(() => (window as any).pageGeometryChanges)).toBe(0);
     console.log(
       'Page turns passed: one sheet within a plant, five staggered sheets on new species/chapter and restored map jumps; correct destination name/plate, one atomic level load, original 1.15s/1.85s quiet WebAudio cues, mute and independent reduced motion, 320px layout and unchanged rewards.',
     );

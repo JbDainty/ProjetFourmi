@@ -31,6 +31,7 @@ import { playRevealMelody } from '../src/services/revealMelody';
 import { playPlantMelody } from '../src/services/plantMelody';
 import { completedByPour, type TubeReward } from '../src/animation/tubeReward';
 import { playVialChime } from '../src/services/vialChime';
+import { preparePageArtwork } from '../src/services/pageArtwork';
 type Note = { text: string; kind: 'info' | 'hint'; request: number; pending: boolean };
 const scenePadding = { top: 0, bottom: 20 };
 export default function Atelier() {
@@ -69,6 +70,13 @@ export default function Atelier() {
     stage = restoration(save, plant),
     victory = won(save.board);
   const earnedStars = pageStars(save.moves, levels[save.current - 1].par);
+  useEffect(() => {
+    if (!victory) return;
+    preparePageArtwork(plant, stage);
+    const nextPlant = Math.floor(save.current / 5);
+    if (save.current < 100 && nextPlant !== plant)
+      preparePageArtwork(nextPlant, restoration(save, nextPlant));
+  }, [victory, save.current, plant, stage]);
   const clearNote = () =>
     setNote((previous) => ({ ...previous, text: '', kind: 'info', pending: false }));
   useEffect(() => {

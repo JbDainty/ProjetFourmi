@@ -78,3 +78,34 @@ it('a rendering failure cancels the native loop once and cannot leak a pending f
   expect(callback).toBeUndefined();
   player.dispose();
 });
+
+it('targets sixty smooth draws at 59.94 and 120 Hz without the old third-frame drop', () => {
+  for (const hz of [59.94, 120]) {
+    let callback: ((time: number) => void) | undefined,
+      progress = 0,
+      frames = 0;
+    const player = createProloguePlayer({
+      fps: 60,
+      request: (fn) => {
+        callback = fn;
+        return 1;
+      },
+      cancel: () => {
+        callback = undefined;
+      },
+      progress: () => progress,
+      draw: () => frames++,
+      failed: (error) => {
+        throw error;
+      },
+    });
+    player.setActive(true);
+    for (let t = 0; t < 1000; t += 1000 / hz) {
+      progress = t / 1000;
+      callback!(t);
+    }
+    expect(frames).toBeGreaterThanOrEqual(59);
+    expect(frames).toBeLessThanOrEqual(61);
+    player.dispose();
+  }
+});

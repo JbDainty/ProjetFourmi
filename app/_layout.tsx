@@ -260,6 +260,10 @@ function Shell() {
           returning={save.started}
           nickname={save.nickname}
           motion={save.settings.motion}
+          music={save.settings.music}
+          onMusicChange={(enabled) =>
+            setSave((value) => ({ ...value, settings: { ...value.settings, music: enabled } }))
+          }
           onEnter={(nickname) => {
             unlockAmbience();
             setSessionOpen(true);

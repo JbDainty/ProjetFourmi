@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { AppState, StyleSheet, View } from 'react-native';
+import { AppState, PixelRatio, View } from 'react-native';
+import { prologueSurface } from '../scene/renderBudget';
 import { GLView, type ExpoWebGLRenderingContext } from 'expo-gl';
 import { createNativeRenderer } from '../scene/nativeRenderer';
 import { createPrologueScene } from '../scene/prologueScene';
@@ -13,11 +14,13 @@ import {
 import { OpeningScene as Fallback } from './OpeningSceneFallback';
 
 /** Production Android/iOS renderer. The SVG is used only if a real GL error occurs. */
-export function OpeningScene({ progress, onReady, onLoading }: OpeningSceneProps) {
+export function OpeningScene({ progress, progressSource, onReady, onLoading }: OpeningSceneProps) {
   const clock = useRef(progress);
   clock.current = progress;
-  const callbacks = useRef({ onReady, onLoading });
-  callbacks.current = { onReady, onLoading };
+  const callbacks = useRef({ onReady, onLoading, progressSource });
+  callbacks.current = { onReady, onLoading, progressSource };
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  const surface = prologueSurface(size.width, size.height, PixelRatio.get());
   const lifetime = useRef({ alive: true, generation: 0 });
   const resources = useRef<(() => void) | null>(null);
   const player = useRef<ReturnType<typeof createProloguePlayer> | null>(null);
@@ -105,7 +108,7 @@ export function OpeningScene({ progress, onReady, onLoading }: OpeningSceneProps
       world = createPrologueScene(renderer, maps);
       world.resize(gl.drawingBufferWidth, gl.drawingBufferHeight);
       // Submit an actual first frame before starting the movie clock.
-      world.update(clock.current);
+      world.update(callbacks.current.progressSource?.() ?? clock.current);
       gl.endFrameEXP();
       callbacks.current.onReady?.();
       let width = gl.drawingBufferWidth,
@@ -121,9 +124,10 @@ export function OpeningScene({ progress, onReady, onLoading }: OpeningSceneProps
         gl.endFrameEXP();
       };
       const playing = createProloguePlayer({
-        request: requestAnimationFrame,
-        cancel: cancelAnimationFrame,
-        progress: () => clock.current,
+        request: (callback) => requestAnimationFrame(callback),
+        cancel: (id) => cancelAnimationFrame(id),
+        fps: 60,
+        progress: () => callbacks.current.progressSource?.() ?? clock.current,
         draw,
         failed: () => {
           clean();
@@ -138,17 +142,36 @@ export function OpeningScene({ progress, onReady, onLoading }: OpeningSceneProps
     }
   }, []);
   return (
-    <View testID="opening-film-art" style={{ flex: 1 }} pointerEvents="none">
+    <View
+      testID="opening-film-art"
+      style={{ flex: 1, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}
+      pointerEvents="none"
+      onLayout={({ nativeEvent: { layout } }) =>
+        setSize((previous) =>
+          previous.width === layout.width && previous.height === layout.height
+            ? previous
+            : { width: layout.width, height: layout.height },
+        )
+      }
+    >
       {failed ? (
-        <Fallback progress={progress} onReady={() => callbacks.current.onReady?.()} />
-      ) : (
+        <Fallback
+          progress={progress}
+          progressSource={progressSource}
+          onReady={() => callbacks.current.onReady?.()}
+        />
+      ) : size.width > 0 && size.height > 0 ? (
         <GLView
           testID="opening-native-gl"
-          style={StyleSheet.absoluteFill}
+          style={{
+            width: surface.width,
+            height: surface.height,
+            transform: [{ scale: surface.scale }],
+          }}
           msaaSamples={2}
           onContextCreate={create}
         />
-      )}
+      ) : null}
     </View>
   );
 }

@@ -40,25 +40,31 @@ async function main() {
         files,
       );
     }, files);
-    let peak = 0;
-    for (const p of [0, 0.13, 0.35, 0.6, 0.83, 0.95]) {
+    let peak = 0,
+      vertices = 0;
+    for (const p of [0, 0.13, 0.35, 0.48, 0.6, 0.83, 0.95]) {
       const frame = await page.evaluate((p) => (window as any).nativeBook.advance(p), p);
       expect(frame.error).toBe(0);
       expect(frame.pages).toBe(12);
       expect(frame.submitted).toBeGreaterThan(0);
       peak = Math.max(peak, frame.draws);
+      vertices = Math.max(vertices, frame.deformedVertices);
+      if (p < 0.2) expect(frame.deformedVertices).toBe(0);
       if (p === 0.6) {
         mkdirSync('test-results', { recursive: true });
         await page.screenshot({ path: 'test-results/native-gl-contract-vortex.png' });
       }
     }
-    expect(peak).toBeLessThan(180);
+    expect(peak).toBeLessThanOrEqual(65);
+    expect(vertices).toBeLessThan(3000);
     await page.evaluate(() => (window as any).nativeBook.dispose());
     expect(errors).toEqual([]);
     console.log(
       'Native adapter contract passed on real GL2: native canvas shim, packed RGBA textures, no image/Canvas2D loader, 12 flying pages, clean GL errors, frame submission and disposal; peak',
       peak,
-      'draw calls. This does not replace Android/iOS device tests.',
+      'draw calls,',
+      vertices,
+      'deformed vertices. This does not replace Android/iOS device tests.',
     );
   } finally {
     await browser.close();

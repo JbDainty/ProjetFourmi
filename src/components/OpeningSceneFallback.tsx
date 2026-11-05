@@ -1,4 +1,6 @@
-import React, { useId, useEffect } from 'react';
+import React, { useId, useEffect, useState } from 'react';
+import { AppState } from 'react-native';
+import { createProloguePlayer } from '../scene/prologuePlayer';
 import Svg, {
   Circle,
   Defs,
@@ -16,7 +18,33 @@ import type { OpeningSceneProps } from '../scene/prologueTextures';
 import { prologueFrame } from '../animation/prologue';
 const clamp = (x: number) => Math.max(0, Math.min(1, x));
 
-export function OpeningScene({ progress: p, onReady }: OpeningSceneProps) {
+export function OpeningScene(props: OpeningSceneProps) {
+  const [sample, setSample] = useState(props.progress);
+  useEffect(() => {
+    if (!props.progressSource) return;
+    const player = createProloguePlayer({
+      request: (callback) => requestAnimationFrame(callback),
+      cancel: (id) => cancelAnimationFrame(id),
+      fps: 30,
+      progress: props.progressSource,
+      draw: setSample,
+      failed: () => {},
+    });
+    player.setActive(
+      AppState.currentState !== 'background' && AppState.currentState !== 'inactive',
+    );
+    const sub = AppState.addEventListener('change', (state) =>
+      player.setActive(state === 'active'),
+    );
+    return () => {
+      sub.remove();
+      player.dispose();
+    };
+  }, [props.progressSource]);
+  return <FallbackDrawing {...props} progress={props.progressSource ? sample : props.progress} />;
+}
+
+function FallbackDrawing({ progress: p, onReady }: OpeningSceneProps) {
   useEffect(() => {
     onReady?.();
   }, []);

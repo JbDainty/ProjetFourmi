@@ -11,12 +11,12 @@ import {
 import { OpeningScene as Fallback } from './OpeningSceneFallback';
 
 /** Browser preview of the production mobile scene, with the same geometry/textures. */
-export function OpeningScene({ progress, onReady, onLoading }: OpeningSceneProps) {
+export function OpeningScene({ progress, progressSource, onReady, onLoading }: OpeningSceneProps) {
   const canvas = useRef<HTMLCanvasElement>(null),
     clock = useRef(progress);
   clock.current = progress;
-  const callbacks = useRef({ onReady, onLoading });
-  callbacks.current = { onReady, onLoading };
+  const callbacks = useRef({ onReady, onLoading, progressSource });
+  callbacks.current = { onReady, onLoading, progressSource };
   const [mode, setMode] = useState<'loading' | 'webgl' | 'fallback'>('loading');
   useEffect(() => {
     const element = canvas.current;
@@ -84,13 +84,14 @@ export function OpeningScene({ progress, onReady, onLoading }: OpeningSceneProps
           element.dataset.pages = String(metrics?.pages);
           element.dataset.draws = String(renderer.info.render.calls);
         };
-        draw(clock.current);
+        draw(callbacks.current.progressSource?.() ?? clock.current);
         setMode('webgl');
         callbacks.current.onReady?.();
         player = createProloguePlayer({
-          request: requestAnimationFrame,
-          cancel: cancelAnimationFrame,
-          progress: () => clock.current,
+          request: (callback) => requestAnimationFrame(callback),
+          cancel: (id) => cancelAnimationFrame(id),
+          fps: 60,
+          progress: () => callbacks.current.progressSource?.() ?? clock.current,
           draw,
           failed: fail,
         });
@@ -107,7 +108,7 @@ export function OpeningScene({ progress, onReady, onLoading }: OpeningSceneProps
       'data-testid': 'opening-film-art',
       style: { position: 'relative', width: '100%', height: '100%' },
     },
-    mode === 'fallback' && React.createElement(Fallback, { progress, onReady }),
+    mode === 'fallback' && React.createElement(Fallback, { progress, progressSource, onReady }),
     React.createElement('canvas', {
       ref: canvas,
       'data-testid': 'opening-webgl-book',

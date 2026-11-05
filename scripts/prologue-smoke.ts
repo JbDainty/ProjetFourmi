@@ -83,7 +83,10 @@ async function main() {
       await phase(progress);
       await page.screenshot({ path: `test-results/prologue-3d-mobile-${name}.png` });
     }
-    expect(Number(await book.getAttribute('data-draws'))).toBeGreaterThan(60);
+    // Geometry batching lowers the draw count; this metric counts calls in one frame, not FPS.
+    const draws = Number(await book.getAttribute('data-draws'));
+    expect(draws).toBeGreaterThan(20);
+    expect(draws).toBeLessThanOrEqual(65);
     await finishFilm();
     await expect(page.getByTestId('book-signature-page')).toBeVisible({ timeout: 15000 });
     await expect.poll(() => page.evaluate(() => (window as any).webglReleased)).toBe(1);

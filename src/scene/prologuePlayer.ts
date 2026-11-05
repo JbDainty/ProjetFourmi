@@ -1,10 +1,11 @@
-/** Frame scheduling shared by native and browser adapters; rendering is capped at 30 fps. */
+/** Phase-aligned scheduling avoids dropping a third frame at 59.94/120 Hz. */
 export function createProloguePlayer(options: {
   request: (callback: (now: number) => void) => number;
   cancel: (id: number) => void;
   progress: () => number;
   draw: (progress: number) => void;
   failed: (error: unknown) => void;
+  fps?: number;
 }) {
   let disposed = false,
     active = false,
@@ -16,9 +17,12 @@ export function createProloguePlayer(options: {
     if (disposed || !active) return;
     try {
       const p = options.progress();
-      if (now - last >= 1000 / 30 && p !== previous) {
+      const interval = 1000 / (options.fps ?? 30);
+      if (now + 0.5 >= last && p !== previous) {
         options.draw(p);
-        last = now;
+        last = Number.isFinite(last)
+          ? last + (Math.floor(Math.max(0, now - last) / interval) + 1) * interval
+          : now + interval;
         previous = p;
       }
     } catch (error) {

@@ -84,7 +84,7 @@ async function main() {
     await page.getByRole('textbox', { name: 'Votre pseudo', exact: true }).fill('Camille');
     await page.getByRole('button', { name: 'Modifier ma signature' }).click();
     await expect(page.getByText('Le carnet de Camille', { exact: true })).toBeVisible();
-    for (const name of ['Animations douces', 'Sons de l’atelier', 'Musique des écosystèmes'])
+    for (const name of ['Animations douces', 'Sons de l’atelier', 'Musique du livre'])
       await page.getByRole('switch', { name, exact: true }).click();
     await openScreen(page, 'L’Atelier');
     const hint = page.getByRole('button', { name: 'Indice', exact: true });

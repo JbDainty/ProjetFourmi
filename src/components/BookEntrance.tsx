@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   AppState,
@@ -12,10 +12,11 @@ import {
   View,
 } from 'react-native';
 import { OpeningScene } from './OpeningScene';
+import { movieClock } from '../animation/movieClock';
+import { useIntroMusic } from './useIntroMusic';
 import { prologueDuration, prologueFrame } from '../animation/prologue';
-import { Image } from 'react-native';
 import { Paper, PaperTexture } from './Paper';
-import { Button, C, Label, T } from './ui';
+import { Button, C, Icon, Label, T } from './ui';
 import { F } from './fonts';
 import { normalizeNickname } from '../state/model';
 import { AccountConnections } from './AccountConnections';
@@ -23,54 +24,116 @@ export function BookEntrance({
   returning,
   nickname,
   motion,
+  music,
+  onMusicChange,
   onEnter,
 }: {
   returning: boolean;
   nickname: string;
   motion: boolean;
+  music: boolean;
+  onMusicChange: (enabled: boolean) => void;
   onEnter: (nickname: string) => void;
 }) {
   const value = useRef(new Animated.Value(returning || !motion ? 1 : 0)).current;
-  const [progress, setProgress] = useState(returning || !motion ? 1 : 0),
-    [name, setName] = useState(nickname),
+  const clock = useMemo(() => movieClock(prologueDuration, () => performance.now()), []);
+  const [finished, setFinished] = useState(returning || !motion);
+  const [name, setName] = useState(nickname),
     [error, setError] = useState('');
   const [replayRun, setReplayRun] = useState(0);
   const [sceneReady, setSceneReady] = useState(false);
   const [foreground, setForeground] = useState(
     AppState.currentState !== 'background' && AppState.currentState !== 'inactive',
   );
-  const progressRef = useRef(progress);
-  progressRef.current = progress;
-  useEffect(() => {
-    const sub = AppState.addEventListener('change', (state) => setForeground(state === 'active'));
-    return () => sub.remove();
-  }, []);
+  const readProgress = useCallback(() => clock.progress(), [clock]);
+  const readPosition = useCallback(() => (clock.progress() * prologueDuration) / 1000, [clock]);
+  const intro = useIntroMusic(
+    !finished && music,
+    music && sceneReady && foreground && !finished,
+    readPosition,
+  );
   const submitted = useRef(false);
-  const finished = progress >= 1;
-  const frame = prologueFrame(progress);
+  const finishMovie = useCallback(() => {
+    clock.setActive(false);
+    clock.seek(1);
+    value.stopAnimation();
+    value.setValue(1);
+    setFinished(true);
+  }, [clock, value]);
   useEffect(() => {
-    const listener = value.addListener(({ value: p }) => {
-      progressRef.current = p;
-      setProgress(p);
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state !== 'active') {
+        clock.setActive(false);
+        value.stopAnimation();
+      }
+      setForeground(state === 'active');
     });
-    return () => value.removeListener(listener);
-  }, [value]);
+    return () => sub.remove();
+  }, [clock, value]);
   useEffect(() => {
     if ((returning && replayRun === 0) || !motion) {
-      value.setValue(1);
-      setProgress(1);
+      finishMovie();
       return;
     }
-    if (!sceneReady || !foreground) return;
+    if (!sceneReady || !foreground || finished) {
+      clock.setActive(false);
+      return;
+    }
+    value.setValue(clock.progress());
+    const remaining = prologueDuration * (1 - clock.progress());
+    clock.setActive(true);
     const animation = Animated.timing(value, {
       toValue: 1,
-      duration: prologueDuration * (1 - progressRef.current),
+      duration: remaining,
       easing: Easing.linear,
-      useNativeDriver: false,
+      useNativeDriver: Platform.OS !== 'web',
     });
-    animation.start();
-    return () => animation.stop();
-  }, [returning, motion, value, replayRun, sceneReady, foreground]);
+    animation.start(({ finished: done }) => {
+      if (done) finishMovie();
+    });
+    return () => {
+      clock.setActive(false);
+      animation.stop();
+    };
+  }, [returning, motion, value, replayRun, sceneReady, foreground, finished, clock, finishMovie]);
+  const curves = useMemo(() => {
+    const inputRange = Array.from({ length: 61 }, (_, i) => i / 60);
+    return {
+      scale: value.interpolate({ inputRange: [0, 1], outputRange: [1.12, 1.04] }),
+      growth: value.interpolate({
+        inputRange,
+        outputRange: inputRange.map((p) => 0.22 + prologueFrame(p).growth * 0.12),
+      }),
+      arrival: value.interpolate({
+        inputRange,
+        outputRange: inputRange.map((p) => prologueFrame(p).arrival),
+      }),
+      caption: value.interpolate({
+        inputRange,
+        outputRange: inputRange.map((p) => (1 - prologueFrame(p).arrival) * 0.95),
+      }),
+    };
+  }, [value]);
+  const captions = useMemo(
+    () =>
+      [
+        { text: 'Le livre se souvient.', input: [0, 0.27, 0.3, 1], output: [1, 1, 0, 0] },
+        {
+          text: 'Un souffle réveille ses pages.',
+          input: [0, 0.27, 0.3, 0.69, 0.72, 1],
+          output: [0, 0, 1, 1, 0, 0],
+        },
+        {
+          text: 'Et le vivant retrouve son chemin.',
+          input: [0, 0.69, 0.72, 1],
+          output: [0, 0, 1, 1],
+        },
+      ].map((caption) => ({
+        text: caption.text,
+        opacity: value.interpolate({ inputRange: caption.input, outputRange: caption.output }),
+      })),
+    [value],
+  );
   const enter = () => {
     if (submitted.current) return;
     const cleaned = normalizeNickname(name);
@@ -87,9 +150,7 @@ export function BookEntrance({
       animationType="none"
       onRequestClose={() => {
         if (!finished) {
-          value.stopAnimation();
-          value.setValue(1);
-          setProgress(1);
+          finishMovie();
         }
       }}
     >
@@ -100,8 +161,12 @@ export function BookEntrance({
         {finished ? (
           <PaperTexture background />
         ) : (
-          <View testID="book-opening-film" style={{ flex: 1, backgroundColor: '#101f19' }}>
-            <Image
+          <View
+            testID="book-opening-film"
+            onTouchStart={intro.unlock}
+            style={{ flex: 1, backgroundColor: '#101f19' }}
+          >
+            <Animated.Image
               source={require('../../assets/illustrations/serre.png')}
               blurRadius={4}
               resizeMode="cover"
@@ -109,8 +174,8 @@ export function BookEntrance({
                 position: 'absolute',
                 width: '100%',
                 height: '100%',
-                opacity: 0.22 + frame.growth * 0.12,
-                transform: [{ scale: 1.12 - progress * 0.08 }],
+                opacity: curves.growth,
+                transform: [{ scale: curves.scale }],
               }}
             />
             <View
@@ -127,16 +192,17 @@ export function BookEntrance({
             />
             <View style={{ flex: 1 }}>
               <OpeningScene
-                progress={progress}
+                progress={0}
+                progressSource={readProgress}
                 onReady={() => setSceneReady(true)}
                 onLoading={() => setSceneReady(false)}
               />
             </View>
-            <View
+            <Animated.View
               style={{
                 position: 'absolute',
                 top: 64,
-                opacity: (1 - frame.arrival) * 0.95,
+                opacity: curves.caption,
                 left: 20,
                 right: 20,
                 alignItems: 'center',
@@ -146,11 +212,26 @@ export function BookEntrance({
               <T style={{ fontSize: 10, letterSpacing: 2, color: '#d5c698' }}>
                 HERBIER DES COULEURS
               </T>
-              <T serif style={{ fontSize: 34, color: '#f4e5bc', textAlign: 'center' }}>
-                {frame.caption}
-              </T>
-            </View>
-            <View
+              <View style={{ width: '100%', height: 120 }} accessible={false}>
+                {captions.map((caption) => (
+                  <Animated.View
+                    key={caption.text}
+                    pointerEvents="none"
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      right: 0,
+                      opacity: caption.opacity,
+                    }}
+                  >
+                    <T serif style={{ fontSize: 34, color: '#f4e5bc', textAlign: 'center' }}>
+                      {caption.text}
+                    </T>
+                  </Animated.View>
+                ))}
+              </View>
+            </Animated.View>
+            <Animated.View
               pointerEvents="none"
               testID="prologue-paper-dissolve"
               style={{
@@ -160,16 +241,46 @@ export function BookEntrance({
                 right: 0,
                 bottom: 0,
                 backgroundColor: C.paper,
-                opacity: frame.arrival,
+                opacity: curves.arrival,
               }}
             />
             <Pressable
               accessibilityRole="button"
+              accessibilityLabel={
+                intro.blocked
+                  ? 'Éveiller la musique de l’introduction'
+                  : music
+                    ? 'Couper la musique de l’introduction'
+                    : 'Activer la musique de l’introduction'
+              }
+              onPress={() => {
+                intro.unlock();
+                onMusicChange(intro.blocked ? true : !music);
+              }}
+              style={{
+                position: 'absolute',
+                bottom: 104,
+                alignSelf: 'center',
+                padding: 12,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 7,
+              }}
+            >
+              <Icon name="leaf-outline" size={18} color="#dfd0ad" />
+              <T style={{ fontFamily: F.scientific, fontSize: 13, color: '#dfd0ad' }}>
+                {intro.blocked
+                  ? 'Éveiller la musique'
+                  : music
+                    ? 'Musique éveillée'
+                    : 'Musique en sommeil'}
+              </T>
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
               accessibilityLabel="Passer le prologue"
               onPress={() => {
-                value.stopAnimation();
-                value.setValue(1);
-                setProgress(1);
+                finishMovie();
               }}
               style={{ position: 'absolute', bottom: 36, alignSelf: 'center', padding: 15 }}
             >
@@ -259,8 +370,8 @@ export function BookEntrance({
                   onPress={() => {
                     value.stopAnimation();
                     value.setValue(0);
-                    progressRef.current = 0;
-                    setProgress(0);
+                    clock.seek(0);
+                    setFinished(false);
                     setSceneReady(false);
                     setReplayRun((n) => n + 1);
                   }}

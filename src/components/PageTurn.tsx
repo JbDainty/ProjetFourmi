@@ -1,217 +1,204 @@
-import React, { createContext, memo, useEffect, useId, useRef, useState } from 'react';
-import { Animated, Easing, StyleSheet, View, useWindowDimensions } from 'react-native';
-import Svg, {
-  Defs,
-  LinearGradient,
-  Stop,
-  ClipPath,
-  Path,
-  G,
-  Image as SvgImage,
-} from 'react-native-svg';
-import { Botanical } from './Botanical';
+import React, { createContext, memo, useEffect, useMemo, useRef } from 'react';
+import {
+  Animated,
+  AppState,
+  Easing,
+  Image,
+  Platform,
+  StyleSheet,
+  View,
+  useWindowDimensions,
+} from 'react-native';
+import Svg, { Defs, LinearGradient, Stop, Rect, Path } from 'react-native-svg';
 import { Paper } from './Paper';
-import { T, C } from './ui';
-import { F } from './fonts';
-import { species } from '../data/botany';
+import { PrintedPage } from './PrintedBookPage';
+import { nativeSequence } from '../animation/nativeSequence';
 import { singleTurnDuration, speciesTurnDuration, type TurningPage } from '../animation/book';
 export type { TurningPage } from '../animation/book';
 
 export const PageTurnContext = createContext<(page: number, commit: () => void) => void>(
   (_page, commit) => commit(),
 );
-const clamp = (value: number) => Math.max(0, Math.min(1, value));
+const native = Platform.OS !== 'web';
+const ease = (p: number) => p * p * (3 - 2 * p);
 
-const PrintedPage = memo(function PrintedPage({
+const SheetArt = memo(function SheetArt({
   width,
   height,
-  plant,
-  stage,
-  folio,
-  destination = false,
+  children,
+  neutral,
 }: {
   width: number;
   height: number;
-  plant: number;
-  stage: number;
-  folio: number;
-  destination?: boolean;
+  children?: React.ReactNode;
+  neutral: boolean;
 }) {
-  const specimen = species[plant];
   return (
-    <View style={{ width, height, alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-      <T
-        style={{
-          fontFamily: F.scientific,
-          fontSize: 18,
-          color: '#87734d',
-          textAlign: 'center',
-          paddingHorizontal: 20,
-        }}
-      >
-        {destination
-          ? stage === 0
-            ? 'Une nouvelle espèce s’éveille…'
-            : 'Une planche à retrouver…'
-          : 'Le carnet des merveilles vivantes'}
-      </T>
-      <T serif style={{ fontSize: Math.min(41, width / 10), color: C.green }}>
-        Herbier des couleurs
-      </T>
-      <T
-        testID={destination ? 'book-destination-species' : 'book-source-species'}
-        serif
-        style={{
-          fontSize: Math.min(34, width / 10.5),
-          color: C.green,
-          textAlign: 'center',
-          paddingHorizontal: 20,
-        }}
-      >
-        {specimen.name}
-      </T>
-      <T style={{ fontFamily: F.scientific, fontSize: 17, color: '#87734d', textAlign: 'center' }}>
-        {specimen.latin}
-      </T>
+    <View style={{ width, height, backgroundColor: '#ecddba', overflow: 'hidden' }}>
+      <Image
+        source={require('../../assets/illustrations/papier.png')}
+        resizeMode="cover"
+        style={[StyleSheet.absoluteFill, { width, height, opacity: 0.8 }]}
+      />
       <View
-        testID={destination ? 'book-destination-plate' : 'book-source-plate'}
         style={{
-          opacity: destination ? 0.85 : 0.52,
-          transform: [{ rotate: '-4deg' }],
-          marginVertical: 8,
+          position: 'absolute',
+          left: width * 0.08,
+          top: 0,
+          bottom: 0,
+          borderLeftWidth: 0.6,
+          borderRightWidth: 0.6,
+          borderColor: '#aa8e584d',
+          width: width * 0.012,
         }}
+      />
+      {neutral && (
+        <View style={{ position: 'absolute', left: width * 0.27, top: height * 0.32 }}>
+          <Svg
+            width={width * 0.46}
+            height={height * 0.38}
+            viewBox="-80 -70 180 240"
+            accessible={false}
+          >
+            <Path
+              d="M0 140 C40 90-25 45 10-40 M13 94 C-36 86-38 46-24 34 Q8 42 13 94 M9 70 C48 62 56 24 40 9 Q10 15 9 70 M4 22 C-32 10-33-18-21-30 Q5-22 4 22 M5-8 Q40-26 30-50 Q6-46 5-8"
+              fill="none"
+              stroke="#6f805a"
+              strokeWidth="0.7"
+              opacity="0.18"
+            />
+          </Svg>
+        </View>
+      )}
+      {children}
+      <View
+        testID="book-page-curl"
+        pointerEvents="none"
+        style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 22 }}
       >
-        <Botanical index={plant} stage={stage} size={Math.min(width * 0.68, height * 0.38, 360)} />
+        <Svg width={22} height={height} accessible={false}>
+          <Defs>
+            <LinearGradient id="paper-rim" x1="0" x2="1">
+              <Stop stopColor="#f4e6c2" stopOpacity="0" />
+              <Stop offset="0.72" stopColor="#fff3d5" stopOpacity="0.65" />
+              <Stop offset="1" stopColor="#9a8054" stopOpacity="0.4" />
+            </LinearGradient>
+          </Defs>
+          <Rect width={22} height={height} fill="url(#paper-rim)" />
+        </Svg>
       </View>
-      <T style={{ fontFamily: F.scientific, fontSize: 19, color: '#87734d' }}>
-        {folio ? `Page ${String(folio).padStart(2, '0')}` : 'Le livre s’éveille…'}
-      </T>
     </View>
   );
 });
 
-function TurningSheet({
-  width: w,
-  height: h,
-  progress,
+const TurningSheet = memo(function TurningSheet({
+  width,
+  height,
+  clock,
+  start,
+  end,
   children,
-  neutral = false,
+  neutral,
 }: {
   width: number;
   height: number;
-  progress: number;
+  clock: Animated.Value;
+  start: number;
+  end: number;
   children?: React.ReactNode;
-  neutral?: boolean;
+  neutral: boolean;
 }) {
-  const id = 'turn-sheet-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
-  const raw = clamp(progress);
-  const q = raw * raw * (3 - 2 * raw);
-  const curl = Math.sin(q * Math.PI) * Math.min(w * 0.28, 200);
-  const x = w + 4 - q * (w + 20);
-  const top = x + curl * 0.25,
-    bottom = x - curl * 0.4;
-  const face = `M0 0 H${top} C${x + curl * 0.12} ${h * 0.32} ${x - curl * 0.7} ${h * 0.68} ${bottom} ${h} H0Z`;
-  const fold = `M${top} 0 C${x + curl * 0.12} ${h * 0.32} ${x - curl * 0.7} ${h * 0.68} ${bottom} ${h} Q${x + curl * 0.72} ${h * 0.55} ${top + curl * 0.85} ${h * 0.04} Q${top + curl * 0.3} ${h * 0.03} ${top} 0Z`;
+  const timing = useMemo(
+    () => Array.from({ length: 13 }, (_, i) => start + ((end - start) * i) / 12),
+    [start, end],
+  );
+  const angles = useMemo(() => timing.map((_, i) => `${-90 * ease(i / 12)}deg`), [timing]);
+  const edge = useMemo(
+    () =>
+      timing.map((_, i) => {
+        const angle = (ease(i / 12) * Math.PI * 90) / 180;
+        return (
+          (width * Math.cos(angle)) / (1 - (width * Math.sin(angle)) / Math.max(900, width * 3.4))
+        );
+      }),
+    [timing, width],
+  );
   return (
-    <View
-      testID="book-turning-sheet"
-      pointerEvents="none"
-      style={[StyleSheet.absoluteFill, { opacity: progress >= 1 ? 0 : 1 }]}
-    >
-      <Svg width={w} height={h} style={StyleSheet.absoluteFill} accessible={false}>
-        <Defs>
-          <ClipPath id={`${id}-face`}>
-            <Path d={face} />
-          </ClipPath>
-          <LinearGradient id={`${id}-shadow`} x1="0" x2="1">
-            <Stop stopColor="#302b1c" stopOpacity="0.3" />
-            <Stop offset="1" stopColor="#302b1c" stopOpacity="0" />
-          </LinearGradient>
-        </Defs>
-        <Path
-          d={`M${top} 0 L${top + curl + 28} 0 Q${x + curl} ${h * 0.55} ${bottom + 32} ${h} H${bottom}Z`}
-          fill={`url(#${id}-shadow)`}
-          opacity={Math.sin(q * Math.PI)}
-        />
-        <G clipPath={`url(#${id}-face)`}>
-          <Path d={face} fill="#ecddba" />
-          <SvgImage
-            href={require('../../assets/illustrations/papier.png')}
-            x="0"
-            y="0"
-            width={w}
-            height={h}
-            preserveAspectRatio="xMidYMid slice"
-            opacity="0.8"
-          />
-          <Path
-            d={`M${w * 0.08} 0 V${h} M${w * 0.09} 0 V${h}`}
-            stroke="#aa8e58"
-            strokeWidth="0.6"
-            opacity="0.3"
-          />
-        </G>
-        {neutral && (
-          <G
-            clipPath={`url(#${id}-face)`}
-            transform={`translate(${w * 0.45} ${h * 0.35}) scale(${Math.min(w / 350, 1.8)})`}
-            fill="none"
-            stroke="#6f805a"
-            strokeWidth="0.7"
-            opacity="0.14"
-          >
-            <Path d="M0 140 C40 90-25 45 10-40 M13 94 C-36 86-38 46-24 34 Q8 42 13 94 M9 70 C48 62 56 24 40 9 Q10 15 9 70 M4 22 C-32 10-33-18-21-30 Q5-22 4 22 M5-8 Q40-26 30-50 Q6-46 5-8" />
-          </G>
-        )}
-      </Svg>
-      <View
+    <>
+      <Animated.View
+        pointerEvents="none"
         style={{
           position: 'absolute',
           top: 0,
-          bottom: 0,
           left: 0,
-          width: Math.max(0, Math.min(w, x - curl * 0.7)),
-          overflow: 'hidden',
+          width: 50,
+          height,
+          opacity: clock.interpolate({
+            inputRange: [start, (start + end) / 2, end],
+            outputRange: [0, 0.16, 0],
+            extrapolate: 'clamp',
+          }),
+          transform: [
+            {
+              translateX: clock.interpolate({
+                inputRange: timing,
+                outputRange: edge,
+                extrapolate: 'clamp',
+              }),
+            },
+          ],
         }}
       >
-        <View style={{ transform: [{ translateX: -q * w * 0.06 }] }}>{children}</View>
-      </View>
-      <Svg width={w} height={h} style={StyleSheet.absoluteFill} accessible={false}>
-        <Defs>
-          <LinearGradient id={`${id}-fold`} x1="0" x2="1">
-            <Stop stopColor="#a88d5b" />
-            <Stop offset="0.22" stopColor="#dec698" />
-            <Stop offset="0.65" stopColor="#fff1cd" />
-            <Stop offset="1" stopColor="#bea16c" />
-          </LinearGradient>
-          <ClipPath id={`${id}-reverse`}>
-            <Path d={fold} />
-          </ClipPath>
-        </Defs>
-        <Path
-          testID="book-page-curl"
-          d={fold}
-          fill={`url(#${id}-fold)`}
-          stroke="#a68b59"
-          strokeWidth="0.4"
-          opacity={raw > 0 ? 1 : 0}
-        />
-        <G clipPath={`url(#${id}-reverse)`} opacity={raw > 0 ? 0.16 : 0}>
-          <SvgImage
-            href={require('../../assets/illustrations/papier.png')}
-            x="0"
-            y="0"
-            width={w}
-            height={h}
-            preserveAspectRatio="xMidYMid slice"
-          />
-        </G>
-      </Svg>
-    </View>
+        <Svg width={50} height={height} accessible={false}>
+          <Defs>
+            <LinearGradient id="leaf-shadow">
+              <Stop stopColor="#302b1c" />
+              <Stop offset="1" stopColor="#302b1c" stopOpacity="0" />
+            </LinearGradient>
+          </Defs>
+          <Rect width={50} height={height} fill="url(#leaf-shadow)" />
+        </Svg>
+      </Animated.View>
+      <Animated.View
+        testID="book-turning-sheet"
+        pointerEvents="none"
+        renderToHardwareTextureAndroid
+        shouldRasterizeIOS
+        style={{
+          position: 'absolute',
+          width,
+          height,
+          top: 0,
+          left: 0,
+          backfaceVisibility: 'hidden',
+          opacity: clock.interpolate({
+            inputRange: [start, end - (end - start) * 0.04, end],
+            outputRange: [1, 1, 0],
+            extrapolate: 'clamp',
+          }),
+          transform: [
+            { perspective: Math.max(900, width * 3.4) },
+            { translateX: -width / 2 },
+            {
+              rotateY: clock.interpolate({
+                inputRange: timing,
+                outputRange: angles,
+                extrapolate: 'clamp',
+              }),
+            },
+            { translateX: width / 2 },
+          ],
+        }}
+      >
+        <SheetArt width={width} height={height} neutral={neutral}>
+          {children}
+        </SheetArt>
+      </Animated.View>
+    </>
   );
-}
+});
 
-/** One covered commit; a new species is revealed beneath five quick interleaves. */
+/** Cached paper textures move on the UI thread. React never redraws the five leaves per frame. */
 export function PageTurn({
   page,
   onCovered,
@@ -222,45 +209,62 @@ export function PageTurn({
   onFinished: () => void;
 }) {
   const { width, height } = useWindowDimensions();
-  const value = useRef(new Animated.Value(0)).current;
+  const cover = useRef(new Animated.Value(0)).current;
+  const clock = useRef(new Animated.Value(0)).current;
   const callbacks = useRef({ onCovered, onFinished });
   callbacks.current = { onCovered, onFinished };
-  const [progress, setProgress] = useState(0);
   const multiple = page.kind === 'species';
   useEffect(() => {
-    let covered = false;
-    const listener = value.addListener(({ value: next }) => {
-      if (!covered && next >= (multiple ? 0.2 : 0.32)) {
-        covered = true;
-        callbacks.current.onCovered();
-      }
-      setProgress(next);
+    const stage = (value: Animated.Value, duration: number, complete?: () => void) => ({
+      duration,
+      complete,
+      play(remaining: number, done: () => void) {
+        const animation = Animated.timing(value, {
+          toValue: 1,
+          duration: remaining,
+          easing: Easing.linear,
+          useNativeDriver: native,
+        });
+        animation.start(({ finished }) => {
+          if (finished) done();
+        });
+        return {
+          stop(read: (progress: number) => void) {
+            animation.stop();
+            value.stopAnimation(read);
+          },
+        };
+      },
     });
-    const animation = Animated.timing(value, {
-      toValue: 1,
-      duration: multiple ? speciesTurnDuration : singleTurnDuration,
-      easing: Easing.linear,
-      useNativeDriver: false,
-    });
-    animation.start(({ finished }) => {
-      if (finished) {
-        if (!covered) callbacks.current.onCovered();
-        callbacks.current.onFinished();
-      }
-    });
+    const sequence = nativeSequence(
+      [
+        stage(cover, 220, () => callbacks.current.onCovered()),
+        stage(clock, (multiple ? speciesTurnDuration : singleTurnDuration) - 220),
+      ],
+      () => callbacks.current.onFinished(),
+    );
+    sequence.setActive(
+      AppState.currentState !== 'background' && AppState.currentState !== 'inactive',
+    );
+    const sub = AppState.addEventListener('change', (state) =>
+      sequence.setActive(state === 'active'),
+    );
     return () => {
-      animation.stop();
-      value.removeListener(listener);
+      sub.remove();
+      sequence.dispose();
     };
-  }, [value, page.id, multiple]);
-  const source = (
-    <PrintedPage
-      width={width}
-      height={height}
-      plant={page.plant}
-      stage={page.stage}
-      folio={page.from}
-    />
+  }, [page.id, multiple, cover, clock]);
+  const source = useMemo(
+    () => (
+      <PrintedPage
+        width={width}
+        height={height}
+        plant={page.plant}
+        stage={page.stage}
+        folio={page.from}
+      />
+    ),
+    [width, height, page],
   );
   return (
     <View
@@ -270,48 +274,45 @@ export function PageTurn({
       accessibilityRole="progressbar"
       style={[StyleSheet.absoluteFill, { zIndex: 50, overflow: 'hidden' }]}
     >
-      <View
+      <Animated.View
         pointerEvents="none"
         testID={multiple ? 'book-species-riffle' : 'book-single-turn'}
         style={[
           StyleSheet.absoluteFill,
           {
-            opacity: multiple
-              ? clamp(progress / 0.14) * clamp((1 - progress) / 0.12)
-              : clamp(progress / 0.25),
+            opacity: Animated.multiply(
+              cover,
+              clock.interpolate({ inputRange: [0, 0.91, 1], outputRange: [1, 1, 0] }),
+            ),
           },
         ]}
       >
-        {multiple ? (
-          <>
-            <Paper frame={false} style={[StyleSheet.absoluteFill, { backgroundColor: '#ecddba' }]}>
-              <PrintedPage
-                width={width}
-                height={height}
-                plant={page.targetPlant}
-                stage={page.targetStage}
-                folio={page.to}
-                destination
-              />
-            </Paper>
-            {[4, 3, 2, 1, 0].map((i) => (
-              <TurningSheet
-                key={i}
-                width={width}
-                height={height}
-                progress={clamp((progress - (0.15 + i * 0.075)) / 0.24)}
-                neutral={i !== 0}
-              >
-                {i === 0 ? source : undefined}
-              </TurningSheet>
-            ))}
-          </>
-        ) : (
-          <TurningSheet width={width} height={height} progress={clamp((progress - 0.38) / 0.62)}>
-            {source}
-          </TurningSheet>
+        {multiple && (
+          <Paper frame={false} style={[StyleSheet.absoluteFill, { backgroundColor: '#ecddba' }]}>
+            <PrintedPage
+              width={width}
+              height={height}
+              plant={page.targetPlant}
+              stage={page.targetStage}
+              folio={page.to}
+              destination
+            />
+          </Paper>
         )}
-      </View>
+        {(multiple ? [4, 3, 2, 1, 0] : [0]).map((i) => (
+          <TurningSheet
+            key={i}
+            width={width}
+            height={height}
+            clock={clock}
+            start={multiple ? 0.04 + i * 0.105 : 0.08}
+            end={multiple ? 0.42 + i * 0.105 : 1}
+            neutral={i !== 0}
+          >
+            {i === 0 ? source : undefined}
+          </TurningSheet>
+        ))}
+      </Animated.View>
     </View>
   );
 }

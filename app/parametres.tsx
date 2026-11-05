@@ -23,9 +23,9 @@ export default function Parametres() {
     },
     {
       key: 'music',
-      name: 'Musique des écosystèmes',
+      name: 'Musique du livre',
       detail:
-        'Harpe, cordes et bois doux. Cinq ambiances discrètes qui baissent pendant les bruitages.',
+        'Introduction magique, puis cinq ambiances de harpe, cordes et bois doux, réduites pendant les bruitages.',
     },
     {
       key: 'haptics',

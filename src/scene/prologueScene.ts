@@ -70,6 +70,8 @@ export function createPrologueScene(renderer: THREE.WebGLRenderer, maps: Prologu
     metalness: 0.72,
     roughness: 0.42,
   });
+  const metalGeometry = new THREE.BoxGeometry(1, 1, 1);
+  const metalGroups = new Map<THREE.Group, THREE.Matrix4[]>();
   function box(
     w: number,
     h: number,
@@ -80,7 +82,34 @@ export function createPrologueScene(renderer: THREE.WebGLRenderer, maps: Prologu
     y: number,
     z = 0,
   ) {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
+    if (material === gold) {
+      const m = new THREE.Mesh(metalGeometry, gold);
+      m.position.set(x, y, z);
+      m.scale.set(w, h, d);
+      m.updateMatrix();
+      if (!metalGroups.has(parent)) metalGroups.set(parent, []);
+      metalGroups.get(parent)!.push(m.matrix.clone());
+      return m;
+    }
+    const geometry = new THREE.BoxGeometry(w, h, d);
+    if (Array.isArray(material)) {
+      const groups = new Map<THREE.Material, number[]>();
+      for (const group of geometry.groups) {
+        const entry = material[group.materialIndex ?? 0];
+        if (!groups.has(entry)) groups.set(entry, []);
+        for (let i = group.start; i < group.start + group.count; i++)
+          groups.get(entry)!.push(geometry.index!.getX(i));
+      }
+      geometry.clearGroups();
+      const indices: number[] = [];
+      [...groups.values()].forEach((group, index) => {
+        geometry.addGroup(indices.length, group.length, index);
+        indices.push(...group);
+      });
+      geometry.setIndex(indices);
+      material = [...groups.keys()];
+    }
+    const m = new THREE.Mesh(geometry, material);
     m.position.set(x, y, z);
     m.castShadow = true;
     m.receiveShadow = true;
@@ -117,8 +146,15 @@ export function createPrologueScene(renderer: THREE.WebGLRenderer, maps: Prologu
   box(0.055, 0.1, 0.16, gold, book, 3.03, 0.06);
   for (const z of [-1.97, 1.97]) box(2.68, 0.008, 0.012, gold, cover, 1.47, 0.096, z);
   for (const x of [0.13, 2.81]) box(0.012, 0.008, 3.94, gold, cover, x, 0.096);
+  metalGroups.forEach((matrices, parent) => {
+    const details = new THREE.InstancedMesh(metalGeometry, gold, matrices.length);
+    matrices.forEach((matrix, i) => details.setMatrixAt(i, matrix));
+    details.frustumCulled = false;
+    parent.add(details);
+  });
   function pageGeometry() {
-    const g = new THREE.PlaneGeometry(W, H, 28, 24);
+    // The bend depends only on x; extra rows along z do not change its shape.
+    const g = new THREE.PlaneGeometry(W, H, 28, 2);
     g.rotateX(-Math.PI / 2);
     g.translate(W / 2, 0, 0);
     return g;
@@ -149,6 +185,7 @@ export function createPrologueScene(renderer: THREE.WebGLRenderer, maps: Prologu
     mesh.receiveShadow = true;
     book.add(mesh);
     const original = (geometry.attributes.position.array as Float32Array).slice();
+    mesh.userData.turn = 0;
     return { mesh, original };
   });
   const flying = Array.from({ length: 12 }, (_, i) => {
@@ -180,6 +217,13 @@ export function createPrologueScene(renderer: THREE.WebGLRenderer, maps: Prologu
   const transform = new THREE.Object3D();
   // Living stems grow out of the binding and open into small, softly lit flowers.
   const garden = new THREE.Group();
+  const gardenLeafMaterial = new THREE.MeshStandardMaterial({
+    map: leafMap,
+    alphaTest: 0.35,
+    color: 0xc9d5ae,
+    side: THREE.DoubleSide,
+    roughness: 0.9,
+  });
   book.add(garden);
   for (const side of [-1, 1])
     for (let k = 0; k < 4; k++) {
@@ -201,23 +245,16 @@ export function createPrologueScene(renderer: THREE.WebGLRenderer, maps: Prologu
         new THREE.MeshStandardMaterial({ color: 0x688555, roughness: 0.9 }),
       );
       stem.add(twig);
+      const branchLeaves = new THREE.InstancedMesh(leafGeometry, gardenLeafMaterial, 5);
+      branchLeaves.frustumCulled = false;
       for (let j = 3; j < 16; j += 3) {
-        const pos = curve.getPoint(j / 18),
-          leaf = new THREE.Mesh(
-            leafGeometry,
-            new THREE.MeshStandardMaterial({
-              map: leafMap,
-              alphaTest: 0.35,
-              color: 0xc9d5ae,
-              side: THREE.DoubleSide,
-              roughness: 0.9,
-            }),
-          );
-        leaf.position.copy(pos);
-        leaf.rotation.set(0.7, j, side * 0.8);
-        leaf.scale.setScalar(0.55);
-        stem.add(leaf);
+        transform.position.copy(curve.getPoint(j / 18));
+        transform.rotation.set(0.7, j, side * 0.8);
+        transform.scale.setScalar(0.55);
+        transform.updateMatrix();
+        branchLeaves.setMatrixAt(j / 3 - 1, transform.matrix);
       }
+      stem.add(branchLeaves);
       const tip = curve.getPoint(1),
         flower = new THREE.Group();
       flower.position.copy(tip);
@@ -283,6 +320,7 @@ export function createPrologueScene(renderer: THREE.WebGLRenderer, maps: Prologu
     },
     update(p: number) {
       if (disposed) return;
+      let deformedVertices = 0;
       const f = prologueFrame(p),
         time = (p * prologueDuration) / 1000;
       const portrait = camera.aspect < 0.8;
@@ -302,10 +340,15 @@ export function createPrologueScene(renderer: THREE.WebGLRenderer, maps: Prologu
       left.visible = f.opening > 0.995;
       magic.intensity = f.growth * 2.5 + f.wind * 1.6;
       (aura.material as THREE.SpriteMaterial).opacity = f.wind * 0.13 + f.growth * 0.08;
+      const flatTop = sheets.reduce((top, _, i) => (p <= 0.27 + i * 0.017 ? i : top), -1);
       for (let i = 0; i < sheets.length; i++) {
         const { mesh, original } = sheets[i],
           turn = ease((p - 0.27 - i * 0.017) / 0.23);
+        mesh.visible = p > 0.23 && turn < 0.999 && (turn > 0 || i === flatTop);
+        if (!mesh.visible || (turn === 0 && mesh.userData.turn === 0)) continue;
+        mesh.userData.turn = turn;
         const a = mesh.geometry.attributes.position;
+        deformedVertices += a.count;
         for (let j = 0; j < a.count; j++) {
           const x = original[j * 3],
             z = original[j * 3 + 2],
@@ -320,12 +363,12 @@ export function createPrologueScene(renderer: THREE.WebGLRenderer, maps: Prologu
         }
         a.needsUpdate = true;
         mesh.geometry.computeVertexNormals();
-        mesh.visible = p > 0.23 && turn < 0.999;
       }
       flying.forEach(({ mesh, original }, i) => {
         const t = clamp01((p - 0.37 - i * 0.019) / 0.43),
           angle = t * 5.7 + i * 0.82;
         mesh.visible = t > 0 && t < 1;
+        if (!mesh.visible) return;
         mesh.position.set(
           Math.sin(angle) * (1.1 + t * 3.8),
           0.4 + Math.sin(t * Math.PI) * 3.8,
@@ -334,6 +377,7 @@ export function createPrologueScene(renderer: THREE.WebGLRenderer, maps: Prologu
         mesh.rotation.set(-0.6 + t * 2 + i * 0.3, angle * 0.45, Math.sin(time + i) * 0.3 + i * 0.4);
         mesh.scale.setScalar(0.42 + Math.sin(t * Math.PI) * 0.52);
         const a = mesh.geometry.attributes.position;
+        deformedVertices += a.count;
         for (let j = 0; j < a.count; j++)
           a.setZ(
             j,
@@ -343,27 +387,32 @@ export function createPrologueScene(renderer: THREE.WebGLRenderer, maps: Prologu
         a.needsUpdate = true;
         mesh.geometry.computeVertexNormals();
       });
-      for (let i = 0; i < 56; i++) {
-        const t = clamp01((p - 0.36 - (i % 9) * 0.012) / 0.49),
-          angle = t * 7 + i * 2.399;
-        transform.position.set(
-          Math.cos(angle) * (1 + t * 4.4),
-          0.25 + Math.sin(t * Math.PI) * (1.5 + (i % 5) * 0.45),
-          Math.sin(angle) * (1 + t * 2.6),
-        );
-        transform.rotation.set(time * (i % 2 ? 1 : -1) + i, angle, time * 0.7 + i);
-        transform.scale.setScalar(t > 0 && t < 1 ? 0.35 + (i % 4) * 0.18 : 0);
-        transform.updateMatrix();
-        leaves.setMatrixAt(i, transform.matrix);
-      }
-      leaves.instanceMatrix.needsUpdate = true;
+      leaves.visible = p > 0.36 && p < 0.947;
+      if (leaves.visible)
+        for (let i = 0; i < 56; i++) {
+          const t = clamp01((p - 0.36 - (i % 9) * 0.012) / 0.49),
+            angle = t * 7 + i * 2.399;
+          transform.position.set(
+            Math.cos(angle) * (1 + t * 4.4),
+            0.25 + Math.sin(t * Math.PI) * (1.5 + (i % 5) * 0.45),
+            Math.sin(angle) * (1 + t * 2.6),
+          );
+          transform.rotation.set(time * (i % 2 ? 1 : -1) + i, angle, time * 0.7 + i);
+          transform.scale.setScalar(t > 0 && t < 1 ? 0.35 + (i % 4) * 0.18 : 0);
+          transform.updateMatrix();
+          leaves.setMatrixAt(i, transform.matrix);
+        }
+      if (leaves.visible) leaves.instanceMatrix.needsUpdate = true;
       garden.children.forEach((stem) => {
         const g = ease((f.growth - stem.userData.delay) / 0.65);
         stem.scale.set(g, Math.max(0.001, g), g);
         stem.visible = g > 0.001;
+        if (!stem.visible) return;
         const flower = stem.children.find((child) => child.userData.flower)!;
         const blossom = ease((g - 0.4) / 0.6);
         const petals = flower.userData.petals as THREE.InstancedMesh;
+        if (flower.userData.blossom === blossom) return;
+        flower.userData.blossom = blossom;
         for (let i = 0; i < 8; i++) {
           const angle = (i * Math.PI) / 4;
           transform.position.set(
@@ -392,7 +441,7 @@ export function createPrologueScene(renderer: THREE.WebGLRenderer, maps: Prologu
       pollen.needsUpdate = true;
       (particles.material as THREE.PointsMaterial).opacity = 0.2 + f.wind * 0.55 + f.growth * 0.2;
       renderer.render(scene, camera);
-      return { pages: flying.length, draws: renderer.info.render.calls };
+      return { pages: flying.length, draws: renderer.info.render.calls, deformedVertices };
     },
     dispose() {
       if (disposed) return;
@@ -401,6 +450,7 @@ export function createPrologueScene(renderer: THREE.WebGLRenderer, maps: Prologu
         materials = new Set<THREE.Material>();
       scene.traverse((object) => {
         if (object instanceof THREE.Mesh || object instanceof THREE.Points) {
+          if (object instanceof THREE.InstancedMesh) object.dispose();
           geometries.add(object.geometry);
           const m = object.material;
           (Array.isArray(m) ? m : [m]).forEach((item) => materials.add(item));
@@ -408,6 +458,7 @@ export function createPrologueScene(renderer: THREE.WebGLRenderer, maps: Prologu
       });
       geometries.forEach((g) => g.dispose());
       materials.forEach((m) => m.dispose());
+      key.shadow.dispose();
       Object.values(maps).forEach((t) => t.dispose());
     },
   };

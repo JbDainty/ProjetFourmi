@@ -124,7 +124,7 @@ async function main() {
     await openScreen(page, 'Paramètres');
     await page.getByRole('switch', { name: 'Sons de l’atelier', exact: true }).click();
     await expect.poll(async () => (await loops()).length).toBe(1);
-    await page.getByRole('switch', { name: 'Musique des écosystèmes', exact: true }).click();
+    await page.getByRole('switch', { name: 'Musique du livre', exact: true }).click();
     await expect.poll(async () => (await loops()).length).toBe(0);
     await expect
       .poll(() =>
@@ -134,9 +134,9 @@ async function main() {
     await page.reload();
     await openCarnet(page);
     await expect(
-      page.getByRole('switch', { name: 'Musique des écosystèmes', exact: true }),
+      page.getByRole('switch', { name: 'Musique du livre', exact: true }),
     ).not.toBeChecked();
-    await page.getByRole('switch', { name: 'Musique des écosystèmes', exact: true }).click();
+    await page.getByRole('switch', { name: 'Musique du livre', exact: true }).click();
     await expect.poll(async () => (await loops()).length).toBe(1);
     expect(
       await page.evaluate(

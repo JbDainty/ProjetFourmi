@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { AppState, Platform, StyleSheet, View, Pressable } from 'react-native';
+import { AppState, StyleSheet, View, Pressable } from 'react-native';
 import { framePlayback } from '../animation/framePlayback';
 import Svg, {
   Defs,
@@ -134,7 +134,7 @@ function LiquidBoardDrawing({
     setElapsed(0);
     const playback = framePlayback({
       duration: motion ? timeline(count).duration : 0,
-      fps: Platform.OS === 'web' ? 60 : 30,
+      fps: 60,
       now: () => performance.now(),
       request: (callback) => requestAnimationFrame(callback),
       cancel: (id) => cancelAnimationFrame(id),
