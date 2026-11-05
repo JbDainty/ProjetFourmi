@@ -6,7 +6,7 @@ Le profil EAS `preview` compile une application Android autonome au format APK. 
 
 ## Sur le téléphone
 
-1. Ouvrir la [page de la première compilation Android](https://expo.dev/accounts/jbame/projects/color-world-herbier/builds/67787e90-ff4f-48ce-aac2-227d94834393), ou la dernière compilation Android `preview` dans l’onglet Builds du projet.
+1. Ouvrir la [compilation Android corrigée 1.0.1](https://expo.dev/accounts/jbame/projects/color-world-herbier/builds/747137e5-7a50-44eb-9b79-acf3a8545682), ou la dernière compilation Android `preview` dans l’onglet Builds du projet.
 2. Attendre que la compilation indique **Finished**, puis toucher **Install** ou **Download** pour télécharger le fichier `.apk`.
 3. Ouvrir le téléchargement. Si Android demande une autorisation, ouvrir ses paramètres et autoriser l’installation depuis le navigateur utilisé pour ce téléchargement, puis revenir à l’installation.
 4. Toucher **Installer**, puis **Ouvrir**. L’application s’appelle **Herbier des couleurs**. L’autorisation d’installation du navigateur peut ensuite être retirée dans les paramètres Android.
