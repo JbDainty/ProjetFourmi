@@ -4,7 +4,13 @@ import { levelSeeds } from './economy';
 import { discoverPigment, Pigment } from './pigments';
 import { pageStars } from './stars';
 
-export type Settings = { sound: boolean; haptics: boolean; patterns: boolean; motion: boolean };
+export type Settings = {
+  sound: boolean;
+  music: boolean;
+  haptics: boolean;
+  patterns: boolean;
+  motion: boolean;
+};
 export type Save = {
   version: 2;
   started: boolean;
@@ -31,7 +37,7 @@ export function initial(): Save {
     board: clone(levels[0].board),
     history: [],
     moves: 0,
-    settings: { sound: true, haptics: true, patterns: false, motion: true },
+    settings: { sound: true, music: true, haptics: true, patterns: false, motion: true },
     theme: 'ivoire',
     owned: ['ivoire'],
     daily: null,
@@ -158,7 +164,12 @@ export function restore(raw: string | null): Save {
     ...initial(),
     ...v,
     version: 2,
-    settings: { ...initial().settings, ...v.settings },
+    settings: {
+      ...initial().settings,
+      ...v.settings,
+      music:
+        typeof v.settings?.music === 'boolean' ? v.settings.music : (v.settings?.sound ?? true),
+    },
     owned: Array.isArray(v.owned) ? v.owned : ['ivoire'],
   };
 }

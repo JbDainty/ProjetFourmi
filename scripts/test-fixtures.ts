@@ -22,6 +22,6 @@ export function firstPageAttempt(extra: number, replay = false): { save: Save; l
     save = move(save, last.from, empty);
     last = { from: empty, to: last.to };
   }
-  save.settings = { ...save.settings, motion: false, sound: false, haptics: false };
+  save.settings = { ...save.settings, motion: false, sound: false, music: false, haptics: false };
   return { save, last };
 }

@@ -8,6 +8,7 @@ import { restore, Settings } from '../src/state/model';
 import { T, Label, Button, C, ui } from '../src/components/ui';
 import { ResetProgressDialog } from '../src/components/ResetProgressDialog';
 import { router } from 'expo-router';
+import { unlockAmbience } from '../src/services/ambience';
 export default function Parametres() {
   const { save, setSave, error, reset } = useGame(),
     [backup, setBackup] = useState(''),
@@ -18,7 +19,12 @@ export default function Parametres() {
     {
       key: 'sound',
       name: 'Sons de l’atelier',
-      detail: 'Versements, pages du livre, vent et mélodie de restauration.',
+      detail: 'Versements, pages du livre, vent et félicitations sonores.',
+    },
+    {
+      key: 'music',
+      name: 'Musique des écosystèmes',
+      detail: 'Cinq ambiances originales, très discrètes. Le fond baisse pendant les bruitages.',
     },
     {
       key: 'haptics',
@@ -51,7 +57,7 @@ export default function Parametres() {
               alignItems: 'center',
               gap: 20,
               paddingVertical: 18,
-              borderBottomWidth: i < 3 ? 1 : 0,
+              borderBottomWidth: i < options.length - 1 ? 1 : 0,
               borderColor: C.line,
             }}
           >
@@ -64,9 +70,10 @@ export default function Parametres() {
               value={save.settings[o.key]}
               trackColor={{ false: C.line, true: '#8fa58a' }}
               thumbColor={C.card}
-              onValueChange={(value) =>
-                setSave((s) => ({ ...s, settings: { ...s.settings, [o.key]: value } }))
-              }
+              onValueChange={(value) => {
+                unlockAmbience();
+                setSave((s) => ({ ...s, settings: { ...s.settings, [o.key]: value } }));
+              }}
             />
           </View>
         ))}
@@ -203,8 +210,9 @@ export default function Parametres() {
         <T style={{ marginTop: 14, fontSize: 13, color: C.muted, lineHeight: 23 }}>
           Aucun compte, aucune mesure d’audience, aucune publicité active. La progression reste dans
           le stockage local de votre appareil. Les sons, illustrations numériques à rendu aquarelle
-          et textures de papier ont été créés pour ce projet. Aucun conseil de consommation ou
-          d’usage médicinal n’est fourni.
+          et textures de papier ont été créés pour ce projet. Les cinq musiques d’écosystème sont
+          des compositions originales dédiées au domaine public sous CC0 1.0, réutilisables sans
+          redevances. Aucun conseil de consommation ou d’usage médicinal n’est fourni.
         </T>
         <T style={{ marginTop: 15, fontSize: 12, color: C.muted }}>
           Les périodes de floraison sont indicatives. La nomenclature et les illustrations doivent

@@ -20,7 +20,7 @@ async function main() {
   const seed = async (motion: boolean, mismatch = false) => {
     let save = { ...initial(), started: true };
     if (mismatch) save = move(save, 1, 0);
-    save.settings = { ...save.settings, motion, sound: false, haptics: false };
+    save.settings = { ...save.settings, motion, sound: false, music: false, haptics: false };
     await page.evaluate((s) => localStorage.setItem('color-world.save', JSON.stringify(s)), save);
     await page.goto(url);
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 01');

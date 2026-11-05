@@ -4,18 +4,15 @@ import Svg, { Defs, LinearGradient, Stop, G, Path, Circle } from 'react-native-s
 import { Paper } from './Paper';
 import { ui } from './ui';
 import { playLeafWind } from '../services/leafWind';
-import { playPlantMelody } from '../services/plantMelody';
 
 export function VictoryPaper({
   children,
   motion,
   sound,
-  celebrate = false,
 }: {
   children: React.ReactNode;
   motion: boolean;
   sound: boolean;
-  celebrate?: boolean;
 }) {
   const value = useRef(new Animated.Value(motion ? 0 : 1)).current;
   const [progress, setProgress] = useState(motion ? 0 : 1);
@@ -37,7 +34,6 @@ export function VictoryPaper({
     };
   }, [motion, value]);
   useEffect(() => playLeafWind(sound), [sound]);
-  useEffect(() => playPlantMelody(sound && celebrate), [sound, celebrate]);
   const { width: w, height: h } = size;
   const stemLength = Math.max(1, h + w - 60);
   const leftStem = `M${w / 2} ${h - 12} C${w * 0.32} ${h - 5} ${w * 0.22} ${h - 19} 42 ${h - 12} Q9 ${h - 10} 12 ${h - 42} C19 ${h * 0.72} 7 ${h * 0.65} 13 ${h * 0.48} S8 ${h * 0.23} 14 43 Q9 11 42 12 C${w * 0.22} 21 ${w * 0.32} 5 ${w / 2} 12`;

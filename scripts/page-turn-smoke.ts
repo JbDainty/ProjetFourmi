@@ -13,7 +13,7 @@ function beforeWin(id: number, motion: boolean, sound: boolean) {
   }
   save = loadLevel(save, id);
   for (const m of levels[id - 1].solution.slice(0, -1)) save = move(save, m.from, m.to);
-  save.settings = { ...save.settings, motion, sound, haptics: false };
+  save.settings = { ...save.settings, motion, sound, music: false, haptics: false };
   return save;
 }
 

@@ -1,47 +1,92 @@
 import { Platform } from 'react-native';
 import { Asset } from 'expo-asset';
 import { createAudioPlayer } from 'expo-audio';
+import { sharedAudioContext } from './audioContext';
+import { audioIsForeground, duckMusic } from './audioFocus';
 
-let context: AudioContext | undefined;
+const active = new Set<() => void>();
+export function stopBotanicalCues() {
+  [...active].forEach((stop) => stop());
+}
 
-export function createBotanicalCue(source: number, volume: number) {
+export function createBotanicalCue(source: number, volume: number, attenuation = 0.32) {
   let buffer: Promise<AudioBuffer | undefined> | undefined;
-  /** Prepare from a game gesture; all cues share the same unlocked context. */
   function prepare() {
-    if (Platform.OS !== 'web') return;
-    try {
-      const AudioContextClass =
-        globalThis.AudioContext ||
-        (globalThis as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-      if (!AudioContextClass) return;
-      context ??= new AudioContextClass();
-      if (context.state === 'suspended') void context.resume().catch(() => {});
-      const activeContext = context;
-      buffer ??= fetch(Asset.fromModule(source).uri)
-        .then((response) => {
-          if (!response.ok) throw Error('Audio unavailable');
-          return response.arrayBuffer();
-        })
-        .then((bytes) => activeContext.decodeAudioData(bytes))
-        .catch(() => {
-          buffer = undefined;
-          return undefined;
-        });
-      return buffer;
-    } catch {
-      return;
-    }
+    if (Platform.OS !== 'web' || !audioIsForeground()) return;
+    const context = sharedAudioContext();
+    if (!context) return;
+    buffer ??= fetch(Asset.fromModule(source).uri)
+      .then((response) => {
+        if (!response.ok) throw Error('Audio unavailable');
+        return response.arrayBuffer();
+      })
+      .then((bytes) => context.decodeAudioData(bytes))
+      .catch(() => {
+        buffer = undefined;
+        return undefined;
+      });
+    return buffer;
   }
-
-  /** One short, quiet cue. Cleanup also cancels a pending decode or playback. */
   function play(enabled: boolean): () => void {
-    if (!enabled) return () => {};
+    if (!enabled || !audioIsForeground()) return () => {};
+    let cancelled = false,
+      done = false,
+      release = () => {};
+    let voice: AudioBufferSourceNode | undefined, gain: GainNode | undefined;
+    let player: ReturnType<typeof createAudioPlayer> | undefined;
+    let subscription: { remove: () => void } | undefined;
+    let fallback: ReturnType<typeof setTimeout> | undefined;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      release();
+      active.delete(stop);
+      clearTimeout(fallback);
+      try {
+        voice?.disconnect();
+        gain?.disconnect();
+      } catch {}
+      try {
+        subscription?.remove();
+        player?.pause();
+        player?.remove();
+      } catch {}
+    };
+    const stop = () => {
+      if (cancelled || done) return;
+      cancelled = true;
+      const context = Platform.OS === 'web' ? sharedAudioContext() : undefined;
+      if (voice && gain && context?.state === 'running') {
+        try {
+          const now = context.currentTime;
+          gain.gain.cancelScheduledValues(now);
+          gain.gain.setValueAtTime(gain.gain.value, now);
+          gain.gain.linearRampToValueAtTime(0, now + 0.02);
+          voice.stop(now + 0.025);
+          clearTimeout(fallback);
+          fallback = setTimeout(finish, 60);
+          return;
+        } catch {}
+      }
+      try {
+        voice?.stop();
+      } catch {}
+      finish();
+    };
+    active.add(stop);
     if (Platform.OS === 'web') {
-      let cancelled = false;
-      let voice: AudioBufferSourceNode | undefined;
-      let gain: GainNode | undefined;
       void prepare()?.then((decoded) => {
-        if (cancelled || !decoded || !context || context.state !== 'running') return;
+        const context = sharedAudioContext();
+        if (
+          cancelled ||
+          !decoded ||
+          !context ||
+          context.state !== 'running' ||
+          !audioIsForeground()
+        ) {
+          finish();
+          return;
+        }
         try {
           voice = context.createBufferSource();
           voice.buffer = decoded;
@@ -49,38 +94,31 @@ export function createBotanicalCue(source: number, volume: number) {
           gain.gain.value = volume;
           voice.connect(gain);
           gain.connect(context.destination);
-          voice.onended = () => {
-            voice?.disconnect();
-            gain?.disconnect();
-          };
+          release = duckMusic(attenuation);
+          voice.onended = finish;
           voice.start();
         } catch {
-          /* Sound is optional; the restoration remains playable. */
+          finish();
         }
       });
-      return () => {
-        cancelled = true;
-        try {
-          voice?.stop();
-          voice?.disconnect();
-          gain?.disconnect();
-        } catch {}
-      };
-    }
-    let player: ReturnType<typeof createAudioPlayer> | undefined;
-    try {
-      player = createAudioPlayer(source);
-      player.volume = volume;
-      player.loop = false;
-      player.play();
-    } catch {}
-    return () => {
+      // Audio support is optional; no pending cue may hold a duck indefinitely.
+      fallback = setTimeout(finish, 12000);
+    } else {
       try {
-        player?.pause();
-        player?.remove();
-      } catch {}
-    };
+        player = createAudioPlayer(source);
+        player.volume = volume;
+        player.loop = false;
+        subscription = player.addListener('playbackStatusUpdate', (status) => {
+          if (status.didJustFinish) finish();
+        });
+        release = duckMusic(attenuation);
+        player.play();
+        fallback = setTimeout(finish, 12000);
+      } catch {
+        finish();
+      }
+    }
+    return stop;
   }
-
   return { prepare, play };
 }

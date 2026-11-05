@@ -18,6 +18,8 @@ import { HerbariumTitle } from '../src/components/HerbariumTitle';
 import { HerbariumBookButton } from '../src/components/HerbariumBookButton';
 import { basePath } from '../src/config/paths';
 import { BookChromeContext, bookHeaderHeight } from '../src/components/BookScrollView';
+import { Soundscape } from '../src/components/Soundscape';
+import { unlockAmbience } from '../src/services/ambience';
 const nav = [
   { path: '/', name: 'L’Atelier', icon: 'flask-outline' },
   { path: '/herbier', name: 'Le Grand Herbier', icon: 'book-outline' },
@@ -132,7 +134,16 @@ function Shell() {
     </>
   );
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: C.paper, zIndex: 0 }}>
+    <SafeAreaView
+      onTouchStart={Platform.OS === 'web' ? undefined : unlockAmbience}
+      style={{ flex: 1, backgroundColor: C.paper, zIndex: 0 }}
+    >
+      <Soundscape
+        music={save.settings.music}
+        sound={save.settings.sound}
+        started={save.started}
+        ecosystem={Math.floor((save.current - 1) / 20)}
+      />
       <PaperTexture background />
       {playing && (
         <View

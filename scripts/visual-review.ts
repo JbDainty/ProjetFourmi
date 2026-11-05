@@ -22,7 +22,7 @@ async function main() {
     let save: Save = {
       ...initial(),
       started: true,
-      settings: { sound: false, haptics: false, patterns: false, motion: false },
+      settings: { sound: false, music: false, haptics: false, patterns: false, motion: false },
     };
     for (const level of levels) {
       save = loadLevel(save, level.id);

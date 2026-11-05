@@ -26,6 +26,10 @@ import { T, Label, Icon, Button, Progress, C, ui } from '../src/components/ui';
 import { feedback } from '../src/services/feedback';
 import { pageStars, starLimits } from '../src/state/stars';
 import { RewardStars } from '../src/components/RewardStars';
+import { playPourSound } from '../src/services/pourSound';
+import { playRevealMelody } from '../src/services/revealMelody';
+import { playPlantMelody } from '../src/services/plantMelody';
+import { completedByPour, type TubeReward } from '../src/animation/tubeReward';
 type Note = { text: string; kind: 'info' | 'hint'; request: number; pending: boolean };
 const scenePadding = { top: 0, bottom: 20 };
 export default function Atelier() {
@@ -36,6 +40,12 @@ export default function Atelier() {
     { width } = useWindowDimensions(),
     wide = width > 1100;
   const [replay, setReplay] = useState(!!save.completed[save.current]);
+  const [tubeReward, setTubeReward] = useState<TubeReward | null>(null);
+  const [winReady, setWinReady] = useState(won(save.board));
+  const rewardId = useRef(0),
+    revealPlayed = useRef(false);
+  const stopPour = useRef<() => void>(() => {}),
+    stopReveal = useRef<() => void>(() => {});
   const [selected, setSelected] = useState<number | null>(null),
     [note, setNote] = useState<Note>({ text: '', kind: 'info', request: 0, pending: false }),
     [hint, setHint] = useState<Move | null>(null),
@@ -63,13 +73,41 @@ export default function Atelier() {
     setReveal(false);
     setDismissed(false);
     setPlateOpen(false);
+    setTubeReward(null);
+    revealPlayed.current = false;
+    stopPour.current();
+    stopReveal.current();
   }, [save.current]);
   useEffect(
     () => () => {
       if (timer.current) clearTimeout(timer.current);
+      stopPour.current();
+      stopReveal.current();
     },
     [],
   );
+  useEffect(() => {
+    if (!victory) {
+      setWinReady(false);
+      return;
+    }
+    if (!save.settings.motion || !tubeReward) {
+      setWinReady(true);
+      return;
+    }
+    setWinReady(false);
+    const timer = setTimeout(() => setWinReady(true), 650);
+    return () => clearTimeout(timer);
+  }, [victory, save.current, save.settings.motion, tubeReward?.id]);
+  useEffect(() => {
+    if (dismissed || !victory) stopReveal.current();
+  }, [dismissed, victory]);
+  const commitPour = (from: number, to: number) => {
+    const after = pour(save.board, from, to);
+    if (after && completedByPour(save.board, after, to))
+      setTubeReward({ id: ++rewardId.current, tube: to, color: after[to][0] });
+    setSave((value) => move(value, from, to));
+  };
   const tap = (index: number) => {
     if (busy || victory) return;
     setHint(null);
@@ -82,7 +120,8 @@ export default function Atelier() {
       setSelected(null);
       return;
     }
-    if (!pour(save.board, selected, index)) {
+    const after = pour(save.board, selected, index);
+    if (!after) {
       setNote((previous) => ({
         ...previous,
         text: 'Versez sur une couleur identique\nou dans un flacon vide.',
@@ -94,9 +133,12 @@ export default function Atelier() {
       return;
     }
     const from = selected;
+    if (tubeReward?.tube === from) setTubeReward(null);
+    stopPour.current();
+    stopPour.current = playPourSound(save.settings, save.board[from].length - after[from].length);
     if (!save.settings.motion) {
       feedback(save.settings);
-      setSave((v) => move(v, from, index));
+      commitPour(from, index);
       setSelected(null);
       return;
     }
@@ -106,7 +148,7 @@ export default function Atelier() {
   };
   const finishPour = () => {
     if (!pouring) return;
-    setSave((v) => move(v, pouring.from, pouring.to));
+    commitPour(pouring.from, pouring.to);
     setSelected(null);
     setPouring(null);
     setBusy(false);
@@ -132,13 +174,20 @@ export default function Atelier() {
       setBusy(false);
     }, 60);
   };
-  const restorePigment = () => {
+  const restorePigment = (animate = true) => {
+    if (revealPlayed.current) return;
+    revealPlayed.current = true;
     setReveal(true);
     feedback({ ...save.settings, sound: false }, true);
+    stopReveal.current();
+    stopReveal.current =
+      stage === 5 && save.current % 5 === 0 && !replay
+        ? playPlantMelody(save.settings.sound)
+        : playRevealMelody(save.settings.sound);
     fade.setValue(0);
     Animated.timing(fade, {
       toValue: 1,
-      duration: save.settings.motion ? 1400 : 0,
+      duration: save.settings.motion && animate ? 1400 : 0,
       useNativeDriver: true,
     }).start();
   };
@@ -162,6 +211,10 @@ export default function Atelier() {
       setBusy(false);
       setPouring(null);
       setReplay(true);
+      setTubeReward(null);
+      revealPlayed.current = false;
+      stopPour.current();
+      stopReveal.current();
       fade.setValue(0);
       scroll.current?.scrollTo({ y: 0, animated: false });
       setSave((value) => loadLevel(value, current));
@@ -242,6 +295,10 @@ export default function Atelier() {
             )}
             <LiquidBoard
               integrated
+              reward={tubeReward}
+              onRewardDone={(id) =>
+                setTubeReward((previous) => (previous?.id === id ? null : previous))
+              }
               board={save.board}
               selected={selected}
               hint={hint}
@@ -289,6 +346,8 @@ export default function Atelier() {
                   setSelected(null);
                   setHint(null);
                   clearNote();
+                  setTubeReward(null);
+                  stopPour.current();
                 },
                 disabled: !save.history.length || victory,
               },
@@ -301,6 +360,8 @@ export default function Atelier() {
                   setHint(null);
                   clearNote();
                   setDismissed(false);
+                  setTubeReward(null);
+                  stopPour.current();
                 },
                 disabled: false,
               },
@@ -495,7 +556,7 @@ export default function Atelier() {
         </View>
       </Modal>
       <Modal
-        visible={victory && !dismissed && save.started}
+        visible={victory && winReady && !dismissed && save.started}
         transparent
         animationType={save.settings.motion ? 'fade' : 'none'}
       >
@@ -509,12 +570,8 @@ export default function Atelier() {
           }}
         >
           <ScrollView style={{ maxHeight: '95%', width: '100%', maxWidth: 460 }}>
-            {victory && !dismissed && save.started && (
-              <VictoryPaper
-                motion={save.settings.motion}
-                sound={save.settings.sound}
-                celebrate={stage === 5 && save.current % 5 === 0 && !replay}
-              >
+            {victory && winReady && !dismissed && save.started && (
+              <VictoryPaper motion={save.settings.motion} sound={save.settings.sound}>
                 <Label>
                   {save.current === 100
                     ? 'L’HERBIER RETROUVE SES COULEURS'
@@ -576,14 +633,13 @@ export default function Atelier() {
                       stage={replay ? stage : Math.max(0, stage - 1)}
                       size={200}
                     />
-                    <VictoryAction icon="water-outline" onPress={restorePigment}>
+                    <VictoryAction icon="water-outline" onPress={() => restorePigment()}>
                       Révéler la couleur
                     </VictoryAction>
                     <Pressable
                       accessibilityRole="button"
                       onPress={() => {
-                        fade.setValue(1);
-                        setReveal(true);
+                        restorePigment(false);
                       }}
                       style={{ padding: 16 }}
                     >

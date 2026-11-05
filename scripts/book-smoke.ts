@@ -30,7 +30,7 @@ async function main() {
     window.botanicalCues = [];
     const start = AudioBufferSourceNode.prototype.start;
     AudioBufferSourceNode.prototype.start = function(...args) {
-      window.botanicalCues.push(this.buffer?.duration);
+      if ([2.8, 5.6].some(n => Math.abs((this.buffer?.duration || 0) - n) < .01)) window.botanicalCues.push(this.buffer?.duration);
       return start.apply(this, args);
     };
   `,
@@ -39,7 +39,7 @@ async function main() {
     page.evaluate(() => (window as unknown as { botanicalCues: number[] }).botanicalCues);
   const seed = async (motion: boolean, sound: boolean, replay = false) => {
     const save = lastPour(replay);
-    save.settings = { ...save.settings, motion, sound, haptics: false };
+    save.settings = { ...save.settings, motion, sound, music: false, haptics: false };
     await page.evaluate((s) => localStorage.setItem('color-world.save', JSON.stringify(s)), save);
     await page.goto(url);
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 05');
@@ -54,9 +54,11 @@ async function main() {
     await page.goto(url);
     await seed(true, true);
     await finish();
+    await expect.poll(async () => (await cues()).length).toBe(1);
+    expect(await cues()).toEqual([2.8]);
+    await page.getByRole('button', { name: 'Révéler la couleur' }).click();
     await expect.poll(async () => (await cues()).length).toBe(2);
     expect((await cues()).sort()).toEqual([2.8, 5.6]);
-    await page.getByRole('button', { name: 'Révéler la couleur' }).click();
     await expect(page.getByTestId('victory-action-primary')).toBeVisible();
     expect(
       await page

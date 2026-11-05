@@ -16,7 +16,7 @@ function progressedSave() {
   save = loadLevel(save, 9);
   const next = levels[8].solution[0];
   save = move(save, next.from, next.to);
-  save.settings = { motion: false, sound: false, haptics: false, patterns: true };
+  save.settings = { motion: false, sound: false, music: false, haptics: false, patterns: true };
   return save;
 }
 
@@ -118,7 +118,13 @@ async function rewards(page: Page, url: string) {
   await expect(page.getByTestId('page-earned-stars')).toHaveCount(0);
   // The last page can also be replayed directly without advancing beyond the book.
   let finalSave = { ...initial(), started: true };
-  finalSave.settings = { ...finalSave.settings, motion: false, sound: false, haptics: false };
+  finalSave.settings = {
+    ...finalSave.settings,
+    motion: false,
+    sound: false,
+    music: false,
+    haptics: false,
+  };
   for (const level of levels.slice(0, 99)) {
     finalSave = loadLevel(finalSave, level.id);
     for (const m of level.solution) finalSave = move(finalSave, m.from, m.to);

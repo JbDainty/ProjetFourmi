@@ -66,7 +66,7 @@ async function main() {
     let last: Save = {
       ...initial(),
       started: true,
-      settings: { sound: false, haptics: false, patterns: true, motion: true },
+      settings: { sound: false, music: false, haptics: false, patterns: true, motion: true },
     };
     for (const level of levels.slice(0, 99)) {
       last = loadLevel(last, level.id);

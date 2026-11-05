@@ -11,7 +11,7 @@ function twoRows(motion: boolean) {
     for (const m of level.solution) save = move(save, m.from, m.to);
   }
   save = loadLevel(save, 100);
-  save.settings = { ...save.settings, motion, sound: false, haptics: false };
+  save.settings = { ...save.settings, motion, sound: false, music: false, haptics: false };
   return save;
 }
 

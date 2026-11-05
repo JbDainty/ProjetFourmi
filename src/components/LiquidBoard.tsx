@@ -20,6 +20,8 @@ import { C } from './ui';
 import { FoliageFrame } from './FoliageFrame';
 import { F } from './fonts';
 import { GreenhouseBackdrop, RackDefinitions, TubeRack, RackStand } from './Greenhouse';
+import { TubeBloom } from './TubeBloom';
+import type { TubeReward } from '../animation/tubeReward';
 import {
   type Point,
   INNER,
@@ -50,6 +52,8 @@ type Props = {
   integrated?: boolean;
   onTap: (index: number) => void;
   onFinish: () => void;
+  reward?: TubeReward | null;
+  onRewardDone?: (id: number) => void;
 };
 type Pose = { x: number; y: number; angle: number };
 const emptySample = samplePour(0, 1);
@@ -64,6 +68,8 @@ function LiquidBoardDrawing({
   integrated = false,
   onTap,
   onFinish,
+  reward,
+  onRewardDone,
 }: Props) {
   const [width, setWidth] = useState(0),
     [clock, setClock] = useState(0),
@@ -590,6 +596,18 @@ function LiquidBoardDrawing({
             ))}
             {pouring && renderTube(pouring.from)}
             {pouring && front(pouring.from)}
+            {reward && layout[reward.tube] && (
+              <G
+                transform={`translate(${layout[reward.tube].x} ${layout[reward.tube].y}) scale(${scale})`}
+              >
+                <TubeBloom
+                  key={reward.id}
+                  color={reward.color}
+                  motion={motion}
+                  onDone={() => onRewardDone?.(reward.id)}
+                />
+              </G>
+            )}
           </Svg>
           {layout.map((p, i) => (
             <Pressable

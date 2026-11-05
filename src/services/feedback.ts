@@ -1,12 +1,14 @@
 import { Platform } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { createAudioPlayer } from 'expo-audio';
 import { Settings } from '../state/model';
 import { prepareLeafWind } from './leafWind';
 import { preparePlantMelody } from './plantMelody';
 import { preparePageSounds } from './pageSounds';
-let player: ReturnType<typeof createAudioPlayer> | undefined;
+import { preparePourSounds } from './pourSound';
+import { prepareRevealMelody } from './revealMelody';
+import { unlockAmbience } from './ambience';
 export function feedback(settings: Settings, success = false) {
+  unlockAmbience();
   if (settings.haptics && Platform.OS !== 'web')
     void Haptics.impactAsync(
       success ? Haptics.ImpactFeedbackStyle.Medium : Haptics.ImpactFeedbackStyle.Light,
@@ -15,12 +17,7 @@ export function feedback(settings: Settings, success = false) {
     prepareLeafWind();
     preparePlantMelody();
     preparePageSounds();
-    try {
-      player ??= createAudioPlayer(require('../../assets/pour.wav'));
-      void player.seekTo(0);
-      player.play();
-    } catch {
-      /* Audio unavailable: game remains playable. */
-    }
+    preparePourSounds();
+    prepareRevealMelody();
   }
 }

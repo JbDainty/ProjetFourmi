@@ -35,7 +35,7 @@ async function main() {
     };
     const start = AudioBufferSourceNode.prototype.start;
     AudioBufferSourceNode.prototype.start = function(...args) {
-      window.leafWindStarts.push({ duration: this.buffer?.duration, gain: this.observedGain?.gain.value });
+      if (Math.abs((this.buffer?.duration || 0) - 2.8) < .01) window.leafWindStarts.push({ duration: this.buffer?.duration, gain: this.observedGain?.gain.value });
       return start.apply(this, args);
     };
     const stop = AudioBufferSourceNode.prototype.stop;
@@ -44,7 +44,7 @@ async function main() {
   });
   const seed = async (motion: boolean, sound: boolean) => {
     const save = floralDetails();
-    save.settings = { ...save.settings, motion, sound, haptics: false };
+    save.settings = { ...save.settings, motion, sound, music: false, haptics: false };
     await page.evaluate((s) => localStorage.setItem('color-world.save', JSON.stringify(s)), save);
     await page.goto(url);
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 04');

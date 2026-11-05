@@ -1,0 +1,53 @@
+import { useEffect } from 'react';
+import { AppState, Platform } from 'react-native';
+import { configureAmbience, disposeAmbience, unlockAmbience } from '../services/ambience';
+import { setAudioForeground } from '../services/audioFocus';
+import { stopBotanicalCues } from '../services/botanicalAudio';
+
+export function Soundscape({
+  music,
+  sound,
+  started,
+  ecosystem,
+}: {
+  music: boolean;
+  sound: boolean;
+  started: boolean;
+  ecosystem: number;
+}) {
+  useEffect(() => {
+    configureAmbience(music && started, ecosystem);
+  }, [music, started, ecosystem]);
+  useEffect(() => {
+    if (!sound) stopBotanicalCues();
+  }, [sound]);
+  useEffect(() => {
+    const focus = (active: boolean) => {
+      setAudioForeground(active);
+      if (!active) stopBotanicalCues();
+    };
+    if (Platform.OS === 'web') {
+      const visible = () => focus(!document.hidden);
+      const gesture = () => unlockAmbience();
+      document.addEventListener('pointerdown', gesture, { capture: true, passive: true });
+      document.addEventListener('keydown', gesture, true);
+      document.addEventListener('visibilitychange', visible);
+      visible();
+      return () => {
+        document.removeEventListener('pointerdown', gesture, true);
+        document.removeEventListener('keydown', gesture, true);
+        document.removeEventListener('visibilitychange', visible);
+        stopBotanicalCues();
+        disposeAmbience();
+      };
+    }
+    focus(AppState.currentState !== 'background' && AppState.currentState !== 'inactive');
+    const subscription = AppState.addEventListener('change', (state) => focus(state === 'active'));
+    return () => {
+      subscription.remove();
+      stopBotanicalCues();
+      disposeAmbience();
+    };
+  }, []);
+  return null;
+}

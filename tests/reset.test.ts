@@ -14,7 +14,7 @@ it('resets the journey and cosmetics to a fresh save while preserving accessibil
   save = loadLevel(save, 7);
   const next = levels[6].solution[0];
   save = move(save, next.from, next.to);
-  save.settings = { sound: false, haptics: false, motion: false, patterns: true };
+  save.settings = { sound: false, music: false, haptics: false, motion: false, patterns: true };
   const before = structuredClone(save);
   const fresh = resetProgress(save);
   expect(fresh).toEqual({ ...initial(), settings: save.settings });
