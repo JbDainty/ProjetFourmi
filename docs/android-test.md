@@ -36,3 +36,15 @@ npx eas-cli build --platform android --profile preview
 ```
 
 Les identifiants publics du projet sont dans `app.json`. Les clés et mots de passe ne doivent pas être ajoutés au dépôt. EAS gère actuellement la signature Android à distance. La commande `preview` ne publie rien sur les boutiques.
+
+## Petites mises à jour de test
+
+La version 1.0.1 (code Android 2) prépare `expo-updates` et le canal EAS `preview`. **Il faut installer ce nouvel APK une fois** : le premier APK 1.0.0 ne contient pas le mécanisme de mise à jour et ne peut pas recevoir ces correctifs à distance.
+
+Le runtime est identifié par l’empreinte native (`fingerprint`). Une mise à jour JavaScript compatible peut ensuite être envoyée au canal de test, séparé du canal `production` :
+
+```sh
+npx eas-cli update --channel preview --platform android --environment preview --message "Description du correctif"
+```
+
+L’application démarre immédiatement avec sa version locale, même hors ligne, et vérifie les mises à jour au lancement. Une mise à jour téléchargée est appliquée lors d’un lancement suivant ; il peut donc falloir fermer complètement puis rouvrir le jeu après le téléchargement. Un nouveau module natif ou une autre empreinte demande un nouvel APK. Les publications de test ne mettent rien sur Google Play.

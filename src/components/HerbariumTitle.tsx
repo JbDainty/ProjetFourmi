@@ -1,3 +1,4 @@
+import { listenVector } from './vectorFrames';
 import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Pressable, View } from 'react-native';
 import Svg, { G, Path, Circle } from 'react-native-svg';
@@ -16,7 +17,7 @@ export function HerbariumTitle({
   const [progress, setProgress] = useState(0);
   const [growing, setGrowing] = useState(false);
   useEffect(() => {
-    const listener = growth.addListener(({ value }) => setProgress(value));
+    const listener = listenVector(growth, setProgress);
     return () => {
       growth.stopAnimation();
       growth.removeListener(listener);

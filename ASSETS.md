@@ -52,3 +52,7 @@ Les licences des dépendances JavaScript sont également disponibles dans leurs 
 
 - `assets/prologue/*.png` : onze textures de production originales, compilées par `scripts/generate-prologue-textures.ts` et `scripts/prologue-textures-painter.ts`. Cuir, papier, tranches, bois, halo, feuille nervurée et quatre planches imprimées utilisant les atlas existants. Les fichiers sources des atlas restent inchangés. Les caractères utilisent les polices déjà documentées. Aucun modèle, vidéo ou texture commerciale supplémentaire.
 - Expo GL : Expo / 650 Industries, MIT (`public/licenses/Expo-MIT.txt`). UPNG.js : Photopea / Ivan Kutskir, MIT (`public/licenses/UPNG-MIT.txt`). Pako : notices MIT et zlib dans `public/licenses/Pako-LICENSE.txt`.
+
+# Cache de rendu botanique mobile
+
+`assets/botanical/` contient les six états de restauration des vingt illustrations existantes, compilés par `npm run assets:botanical` à partir de `Botanical.tsx`. Ces PNG transparents reprennent le même dessin, le même cadrage et les mêmes filtres ; les atlas sources restent inchangés. Android et iOS les affichent comme images natives pour éviter les filtres SVG pendant le jeu. Leur provenance et leurs droits restent ceux des illustrations sources décrites ci-dessous.

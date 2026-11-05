@@ -3,7 +3,7 @@
     "name": "Herbier des couleurs",
     "slug": "color-world-herbier",
     "owner": "jbame",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "scheme": "colorworld",
     "userInterfaceStyle": "light",
@@ -13,6 +13,7 @@
     },
     "android": {
       "package": "com.colorworld.herbier",
+      "versionCode": 2,
       "blockedPermissions": ["android.permission.RECORD_AUDIO"]
     },
     "web": {
@@ -37,6 +38,13 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "updates": {
+      "url": "https://u.expo.dev/b069af5c-3794-4f7d-b64b-5d45d4f0b1c0",
+      "fallbackToCacheTimeout": 0
+    },
+    "runtimeVersion": {
+      "policy": "fingerprint"
     },
     "extra": {
       "eas": {

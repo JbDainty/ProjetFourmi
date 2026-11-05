@@ -5,6 +5,7 @@ import { BotanicalStamp } from './BotanicalStamp';
 import { chapters, species } from '../data/botany';
 import { T, C } from './ui';
 import { F } from './fonts';
+import { SvgBackdrop } from './SvgBackdrop';
 
 export function ChapterVignette({
   plant,
@@ -35,20 +36,12 @@ export function ChapterVignette({
         paddingBottom: 4,
       }}
     >
-      <Svg
-        pointerEvents="none"
-        accessible={false}
-        width="100%"
-        height="100%"
-        viewBox="0 0 340 150"
-        preserveAspectRatio="none"
-        style={{ position: 'absolute' }}
-      >
+      <SvgBackdrop viewBox="0 0 340 150" preserveAspectRatio="none">
         <G fill="none" stroke="#8c9463" strokeWidth=".65" opacity=".25">
           <Path d="M12 136 C36 146 27 60 87 42 Q163 16 291 30 M40 89 Q23 81 24 68 Q39 70 40 89 M55 63 Q52 47 64 42 Q67 56 55 63 M90 42 Q102 28 117 32 Q107 43 90 42" />
           <Path d="M304 31 Q321 34 325 22 Q318 20 312 26 M291 30 314 27" />
         </G>
-      </Svg>
+      </SvgBackdrop>
       {compact && (
         <View style={{ paddingTop: 12 }}>
           <BotanicalStamp index={plant} stage={stage} disabled={busy} onPress={onOpen} />

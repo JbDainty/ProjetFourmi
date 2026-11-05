@@ -1,3 +1,4 @@
+import { listenVector } from './vectorFrames';
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
 import Svg, {
@@ -36,7 +37,7 @@ export function HintScroll({
   const ready = settled && !pending;
   useEffect(() => {
     value.setValue(0);
-    const listener = value.addListener(({ value: next }) => setFrame({ request, progress: next }));
+    const listener = listenVector(value, (progress) => setFrame({ request, progress }));
     if (!motion) {
       value.setValue(1);
       setOpened(request);

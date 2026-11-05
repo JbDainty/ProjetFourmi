@@ -1,3 +1,4 @@
+import { listenVector } from './vectorFrames';
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
 import Svg, { Defs, LinearGradient, Stop, G, Path, Circle } from 'react-native-svg';
@@ -19,7 +20,7 @@ export function VictoryPaper({
   const [size, setSize] = useState({ width: 0, height: 0 });
   const token = 'victory-leaves-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
   useEffect(() => {
-    const listener = value.addListener(({ value: next }) => setProgress(next));
+    const listener = listenVector(value, setProgress);
     if (!motion) value.setValue(1);
     else
       Animated.timing(value, {
@@ -43,7 +44,7 @@ export function VictoryPaper({
     <Paper
       testID="victory-living-paper"
       frame={false}
-      style={[ui.card, { alignItems: 'center' }]}
+      style={[ui.card, { width: '100%', alignItems: 'center' }]}
       onLayout={(event) => {
         const { width, height } = event.nativeEvent.layout;
         setSize((previous) =>

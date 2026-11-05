@@ -176,6 +176,8 @@ npm run ios
 
 Le projet EAS est rattaché au compte **jbame** : https://expo.dev/accounts/jbame/projects/color-world-herbier. Le profil `preview` produit un APK Android autonome, installable directement sans Expo Go ni serveur de développement. Le guide téléphone est dans [docs/android-test.md](docs/android-test.md).
 
+Les correctifs du premier essai Android et leurs contrôles sont documentés dans [docs/mobile-rendering.md](docs/mobile-rendering.md) : plateau immobile au repos, couches de versement séparées, illustrations natives précalculées et fonds de boutons mesurés. La version 1.0.1 prépare aussi EAS Update sur le canal de test `preview`, avec une empreinte native pour empêcher les mises à jour incompatibles.
+
 Pour construire via EAS avec un compte autorisé sur ce projet :
 
 ```sh

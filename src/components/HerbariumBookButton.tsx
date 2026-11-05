@@ -1,3 +1,4 @@
+import { listenVector } from './vectorFrames';
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { Animated, Easing, Pressable } from 'react-native';
 import Svg, { Defs, LinearGradient, Stop, Path, G, Ellipse } from 'react-native-svg';
@@ -113,7 +114,7 @@ export function HerbariumBookButton({
   const [progress, setProgress] = useState(0);
   const [opening, setOpening] = useState(false);
   useEffect(() => {
-    const listener = value.addListener(({ value: next }) => setProgress(next));
+    const listener = listenVector(value, setProgress);
     return () => {
       value.stopAnimation();
       value.removeListener(listener);

@@ -1,18 +1,12 @@
 import React, { useId } from 'react';
-import { StyleSheet } from 'react-native';
-import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
+import { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
+import { SvgBackdrop } from './SvgBackdrop';
 
 /** A continuous wash keeps the ATH legible without dividing the greenhouse. */
 export function SceneVeil({ tint = '#f4ead6', ground }: { tint?: string; ground?: string }) {
   const id = 'scene-veil-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
   return (
-    <Svg
-      pointerEvents="none"
-      accessible={false}
-      style={StyleSheet.absoluteFill}
-      width="100%"
-      height="100%"
-    >
+    <SvgBackdrop>
       <Defs>
         <LinearGradient id={id} x1="0" y1="0" x2="0" y2="1">
           <Stop offset="0" stopColor={tint} stopOpacity=".98" />
@@ -23,6 +17,6 @@ export function SceneVeil({ tint = '#f4ead6', ground }: { tint?: string; ground?
         </LinearGradient>
       </Defs>
       <Rect width="100%" height="100%" fill={`url(#${id})`} />
-    </Svg>
+    </SvgBackdrop>
   );
 }

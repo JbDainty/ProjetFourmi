@@ -1,6 +1,7 @@
 import React, { useId } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
-import Svg, { Defs, LinearGradient, Stop, Path, G, Circle } from 'react-native-svg';
+import { Pressable, View } from 'react-native';
+import { Defs, LinearGradient, Stop, Path, G, Circle } from 'react-native-svg';
+import { SvgBackdrop } from './SvgBackdrop';
 import { T, Icon, C } from './ui';
 import { F } from './fonts';
 import type { BotanicalIconName } from './BotanicalIcon';
@@ -29,7 +30,7 @@ export function VictoryAction({
         width: '100%',
         maxWidth: 350,
         marginTop: secondary ? 9 : 0,
-        minHeight: 60,
+        minHeight: 64,
         paddingHorizontal: 23,
         paddingVertical: 13,
         alignItems: 'center',
@@ -38,15 +39,7 @@ export function VictoryAction({
         transform: [{ scale: pressed ? 0.98 : 1 }],
       })}
     >
-      <Svg
-        width="100%"
-        height="100%"
-        viewBox="0 0 350 64"
-        preserveAspectRatio="none"
-        style={StyleSheet.absoluteFill}
-        pointerEvents="none"
-        accessible={false}
-      >
+      <SvgBackdrop viewBox="0 0 350 64" preserveAspectRatio="none">
         <Defs>
           <LinearGradient id={id} x1="0" y1="0" x2="1" y2="1">
             <Stop stopColor={secondary ? '#f3e8ce' : '#42654f'} />
@@ -79,9 +72,16 @@ export function VictoryAction({
             <Circle cx="22" cy="16" r="1.5" fill={ink} />
           </G>
         ))}
-      </Svg>
+      </SvgBackdrop>
       <View
-        style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 9 }}
+        style={{
+          width: '100%',
+          minHeight: 32,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 9,
+        }}
       >
         <Icon name={icon} size={23} color={ink} />
         <T

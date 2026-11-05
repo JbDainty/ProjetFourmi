@@ -38,8 +38,12 @@ export default function Atelier() {
   const turnPage = React.useContext(PageTurnContext);
   const scroll = useRef<ScrollView>(null);
   const { save, setSave } = useGame(),
-    { width } = useWindowDimensions(),
+    { width, height, fontScale } = useWindowDimensions(),
     wide = width > 1100;
+  const resultPlateSize = Math.max(
+    112,
+    Math.min(200, Math.round((height * 0.23) / Math.max(1, fontScale / 1.2))),
+  );
   const [replay, setReplay] = useState(!!save.completed[save.current]);
   const [tubeReward, setTubeReward] = useState<TubeReward | null>(null);
   const [winReady, setWinReady] = useState(won(save.board));
@@ -353,7 +357,11 @@ export default function Atelier() {
           </View>
           <View
             testID="hint-scroll-slot"
-            style={{ minHeight: 64, justifyContent: 'center', marginBottom: 8 }}
+            style={{
+              minHeight: note.kind === 'hint' ? 64 : 12,
+              justifyContent: 'center',
+              marginBottom: 8,
+            }}
           >
             {note.kind === 'hint' && (
               <HintScroll
@@ -369,7 +377,7 @@ export default function Atelier() {
               flexDirection: 'row',
               justifyContent: 'center',
               gap: 8,
-              paddingVertical: 8,
+              paddingVertical: 6,
               paddingHorizontal: 12,
               borderRadius: 30,
               backgroundColor: '#f4ead6ee',
@@ -418,31 +426,43 @@ export default function Atelier() {
                 disabled={busy || a.disabled}
                 style={{
                   alignItems: 'center',
-                  gap: 7,
+                  gap: 3,
                   flex: 1,
-                  paddingVertical: 10,
+                  minWidth: 0,
+                  minHeight: 82,
+                  paddingVertical: 6,
                   paddingHorizontal: 2,
                   opacity: a.disabled ? 0.35 : 1,
                 }}
               >
-                <SpellIcon size={36} name={a.icon} />
+                <SpellIcon size={32} name={a.icon} />
                 <T
                   style={{
                     fontFamily: F.handwritingMedium,
-                    fontSize: Math.min(22, width / 18.5),
-                    lineHeight: 27,
+                    fontSize: Math.min(19, width / 19),
+                    lineHeight: 24,
                     color: C.green,
+                    textAlign: 'center',
+                    maxWidth: '100%',
                   }}
                 >
                   {a.name}
                 </T>
-                {a.name === 'Indice' && (
+                {a.name === 'Indice' ? (
                   <T
                     testID="hint-seed-price"
-                    style={{ fontSize: 11, color: C.muted, fontFamily: F.scientific }}
+                    style={{
+                      fontSize: 10,
+                      lineHeight: 16,
+                      color: C.muted,
+                      fontFamily: F.scientific,
+                      textAlign: 'center',
+                    }}
                   >
                     {currentHint(save) ? 'Déjà cueilli' : '1 graine'}
                   </T>
+                ) : (
+                  <View style={{ height: 16 }} />
                 )}
               </Pressable>
             ))}
@@ -605,10 +625,12 @@ export default function Atelier() {
                   testID="page-result-moves"
                   style={{
                     fontFamily: F.handwriting,
-                    fontSize: 23,
-                    lineHeight: 29,
+                    fontSize: 21,
+                    lineHeight: 28,
                     color: C.muted,
                     marginTop: 4,
+                    textAlign: 'center',
+                    width: '100%',
                   }}
                 >
                   Page achevée en {save.moves} {save.moves === 1 ? 'mouvement' : 'mouvements'}.
@@ -660,7 +682,7 @@ export default function Atelier() {
                     <Botanical
                       index={plant}
                       stage={replay ? stage : Math.max(0, stage - 1)}
-                      size={200}
+                      size={resultPlateSize}
                     />
                     <VictoryAction icon="water-outline" onPress={() => restorePigment()}>
                       Révéler la couleur
@@ -680,7 +702,7 @@ export default function Atelier() {
                 ) : (
                   <>
                     <Animated.View style={{ opacity: fade }}>
-                      <Botanical index={plant} stage={stage} size={215} />
+                      <Botanical index={plant} stage={stage} size={resultPlateSize + 8} />
                     </Animated.View>
                     <T
                       testID="restoration-botanical-fact"

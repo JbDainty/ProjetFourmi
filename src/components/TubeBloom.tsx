@@ -1,3 +1,4 @@
+import { listenVector } from './vectorFrames';
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { Animated, Easing } from 'react-native';
 import { Circle, Defs, Ellipse, G, Path, RadialGradient, Stop } from 'react-native-svg';
@@ -24,7 +25,7 @@ export function TubeBloom({
       const timeout = setTimeout(() => done.current(), 1300);
       return () => clearTimeout(timeout);
     }
-    const listener = value.addListener(({ value: p }) => setProgress(p));
+    const listener = listenVector(value, setProgress);
     const animation = Animated.timing(value, {
       toValue: 1,
       duration: 1750,

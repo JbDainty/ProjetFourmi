@@ -34,7 +34,10 @@ export function T({ serif = false, style, ...props }: TextProps & { serif?: bool
   return (
     <Text
       {...props}
-      style={[{ fontFamily: font, fontSize: 14, color: C.ink, lineHeight }, textStyle]}
+      style={[
+        { fontFamily: font, fontSize: 14, color: C.ink, lineHeight, includeFontPadding: false },
+        textStyle,
+      ]}
     />
   );
 }

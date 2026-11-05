@@ -1,5 +1,6 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { View, Pressable } from 'react-native';
+import { AppState, Platform, StyleSheet, View, Pressable } from 'react-native';
+import { framePlayback } from '../animation/framePlayback';
 import Svg, {
   Defs,
   LinearGradient,
@@ -72,13 +73,15 @@ function LiquidBoardDrawing({
   onRewardDone,
 }: Props) {
   const [width, setWidth] = useState(0),
-    [clock, setClock] = useState(0),
     [elapsed, setElapsed] = useState(0);
   const animationMove = useRef<Move | null>(null);
+  const tap = useRef(onTap);
+  tap.current = onTap;
   const finish = useRef(onFinish);
   finish.current = onFinish;
   const unique = useId().replace(/[^a-zA-Z0-9_-]/g, '');
-  const id = (name: string) => `liquid-${unique}-${name}`;
+  const id = (name: string, active = false) =>
+    `liquid-${unique}-${active ? 'active' : 'still'}-${name}`;
   const compact = board.length > 7,
     scale = Math.min(1, width / 290) * (compact ? 0.88 : 1);
   const columns = Math.min(
@@ -89,13 +92,17 @@ function LiquidBoardDrawing({
     top = 90 * scale,
     rows = Math.ceil(board.length / columns),
     height = top + rows * rowHeight + 4;
-  const layout = board.map((_, i) => {
-    const row = Math.floor(i / columns),
-      col = i % columns,
-      n = Math.min(columns, board.length - row * columns),
-      spacing = width / columns;
-    return { x: (width - n * spacing) / 2 + (col + 0.5) * spacing, y: top + row * rowHeight };
-  });
+  const layout = useMemo(
+    () =>
+      board.map((_, i) => {
+        const row = Math.floor(i / columns),
+          col = i % columns,
+          n = Math.min(columns, board.length - row * columns),
+          spacing = width / columns;
+        return { x: (width - n * spacing) / 2 + (col + 0.5) * spacing, y: top + row * rowHeight };
+      }),
+    [board.length, columns, width, top, rowHeight],
+  );
   const racks = useMemo(
     () =>
       Array.from({ length: rows }, (_, row) => {
@@ -112,7 +119,10 @@ function LiquidBoardDrawing({
     [width, scale, rows, columns, board.length, rowHeight, top],
   );
   const baseLayers = useMemo(() => board.map(layers), [board]);
-  const after = pouring ? pour(board, pouring.from, pouring.to) : null;
+  const after = useMemo(
+    () => (pouring ? pour(board, pouring.from, pouring.to) : null),
+    [board, pouring],
+  );
   const count = pouring && after ? board[pouring.from].length - after[pouring.from].length : 0;
   const color = pouring ? (board[pouring.from].at(-1) ?? 0) : 0;
   const state = pouring
@@ -120,49 +130,29 @@ function LiquidBoardDrawing({
     : emptySample;
   useEffect(() => {
     if (!pouring || !width) return;
-    let frame = 0,
-      cancelled = false;
-    const start = performance.now();
     animationMove.current = pouring;
     setElapsed(0);
-    const duration = motion ? timeline(count).duration : 0;
-    const tick = (now: number) => {
-      if (cancelled) return;
-      const t = now - start;
-      setElapsed(t);
-      setClock(now);
-      if (t >= duration) {
-        finish.current();
-        return;
-      }
-      frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
+    const playback = framePlayback({
+      duration: motion ? timeline(count).duration : 0,
+      fps: Platform.OS === 'web' ? 60 : 30,
+      now: () => performance.now(),
+      request: (callback) => requestAnimationFrame(callback),
+      cancel: (id) => cancelAnimationFrame(id),
+      onFrame: setElapsed,
+      onFinish: () => finish.current(),
+    });
+    playback.setActive(
+      AppState.currentState !== 'background' && AppState.currentState !== 'inactive',
+    );
+    const subscription = AppState.addEventListener('change', (status) =>
+      playback.setActive(status === 'active'),
+    );
     return () => {
-      cancelled = true;
-      cancelAnimationFrame(frame);
+      subscription.remove();
+      playback.dispose();
     };
   }, [pouring, width, motion, count]);
-  useEffect(() => {
-    if (!motion || pouring) return;
-    let frame = 0,
-      last = 0,
-      live = true;
-    const tick = (now: number) => {
-      if (!live) return;
-      if (now - last > 125) {
-        setClock(now);
-        last = now;
-      }
-      frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
-    return () => {
-      live = false;
-      cancelAnimationFrame(frame);
-    };
-  }, [motion, pouring]);
-  const time = motion ? clock / 1000 : 0;
+  const time = motion && pouring ? elapsed / 1000 : 0;
   const poses: Pose[] = layout.map((p, i) => ({
     ...p,
     y: p.y - (selected === i && !pouring ? 10 * scale : 0),
@@ -200,7 +190,7 @@ function LiquidBoardDrawing({
       y: target.y + surfacePlane(board[pouring.to].length + count * state.arrived, 0) * scale,
     };
   }
-  const front = (i: number) => {
+  const front = (i: number, activeLayer = false) => {
     const p = poses[i],
       active = selected === i,
       marked = hint?.from === i || hint?.to === i;
@@ -230,7 +220,7 @@ function LiquidBoardDrawing({
           cy="9"
           rx="25"
           ry="3.8"
-          fill={`url(#${id('rim')})`}
+          fill={`url(#${id('rim', activeLayer)})`}
           stroke="#82948a"
           strokeWidth=".9"
         />
@@ -259,7 +249,7 @@ function LiquidBoardDrawing({
       </G>
     );
   };
-  const renderTube = (i: number) => {
+  const renderTube = (i: number, activeLayer = false) => {
     const p = poses[i],
       moving = pouring?.from === i,
       target = pouring?.to === i;
@@ -295,9 +285,9 @@ function LiquidBoardDrawing({
       >
         <Path
           d="M-24 10 L-23 137 Q-23 160 0 160 Q23 160 23 137 L24 10Z"
-          fill={`url(#${id('glass')})`}
+          fill={`url(#${id('glass', activeLayer)})`}
         />
-        <G clipPath={`url(#${id('inside')})`}>
+        <G clipPath={`url(#${id('inside', activeLayer)})`}>
           {pieces.map(({ layer, d, polygon, j }) => {
             const center = polygon.length
               ? {
@@ -307,8 +297,16 @@ function LiquidBoardDrawing({
               : { x: 0, y: 0 };
             return (
               <G key={j}>
-                <Path d={d} fill={`url(#${id(`pigment${layer.color}`)})`} fillOpacity=".96" />
-                <Path d={d} fill={`url(#${id(`sheen${layer.color}`)})`} opacity=".32" />
+                <Path
+                  d={d}
+                  fill={`url(#${id(`pigment${layer.color}`, activeLayer)})`}
+                  fillOpacity=".96"
+                />
+                <Path
+                  d={d}
+                  fill={`url(#${id(`sheen${layer.color}`, activeLayer)})`}
+                  opacity=".32"
+                />
                 {layer.units > 0.35 &&
                   [0, 1, 2].map((k) => {
                     const py =
@@ -413,7 +411,7 @@ function LiquidBoardDrawing({
         <Path
           id="pour-jet"
           d={path}
-          stroke={`url(#${id(`jet${color}`)})`}
+          stroke={`url(#${id(`jet${color}`, true)})`}
           strokeWidth={thick}
           fill="none"
           strokeLinecap="round"
@@ -455,6 +453,168 @@ function LiquidBoardDrawing({
       </G>
     );
   };
+  const definitions = (activeLayer: boolean) => (
+    <>
+      <RackDefinitions prefix={id('rack', activeLayer)} />
+      <Defs>
+        <ClipPath id={id('inside', activeLayer)}>
+          <Path d={polygonPath(INNER)} />
+        </ClipPath>
+        <LinearGradient id={id('glass', activeLayer)} x1="0" x2="1">
+          <Stop offset="0" stopColor="#9ab9b0" stopOpacity=".13" />
+          <Stop offset=".28" stopColor="#ffffff" stopOpacity=".2" />
+          <Stop offset=".64" stopColor="#fff6df" stopOpacity=".02" />
+          <Stop offset="1" stopColor="#8caa9d" stopOpacity=".18" />
+        </LinearGradient>
+        <LinearGradient id={id('rim', activeLayer)} x1="0" x2="0" y1="0" y2="1">
+          <Stop offset="0" stopColor="#fffcf0" stopOpacity=".9" />
+          <Stop offset="1" stopColor="#a5b5a6" stopOpacity=".45" />
+        </LinearGradient>
+        {palette.map((base, c) => (
+          <React.Fragment key={c}>
+            <LinearGradient id={id(`pigment${c}`, activeLayer)} x1="0" x2="1">
+              <Stop offset="0" stopColor={colorMix(base, '#182d3b', 0.36)} />
+              <Stop offset=".24" stopColor={base} />
+              <Stop offset=".5" stopColor={colorMix(base, '#ffdfac', 0.16)} />
+              <Stop offset=".78" stopColor={base} />
+              <Stop offset="1" stopColor={colorMix(base, '#19223d', 0.3)} />
+            </LinearGradient>
+            <LinearGradient id={id(`sheen${c}`, activeLayer)} x1="0" y1="0" x2=".8" y2="1">
+              <Stop offset="0" stopColor="#fff2cf" stopOpacity=".55" />
+              <Stop offset=".35" stopColor={base} stopOpacity="0" />
+              <Stop offset=".8" stopColor={colorMix(base, '#b89ee5', 0.35)} stopOpacity=".1" />
+              <Stop offset="1" stopColor="#fff4d0" stopOpacity=".4" />
+            </LinearGradient>
+            <LinearGradient id={id(`jet${c}`, activeLayer)} x1="0" y1="0" x2="1" y2="0">
+              <Stop offset="0" stopColor={colorMix(base, '#1f2440', 0.15)} />
+              <Stop offset=".5" stopColor={colorMix(base, '#fff0cd', 0.25)} />
+              <Stop offset="1" stopColor={base} />
+            </LinearGradient>
+            <RadialGradient id={id(`glow${c}`, activeLayer)}>
+              <Stop offset="0" stopColor={base} stopOpacity=".2" />
+              <Stop offset=".65" stopColor={base} stopOpacity=".06" />
+              <Stop offset="1" stopColor={base} stopOpacity="0" />
+            </RadialGradient>
+          </React.Fragment>
+        ))}
+      </Defs>
+    </>
+  );
+  const stillDefinitions = useMemo(() => definitions(false), [unique]);
+  const activeDefinitions = useMemo(() => definitions(true), [unique]);
+  const stillScene = useMemo(
+    () => (
+      <Svg
+        id="liquid-scene"
+        style={{ position: 'relative', zIndex: 1 }}
+        pointerEvents="none"
+        width={width}
+        height={height}
+        viewBox={`0 0 ${width} ${height}`}
+      >
+        {stillDefinitions}
+        {layout.map((p, i) => (
+          <G key={`aura${i}`}>
+            {board[i].length > 0 && (
+              <Ellipse
+                cx={p.x}
+                cy={p.y + 104 * scale}
+                rx={38 * scale}
+                ry={82 * scale}
+                fill={`url(#${id(`glow${board[i].at(-1)}`)})`}
+                opacity={0.65 + 0.2 * Math.sin(time * 0.8 + i)}
+              />
+            )}
+          </G>
+        ))}
+        <RackStand racks={racks} width={width} scale={scale} prefix={id('rack')} />
+        {racks.map((rack, i) => (
+          <TubeRack
+            key={`rack-back-${i}`}
+            {...rack}
+            width={width}
+            scale={scale}
+            prefix={id('rack')}
+          />
+        ))}
+        {board.map((_, i) => (pouring?.from === i || pouring?.to === i ? null : renderTube(i)))}
+        {board.map((_, i) => (pouring?.from === i || pouring?.to === i ? null : front(i)))}
+        {racks.map((rack, i) => (
+          <TubeRack
+            key={`rack-front-${i}`}
+            {...rack}
+            width={width}
+            scale={scale}
+            prefix={id('rack')}
+            front
+          />
+        ))}
+        {layout.map((p, i) => (
+          <G key={`label-${i}`}>
+            <Rect
+              x={p.x - 11 * scale}
+              y={p.y + 181 * scale}
+              width={22 * scale}
+              height={14 * scale}
+              rx={2 * scale}
+              fill="#f5e7c8"
+              fillOpacity=".96"
+              stroke="#997d4c"
+              strokeWidth=".5"
+            />
+            <SvgText
+              x={p.x}
+              y={p.y + 191 * scale}
+              fill={hint?.from === i || hint?.to === i ? '#8b5f29' : '#324b3d'}
+              textAnchor="middle"
+              fontSize={10 * scale}
+              fontFamily={F.medium}
+              letterSpacing="1"
+            >
+              {String(i + 1).padStart(2, '0')}
+            </SvgText>
+          </G>
+        ))}
+      </Svg>
+    ),
+    [
+      width,
+      height,
+      scale,
+      board,
+      selected,
+      hint,
+      pouring,
+      patterns,
+      racks,
+      layout,
+      stillDefinitions,
+    ],
+  );
+  const touchTargets = useMemo(
+    () =>
+      layout.map((p, i) => (
+        <Pressable
+          key={i}
+          accessibilityRole="button"
+          accessibilityLabel={`Flacon ${i + 1}, ${board[i].length ? board[i].map((c) => colorNames[c].toLocaleLowerCase('fr')).join(', ') : 'vide'}`}
+          accessibilityState={{ selected: selected === i, disabled }}
+          disabled={disabled}
+          onPress={() => tap.current(i)}
+          style={{
+            position: 'absolute',
+            zIndex: 2,
+            left: p.x - 28 * scale,
+            top: p.y - 12 * scale,
+            width: 56 * scale,
+            height: 190 * scale,
+            minWidth: 44,
+            minHeight: 44,
+          }}
+        />
+      )),
+    [layout, board, selected, disabled, scale],
+  );
   return (
     <View
       testID={pouring ? 'liquid-board-pouring' : 'liquid-board-idle'}
@@ -475,128 +635,43 @@ function LiquidBoardDrawing({
       {!integrated && <FoliageFrame scene />}
       {!!width && (
         <>
-          <Svg
-            id="liquid-scene"
-            style={{ position: 'relative', zIndex: 1 }}
-            pointerEvents="none"
-            width={width}
-            height={height}
-            viewBox={`0 0 ${width} ${height}`}
-          >
-            <RackDefinitions prefix={id('rack')} />
-            <Defs>
-              <ClipPath id={id('inside')}>
-                <Path d={polygonPath(INNER)} />
-              </ClipPath>
-              <LinearGradient id={id('glass')} x1="0" x2="1">
-                <Stop offset="0" stopColor="#9ab9b0" stopOpacity=".13" />
-                <Stop offset=".28" stopColor="#ffffff" stopOpacity=".2" />
-                <Stop offset=".64" stopColor="#fff6df" stopOpacity=".02" />
-                <Stop offset="1" stopColor="#8caa9d" stopOpacity=".18" />
-              </LinearGradient>
-              <LinearGradient id={id('rim')} x1="0" x2="0" y1="0" y2="1">
-                <Stop offset="0" stopColor="#fffcf0" stopOpacity=".9" />
-                <Stop offset="1" stopColor="#a5b5a6" stopOpacity=".45" />
-              </LinearGradient>
-              {palette.map((base, c) => (
-                <React.Fragment key={c}>
-                  <LinearGradient id={id(`pigment${c}`)} x1="0" x2="1">
-                    <Stop offset="0" stopColor={colorMix(base, '#182d3b', 0.36)} />
-                    <Stop offset=".24" stopColor={base} />
-                    <Stop offset=".5" stopColor={colorMix(base, '#ffdfac', 0.16)} />
-                    <Stop offset=".78" stopColor={base} />
-                    <Stop offset="1" stopColor={colorMix(base, '#19223d', 0.3)} />
-                  </LinearGradient>
-                  <LinearGradient id={id(`sheen${c}`)} x1="0" y1="0" x2=".8" y2="1">
-                    <Stop offset="0" stopColor="#fff2cf" stopOpacity=".55" />
-                    <Stop offset=".35" stopColor={base} stopOpacity="0" />
-                    <Stop
-                      offset=".8"
-                      stopColor={colorMix(base, '#b89ee5', 0.35)}
-                      stopOpacity=".1"
-                    />
-                    <Stop offset="1" stopColor="#fff4d0" stopOpacity=".4" />
-                  </LinearGradient>
-                  <LinearGradient id={id(`jet${c}`)} x1="0" y1="0" x2="1" y2="0">
-                    <Stop offset="0" stopColor={colorMix(base, '#1f2440', 0.15)} />
-                    <Stop offset=".5" stopColor={colorMix(base, '#fff0cd', 0.25)} />
-                    <Stop offset="1" stopColor={base} />
-                  </LinearGradient>
-                  <RadialGradient id={id(`glow${c}`)}>
-                    <Stop offset="0" stopColor={base} stopOpacity=".2" />
-                    <Stop offset=".65" stopColor={base} stopOpacity=".06" />
-                    <Stop offset="1" stopColor={base} stopOpacity="0" />
-                  </RadialGradient>
-                </React.Fragment>
-              ))}
-            </Defs>
-            {layout.map((p, i) => (
-              <G key={`aura${i}`}>
-                {board[i].length > 0 && (
-                  <Ellipse
-                    cx={p.x}
-                    cy={p.y + 104 * scale}
-                    rx={38 * scale}
-                    ry={82 * scale}
-                    fill={`url(#${id(`glow${board[i].at(-1)}`)})`}
-                    opacity={0.65 + 0.2 * Math.sin(time * 0.8 + i)}
+          {stillScene}
+          {pouring && (
+            <Svg
+              width={width}
+              height={height}
+              viewBox={`0 0 ${width} ${height}`}
+              style={[StyleSheet.absoluteFill, { zIndex: 1 }]}
+              pointerEvents="none"
+            >
+              {activeDefinitions}
+              {renderTube(pouring.to, true)}
+              {front(pouring.to, true)}
+              {stream()}
+              {racks
+                .filter((_, row) => row === Math.floor(pouring.to / columns))
+                .map((rack, row) => (
+                  <TubeRack
+                    key={row}
+                    {...rack}
+                    width={width}
+                    scale={scale}
+                    prefix={id('rack', true)}
+                    front
                   />
-                )}
-              </G>
-            ))}
-            <RackStand racks={racks} width={width} scale={scale} prefix={id('rack')} />
-            {racks.map((rack, i) => (
-              <TubeRack
-                key={`rack-back-${i}`}
-                {...rack}
-                width={width}
-                scale={scale}
-                prefix={id('rack')}
-              />
-            ))}
-            {board.map((_, i) => (pouring?.from === i ? null : renderTube(i)))}
-            {board.map((_, i) => (pouring?.from === i ? null : front(i)))}
-            {stream()}
-            {pouring && front(pouring.to)}
-            {racks.map((rack, i) => (
-              <TubeRack
-                key={`rack-front-${i}`}
-                {...rack}
-                width={width}
-                scale={scale}
-                prefix={id('rack')}
-                front
-              />
-            ))}
-            {layout.map((p, i) => (
-              <G key={`label-${i}`}>
-                <Rect
-                  x={p.x - 11 * scale}
-                  y={p.y + 181 * scale}
-                  width={22 * scale}
-                  height={14 * scale}
-                  rx={2 * scale}
-                  fill="#f5e7c8"
-                  fillOpacity=".96"
-                  stroke="#997d4c"
-                  strokeWidth=".5"
-                />
-                <SvgText
-                  x={p.x}
-                  y={p.y + 191 * scale}
-                  fill={hint?.from === i || hint?.to === i ? '#8b5f29' : '#324b3d'}
-                  textAnchor="middle"
-                  fontSize={10 * scale}
-                  fontFamily={F.medium}
-                  letterSpacing="1"
-                >
-                  {String(i + 1).padStart(2, '0')}
-                </SvgText>
-              </G>
-            ))}
-            {pouring && renderTube(pouring.from)}
-            {pouring && front(pouring.from)}
-            {reward && layout[reward.tube] && (
+                ))}
+              {renderTube(pouring.from, true)}
+              {front(pouring.from, true)}
+            </Svg>
+          )}
+          {reward && layout[reward.tube] && (
+            <Svg
+              width={width}
+              height={height}
+              viewBox={`0 0 ${width} ${height}`}
+              style={[StyleSheet.absoluteFill, { zIndex: 1 }]}
+              pointerEvents="none"
+            >
               <G
                 transform={`translate(${layout[reward.tube].x} ${layout[reward.tube].y}) scale(${scale})`}
               >
@@ -607,28 +682,9 @@ function LiquidBoardDrawing({
                   onDone={() => onRewardDone?.(reward.id)}
                 />
               </G>
-            )}
-          </Svg>
-          {layout.map((p, i) => (
-            <Pressable
-              key={i}
-              accessibilityRole="button"
-              accessibilityLabel={`Flacon ${i + 1}, ${board[i].length ? board[i].map((c) => colorNames[c].toLocaleLowerCase('fr')).join(', ') : 'vide'}`}
-              accessibilityState={{ selected: selected === i, disabled }}
-              disabled={disabled}
-              onPress={() => onTap(i)}
-              style={{
-                position: 'absolute',
-                zIndex: 2,
-                left: p.x - 28 * scale,
-                top: p.y - 12 * scale,
-                width: 56 * scale,
-                height: 190 * scale,
-                minWidth: 44,
-                minHeight: 44,
-              }}
-            />
-          ))}
+            </Svg>
+          )}
+          {touchTargets}
         </>
       )}
     </View>

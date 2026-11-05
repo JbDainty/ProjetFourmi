@@ -89,6 +89,7 @@ export function PencilNote({
   }, [prefix, width, writing]);
 
   const lettering = {
+    includeFontPadding: false,
     fontFamily: handwritten ? F.handwriting : F.body,
     fontSize: handwritten ? 22 : 12,
     lineHeight: handwritten ? 27 : 22,

@@ -3,6 +3,7 @@ import { Animated, Easing, StyleSheet, View, useWindowDimensions } from 'react-n
 import Svg, { Defs, LinearGradient, Stop, Path, G } from 'react-native-svg';
 import { T } from './ui';
 import { F } from './fonts';
+import { SvgBackdrop } from './SvgBackdrop';
 
 const lifetime = 5800;
 
@@ -129,14 +130,7 @@ export function MistakeLeaves({
             : [],
         }}
       >
-        <Svg
-          width="100%"
-          height="100%"
-          viewBox="0 0 420 90"
-          preserveAspectRatio="none"
-          accessible={false}
-          style={StyleSheet.absoluteFill}
-        >
+        <SvgBackdrop viewBox="0 0 420 90" preserveAspectRatio="none">
           <Defs>
             <LinearGradient id={token} x1="0" y1="0" x2="1" y2="1">
               <Stop stopColor="#eeebcb" />
@@ -156,7 +150,7 @@ export function MistakeLeaves({
             strokeWidth="1.3"
             strokeLinecap="round"
           />
-        </Svg>
+        </SvgBackdrop>
         <T
           testID="mistake-leaf-text"
           style={{
