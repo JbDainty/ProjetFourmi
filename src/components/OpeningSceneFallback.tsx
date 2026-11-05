@@ -1,4 +1,4 @@
-import React, { useId } from 'react';
+import React, { useId, useEffect } from 'react';
 import Svg, {
   Circle,
   Defs,
@@ -12,10 +12,14 @@ import Svg, {
   ClipPath,
 } from 'react-native-svg';
 import { Asset } from 'expo-asset';
+import type { OpeningSceneProps } from '../scene/prologueTextures';
 import { prologueFrame } from '../animation/prologue';
 const clamp = (x: number) => Math.max(0, Math.min(1, x));
 
-export function OpeningScene({ progress: p }: { progress: number }) {
+export function OpeningScene({ progress: p, onReady }: OpeningSceneProps) {
+  useEffect(() => {
+    onReady?.();
+  }, []);
   const token = 'opening-' + useId().replace(/[^a-z0-9]/gi, '');
   const opening = prologueFrame(p).opening,
     flight = clamp((p - 0.31) / 0.55),

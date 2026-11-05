@@ -30,7 +30,9 @@
     "test:page-turn": "node --import tsx scripts/page-turn-smoke.ts",
     "test:soundscape": "node --import tsx scripts/soundscape-smoke.ts",
     "test:journey": "node --import tsx scripts/journey-smoke.ts",
-    "test:prologue": "node --import tsx scripts/prologue-smoke.ts"
+    "test:prologue": "node --import tsx scripts/prologue-smoke.ts",
+    "test:native-prologue": "node --import tsx scripts/native-prologue-smoke.ts",
+    "assets:prologue": "node --import tsx scripts/generate-prologue-textures.ts"
   },
   "dependencies": {
     "@expo-google-fonts/alegreya": "^0.4.2",
@@ -45,6 +47,7 @@
     "expo-constants": "~18.0.0",
     "expo-file-system": "~19.0.24",
     "expo-font": "~14.0.0",
+    "expo-gl": "~16.0.10",
     "expo-haptics": "~15.0.0",
     "expo-linking": "~8.0.0",
     "expo-router": "~6.0.0",
@@ -56,12 +59,15 @@
     "react-native-screens": "~4.16.0",
     "react-native-svg": "15.12.1",
     "react-native-web": "^0.21.0",
-    "three": "^0.183.2"
+    "three": "^0.183.2",
+    "upng-js": "^2.1.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.0",
     "@types/react": "~19.1.0",
     "@types/three": "^0.183.1",
+    "@types/upng-js": "^2.1.5",
+    "esbuild": "^0.28.2",
     "prettier": "^3.9.10",
     "tsx": "^4.20.0",
     "typescript": "~5.9.2",

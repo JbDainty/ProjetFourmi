@@ -57,6 +57,23 @@ async function main() {
     await page.clock.pauseAt(new Date(now + 250));
     await page.goto(url);
     await expect(book).toHaveAttribute('data-renderer', 'webgl');
+    await phase(0.13);
+    const held = Number(await book.getAttribute('data-progress'));
+    await page.evaluate(() => {
+      Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+      Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' });
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    await page.clock.fastForward(4000);
+    await page.clock.runFor(50);
+    expect(Number(await book.getAttribute('data-progress'))).toBe(held);
+    await page.evaluate(() => {
+      Object.defineProperty(document, 'hidden', { configurable: true, value: false });
+      Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' });
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+    await page.clock.runFor(90);
+    expect(Number(await book.getAttribute('data-progress'))).toBeLessThan(held + 0.03);
     for (const [progress, name] of [
       [0.06, 'cover'],
       [0.32, 'opening'],
@@ -109,6 +126,12 @@ async function main() {
     await page.getByRole('button', { name: 'Passer le prologue' }).click();
     await expect(page.getByTestId('book-signature-page')).toBeVisible();
     await expect.poll(() => page.evaluate(() => (window as any).webglReleased)).toBe(1);
+    // Cancelling during texture preparation must never reopen the movie later.
+    await page.goto(url);
+    await page.getByRole('button', { name: 'Passer le prologue' }).click();
+    await expect(page.getByTestId('book-signature-page')).toBeVisible();
+    await page.clock.fastForward(500);
+    await expect(book).toHaveCount(0);
     // Context loss switches to the moving SVG version, never to a blank screen.
     await page.goto(url);
     await expect(book).toHaveAttribute('data-renderer', 'webgl');

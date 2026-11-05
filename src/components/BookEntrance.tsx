@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
+  AppState,
   Easing,
   KeyboardAvoidingView,
   Modal,
@@ -34,30 +35,42 @@ export function BookEntrance({
     [name, setName] = useState(nickname),
     [error, setError] = useState('');
   const [replayRun, setReplayRun] = useState(0);
+  const [sceneReady, setSceneReady] = useState(false);
+  const [foreground, setForeground] = useState(
+    AppState.currentState !== 'background' && AppState.currentState !== 'inactive',
+  );
+  const progressRef = useRef(progress);
+  progressRef.current = progress;
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => setForeground(state === 'active'));
+    return () => sub.remove();
+  }, []);
   const submitted = useRef(false);
   const finished = progress >= 1;
   const frame = prologueFrame(progress);
+  useEffect(() => {
+    const listener = value.addListener(({ value: p }) => {
+      progressRef.current = p;
+      setProgress(p);
+    });
+    return () => value.removeListener(listener);
+  }, [value]);
   useEffect(() => {
     if ((returning && replayRun === 0) || !motion) {
       value.setValue(1);
       setProgress(1);
       return;
     }
-    value.setValue(0);
-    setProgress(0);
-    const listener = value.addListener(({ value }) => setProgress(value));
+    if (!sceneReady || !foreground) return;
     const animation = Animated.timing(value, {
       toValue: 1,
-      duration: prologueDuration,
+      duration: prologueDuration * (1 - progressRef.current),
       easing: Easing.linear,
       useNativeDriver: false,
     });
     animation.start();
-    return () => {
-      animation.stop();
-      value.removeListener(listener);
-    };
-  }, [returning, motion, value, replayRun]);
+    return () => animation.stop();
+  }, [returning, motion, value, replayRun, sceneReady, foreground]);
   const enter = () => {
     if (submitted.current) return;
     const cleaned = normalizeNickname(name);
@@ -113,7 +126,11 @@ export function BookEntrance({
               }}
             />
             <View style={{ flex: 1 }}>
-              <OpeningScene progress={progress} />
+              <OpeningScene
+                progress={progress}
+                onReady={() => setSceneReady(true)}
+                onLoading={() => setSceneReady(false)}
+              />
             </View>
             <View
               style={{
@@ -236,7 +253,18 @@ export function BookEntrance({
                 {returning ? 'Rouvrir mon herbier' : 'Créer mon carnet'}
               </Button>
               {returning && motion && (
-                <Button icon="leaf-outline" secondary onPress={() => setReplayRun((n) => n + 1)}>
+                <Button
+                  icon="leaf-outline"
+                  secondary
+                  onPress={() => {
+                    value.stopAnimation();
+                    value.setValue(0);
+                    progressRef.current = 0;
+                    setProgress(0);
+                    setSceneReady(false);
+                    setReplayRun((n) => n + 1);
+                  }}
+                >
                   Revoir le prologue
                 </Button>
               )}

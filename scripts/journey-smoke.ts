@@ -35,7 +35,7 @@ async function main() {
     await expect(page.getByTestId('opening-film-art')).toBeVisible();
     await page.waitForTimeout(1900);
     await page.screenshot({ path: 'test-results/book-prologue-in-flight.png' });
-    await expect(page.getByTestId('book-signature-page')).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId('book-signature-page')).toBeVisible({ timeout: 24000 });
     expect(await page.evaluate(() => (window as any).musicStarts)).toBe(0);
     await page.getByRole('button', { name: 'Créer mon carnet', exact: true }).click();
     await expect(page.getByRole('alert')).toContainText('Choisissez un pseudo');
