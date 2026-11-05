@@ -16,7 +16,8 @@ async function main() {
   page.on('pageerror', (error) => errors.push(error.message));
   mkdirSync('test-results', { recursive: true });
   const url = process.env.GAME_TEST_URL || 'http://localhost:8081/';
-  const fullHint = 'Versez le flacon 2 dans le flacon 1.';
+  const firstHint = levels[0].solution[0];
+  const fullHint = `Versez le flacon ${firstHint.from + 1} dans le flacon ${firstHint.to + 1}.`;
   const note = page.getByTestId('hint-writing-text');
   try {
     await page.goto(url);

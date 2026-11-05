@@ -1,0 +1,805 @@
+{
+  "algorithm": "IDA* exact; exhaustive lower cost bounds; no approximate fallback",
+  "pages": [
+    {
+      "page": 1,
+      "previous": 5,
+      "minimum": 4,
+      "lowerBound": 4,
+      "boundsChecked": 1,
+      "expanded": 5
+    },
+    {
+      "page": 2,
+      "previous": 4,
+      "minimum": 4,
+      "lowerBound": 4,
+      "boundsChecked": 1,
+      "expanded": 5
+    },
+    {
+      "page": 3,
+      "previous": 4,
+      "minimum": 4,
+      "lowerBound": 3,
+      "boundsChecked": 2,
+      "expanded": 6
+    },
+    {
+      "page": 4,
+      "previous": 5,
+      "minimum": 4,
+      "lowerBound": 3,
+      "boundsChecked": 2,
+      "expanded": 6
+    },
+    {
+      "page": 5,
+      "previous": 7,
+      "minimum": 5,
+      "lowerBound": 5,
+      "boundsChecked": 1,
+      "expanded": 7
+    },
+    {
+      "page": 6,
+      "previous": 9,
+      "minimum": 7,
+      "lowerBound": 7,
+      "boundsChecked": 1,
+      "expanded": 9
+    },
+    {
+      "page": 7,
+      "previous": 8,
+      "minimum": 6,
+      "lowerBound": 6,
+      "boundsChecked": 1,
+      "expanded": 7
+    },
+    {
+      "page": 8,
+      "previous": 9,
+      "minimum": 7,
+      "lowerBound": 6,
+      "boundsChecked": 2,
+      "expanded": 11
+    },
+    {
+      "page": 9,
+      "previous": 9,
+      "minimum": 8,
+      "lowerBound": 7,
+      "boundsChecked": 2,
+      "expanded": 20
+    },
+    {
+      "page": 10,
+      "previous": 7,
+      "minimum": 6,
+      "lowerBound": 5,
+      "boundsChecked": 2,
+      "expanded": 26
+    },
+    {
+      "page": 11,
+      "previous": 11,
+      "minimum": 10,
+      "lowerBound": 10,
+      "boundsChecked": 1,
+      "expanded": 11
+    },
+    {
+      "page": 12,
+      "previous": 9,
+      "minimum": 9,
+      "lowerBound": 9,
+      "boundsChecked": 1,
+      "expanded": 10
+    },
+    {
+      "page": 13,
+      "previous": 11,
+      "minimum": 11,
+      "lowerBound": 10,
+      "boundsChecked": 2,
+      "expanded": 29
+    },
+    {
+      "page": 14,
+      "previous": 10,
+      "minimum": 10,
+      "lowerBound": 9,
+      "boundsChecked": 2,
+      "expanded": 14
+    },
+    {
+      "page": 15,
+      "previous": 13,
+      "minimum": 10,
+      "lowerBound": 9,
+      "boundsChecked": 2,
+      "expanded": 47
+    },
+    {
+      "page": 16,
+      "previous": 12,
+      "minimum": 10,
+      "lowerBound": 9,
+      "boundsChecked": 2,
+      "expanded": 21
+    },
+    {
+      "page": 17,
+      "previous": 7,
+      "minimum": 7,
+      "lowerBound": 7,
+      "boundsChecked": 1,
+      "expanded": 9
+    },
+    {
+      "page": 18,
+      "previous": 10,
+      "minimum": 10,
+      "lowerBound": 9,
+      "boundsChecked": 2,
+      "expanded": 35
+    },
+    {
+      "page": 19,
+      "previous": 11,
+      "minimum": 10,
+      "lowerBound": 9,
+      "boundsChecked": 2,
+      "expanded": 51
+    },
+    {
+      "page": 20,
+      "previous": 15,
+      "minimum": 12,
+      "lowerBound": 11,
+      "boundsChecked": 2,
+      "expanded": 26
+    },
+    {
+      "page": 21,
+      "previous": 11,
+      "minimum": 9,
+      "lowerBound": 8,
+      "boundsChecked": 2,
+      "expanded": 58
+    },
+    {
+      "page": 22,
+      "previous": 19,
+      "minimum": 13,
+      "lowerBound": 12,
+      "boundsChecked": 2,
+      "expanded": 46
+    },
+    {
+      "page": 23,
+      "previous": 7,
+      "minimum": 7,
+      "lowerBound": 7,
+      "boundsChecked": 1,
+      "expanded": 8
+    },
+    {
+      "page": 24,
+      "previous": 13,
+      "minimum": 12,
+      "lowerBound": 11,
+      "boundsChecked": 2,
+      "expanded": 109
+    },
+    {
+      "page": 25,
+      "previous": 8,
+      "minimum": 7,
+      "lowerBound": 7,
+      "boundsChecked": 1,
+      "expanded": 8
+    },
+    {
+      "page": 26,
+      "previous": 13,
+      "minimum": 12,
+      "lowerBound": 11,
+      "boundsChecked": 2,
+      "expanded": 46
+    },
+    {
+      "page": 27,
+      "previous": 12,
+      "minimum": 11,
+      "lowerBound": 11,
+      "boundsChecked": 1,
+      "expanded": 12
+    },
+    {
+      "page": 28,
+      "previous": 17,
+      "minimum": 16,
+      "lowerBound": 15,
+      "boundsChecked": 2,
+      "expanded": 105
+    },
+    {
+      "page": 29,
+      "previous": 14,
+      "minimum": 12,
+      "lowerBound": 11,
+      "boundsChecked": 2,
+      "expanded": 17
+    },
+    {
+      "page": 30,
+      "previous": 15,
+      "minimum": 13,
+      "lowerBound": 12,
+      "boundsChecked": 2,
+      "expanded": 137
+    },
+    {
+      "page": 31,
+      "previous": 17,
+      "minimum": 12,
+      "lowerBound": 11,
+      "boundsChecked": 2,
+      "expanded": 57
+    },
+    {
+      "page": 32,
+      "previous": 13,
+      "minimum": 12,
+      "lowerBound": 12,
+      "boundsChecked": 1,
+      "expanded": 14
+    },
+    {
+      "page": 33,
+      "previous": 8,
+      "minimum": 8,
+      "lowerBound": 8,
+      "boundsChecked": 1,
+      "expanded": 10
+    },
+    {
+      "page": 34,
+      "previous": 11,
+      "minimum": 10,
+      "lowerBound": 10,
+      "boundsChecked": 1,
+      "expanded": 11
+    },
+    {
+      "page": 35,
+      "previous": 14,
+      "minimum": 11,
+      "lowerBound": 9,
+      "boundsChecked": 3,
+      "expanded": 85
+    },
+    {
+      "page": 36,
+      "previous": 12,
+      "minimum": 12,
+      "lowerBound": 11,
+      "boundsChecked": 2,
+      "expanded": 46
+    },
+    {
+      "page": 37,
+      "previous": 17,
+      "minimum": 15,
+      "lowerBound": 14,
+      "boundsChecked": 2,
+      "expanded": 89
+    },
+    {
+      "page": 38,
+      "previous": 15,
+      "minimum": 11,
+      "lowerBound": 11,
+      "boundsChecked": 1,
+      "expanded": 13
+    },
+    {
+      "page": 39,
+      "previous": 14,
+      "minimum": 13,
+      "lowerBound": 11,
+      "boundsChecked": 3,
+      "expanded": 112
+    },
+    {
+      "page": 40,
+      "previous": 16,
+      "minimum": 13,
+      "lowerBound": 12,
+      "boundsChecked": 2,
+      "expanded": 65
+    },
+    {
+      "page": 41,
+      "previous": 13,
+      "minimum": 13,
+      "lowerBound": 12,
+      "boundsChecked": 2,
+      "expanded": 138
+    },
+    {
+      "page": 42,
+      "previous": 15,
+      "minimum": 13,
+      "lowerBound": 11,
+      "boundsChecked": 3,
+      "expanded": 358
+    },
+    {
+      "page": 43,
+      "previous": 21,
+      "minimum": 14,
+      "lowerBound": 13,
+      "boundsChecked": 2,
+      "expanded": 588
+    },
+    {
+      "page": 44,
+      "previous": 11,
+      "minimum": 10,
+      "lowerBound": 9,
+      "boundsChecked": 2,
+      "expanded": 12
+    },
+    {
+      "page": 45,
+      "previous": 11,
+      "minimum": 10,
+      "lowerBound": 9,
+      "boundsChecked": 2,
+      "expanded": 57
+    },
+    {
+      "page": 46,
+      "previous": 11,
+      "minimum": 10,
+      "lowerBound": 9,
+      "boundsChecked": 2,
+      "expanded": 135
+    },
+    {
+      "page": 47,
+      "previous": 19,
+      "minimum": 11,
+      "lowerBound": 10,
+      "boundsChecked": 2,
+      "expanded": 111
+    },
+    {
+      "page": 48,
+      "previous": 11,
+      "minimum": 11,
+      "lowerBound": 11,
+      "boundsChecked": 1,
+      "expanded": 12
+    },
+    {
+      "page": 49,
+      "previous": 18,
+      "minimum": 12,
+      "lowerBound": 11,
+      "boundsChecked": 2,
+      "expanded": 43
+    },
+    {
+      "page": 50,
+      "previous": 10,
+      "minimum": 8,
+      "lowerBound": 8,
+      "boundsChecked": 1,
+      "expanded": 14
+    },
+    {
+      "page": 51,
+      "previous": 17,
+      "minimum": 13,
+      "lowerBound": 12,
+      "boundsChecked": 2,
+      "expanded": 15
+    },
+    {
+      "page": 52,
+      "previous": 14,
+      "minimum": 12,
+      "lowerBound": 11,
+      "boundsChecked": 2,
+      "expanded": 51
+    },
+    {
+      "page": 53,
+      "previous": 12,
+      "minimum": 11,
+      "lowerBound": 11,
+      "boundsChecked": 1,
+      "expanded": 20
+    },
+    {
+      "page": 54,
+      "previous": 21,
+      "minimum": 15,
+      "lowerBound": 14,
+      "boundsChecked": 2,
+      "expanded": 59
+    },
+    {
+      "page": 55,
+      "previous": 20,
+      "minimum": 17,
+      "lowerBound": 15,
+      "boundsChecked": 3,
+      "expanded": 352
+    },
+    {
+      "page": 56,
+      "previous": 16,
+      "minimum": 13,
+      "lowerBound": 12,
+      "boundsChecked": 2,
+      "expanded": 143
+    },
+    {
+      "page": 57,
+      "previous": 16,
+      "minimum": 14,
+      "lowerBound": 13,
+      "boundsChecked": 2,
+      "expanded": 34
+    },
+    {
+      "page": 58,
+      "previous": 19,
+      "minimum": 14,
+      "lowerBound": 13,
+      "boundsChecked": 2,
+      "expanded": 71
+    },
+    {
+      "page": 59,
+      "previous": 15,
+      "minimum": 11,
+      "lowerBound": 10,
+      "boundsChecked": 2,
+      "expanded": 36
+    },
+    {
+      "page": 60,
+      "previous": 16,
+      "minimum": 14,
+      "lowerBound": 14,
+      "boundsChecked": 1,
+      "expanded": 16
+    },
+    {
+      "page": 61,
+      "previous": 15,
+      "minimum": 13,
+      "lowerBound": 11,
+      "boundsChecked": 3,
+      "expanded": 1043
+    },
+    {
+      "page": 62,
+      "previous": 12,
+      "minimum": 12,
+      "lowerBound": 11,
+      "boundsChecked": 2,
+      "expanded": 53
+    },
+    {
+      "page": 63,
+      "previous": 17,
+      "minimum": 13,
+      "lowerBound": 11,
+      "boundsChecked": 3,
+      "expanded": 586
+    },
+    {
+      "page": 64,
+      "previous": 13,
+      "minimum": 12,
+      "lowerBound": 12,
+      "boundsChecked": 1,
+      "expanded": 13
+    },
+    {
+      "page": 65,
+      "previous": 20,
+      "minimum": 14,
+      "lowerBound": 13,
+      "boundsChecked": 2,
+      "expanded": 365
+    },
+    {
+      "page": 66,
+      "previous": 18,
+      "minimum": 13,
+      "lowerBound": 12,
+      "boundsChecked": 2,
+      "expanded": 1080
+    },
+    {
+      "page": 67,
+      "previous": 18,
+      "minimum": 15,
+      "lowerBound": 14,
+      "boundsChecked": 2,
+      "expanded": 140
+    },
+    {
+      "page": 68,
+      "previous": 14,
+      "minimum": 14,
+      "lowerBound": 13,
+      "boundsChecked": 2,
+      "expanded": 102
+    },
+    {
+      "page": 69,
+      "previous": 13,
+      "minimum": 12,
+      "lowerBound": 11,
+      "boundsChecked": 2,
+      "expanded": 153
+    },
+    {
+      "page": 70,
+      "previous": 12,
+      "minimum": 11,
+      "lowerBound": 11,
+      "boundsChecked": 1,
+      "expanded": 20
+    },
+    {
+      "page": 71,
+      "previous": 16,
+      "minimum": 12,
+      "lowerBound": 11,
+      "boundsChecked": 2,
+      "expanded": 156
+    },
+    {
+      "page": 72,
+      "previous": 14,
+      "minimum": 12,
+      "lowerBound": 11,
+      "boundsChecked": 2,
+      "expanded": 15
+    },
+    {
+      "page": 73,
+      "previous": 16,
+      "minimum": 14,
+      "lowerBound": 13,
+      "boundsChecked": 2,
+      "expanded": 217
+    },
+    {
+      "page": 74,
+      "previous": 13,
+      "minimum": 13,
+      "lowerBound": 12,
+      "boundsChecked": 2,
+      "expanded": 151
+    },
+    {
+      "page": 75,
+      "previous": 15,
+      "minimum": 13,
+      "lowerBound": 13,
+      "boundsChecked": 1,
+      "expanded": 68
+    },
+    {
+      "page": 76,
+      "previous": 22,
+      "minimum": 15,
+      "lowerBound": 14,
+      "boundsChecked": 2,
+      "expanded": 138
+    },
+    {
+      "page": 77,
+      "previous": 19,
+      "minimum": 14,
+      "lowerBound": 13,
+      "boundsChecked": 2,
+      "expanded": 151
+    },
+    {
+      "page": 78,
+      "previous": 17,
+      "minimum": 13,
+      "lowerBound": 12,
+      "boundsChecked": 2,
+      "expanded": 114
+    },
+    {
+      "page": 79,
+      "previous": 14,
+      "minimum": 13,
+      "lowerBound": 13,
+      "boundsChecked": 1,
+      "expanded": 15
+    },
+    {
+      "page": 80,
+      "previous": 17,
+      "minimum": 15,
+      "lowerBound": 13,
+      "boundsChecked": 3,
+      "expanded": 2135
+    },
+    {
+      "page": 81,
+      "previous": 17,
+      "minimum": 15,
+      "lowerBound": 15,
+      "boundsChecked": 1,
+      "expanded": 16
+    },
+    {
+      "page": 82,
+      "previous": 15,
+      "minimum": 15,
+      "lowerBound": 14,
+      "boundsChecked": 2,
+      "expanded": 127
+    },
+    {
+      "page": 83,
+      "previous": 12,
+      "minimum": 11,
+      "lowerBound": 11,
+      "boundsChecked": 1,
+      "expanded": 12
+    },
+    {
+      "page": 84,
+      "previous": 18,
+      "minimum": 15,
+      "lowerBound": 14,
+      "boundsChecked": 2,
+      "expanded": 116
+    },
+    {
+      "page": 85,
+      "previous": 22,
+      "minimum": 15,
+      "lowerBound": 14,
+      "boundsChecked": 2,
+      "expanded": 113
+    },
+    {
+      "page": 86,
+      "previous": 12,
+      "minimum": 11,
+      "lowerBound": 10,
+      "boundsChecked": 2,
+      "expanded": 18
+    },
+    {
+      "page": 87,
+      "previous": 20,
+      "minimum": 17,
+      "lowerBound": 16,
+      "boundsChecked": 2,
+      "expanded": 259
+    },
+    {
+      "page": 88,
+      "previous": 21,
+      "minimum": 18,
+      "lowerBound": 16,
+      "boundsChecked": 3,
+      "expanded": 3855
+    },
+    {
+      "page": 89,
+      "previous": 29,
+      "minimum": 16,
+      "lowerBound": 15,
+      "boundsChecked": 2,
+      "expanded": 270
+    },
+    {
+      "page": 90,
+      "previous": 20,
+      "minimum": 19,
+      "lowerBound": 18,
+      "boundsChecked": 2,
+      "expanded": 162
+    },
+    {
+      "page": 91,
+      "previous": 16,
+      "minimum": 13,
+      "lowerBound": 11,
+      "boundsChecked": 3,
+      "expanded": 259
+    },
+    {
+      "page": 92,
+      "previous": 18,
+      "minimum": 16,
+      "lowerBound": 15,
+      "boundsChecked": 2,
+      "expanded": 186
+    },
+    {
+      "page": 93,
+      "previous": 15,
+      "minimum": 12,
+      "lowerBound": 12,
+      "boundsChecked": 1,
+      "expanded": 13
+    },
+    {
+      "page": 94,
+      "previous": 22,
+      "minimum": 16,
+      "lowerBound": 16,
+      "boundsChecked": 1,
+      "expanded": 18
+    },
+    {
+      "page": 95,
+      "previous": 15,
+      "minimum": 13,
+      "lowerBound": 11,
+      "boundsChecked": 3,
+      "expanded": 4108
+    },
+    {
+      "page": 96,
+      "previous": 17,
+      "minimum": 12,
+      "lowerBound": 12,
+      "boundsChecked": 1,
+      "expanded": 38
+    },
+    {
+      "page": 97,
+      "previous": 14,
+      "minimum": 13,
+      "lowerBound": 13,
+      "boundsChecked": 1,
+      "expanded": 14
+    },
+    {
+      "page": 98,
+      "previous": 23,
+      "minimum": 18,
+      "lowerBound": 17,
+      "boundsChecked": 2,
+      "expanded": 78
+    },
+    {
+      "page": 99,
+      "previous": 20,
+      "minimum": 16,
+      "lowerBound": 15,
+      "boundsChecked": 2,
+      "expanded": 76
+    },
+    {
+      "page": 100,
+      "previous": 14,
+      "minimum": 13,
+      "lowerBound": 12,
+      "boundsChecked": 2,
+      "expanded": 119
+    }
+  ]
+}

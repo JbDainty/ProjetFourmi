@@ -24,6 +24,7 @@ import { SceneSizeContext } from '../src/components/SceneSize';
 import { BookScrollView, bookHeaderHeight } from '../src/components/BookScrollView';
 import { T, Label, Icon, Button, Progress, C, ui } from '../src/components/ui';
 import { feedback } from '../src/services/feedback';
+import { pageStars, starLimits } from '../src/state/stars';
 type Note = { text: string; kind: 'info' | 'hint'; request: number; pending: boolean };
 const scenePadding = { top: 0, bottom: 20 };
 export default function Atelier() {
@@ -500,8 +501,12 @@ export default function Atelier() {
                     ? 'Votre collection est complète.'
                     : s.organs[(save.current - 1) % 5]}
                 </T>
-                <T style={{ color: C.gold, fontSize: 24, marginTop: 8 }}>
-                  {'★'.repeat(save.completed[save.current]?.stars ?? 1)}
+                <T
+                  testID="page-earned-stars"
+                  accessibilityLabel={`${pageStars(save.moves, levels[save.current - 1].par)} étoiles pour cette page`}
+                  style={{ color: C.gold, fontSize: 24, marginTop: 8 }}
+                >
+                  {'★'.repeat(pageStars(save.moves, levels[save.current - 1].par))}
                 </T>
                 <T
                   testID="page-result-moves"
@@ -515,6 +520,35 @@ export default function Atelier() {
                 >
                   Page achevée en {save.moves} {save.moves === 1 ? 'mouvement' : 'mouvements'}.
                 </T>
+                <T
+                  testID="page-star-target"
+                  accessibilityLabel={`Minimum possible : ${levels[save.current - 1].par} mouvements. Trois étoiles jusqu’à ${starLimits(levels[save.current - 1].par).three} mouvements.`}
+                  style={{
+                    fontFamily: F.scientific,
+                    fontSize: 15,
+                    color: C.muted,
+                    textAlign: 'center',
+                    marginTop: 3,
+                  }}
+                >
+                  Minimum : {levels[save.current - 1].par} · Objectif ★★★ :{' '}
+                  {starLimits(levels[save.current - 1].par).three}
+                </T>
+                {(save.completed[save.current]?.stars ?? 0) >
+                  pageStars(save.moves, levels[save.current - 1].par) && (
+                  <T
+                    testID="page-saved-best-stars"
+                    style={{
+                      fontFamily: F.scientific,
+                      fontSize: 14,
+                      color: C.green,
+                      textAlign: 'center',
+                      marginTop: 2,
+                    }}
+                  >
+                    Meilleur résultat conservé : {'★'.repeat(save.completed[save.current].stars)}
+                  </T>
+                )}
                 {!reveal ? (
                   <>
                     <Botanical

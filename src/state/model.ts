@@ -2,6 +2,7 @@ import levels from '../data/levels.json';
 import { Board, clone, pour, won } from '../engine/puzzle';
 import { levelSeeds } from './economy';
 import { discoverPigment, Pigment } from './pigments';
+import { pageStars } from './stars';
 
 export type Settings = { sound: boolean; haptics: boolean; patterns: boolean; motion: boolean };
 export type Save = {
@@ -48,7 +49,7 @@ export function reward(s: Save, now = new Date().toISOString()): Save {
   if (!won(s.board)) return s;
   const id = s.current,
     first = !s.completed[id],
-    stars = s.moves <= levels[id - 1].par ? 3 : s.moves <= levels[id - 1].par * 1.5 ? 2 : 1;
+    stars = pageStars(s.moves, levels[id - 1].par);
 
   return {
     ...s,

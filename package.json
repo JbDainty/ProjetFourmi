@@ -23,7 +23,9 @@
     "test:victory": "node --import tsx scripts/victory-smoke.ts",
     "test:book": "node --import tsx scripts/book-smoke.ts",
     "test:mistake": "node --import tsx scripts/mistake-smoke.ts",
-    "test:scroll": "node --import tsx scripts/scroll-smoke.ts"
+    "test:scroll": "node --import tsx scripts/scroll-smoke.ts",
+    "levels:calibrate": "node --import tsx scripts/calibrate-stars.ts",
+    "test:stars": "node --import tsx scripts/stars-smoke.ts"
   },
   "dependencies": {
     "@expo-google-fonts/alegreya": "^0.4.2",

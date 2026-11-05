@@ -3,6 +3,7 @@ import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import levels from '../src/data/levels.json';
 import { initial, loadLevel, move, Save } from '../src/state/model';
+import { solve } from '../src/engine/puzzle';
 const testUrl = (process.env.GAME_TEST_URL || 'http://localhost:8081/').replace(/\/?$/, '/');
 async function main() {
   const browser = await chromium.launch({
@@ -22,7 +23,7 @@ async function main() {
     await page.screenshot({ path: 'test-results/atelier-desktop.png', fullPage: true });
     await page.getByRole('button', { name: 'Indice', exact: true }).click();
     await expect(page.getByTestId('hint-writing-text')).toHaveText(
-      'Versez le flacon 2 dans le flacon 1.',
+      `Versez le flacon ${levels[0].solution[0].from + 1} dans le flacon ${levels[0].solution[0].to + 1}.`,
     );
     for (const [step, m] of levels[0].solution.entries()) {
       await page.getByRole('button', { name: new RegExp(`^Flacon ${m.from + 1},`) }).click();
@@ -43,8 +44,9 @@ async function main() {
         expect(partial.pigments).toHaveLength(0);
         await expect(page.getByText('VOTRE HERBIER REPREND VIE')).not.toBeVisible();
         await page.getByRole('button', { name: 'Indice', exact: true }).click();
+        const consolidation = solve(partial.board)![0];
         await expect(page.getByTestId('hint-writing-text')).toHaveText(
-          'Versez le flacon 3 dans le flacon 1.',
+          `Versez le flacon ${consolidation.from + 1} dans le flacon ${consolidation.to + 1}.`,
         );
       }
     }

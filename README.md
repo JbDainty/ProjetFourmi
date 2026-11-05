@@ -45,7 +45,9 @@ npx expo start --web
 
 Pour une installation reproductible, utiliser `npm ci` avec le fichier `package-lock.json`. Aucun compte ou secret n’est nécessaire pour jouer. Accepter le tutoriel, sélectionner un flacon source puis sa destination. Le flacon doit être vide ou porter la même couleur au sommet. Un groupe contigu se verse dans la limite des quatre couches. Pour gagner, chaque flacon doit être vide ou contenir quatre couches de la même couleur. Une couleur encore répartie entre des flacons partiellement remplis ne valide pas le niveau. Les 100 solutions, les indices et les parcours de référence sont vérifiés avec cette condition. Les configurations de départ et les récompenses déjà enregistrées sont conservées.
 
-Les annulations, indices et reprises sont gratuits. Les étoiles comparent le nombre de mouvements à un parcours de référence vérifié, **pas à un optimum mathématique**. Rejouer peut améliorer les étoiles sans dupliquer les graines ou les pigments. Une nouvelle espèce s’ouvre après cinq niveaux, un écosystème après vingt. Le niveau 100 termine la collection sans charger de niveau 101.
+Les annulations, indices et reprises sont gratuits. Les étoiles sont désormais calculées sur le **minimum exact de versements** de chaque page, enregistré dans `par`. Trois étoiles autorisent ce minimum plus 10 % arrondis au mouvement supérieur, avec au moins un mouvement de marge. Deux étoiles autorisent jusqu’à 150 % du minimum arrondis à l’entier inférieur, avec au moins un mouvement supplémentaire après le seuil des trois étoiles. Au-delà, la réussite vaut une étoile. Exemple : minimum 10, trois étoiles jusqu’à 11, deux jusqu’à 15, une à partir de 16. Le minimum et l’objectif des trois étoiles apparaissent dans le bilan uniquement, après la réussite.
+
+Le bilan affiche les étoiles de la tentative actuelle ; la collection conserve toujours le meilleur score enregistré, y compris les étoiles gagnées avant ce rééquilibrage. Une tentative moins bonne n’efface ni étoiles, ni graines, ni pigments, ni date de première réussite. Rejouer peut améliorer les étoiles sans dupliquer les graines ou les pigments. Une nouvelle espèce s’ouvre après cinq pages, un écosystème après vingt. La page 100 termine la collection sans charger de page 101.
 
 L’atelier est une scène de jeu continue : le décor de serre s’étend sous le titre et les flacons. L’ATH présente « Herbier des couleurs », les graines et un bouton de carnet. Il appartient au contenu qui défile : en descendant, tout le bandeau sort de l’écran sans recouvrir les tubes ni les commandes. Ce bouton ouvre le menu du jeu, avec la reprise de la partie, l’herbier, les écosystèmes, la boutique et les réglages. Il remplace la barre d’onglets et le panneau latéral. Ouvrir puis refermer le carnet conserve la sélection et le puzzle ; quitter l’atelier interrompt un versement en cours avant sa validation.
 
@@ -89,6 +91,7 @@ La typographie utilise **Almendra** pour les titres, **Alegreya Sans** pour les 
 # Après npm run preview :
 npm run test:greenhouse
 npm run test:scroll
+npm run test:stars
 ```
 
 Ce contrôle vérifie le chargement du décor et des huit variantes typographiques, les supports sur chaque rangée, la hauteur compacte sur les écrans hauts et le passage d’une à deux rangées pour un même puzzle à différentes largeurs.
@@ -131,7 +134,19 @@ Le contrôle navigateur utilise Playwright et Chromium installé dans `/usr/bin/
 npm run levels
 ```
 
-Régénère les cent configurations de manière déterministe. Le générateur utilise des mouvements inverses légaux, rejoue leurs certificats avec le moteur de versement et cherche une solution indépendante. Les tests vérifient de nouveau chaque solution. Les budgets de couleurs augmentent de 2 à 7 et le brassage augmente progressivement. L’unicité est vérifiée indépendamment de l’ordre des flacons. Un équilibrage par des joueurs reste nécessaire.
+Régénère les cent configurations de manière déterministe. Le générateur utilise des mouvements inverses légaux, rejoue leurs certificats avec le moteur de versement puis calcule une solution minimale exacte. Les tests vérifient de nouveau chaque solution. Les budgets de couleurs augmentent de 2 à 7 et le brassage augmente progressivement. L’unicité est vérifiée indépendamment de l’ordre des flacons. Un équilibrage par des joueurs reste nécessaire.
+
+Pour recalculer les minima **en conservant les configurations existantes** :
+
+```sh
+npm run levels:calibrate
+```
+
+`src/engine/optimal.ts` effectue une recherche IDA* hors ligne. Le nombre de blocs de couleur moins le nombre final de flacons pleins est une borne inférieure : un versement peut supprimer au plus un bloc. Les limites de coût sont explorées successivement à partir de cette borne ; la première solution a donc un nombre minimal de versements. Les permutations de flacons, mouvements sans changement de position canonique et enfants équivalents peuvent être éliminés car les flacons n’ont pas de rôle imposé dans la condition de victoire. Une table de transposition conserve le meilleur budget restant exploré par position. Toutes les autres actions légales sont considérées, y compris les regroupements de flacons monochromes partiellement pleins.
+
+Une limite de calcul ou de profondeur provoque une erreur, sans référence approximative de secours. Le script ne remplace le fichier qu’une fois les cent solutions minimales obtenues et rejouées avec les règles réelles. Cette calibration a réduit 84 anciennes références, sans modifier les cent plateaux ; par exemple la page 89 passe de 29 à 16 versements, et son objectif de trois étoiles est 18. Le rapport est conservé dans `scripts/star-calibration.json`. Les solutions minimales préenregistrées servent aussi aux indices demandés sur un plateau initial ; la recherche rapide en cours de partie reste distincte du calcul hors ligne des références.
+
+`tests/stars.test.ts` compare les minima des dix premières pages à une recherche indépendante en largeur, vérifie les cent certificats et les seuils inclusifs, les annulations de recherche et la conservation des anciens gains. `npm run test:stars` joue de vraies tentatives en 4, 5, 6 et 7 mouvements pour vérifier respectivement 3, 3, 2 et 1 étoiles, puis contrôle une reprise moins bonne et le bilan sur téléphone étroit.
 
 L’indice utilise un chemin complet trouvé par le solveur depuis l’état courant. Il ne propose jamais un mouvement aléatoire. La recherche est plafonnée à 250 000 états et 140 mouvements pour préserver la réactivité ; si elle n’aboutit pas, l’interface propose d’annuler ou de recommencer, sans prétendre fournir une solution.
 
@@ -176,7 +191,9 @@ Aucun compte, mesure d’audience ou service publicitaire actif. Les ressources 
 - `src/components/fonts.ts` : familles et variantes typographiques embarquées.
 - `src/components/LiquidBoard.tsx` : flacons, filet, gouttes, reflets et mouvements des pigments.
 - `src/engine/puzzle.ts` : règles pures, capacités et solveur.
-- `scripts/generate.ts`, `src/data/levels.json` : génération, certificats et 100 configurations.
+- `scripts/generate.ts`, `src/data/levels.json` : génération, solutions minimales et 100 configurations.
+- `src/engine/optimal.ts`, `scripts/calibrate-stars.ts` : calcul hors ligne des minima exacts, sans modifier les plateaux existants.
+- `src/state/stars.ts` : seuils partagés entre attribution des étoiles et bilan de la tentative.
 - `src/state/model.ts` : progression, récompenses et validation/migration.
 - `src/state/pigments.ts` : découverte des pigments.
 - `src/state/economy.ts` : cadeaux, graines et cosmétiques.

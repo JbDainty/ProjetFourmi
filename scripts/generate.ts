@@ -1,5 +1,6 @@
 import { writeFileSync } from 'node:fs';
-import { Board, Move, pour, won, key, solve } from '../src/engine/puzzle';
+import { Board, Move, pour, won, key } from '../src/engine/puzzle';
+import { solveOptimal } from '../src/engine/optimal';
 let seed = 84239;
 const random = (n: number) => {
   seed = (seed * 1664525 + 1013904223) >>> 0;
@@ -43,7 +44,9 @@ for (let id = 1; id <= 100; id++) {
       verify = next;
     }
     if (!won(verify)) throw Error('Unsolved certificate');
-    const solution = solve(board, 60000) ?? reverse;
+    const exact = solveOptimal(board, { maxMoves: reverse.length });
+    if (!exact) throw Error(`No certified minimum for page ${id}`);
+    const solution = exact.solution;
     unique.add(key(board));
     levels.push({ id, board, solution, par: solution.length });
     break;
