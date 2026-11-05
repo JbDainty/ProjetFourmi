@@ -6,3 +6,8 @@ coverage/
 playwright-report/
 test-results/
 *.log
+credentials.json
+*.jks
+*.keystore
+*.p12
+*.mobileprovision

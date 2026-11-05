@@ -2,6 +2,7 @@
   "expo": {
     "name": "Herbier des couleurs",
     "slug": "color-world-herbier",
+    "owner": "jbame",
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "colorworld",
@@ -36,6 +37,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b069af5c-3794-4f7d-b64b-5d45d4f0b1c0"
+      }
     }
   }
 }

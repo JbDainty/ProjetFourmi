@@ -174,17 +174,18 @@ npm run android
 npm run ios
 ```
 
-Pour construire via EAS (compte Expo et certificats des plateformes nécessaires) :
+Le projet EAS est rattaché au compte **jbame** : https://expo.dev/accounts/jbame/projects/color-world-herbier. Le profil `preview` produit un APK Android autonome, installable directement sans Expo Go ni serveur de développement. Le guide téléphone est dans [docs/android-test.md](docs/android-test.md).
+
+Pour construire via EAS avec un compte autorisé sur ce projet :
 
 ```sh
 npx eas-cli login
-npx eas-cli build:configure
 npx eas-cli build --platform android --profile preview
 npx eas-cli build --platform android --profile production
 npx eas-cli build --platform ios --profile production
 ```
 
-`eas.json` prépare les profils APK de test et de production. Remplacer les identifiants `com.colorworld.herbier` par ceux du propriétaire avant les inscriptions en boutique. Aucun compte, certificat, signature ou téléversement n’a été créé. Vérifier aussi sons, haptique, gestes, zones sûres, petits écrans et sauvegardes sur de vrais iPhone et Android avant soumission.
+`eas.json` prépare un APK de test (`preview`) et les archives destinées aux boutiques (`production`). Une clé de signature Android a été créée et est gérée par EAS sur le compte du propriétaire ; aucun secret de signature ne figure dans Git. Le package Android est `com.colorworld.herbier`. Il faut conserver ce package et sa signature pour installer les prochaines versions par-dessus la version de test. Aucune soumission Google Play ou App Store n’a été effectuée ; iOS nécessite encore ses certificats et un compte développeur Apple. Vérifier aussi sons, haptique, gestes, zones sûres, petits écrans et sauvegardes sur de vrais iPhone et Android avant soumission.
 
 ## Sauvegarde et confidentialité
 
