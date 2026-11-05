@@ -116,8 +116,8 @@ function BotanicalDrawing({ index, stage, size = 330, labels = true }: Props) {
             x2="329"
             y2="472"
             stroke="#9a7d54"
-            strokeWidth=".45"
-            opacity=".55"
+            strokeWidth="0.45"
+            opacity="0.55"
           />
           <SvgText
             x="32"

@@ -37,7 +37,7 @@ function Leaf({
 }) {
   return (
     <G transform={`translate(${x} ${y}) rotate(${angle}) scale(${scale})`}>
-      <Path d="M0 0 C-7-4-8-12-2-21 C3-16 9-7 0 0Z" fill="currentColor" fillOpacity=".1" />
+      <Path d="M0 0 C-7-4-8-12-2-21 C3-16 9-7 0 0Z" fill="currentColor" fillOpacity="0.1" />
       <Path d="M0 0 C-7-4-8-12-2-21 C3-16 9-7 0 0Z M0-1 Q-1-10-2-19 M-1-8-5-12 M-1-11 3-15" />
     </G>
   );
@@ -61,7 +61,7 @@ function BotanicalIconDrawing({ name, size = 20, color = '#293e34' }: Props) {
           <Path d="M12 4 Q16 3 20 4 M13 4 13 11 Q12 14 7 23 Q4 29 11 29 H23 Q28 29 25 23 L19 11 V4 M10 21 Q15 19 23 22" />
           <Path d="M15 27 Q14 21 18 17" />
           <Leaf x={16} y={25} angle={42} scale={0.37} />
-          <Path d="M9 24 8 26" opacity=".5" />
+          <Path d="M9 24 8 26" opacity="0.5" />
         </>
       );
       break;
@@ -70,7 +70,7 @@ function BotanicalIconDrawing({ name, size = 20, color = '#293e34' }: Props) {
         <>
           <Path d="M16 7 Q10 3 4 6 L5 26 Q11 23 16 27 Q22 23 28 25 L29 5 Q22 3 16 7 V27 M3 9 2 28 Q9 25 16 29 Q23 26 30 28" />
           <Leaf x={23} y={21} angle={-18} scale={0.53} />
-          <Path d="M7 11 Q10 10 13 12 M7 15 12 16 M8 19 12 20" opacity=".6" />
+          <Path d="M7 11 Q10 10 13 12 M7 15 12 16 M8 19 12 20" opacity="0.6" />
         </>
       );
       break;
@@ -82,7 +82,7 @@ function BotanicalIconDrawing({ name, size = 20, color = '#293e34' }: Props) {
           <Circle cx="16" cy="15" r="2.2" />
           <Leaf x={24} y={10} angle={35} scale={0.55} />
           <Leaf x={11} y={21} angle={-62} scale={0.42} />
-          <Path d="M3 5 Q8 3 12 7 M27 21 29 26 24 29" opacity=".6" />
+          <Path d="M3 5 Q8 3 12 7 M27 21 29 26 24 29" opacity="0.6" />
         </>
       );
       break;
@@ -91,7 +91,7 @@ function BotanicalIconDrawing({ name, size = 20, color = '#293e34' }: Props) {
         <>
           <Path d="M10 10 Q17 14 23 10 M11 10 8 4 Q13 6 16 3 Q18 6 24 4 L22 11 C24 16 29 21 26 26 Q23 31 15 29 Q5 30 5 24 C5 18 10 15 11 10 M9 11 Q18 15 25 11" />
           <Leaf x={17} y={25} angle={25} scale={0.55} />
-          <Path d="M11 6 Q16 8 21 6" opacity=".6" />
+          <Path d="M11 6 Q16 8 21 6" opacity="0.6" />
         </>
       );
       break;
@@ -111,7 +111,7 @@ function BotanicalIconDrawing({ name, size = 20, color = '#293e34' }: Props) {
         <>
           <Path d="M8 11 C28 1 33 28 12 27 Q6 27 5 23 M8 5 Q8 11 3 14 Q8 13 13 17" />
           <Leaf x={23} y={24} angle={55} scale={0.43} />
-          <Path d="M20 8 Q23 10 25 14" opacity=".45" />
+          <Path d="M20 8 Q23 10 25 14" opacity="0.45" />
         </>
       );
       break;
@@ -131,7 +131,7 @@ function BotanicalIconDrawing({ name, size = 20, color = '#293e34' }: Props) {
           <Circle cx="13" cy="13" r="8.8" />
           <Path d="M19 20 Q22 24 28 29 M21 21 29 27" />
           <Leaf x={14} y={18} angle={22} scale={0.58} />
-          <Path d="M6 9 4 7 M12 2 12 0 M22 8 25 6" opacity=".55" />
+          <Path d="M6 9 4 7 M12 2 12 0 M22 8 25 6" opacity="0.55" />
         </>
       );
       break;
@@ -149,7 +149,7 @@ function BotanicalIconDrawing({ name, size = 20, color = '#293e34' }: Props) {
         <>
           <Path d="M16 3 C15 10 5 16 7 23 C8 31 24 31 26 23 C28 16 20 11 16 3Z" />
           <Leaf x={17} y={26} angle={25} scale={0.58} />
-          <Path d="M11 15 Q7 22 12 25" opacity=".55" />
+          <Path d="M11 15 Q7 22 12 25" opacity="0.55" />
         </>
       );
       break;
@@ -164,7 +164,7 @@ function BotanicalIconDrawing({ name, size = 20, color = '#293e34' }: Props) {
             ry="8"
             transform="rotate(-30 12 19)"
             fill="currentColor"
-            fillOpacity=".1"
+            fillOpacity="0.1"
           />
           <Path d="M9 14 Q10 19 15 25" />
           <Ellipse cx="23" cy="10" rx="3.8" ry="6" transform="rotate(35 23 10)" />
@@ -188,12 +188,12 @@ function BotanicalIconDrawing({ name, size = 20, color = '#293e34' }: Props) {
               ry="5"
               transform={`rotate(${i * 45} 16 13)`}
               fill="currentColor"
-              fillOpacity=".055"
+              fillOpacity="0.055"
             />
           ))}
           <Circle cx="16" cy="13" r="3.5" />
-          <Circle cx="15" cy="12" r=".45" />
-          <Circle cx="17" cy="14" r=".45" />
+          <Circle cx="15" cy="12" r="0.45" />
+          <Circle cx="17" cy="14" r="0.45" />
         </>
       );
       break;
@@ -227,7 +227,7 @@ function BotanicalIconDrawing({ name, size = 20, color = '#293e34' }: Props) {
             ry="9"
             transform="rotate(15 18 10)"
             fill="currentColor"
-            fillOpacity=".055"
+            fillOpacity="0.055"
           />
           <Path d="M18 2 Q15 11 20 18 M16 23 Q22 24 26 20" />
         </>

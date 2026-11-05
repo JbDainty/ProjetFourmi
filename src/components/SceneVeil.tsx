@@ -9,10 +9,10 @@ export function SceneVeil({ tint = '#f4ead6', ground }: { tint?: string; ground?
     <SvgBackdrop>
       <Defs>
         <LinearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor={tint} stopOpacity=".98" />
-          <Stop offset=".25" stopColor={tint} stopOpacity=".89" />
-          <Stop offset=".46" stopColor="#f4ead6" stopOpacity=".24" />
-          <Stop offset=".72" stopColor="#d4dfbc" stopOpacity=".12" />
+          <Stop offset="0" stopColor={tint} stopOpacity="0.98" />
+          <Stop offset="0.25" stopColor={tint} stopOpacity="0.89" />
+          <Stop offset="0.46" stopColor="#f4ead6" stopOpacity="0.24" />
+          <Stop offset="0.72" stopColor="#d4dfbc" stopOpacity="0.12" />
           <Stop offset="1" stopColor={ground || tint} stopOpacity={ground ? 1 : 0.86} />
         </LinearGradient>
       </Defs>

@@ -160,14 +160,14 @@ export function PencilNote({
               d="M1 35 5 22 21 2 27 7 11 27Z"
               fill="#bf9b60"
               stroke="#806844"
-              strokeWidth=".7"
+              strokeWidth="0.7"
             />
             <Path d="M5 22 1 35 11 27Z" fill="#e7cea0" />
             <Path d="M1 35 3 29 6 31Z" fill="#45453e" />
             <Path d="M6 23 22 3 24 5 8 25Z" fill="#e4c184" />
             <Path d="M10 27 26 7" stroke="#8b7049" strokeWidth="1" />
             <Path d="M21 2 23 0 29 5 27 7Z" fill="#7c806b" />
-            <Path d="M.5 36 3 35.8" stroke="#6e6b5c" strokeOpacity=".35" strokeWidth=".6" />
+            <Path d="M.5 36 3 35.8" stroke="#6e6b5c" strokeOpacity="0.35" strokeWidth="0.6" />
           </Svg>
         </View>
       )}

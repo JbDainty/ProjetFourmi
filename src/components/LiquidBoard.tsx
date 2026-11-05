@@ -204,17 +204,17 @@ function LiquidBoardDrawing({
           fill="none"
           stroke={marked ? C.gold : active ? '#638c83' : '#79918d'}
           strokeWidth={marked || active ? 1.5 : 0.95}
-          strokeOpacity=".9"
+          strokeOpacity="0.9"
         />
         <Path
           d="M-18 20 L-17 132 Q-17 147-7 151"
           fill="none"
           stroke="#fffdf0"
           strokeWidth="3.6"
-          strokeOpacity=".57"
+          strokeOpacity="0.57"
           strokeLinecap="round"
         />
-        <Path d="M19 26 18 137" fill="none" stroke="#fff9e6" strokeWidth="1" strokeOpacity=".53" />
+        <Path d="M19 26 18 137" fill="none" stroke="#fff9e6" strokeWidth="1" strokeOpacity="0.53" />
         <Ellipse
           cx="0"
           cy="9"
@@ -222,7 +222,7 @@ function LiquidBoardDrawing({
           ry="3.8"
           fill={`url(#${id('rim', activeLayer)})`}
           stroke="#82948a"
-          strokeWidth=".9"
+          strokeWidth="0.9"
         />
         <Ellipse
           cx="0"
@@ -230,9 +230,9 @@ function LiquidBoardDrawing({
           rx="20.5"
           ry="2.2"
           fill="#f7efdb"
-          fillOpacity=".42"
+          fillOpacity="0.42"
           stroke="#fdf9eb"
-          strokeWidth=".7"
+          strokeWidth="0.7"
         />
         {Array.from({ length: 4 }, (_, tick) => (
           <Line
@@ -242,8 +242,8 @@ function LiquidBoardDrawing({
             y1={36 + tick * 29}
             y2={36 + tick * 29}
             stroke="#faf8df"
-            strokeOpacity=".56"
-            strokeWidth=".8"
+            strokeOpacity="0.56"
+            strokeWidth="0.8"
           />
         ))}
       </G>
@@ -300,12 +300,12 @@ function LiquidBoardDrawing({
                 <Path
                   d={d}
                   fill={`url(#${id(`pigment${layer.color}`, activeLayer)})`}
-                  fillOpacity=".96"
+                  fillOpacity="0.96"
                 />
                 <Path
                   d={d}
                   fill={`url(#${id(`sheen${layer.color}`, activeLayer)})`}
-                  opacity=".32"
+                  opacity="0.32"
                 />
                 {layer.units > 0.35 &&
                   [0, 1, 2].map((k) => {
@@ -344,7 +344,7 @@ function LiquidBoardDrawing({
                 fill="none"
                 stroke={colorMix(palette[stock.at(-1)!.color], '#fff0bf', 0.6)}
                 strokeWidth="1.1"
-                opacity=".82"
+                opacity="0.82"
               />
             </G>
           )}
@@ -357,7 +357,7 @@ function LiquidBoardDrawing({
                 ry="1.7"
                 fill="none"
                 stroke="#fff5cd"
-                strokeWidth=".8"
+                strokeWidth="0.8"
               />
               <Ellipse
                 cx="0"
@@ -366,14 +366,14 @@ function LiquidBoardDrawing({
                 ry="3"
                 fill="none"
                 stroke="#fff7d9"
-                strokeOpacity=".5"
-                strokeWidth=".65"
+                strokeOpacity="0.5"
+                strokeWidth="0.65"
               />
             </G>
           )}
         </G>
         {levelComplete && (
-          <G opacity=".9" transform="translate(17 15)">
+          <G opacity="0.9" transform="translate(17 15)">
             <Circle cx="0" cy="169" r="5.4" fill="#e8e6c6" />
             <Path
               d="M-3 169-1 171 3 166"
@@ -404,7 +404,7 @@ function LiquidBoardDrawing({
           d={path}
           stroke={palette[color]}
           strokeWidth={thick + 5 * scale}
-          strokeOpacity=".12"
+          strokeOpacity="0.12"
           fill="none"
           strokeLinecap="round"
         />
@@ -420,7 +420,7 @@ function LiquidBoardDrawing({
           d={path}
           transform={`translate(${-scale * 0.65} 0)`}
           stroke="#fff6ce"
-          strokeOpacity=".52"
+          strokeOpacity="0.52"
           strokeWidth={scale * 0.7}
           fill="none"
           strokeLinecap="round"
@@ -437,7 +437,7 @@ function LiquidBoardDrawing({
               rx={1.6 * scale}
               ry={3.2 * scale}
               fill={colorMix(palette[color], '#ffe7c2', 0.25)}
-              opacity=".8"
+              opacity="0.8"
             />
           );
         })}
@@ -461,38 +461,38 @@ function LiquidBoardDrawing({
           <Path d={polygonPath(INNER)} />
         </ClipPath>
         <LinearGradient id={id('glass', activeLayer)} x1="0" x2="1">
-          <Stop offset="0" stopColor="#9ab9b0" stopOpacity=".13" />
-          <Stop offset=".28" stopColor="#ffffff" stopOpacity=".2" />
-          <Stop offset=".64" stopColor="#fff6df" stopOpacity=".02" />
-          <Stop offset="1" stopColor="#8caa9d" stopOpacity=".18" />
+          <Stop offset="0" stopColor="#9ab9b0" stopOpacity="0.13" />
+          <Stop offset="0.28" stopColor="#ffffff" stopOpacity="0.2" />
+          <Stop offset="0.64" stopColor="#fff6df" stopOpacity="0.02" />
+          <Stop offset="1" stopColor="#8caa9d" stopOpacity="0.18" />
         </LinearGradient>
         <LinearGradient id={id('rim', activeLayer)} x1="0" x2="0" y1="0" y2="1">
-          <Stop offset="0" stopColor="#fffcf0" stopOpacity=".9" />
-          <Stop offset="1" stopColor="#a5b5a6" stopOpacity=".45" />
+          <Stop offset="0" stopColor="#fffcf0" stopOpacity="0.9" />
+          <Stop offset="1" stopColor="#a5b5a6" stopOpacity="0.45" />
         </LinearGradient>
         {palette.map((base, c) => (
           <React.Fragment key={c}>
             <LinearGradient id={id(`pigment${c}`, activeLayer)} x1="0" x2="1">
               <Stop offset="0" stopColor={colorMix(base, '#182d3b', 0.36)} />
-              <Stop offset=".24" stopColor={base} />
-              <Stop offset=".5" stopColor={colorMix(base, '#ffdfac', 0.16)} />
-              <Stop offset=".78" stopColor={base} />
+              <Stop offset="0.24" stopColor={base} />
+              <Stop offset="0.5" stopColor={colorMix(base, '#ffdfac', 0.16)} />
+              <Stop offset="0.78" stopColor={base} />
               <Stop offset="1" stopColor={colorMix(base, '#19223d', 0.3)} />
             </LinearGradient>
-            <LinearGradient id={id(`sheen${c}`, activeLayer)} x1="0" y1="0" x2=".8" y2="1">
-              <Stop offset="0" stopColor="#fff2cf" stopOpacity=".55" />
-              <Stop offset=".35" stopColor={base} stopOpacity="0" />
-              <Stop offset=".8" stopColor={colorMix(base, '#b89ee5', 0.35)} stopOpacity=".1" />
-              <Stop offset="1" stopColor="#fff4d0" stopOpacity=".4" />
+            <LinearGradient id={id(`sheen${c}`, activeLayer)} x1="0" y1="0" x2="0.8" y2="1">
+              <Stop offset="0" stopColor="#fff2cf" stopOpacity="0.55" />
+              <Stop offset="0.35" stopColor={base} stopOpacity="0" />
+              <Stop offset="0.8" stopColor={colorMix(base, '#b89ee5', 0.35)} stopOpacity="0.1" />
+              <Stop offset="1" stopColor="#fff4d0" stopOpacity="0.4" />
             </LinearGradient>
             <LinearGradient id={id(`jet${c}`, activeLayer)} x1="0" y1="0" x2="1" y2="0">
               <Stop offset="0" stopColor={colorMix(base, '#1f2440', 0.15)} />
-              <Stop offset=".5" stopColor={colorMix(base, '#fff0cd', 0.25)} />
+              <Stop offset="0.5" stopColor={colorMix(base, '#fff0cd', 0.25)} />
               <Stop offset="1" stopColor={base} />
             </LinearGradient>
             <RadialGradient id={id(`glow${c}`, activeLayer)}>
-              <Stop offset="0" stopColor={base} stopOpacity=".2" />
-              <Stop offset=".65" stopColor={base} stopOpacity=".06" />
+              <Stop offset="0" stopColor={base} stopOpacity="0.2" />
+              <Stop offset="0.65" stopColor={base} stopOpacity="0.06" />
               <Stop offset="1" stopColor={base} stopOpacity="0" />
             </RadialGradient>
           </React.Fragment>
@@ -558,9 +558,9 @@ function LiquidBoardDrawing({
               height={14 * scale}
               rx={2 * scale}
               fill="#f5e7c8"
-              fillOpacity=".96"
+              fillOpacity="0.96"
               stroke="#997d4c"
-              strokeWidth=".5"
+              strokeWidth="0.5"
             />
             <SvgText
               x={p.x}

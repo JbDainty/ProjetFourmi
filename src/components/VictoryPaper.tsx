@@ -65,7 +65,7 @@ export function VictoryPaper({
             <Defs>
               <LinearGradient id={token} x1="0" y1="0" x2="1" y2="1">
                 <Stop stopColor="#d0d7aa" />
-                <Stop offset=".45" stopColor="#a0b581" />
+                <Stop offset="0.45" stopColor="#a0b581" />
                 <Stop offset="1" stopColor="#718b60" />
               </LinearGradient>
             </Defs>
@@ -79,7 +79,7 @@ export function VictoryPaper({
                   d={leftStem}
                   fill="none"
                   stroke="#658153"
-                  strokeWidth=".95"
+                  strokeWidth="0.95"
                   strokeLinecap="round"
                   strokeDasharray={`${stemLength} ${stemLength}`}
                   strokeDashoffset={stemLength * (1 - progress)}
@@ -96,13 +96,13 @@ export function VictoryPaper({
                         d="M0 0 C-7-2-9-10-3-20 C4-17 9-5 0 0Z"
                         fill={`url(#${token})`}
                         stroke="#6a8054"
-                        strokeWidth=".6"
+                        strokeWidth="0.6"
                       />
                       <Path
                         d="M0 0-3-18 M-1-7-6-11 M-2-12 2-15 M0 0 Q8 3 11-4 Q4-8 0 0"
                         fill="none"
                         stroke="#667f50"
-                        strokeWidth=".55"
+                        strokeWidth="0.55"
                       />
                     </G>
                   );
@@ -111,7 +111,7 @@ export function VictoryPaper({
                   d={`M15 ${h - 43} Q30 ${h - 60} 23 ${h - 70} Q10 ${h - 71} 18 ${h - 60} M15 46 Q32 35 24 25 Q16 20 16 29 Q19 36 24 30`}
                   fill="none"
                   stroke="#88925f"
-                  strokeWidth=".7"
+                  strokeWidth="0.7"
                   opacity={reveal(0.55)}
                 />
                 {[0.2, 0.36].map((x, i) => (
@@ -123,9 +123,9 @@ export function VictoryPaper({
                       d="M0 0 C-6-2-9-12-3-18 Q9-10 0 0Z"
                       fill={`url(#${token})`}
                       stroke="#6a8054"
-                      strokeWidth=".6"
+                      strokeWidth="0.6"
                     />
-                    <Path d="M0 0-3-16" stroke="#6a8054" strokeWidth=".5" />
+                    <Path d="M0 0-3-16" stroke="#6a8054" strokeWidth="0.5" />
                   </G>
                 ))}
                 <Circle cx="24" cy="24" r="1.7" fill="#b69b5c" opacity={reveal(0.8)} />

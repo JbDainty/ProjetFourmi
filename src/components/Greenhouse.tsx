@@ -35,17 +35,17 @@ function RackDefinitionsDrawing({ prefix }: { prefix: string }) {
     <Defs>
       <LinearGradient id={`${prefix}-wood-top`} x1="0" y1="0" x2="0" y2="1">
         <Stop offset="0" stopColor="#e1c491" />
-        <Stop offset=".4" stopColor="#c49a61" />
+        <Stop offset="0.4" stopColor="#c49a61" />
         <Stop offset="1" stopColor="#a67843" />
       </LinearGradient>
       <LinearGradient id={`${prefix}-wood-front`} x1="0" y1="0" x2="0" y2="1">
         <Stop offset="0" stopColor="#b18550" />
-        <Stop offset=".25" stopColor="#a0713f" />
+        <Stop offset="0.25" stopColor="#a0713f" />
         <Stop offset="1" stopColor="#78502e" />
       </LinearGradient>
       <LinearGradient id={`${prefix}-wood-post`}>
         <Stop offset="0" stopColor="#775234" />
-        <Stop offset=".45" stopColor="#b0834e" />
+        <Stop offset="0.45" stopColor="#b0834e" />
         <Stop offset="1" stopColor="#79502e" />
       </LinearGradient>
       <Pattern id={`${prefix}-grain`} patternUnits="userSpaceOnUse" width="140" height="16">
@@ -53,15 +53,15 @@ function RackDefinitionsDrawing({ prefix }: { prefix: string }) {
           d="M0 2 Q34-1 74 3 T140 2 M-10 7 Q34 4 83 8 T150 7 M0 12 Q20 9 70 13 T140 12"
           fill="none"
           stroke="#563a25"
-          strokeOpacity=".22"
-          strokeWidth=".55"
+          strokeOpacity="0.22"
+          strokeWidth="0.55"
         />
         <Path
           d="M5 5 Q29 7 58 5 M88 11 Q110 9 135 11"
           fill="none"
           stroke="#f5dba5"
-          strokeOpacity=".22"
-          strokeWidth=".6"
+          strokeOpacity="0.22"
+          strokeWidth="0.6"
         />
       </Pattern>
     </Defs>
@@ -127,7 +127,7 @@ function TubeRackDrawing({ centers, y, scale, width, prefix, front = false }: Ra
           y2={base + 1}
           stroke="#ebc995"
           strokeWidth={0.9 * scale}
-          opacity=".7"
+          opacity="0.7"
         />
         {[left + 8 * scale, right - 8 * scale].map((x, i) => (
           <G key={i}>
@@ -137,7 +137,7 @@ function TubeRackDrawing({ centers, y, scale, width, prefix, front = false }: Ra
               r={2 * scale}
               fill="#c7aa71"
               stroke="#695033"
-              strokeWidth=".5"
+              strokeWidth="0.5"
             />
             <Line
               x1={x - scale}
@@ -145,7 +145,7 @@ function TubeRackDrawing({ centers, y, scale, width, prefix, front = false }: Ra
               y1={base + 5 * scale}
               y2={base + 5 * scale}
               stroke="#78603b"
-              strokeWidth=".6"
+              strokeWidth="0.6"
             />
           </G>
         ))}
@@ -159,7 +159,7 @@ function TubeRackDrawing({ centers, y, scale, width, prefix, front = false }: Ra
         rx={(right - left) / 2 + 4}
         ry={4 * scale}
         fill="#24392b"
-        opacity=".17"
+        opacity="0.17"
       />
       {[left + 4 * scale, right - 12 * scale].map((x, i) => (
         <G key={i}>
@@ -177,18 +177,23 @@ function TubeRackDrawing({ centers, y, scale, width, prefix, front = false }: Ra
             y1={guide + 3 * scale}
             y2={base - 4 * scale}
             stroke="#d4b17a"
-            strokeWidth=".55"
-            opacity=".6"
+            strokeWidth="0.55"
+            opacity="0.6"
           />
         </G>
       ))}
-      <Path d={topPath(base)} fill={`url(#${prefix}-wood-top)`} stroke="#815b34" strokeWidth=".7" />
+      <Path
+        d={topPath(base)}
+        fill={`url(#${prefix}-wood-top)`}
+        stroke="#815b34"
+        strokeWidth="0.7"
+      />
       <Path d={topPath(base)} fill={`url(#${prefix}-grain)`} />
       <Path
         d={topPath(guide)}
         fill={`url(#${prefix}-wood-top)`}
         stroke="#8e673c"
-        strokeWidth=".7"
+        strokeWidth="0.7"
       />
       <Path d={topPath(guide)} fill={`url(#${prefix}-grain)`} />
       {centers.map((x, i) => (
@@ -208,7 +213,7 @@ function TubeRackDrawing({ centers, y, scale, width, prefix, front = false }: Ra
             rx={20 * scale}
             ry={2.2 * scale}
             fill="#6c4a2e"
-            opacity=".48"
+            opacity="0.48"
           />
         </G>
       ))}
@@ -253,8 +258,8 @@ function RackStandDrawing({
             y1={top + 4}
             y2={bottom - 2}
             stroke="#c0ba86"
-            strokeWidth=".8"
-            opacity=".65"
+            strokeWidth="0.8"
+            opacity="0.65"
           />
         </G>
       ))}

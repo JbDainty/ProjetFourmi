@@ -17,7 +17,7 @@ export function PageFolio({ page }: { page: number }) {
         <G
           fill="none"
           stroke="#a68c57"
-          strokeWidth=".75"
+          strokeWidth="0.75"
           strokeLinecap="round"
           strokeLinejoin="round"
         >

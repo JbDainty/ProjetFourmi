@@ -23,22 +23,22 @@ function AntiqueBook({ progress, state }: { progress: number; state: string }) {
       <Defs>
         <LinearGradient id={`${id}-leather`} x1="0" x2="1">
           <Stop stopColor="#263e32" />
-          <Stop offset=".35" stopColor="#526447" />
+          <Stop offset="0.35" stopColor="#526447" />
           <Stop offset="1" stopColor="#344b38" />
         </LinearGradient>
         <LinearGradient id={`${id}-paper`} x1="0" x2="1">
           <Stop stopColor="#d8c39a" />
-          <Stop offset=".18" stopColor="#f5e8c8" />
-          <Stop offset=".8" stopColor="#ebd8ad" />
+          <Stop offset="0.18" stopColor="#f5e8c8" />
+          <Stop offset="0.8" stopColor="#ebd8ad" />
           <Stop offset="1" stopColor="#c5ac7b" />
         </LinearGradient>
       </Defs>
-      <Ellipse cx="38" cy="69" rx={22 + progress * 9} ry="3" fill="#413321" opacity=".14" />
+      <Ellipse cx="38" cy="69" rx={22 + progress * 9} ry="3" fill="#413321" opacity="0.14" />
       <Path
         d={`M${hinge - 3} 11 L${hinge + 38 - progress * 8} ${15 + progress * 4} L${hinge + 38 - progress * 8} 67 L${hinge - 2} 66Z`}
         fill="#6a5034"
         stroke="#493c29"
-        strokeWidth=".7"
+        strokeWidth="0.7"
       />
       <Path
         d={`M${hinge} 14 L${hinge + 35 - progress * 6} ${17 + progress * 4} V64 L${hinge} 63Z`}
@@ -49,13 +49,13 @@ function AntiqueBook({ progress, state }: { progress: number; state: string }) {
           d={`M${hinge} 16 Q${hinge + 13} 12 ${hinge + 29} 21 V63 Q${hinge + 13} 57 ${hinge} 63Z`}
           fill="#f4e6c6"
           stroke="#b9a078"
-          strokeWidth=".6"
+          strokeWidth="0.6"
         />
         <G
           transform={`translate(${hinge + 12} 0)`}
           fill="none"
           stroke="#7f8b5e"
-          strokeWidth=".8"
+          strokeWidth="0.8"
           strokeLinecap="round"
         >
           <Path d="M0 53 Q5 40 1 30 M2 42 Q-9 37-7 31 Q1 32 2 42 M3 38 Q11 35 12 28 Q5 28 3 38 M1 31 Q-5 24 1 21 Q8 25 1 31" />
@@ -75,7 +75,7 @@ function AntiqueBook({ progress, state }: { progress: number; state: string }) {
           d={`M4 17 L${33 - progress * 8} ${outerTop + 5} V${outerBottom - 5} L4 59Z`}
           fill="none"
           stroke={inside ? '#b7a17b' : '#baa26b'}
-          strokeWidth=".8"
+          strokeWidth="0.8"
         />
         <G
           fill="none"
@@ -85,11 +85,11 @@ function AntiqueBook({ progress, state }: { progress: number; state: string }) {
           strokeLinejoin="round"
         >
           <Path d="M15 52 Q22 40 16 26 M18 42 Q7 37 9 31 Q16 32 18 42 M19 37 Q29 34 28 26 Q20 28 19 37 M17 29 Q10 23 16 20 Q23 23 17 29" />
-          <Path d="M9 17 12 16 M26 53 29 52 M9 54 12 55" opacity=".65" />
+          <Path d="M9 17 12 16 M26 53 29 52 M9 54 12 55" opacity="0.65" />
         </G>
         {!inside && <Path d="M2 22 2 27 M2 44 2 49" stroke="#c8b27c" strokeWidth="2.5" />}
       </G>
-      <Path d={`M${hinge - 2} 14 V62`} stroke="#a68c56" strokeWidth=".8" opacity=".7" />
+      <Path d={`M${hinge - 2} 14 V62`} stroke="#a68c56" strokeWidth="0.8" opacity="0.7" />
       {!inside && (
         <Path
           d={`M${edge + 1} ${outerTop + 5} V${outerBottom - 1}`}

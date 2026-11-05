@@ -65,8 +65,8 @@ function FoliageFrameDrawing({ vitality = 0.65, scene = false }: Props) {
         d="M-16 14 C-9 7-5-1 6-9 Q15-16 21-8 Q25-2 19 0"
         fill="none"
         stroke={ink}
-        strokeWidth=".7"
-        opacity=".75"
+        strokeWidth="0.7"
+        opacity="0.75"
       />
       {[
         [-7, 5, -65, 0.83],
@@ -79,18 +79,18 @@ function FoliageFrameDrawing({ vitality = 0.65, scene = false }: Props) {
             d="M0 0 C-6-3-6-10-2-16 C1-12 8-6 0 0Z"
             fill={`url(#${leafId})`}
             stroke={ink}
-            strokeWidth=".5"
+            strokeWidth="0.5"
           />
           <Path
             d="M0-1 Q-1-8-2-14 M-1-6-4-9 M-1-8 2-11"
             fill="none"
             stroke={ink}
-            strokeWidth=".45"
-            opacity=".65"
+            strokeWidth="0.45"
+            opacity="0.65"
           />
         </G>
       ))}
-      <Circle cx="19" cy="0" r="1" fill="#b5a06a" opacity=".7" />
+      <Circle cx="19" cy="0" r="1" fill="#b5a06a" opacity="0.7" />
     </G>
   );
   return (
@@ -118,16 +118,16 @@ function FoliageFrameDrawing({ vitality = 0.65, scene = false }: Props) {
           <Defs>
             <LinearGradient id={leafId} x1="0" y1="0" x2="1" y2="1">
               <Stop offset="0" stopColor={light} />
-              <Stop offset=".55" stopColor={leaf} />
-              <Stop offset="1" stopColor={ink} stopOpacity=".65" />
+              <Stop offset="0.55" stopColor={leaf} />
+              <Stop offset="1" stopColor={ink} stopOpacity="0.65" />
             </LinearGradient>
           </Defs>
           <Path
             d={`M42 12 C${w * 0.28} 9 ${w * 0.35} 15 ${w * 0.5} 12 S${w * 0.77} 15 ${w - 42} 12 Q${w - 11} 9 ${w - 12} 42 C${w - 15} ${h * 0.3} ${w - 9} ${h * 0.36} ${w - 12} ${h * 0.5} S${w - 10} ${h * 0.76} ${w - 12} ${h - 42} Q${w - 9} ${h - 11} ${w - 42} ${h - 12} C${w * 0.73} ${h - 15} ${w * 0.65} ${h - 9} ${w * 0.5} ${h - 12} S${w * 0.23} ${h - 10} 42 ${h - 12} Q9 ${h - 9} 12 ${h - 42} C15 ${h * 0.73} 9 ${h * 0.65} 12 ${h * 0.5} S10 ${h * 0.23} 12 42 Q9 11 42 12Z`}
             fill="none"
             stroke={ink}
-            strokeWidth=".85"
-            opacity=".62"
+            strokeWidth="0.85"
+            opacity="0.62"
           />
           {leaves.map((p, i) => (
             <G key={i} transform={`translate(${p.x} ${p.y}) rotate(${p.angle}) scale(${p.scale})`}>
@@ -135,15 +135,15 @@ function FoliageFrameDrawing({ vitality = 0.65, scene = false }: Props) {
                 d="M0 0 C-5-3-7-9-2-16 C2-11 7-6 0 0Z"
                 fill={`url(#${leafId})`}
                 stroke={ink}
-                strokeWidth=".5"
-                opacity=".91"
+                strokeWidth="0.5"
+                opacity="0.91"
               />
               <Path
                 d="M0-1 Q-1-8-2-14 M-1-5-4-8 M-1-9 2-11"
                 fill="none"
                 stroke={ink}
-                strokeWidth=".4"
-                opacity=".58"
+                strokeWidth="0.4"
+                opacity="0.58"
               />
             </G>
           ))}

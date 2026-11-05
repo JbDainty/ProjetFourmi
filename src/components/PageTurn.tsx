@@ -124,7 +124,7 @@ function TurningSheet({
             <Path d={face} />
           </ClipPath>
           <LinearGradient id={`${id}-shadow`} x1="0" x2="1">
-            <Stop stopColor="#302b1c" stopOpacity=".3" />
+            <Stop stopColor="#302b1c" stopOpacity="0.3" />
             <Stop offset="1" stopColor="#302b1c" stopOpacity="0" />
           </LinearGradient>
         </Defs>
@@ -142,13 +142,13 @@ function TurningSheet({
             width={w}
             height={h}
             preserveAspectRatio="xMidYMid slice"
-            opacity=".8"
+            opacity="0.8"
           />
           <Path
             d={`M${w * 0.08} 0 V${h} M${w * 0.09} 0 V${h}`}
             stroke="#aa8e58"
-            strokeWidth=".6"
-            opacity=".3"
+            strokeWidth="0.6"
+            opacity="0.3"
           />
         </G>
         {neutral && (
@@ -157,8 +157,8 @@ function TurningSheet({
             transform={`translate(${w * 0.45} ${h * 0.35}) scale(${Math.min(w / 350, 1.8)})`}
             fill="none"
             stroke="#6f805a"
-            strokeWidth=".7"
-            opacity=".14"
+            strokeWidth="0.7"
+            opacity="0.14"
           >
             <Path d="M0 140 C40 90-25 45 10-40 M13 94 C-36 86-38 46-24 34 Q8 42 13 94 M9 70 C48 62 56 24 40 9 Q10 15 9 70 M4 22 C-32 10-33-18-21-30 Q5-22 4 22 M5-8 Q40-26 30-50 Q6-46 5-8" />
           </G>
@@ -180,8 +180,8 @@ function TurningSheet({
         <Defs>
           <LinearGradient id={`${id}-fold`} x1="0" x2="1">
             <Stop stopColor="#a88d5b" />
-            <Stop offset=".22" stopColor="#dec698" />
-            <Stop offset=".65" stopColor="#fff1cd" />
+            <Stop offset="0.22" stopColor="#dec698" />
+            <Stop offset="0.65" stopColor="#fff1cd" />
             <Stop offset="1" stopColor="#bea16c" />
           </LinearGradient>
           <ClipPath id={`${id}-reverse`}>
@@ -193,7 +193,7 @@ function TurningSheet({
           d={fold}
           fill={`url(#${id}-fold)`}
           stroke="#a68b59"
-          strokeWidth=".4"
+          strokeWidth="0.4"
           opacity={raw > 0 ? 1 : 0}
         />
         <G clipPath={`url(#${id}-reverse)`} opacity={raw > 0 ? 0.16 : 0}>

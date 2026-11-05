@@ -98,7 +98,7 @@ export function HerbariumTitle({
           <G
             fill="none"
             stroke="#a38a51"
-            strokeWidth=".9"
+            strokeWidth="0.9"
             strokeLinecap="round"
             strokeLinejoin="round"
           >
@@ -106,7 +106,7 @@ export function HerbariumTitle({
             <Path
               d="M94 9 Q89 2 96 2 Q100 2 100 8 Q101 2 105 2 Q112 3 106 9 Q112 15 105 16 Q101 16 100 10 Q99 16 95 16 Q88 15 94 9Z"
               fill="#a38a51"
-              fillOpacity=".12"
+              fillOpacity="0.12"
             />
             <Circle cx="100" cy="9" r="1.6" fill="#826c3e" />
             <Circle cx="5" cy="10" r="1" />

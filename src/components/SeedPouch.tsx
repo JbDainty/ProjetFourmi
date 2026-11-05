@@ -74,7 +74,7 @@ export function SeedPouch({ count, motion }: { count: number; motion: boolean })
             <Path
               d="M18 17 14 9 Q23 12 30 8 L28 17 C39 26 42 43 32 49 Q23 54 13 47 C5 40 9 25 18 17Z"
               fill="#e2cfa4"
-              fillOpacity=".65"
+              fillOpacity="0.65"
               stroke="#927646"
               strokeWidth="1"
             />
@@ -82,22 +82,22 @@ export function SeedPouch({ count, motion }: { count: number; motion: boolean })
               d="M16 17 Q23 14 31 17 M16 19 Q25 17 31 19 M23 18 Q36 11 38 18 Q36 22 25 18 M22 18 Q10 12 9 18 Q12 23 22 18"
               fill="none"
               stroke="#816b42"
-              strokeWidth=".9"
+              strokeWidth="0.9"
             />
             <G transform="translate(23 34) rotate(-25)">
-              <Ellipse rx="5.5" ry="9" fill="#c4a05b" stroke="#91713c" strokeWidth=".8" />
+              <Ellipse rx="5.5" ry="9" fill="#c4a05b" stroke="#91713c" strokeWidth="0.8" />
               <Path
                 d="M0-6 Q-3 1 0 7 M0 3 4 0 M0-1-3-3"
                 fill="none"
                 stroke="#f9ebbd"
-                strokeWidth=".8"
+                strokeWidth="0.8"
               />
             </G>
             <Path
               d="M32 31 Q37 25 42 24 Q42 31 35 32 M35 32 39 27"
               fill="#9eaf7b"
               stroke="#74835f"
-              strokeWidth=".7"
+              strokeWidth="0.7"
             />
             <Path d="M7 24 8 21 9 24 12 25 9 26 8 29 7 26 4 25Z" fill="#c8a660" />
             <Circle cx="38" cy="41" r="1.1" fill="#b79a56" />

@@ -66,7 +66,7 @@ export function BotanicalStamp({
           rx="5"
           fill="#f6ecd5"
           stroke="#a58c5d"
-          strokeWidth=".8"
+          strokeWidth="0.8"
           mask={`url(#${id})`}
         />
         <Rect
@@ -77,13 +77,13 @@ export function BotanicalStamp({
           rx="5"
           fill="none"
           stroke="#9eaa7e"
-          strokeWidth=".55"
+          strokeWidth="0.55"
         />
         <Path
           d="M12 22 Q12 13 22 12 M56 84 Q65 83 65 74"
           fill="none"
           stroke="#7c9469"
-          strokeWidth=".7"
+          strokeWidth="0.7"
         />
         {Array.from({ length: 5 }, (_, i) => (
           <Circle key={i} cx={23 + i * 8} cy="94" r="2" fill={i < stage ? C.green : '#d4c7a8'} />

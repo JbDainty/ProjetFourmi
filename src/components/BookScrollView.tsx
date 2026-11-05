@@ -77,14 +77,14 @@ export const BookScrollView = forwardRef<ScrollView, ScrollViewProps>(function B
             })}
           >
             <Svg width="42" height="42" viewBox="0 0 48 48" accessible={false} pointerEvents="none">
-              <Circle cx="24" cy="24" r="19" fill="#f2e6c9" fillOpacity=".8" />
+              <Circle cx="24" cy="24" r="19" fill="#f2e6c9" fillOpacity="0.8" />
               <Path
                 d="M10 34 Q5 22 13 11 M34 37 Q42 28 37 15"
                 fill="none"
                 stroke="#b29b64"
-                strokeWidth=".7"
+                strokeWidth="0.7"
               />
-              <G fill="#c5cea6" stroke="#718761" strokeWidth=".75">
+              <G fill="#c5cea6" stroke="#718761" strokeWidth="0.75">
                 <Path d="M23 31 Q11 30 13 20 Q23 21 23 31Z M24 25 Q35 23 34 14 Q25 16 24 25Z" />
               </G>
               <Path
@@ -98,7 +98,7 @@ export const BookScrollView = forwardRef<ScrollView, ScrollViewProps>(function B
               <Path
                 d="M37 6 38 9 41 10 38 11 37 14 36 11 33 10 36 9Z"
                 fill="#b29b64"
-                opacity=".8"
+                opacity="0.8"
               />
             </Svg>
             <T style={{ fontFamily: F.handwriting, fontSize: 17, lineHeight: 20, color: C.green }}>

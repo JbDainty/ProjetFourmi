@@ -92,16 +92,16 @@ export function HintScroll({
             <Defs>
               <LinearGradient id={`${token}-paper`} x1="0" y1="0" x2="0" y2="1">
                 <Stop stopColor="#c6a36a" />
-                <Stop offset=".2" stopColor="#efdcad" />
-                <Stop offset=".55" stopColor="#f5e5bd" />
-                <Stop offset=".83" stopColor="#e5cc96" />
+                <Stop offset="0.2" stopColor="#efdcad" />
+                <Stop offset="0.55" stopColor="#f5e5bd" />
+                <Stop offset="0.83" stopColor="#e5cc96" />
                 <Stop offset="1" stopColor="#bc965d" />
               </LinearGradient>
               <LinearGradient id={`${token}-roll`} x1="0" x2="1">
                 <Stop stopColor="#795d3b" />
-                <Stop offset=".2" stopColor="#c1a16b" />
-                <Stop offset=".5" stopColor="#f3dfad" />
-                <Stop offset=".78" stopColor="#ddbf83" />
+                <Stop offset="0.2" stopColor="#c1a16b" />
+                <Stop offset="0.5" stopColor="#f3dfad" />
+                <Stop offset="0.78" stopColor="#ddbf83" />
                 <Stop offset="1" stopColor="#92703e" />
               </LinearGradient>
               <ClipPath id={`${token}-clip`}>
@@ -114,7 +114,7 @@ export function HintScroll({
               rx={Math.max(5, (right - left) / 2)}
               ry="3"
               fill="#493d2e"
-              opacity=".13"
+              opacity="0.13"
             />
             <G clipPath={`url(#${token}-clip)`}>
               <Path id="hint-parchment-sheet" d={sheet} fill={`url(#${token}-paper)`} />
@@ -125,24 +125,24 @@ export function HintScroll({
                 width={Math.max(1, width - 20)}
                 height={height - 6}
                 preserveAspectRatio="xMidYMid slice"
-                opacity=".35"
+                opacity="0.35"
               />
               <G
                 transform={`translate(${width - 63} ${height / 2}) rotate(-24)`}
                 fill="none"
                 stroke="#526648"
-                strokeWidth=".8"
-                opacity=".12"
+                strokeWidth="0.8"
+                opacity="0.12"
               >
                 <Path d="M0 25 Q8 4 0-23 M3 12 Q-13 9-12-2 Q-1-2 3 12 M4 4 Q18 1 18-10 Q7-9 4 4 M1-10 Q-7-17 0-24 Q9-17 1-10" />
-                <Circle cx="0" cy="0" r="24" strokeDasharray="1 4" opacity=".5" />
+                <Circle cx="0" cy="0" r="24" strokeDasharray="1 4" opacity="0.5" />
               </G>
               <Path
                 d={`M${left + 14} 10 Q${left + 54} 12 ${left + 79} 9 M${right - 95} ${height - 10} Q${right - 56} ${height - 8} ${right - 17} ${height - 11}`}
                 fill="none"
                 stroke="#9d7c4f"
-                strokeWidth=".6"
-                opacity=".25"
+                strokeWidth="0.6"
+                opacity="0.25"
               />
             </G>
             {[left, right].map((x, index) => (
@@ -162,14 +162,14 @@ export function HintScroll({
                   ry="2.5"
                   fill="#dec38e"
                   stroke="#aa8652"
-                  strokeWidth=".6"
+                  strokeWidth="0.6"
                 />
                 <Ellipse cx={x} cy={height - 5} rx={roll / 2} ry="2.5" fill="#9b7745" />
                 <Path
                   d={`M${x + roll * 0.15} 11 V${height - 11}`}
                   stroke="#fff0c7"
-                  opacity=".4"
-                  strokeWidth=".7"
+                  opacity="0.4"
+                  strokeWidth="0.7"
                 />
               </G>
             ))}

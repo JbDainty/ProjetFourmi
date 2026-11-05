@@ -51,7 +51,7 @@ export function TubeBloom({
     >
       <Defs>
         <RadialGradient id={token}>
-          <Stop stopColor={gold} stopOpacity=".3" />
+          <Stop stopColor={gold} stopOpacity="0.3" />
           <Stop offset="1" stopColor={gold} stopOpacity="0" />
         </RadialGradient>
       </Defs>
@@ -76,9 +76,9 @@ export function TubeBloom({
                 d="M0 0 C-12-4-13-17-3-23 Q10-11 0 0Z"
                 fill="#b8c493"
                 stroke="#809467"
-                strokeWidth=".9"
+                strokeWidth="0.9"
               />
-              <Path d="M0 0-3-20" fill="none" stroke="#6f8659" strokeWidth=".7" />
+              <Path d="M0 0-3-20" fill="none" stroke="#6f8659" strokeWidth="0.7" />
             </G>
           ))}
         </G>
@@ -91,10 +91,10 @@ export function TubeBloom({
             d="M0 2 C-6-1-7-10 0-14 C7-10 6-1 0 2Z"
             fill={gold}
             stroke="#b39b59"
-            strokeWidth=".7"
+            strokeWidth="0.7"
           />
         ))}
-        <Circle r="2.7" fill="#fff4c4" stroke="#a0a16b" strokeWidth=".65" />
+        <Circle r="2.7" fill="#fff4c4" stroke="#a0a16b" strokeWidth="0.65" />
       </G>
       {motion &&
         [0, 1, 2, 3, 4, 5].map((i) => (

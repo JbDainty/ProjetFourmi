@@ -37,7 +37,7 @@ export function ChapterVignette({
       }}
     >
       <SvgBackdrop viewBox="0 0 340 150" preserveAspectRatio="none">
-        <G fill="none" stroke="#8c9463" strokeWidth=".65" opacity=".25">
+        <G fill="none" stroke="#8c9463" strokeWidth="0.65" opacity="0.25">
           <Path d="M12 136 C36 146 27 60 87 42 Q163 16 291 30 M40 89 Q23 81 24 68 Q39 70 40 89 M55 63 Q52 47 64 42 Q67 56 55 63 M90 42 Q102 28 117 32 Q107 43 90 42" />
           <Path d="M304 31 Q321 34 325 22 Q318 20 312 26 M291 30 314 27" />
         </G>
@@ -85,7 +85,7 @@ export function ChapterVignette({
           }}
         >
           <Svg pointerEvents="none" accessible={false} width="118" height="20" viewBox="0 0 118 20">
-            <Path d="M4 17 Q47 20 113 8" fill="none" stroke="#8e9b70" strokeWidth=".8" />
+            <Path d="M4 17 Q47 20 113 8" fill="none" stroke="#8e9b70" strokeWidth="0.8" />
             {Array.from({ length: 5 }, (_, i) => (
               <G
                 key={i}
@@ -95,15 +95,15 @@ export function ChapterVignette({
                   d="M0 0 Q-8-4-2-12 Q5-9 0 0Z"
                   fill={i < stage ? '#829e68' : '#e9dcc0'}
                   stroke={i < stage ? '#536f49' : '#b2a37d'}
-                  strokeWidth=".7"
+                  strokeWidth="0.7"
                 />
                 <Path
                   d="M0 0-2-10"
                   fill="none"
                   stroke={i < stage ? '#536f49' : '#b2a37d'}
-                  strokeWidth=".55"
+                  strokeWidth="0.55"
                 />
-                {i < stage && <Circle cx="-.8" cy="-5" r=".55" fill="#f7ecc9" />}
+                {i < stage && <Circle cx="-0.8" cy="-5" r="0.55" fill="#f7ecc9" />}
               </G>
             ))}
           </Svg>

@@ -8,11 +8,11 @@ function Leaf({ x, y, angle, size = 1 }: { x: number; y: number; angle: number; 
       <Path
         d="M0 0 C-10-4-11-15-3-23 C6-18 11-6 0 0Z"
         fill="#a9b687"
-        fillOpacity=".75"
+        fillOpacity="0.75"
         stroke="#49684c"
         strokeWidth="1.1"
       />
-      <Path d="M0 0-3-21 M-1-8-6-12 M-2-13 2-16" fill="none" stroke="#55744f" strokeWidth=".8" />
+      <Path d="M0 0-3-21 M-1-8-6-12 M-2-13 2-16" fill="none" stroke="#55744f" strokeWidth="0.8" />
     </G>
   );
 }
@@ -23,7 +23,7 @@ function Star({ x, y, size = 1 }: { x: number; y: number; size?: number }) {
       transform={`translate(${x} ${y}) scale(${size})`}
       fill="#b49450"
       stroke="#8c743f"
-      strokeWidth=".5"
+      strokeWidth="0.5"
     />
   );
 }
@@ -42,7 +42,7 @@ export function SpellIcon({ name, size = 36 }: { name: SpellIconName; size?: num
       <Defs>
         <LinearGradient id={id} x1="0" y1="0" x2="1" y2="1">
           <Stop stopColor="#d2b66f" />
-          <Stop offset=".5" stopColor="#987a3d" />
+          <Stop offset="0.5" stopColor="#987a3d" />
           <Stop offset="1" stopColor="#d9c28a" />
         </LinearGradient>
       </Defs>
@@ -52,9 +52,9 @@ export function SpellIcon({ name, size = 36 }: { name: SpellIconName; size?: num
             <Path
               d="M46 10 A21 21 0 1 0 49 49 A19 19 0 0 1 46 10Z"
               fill="#cbb77e"
-              fillOpacity=".17"
+              fillOpacity="0.17"
               stroke="#b3a06a"
-              strokeWidth=".75"
+              strokeWidth="0.75"
             />
             <Path
               d="M14 22 C33 5 59 20 51 40 Q46 54 28 49 Q17 46 16 39 M16 12 Q15 21 8 26 Q18 25 25 30"
@@ -66,7 +66,7 @@ export function SpellIcon({ name, size = 36 }: { name: SpellIconName; size?: num
               d="M21 18 C39 9 55 24 49 38"
               fill="none"
               stroke={`url(#${id})`}
-              strokeWidth=".85"
+              strokeWidth="0.85"
             />
             <Leaf x={47} y={41} angle={68} size={0.7} />
             <Leaf x={31} y={50} angle={-67} size={0.55} />
@@ -74,11 +74,11 @@ export function SpellIcon({ name, size = 36 }: { name: SpellIconName; size?: num
             <Path
               d="M29 33 Q32 24 37 29 Q43 35 35 40 Q28 42 29 33Z"
               fill="#d7c28b"
-              fillOpacity=".5"
+              fillOpacity="0.5"
               stroke="#9c8449"
-              strokeWidth=".9"
+              strokeWidth="0.9"
             />
-            <Path d="M31 37 36 29" stroke="#a0884f" strokeWidth=".7" />
+            <Path d="M31 37 36 29" stroke="#a0884f" strokeWidth="0.7" />
             <Star x={53} y={12} size={0.68} />
             <Circle cx="13" cy="51" r="1" fill="#b49450" />
           </>
@@ -91,7 +91,7 @@ export function SpellIcon({ name, size = 36 }: { name: SpellIconName; size?: num
               r="24"
               fill="none"
               stroke="#b49b60"
-              strokeWidth=".6"
+              strokeWidth="0.6"
               strokeDasharray="1 3"
             />
             <Path
@@ -121,7 +121,7 @@ export function SpellIcon({ name, size = 36 }: { name: SpellIconName; size?: num
                 transform={`rotate(${index * 60} 32 26)`}
                 fill="#e9d3b1"
                 stroke="#ad8d59"
-                strokeWidth=".7"
+                strokeWidth="0.7"
               />
             ))}
             <Circle cx="32" cy="26" r="3.2" fill="#b69b50" />
@@ -135,15 +135,15 @@ export function SpellIcon({ name, size = 36 }: { name: SpellIconName; size?: num
               cy="27"
               r="18"
               fill="#e5e0bd"
-              fillOpacity=".22"
+              fillOpacity="0.22"
               stroke={`url(#${id})`}
               strokeWidth="2.3"
             />
-            <Circle cx="27" cy="27" r="14.8" fill="none" stroke="#627c56" strokeWidth=".7" />
+            <Circle cx="27" cy="27" r="14.8" fill="none" stroke="#627c56" strokeWidth="0.7" />
             <Path
               d="M39 40 51 55 Q55 59 58 55 L43 39 M42 43 54 55"
               fill="#a5a87c"
-              fillOpacity=".45"
+              fillOpacity="0.45"
               stroke="#597149"
               strokeWidth="1.2"
             />
@@ -159,7 +159,7 @@ export function SpellIcon({ name, size = 36 }: { name: SpellIconName; size?: num
             <Star x={12} y={47} size={0.52} />
             <Path d="M14 22 Q16 16 21 14" fill="none" stroke="#f8eed0" strokeWidth="2" />
             <Circle cx="52" cy="22" r="1.1" fill="#b49450" />
-            <Circle cx="6" cy="32" r=".9" fill="#b49450" />
+            <Circle cx="6" cy="32" r="0.9" fill="#b49450" />
           </>
         )}
       </G>

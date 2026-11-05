@@ -7,9 +7,9 @@ function StarFlower({ filled }: { filled: boolean }) {
   return (
     <Svg width="64" height="64" viewBox="0 0 80 80" accessible={false}>
       <Defs>
-        <LinearGradient id={token} x1="0" y1="0" x2=".8" y2="1">
+        <LinearGradient id={token} x1="0" y1="0" x2="0.8" y2="1">
           <Stop stopColor="#fff0b3" />
-          <Stop offset=".45" stopColor="#e0b558" />
+          <Stop offset="0.45" stopColor="#e0b558" />
           <Stop offset="1" stopColor="#ad8039" />
         </LinearGradient>
       </Defs>
@@ -18,22 +18,22 @@ function StarFlower({ filled }: { filled: boolean }) {
           d="M40 5 Q46 20 51 28 Q65 26 75 29 Q65 40 60 46 Q64 61 63 73 Q49 65 40 59 Q28 68 16 73 Q18 57 20 46 Q9 38 5 29 Q20 29 29 28Z"
           fill={filled ? `url(#${token})` : '#e6dcc0'}
           stroke={filled ? '#9e7c3c' : '#9a8b69'}
-          strokeWidth=".85"
+          strokeWidth="0.85"
         />
         {Array.from({ length: 5 }, (_, i) => (
           <G key={i} transform={`translate(40 40) rotate(${i * 72})`}>
             <Path
               d="M0 4 C-9-2-9-18 0-32 C9-18 9-2 0 4Z"
               fill={filled ? '#fae4a2' : 'none'}
-              fillOpacity=".35"
+              fillOpacity="0.35"
               stroke={filled ? '#ab8540' : '#9a8b69'}
-              strokeWidth=".6"
+              strokeWidth="0.6"
             />
             <Path
               d="M0 2 V-28 M0-9-4-15 M0-15 4-21"
               fill="none"
               stroke={filled ? '#94723d' : '#9a8b69'}
-              strokeWidth=".65"
+              strokeWidth="0.65"
             />
           </G>
         ))}
@@ -43,14 +43,14 @@ function StarFlower({ filled }: { filled: boolean }) {
           r="5.5"
           fill={filled ? '#fff1bd' : '#e6dcc0'}
           stroke={filled ? '#a78b46' : '#9a8b69'}
-          strokeWidth=".8"
+          strokeWidth="0.8"
         />
         <Circle cx="40" cy="40" r="1.6" fill={filled ? '#7e8d59' : '#9a8b69'} />
         <Path
           d="M24 72 Q40 78 57 71 M34 75 Q28 73 29 69 M45 75 Q52 72 51 68"
           fill="none"
           stroke={filled ? '#7b9361' : '#9a8b69'}
-          strokeWidth=".8"
+          strokeWidth="0.8"
         />
       </G>
     </Svg>

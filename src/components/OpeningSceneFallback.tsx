@@ -37,18 +37,18 @@ export function OpeningScene({ progress: p, onReady }: OpeningSceneProps) {
           <Path d="M0-168 181-150 187 166 0 184Z" />
         </ClipPath>
         <RadialGradient id={token + '-glow'}>
-          <Stop stopColor="#c4b778" stopOpacity=".4" />
+          <Stop stopColor="#c4b778" stopOpacity="0.4" />
           <Stop offset="1" stopColor="#233e33" stopOpacity="0" />
         </RadialGradient>
         <LinearGradient id={token + '-paper'}>
           <Stop stopColor="#b9a47b" />
-          <Stop offset=".17" stopColor="#f0dfb5" />
-          <Stop offset=".78" stopColor="#f9edcf" />
+          <Stop offset="0.17" stopColor="#f0dfb5" />
+          <Stop offset="0.78" stopColor="#f9edcf" />
           <Stop offset="1" stopColor="#b7a17b" />
         </LinearGradient>
         <LinearGradient id={token + '-leather'}>
           <Stop stopColor="#213c31" />
-          <Stop offset=".55" stopColor="#516048" />
+          <Stop offset="0.55" stopColor="#516048" />
           <Stop offset="1" stopColor="#2e4133" />
         </LinearGradient>
       </Defs>
@@ -66,7 +66,7 @@ export function OpeningScene({ progress: p, onReady }: OpeningSceneProps) {
       <G
         transform={`translate(300 ${390 - Math.sin(p * Math.PI) * 12}) scale(${0.85 + p * 0.2}) rotate(${-5 + p * 5})`}
       >
-        <Ellipse cx="10" cy="173" rx={137 + opening * 78} ry="18" fill="#0f251d" opacity=".45" />
+        <Ellipse cx="10" cy="173" rx={137 + opening * 78} ry="18" fill="#0f251d" opacity="0.45" />
         <Path
           d="M-8-164 181-147 187 162 0 181-15 166Z"
           fill="#654f34"
@@ -79,7 +79,7 @@ export function OpeningScene({ progress: p, onReady }: OpeningSceneProps) {
             d={`M0 ${-153 + i * 3} Q80 ${-172 + i * 3} 175 ${-139 + i * 3} L179 ${149 + i * 3} Q82 ${138 + i * 3} 0 ${174 + i * 2}Z`}
             fill={`url(#${token}-paper)`}
             stroke="#b9a57e"
-            strokeWidth=".8"
+            strokeWidth="0.8"
           />
         ))}
         <Path
@@ -108,7 +108,7 @@ export function OpeningScene({ progress: p, onReady }: OpeningSceneProps) {
             y="-168"
             width="187"
             height="352"
-            opacity=".18"
+            opacity="0.18"
             clipPath={`url(#${token}-grain)`}
           />
           {cover > 0 && (

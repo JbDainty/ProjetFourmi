@@ -42,7 +42,7 @@ export function TitleVines({
               d="M244 81 C218 88 208 60 190 65 S169 88 146 76 S111 65 89 77 S51 84 37 74"
               fill="none"
               stroke="#8b9462"
-              strokeWidth=".85"
+              strokeWidth="0.85"
               strokeDasharray="250 250"
               strokeDashoffset={250 * (1 - progress)}
             />
@@ -54,15 +54,15 @@ export function TitleVines({
                 <Path
                   d="M0 0 C-8-3-10-11-3-20 C5-17 9-5 0 0Z"
                   fill="#a6b583"
-                  fillOpacity=".8"
+                  fillOpacity="0.8"
                   stroke="#59794f"
-                  strokeWidth=".7"
+                  strokeWidth="0.7"
                 />
                 <Path
                   d="M0 0-3-18 M-1-7-6-10 M-2-11 2-14"
                   fill="none"
                   stroke="#577447"
-                  strokeWidth=".65"
+                  strokeWidth="0.65"
                 />
               </G>
             ))}
@@ -99,11 +99,11 @@ export function TitleVines({
                     transform={`rotate(${petal * 72})`}
                     fill={index % 2 ? '#d7a2a0' : '#f5e6b9'}
                     stroke="#a58560"
-                    strokeWidth=".5"
+                    strokeWidth="0.5"
                   />
                 ))}
                 <Circle r="1.8" fill="#b2934f" />
-                <Circle cx="-.4" cy="-.5" r=".5" fill="#fff3c6" />
+                <Circle cx="-0.4" cy="-0.5" r="0.5" fill="#fff3c6" />
               </G>
             ))}
           </>

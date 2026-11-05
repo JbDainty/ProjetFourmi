@@ -90,13 +90,13 @@ export function MistakeLeaves({
                   d="M11 28 C-1 24 0 10 18 2 C27 18 22 28 11 28Z"
                   fill={['#9caa79', '#c5ad70', '#748d68', '#b6bb82'][i]}
                   stroke="#687b52"
-                  strokeWidth=".65"
+                  strokeWidth="0.65"
                 />
                 <Path
                   d="M8 33 Q13 19 18 3 M12 24 6 17 M14 17 10 11 M14 19 20 15"
                   fill="none"
                   stroke="#566b45"
-                  strokeWidth=".65"
+                  strokeWidth="0.65"
                 />
               </Svg>
             </Animated.View>
@@ -134,13 +134,13 @@ export function MistakeLeaves({
           <Defs>
             <LinearGradient id={token} x1="0" y1="0" x2="1" y2="1">
               <Stop stopColor="#eeebcb" />
-              <Stop offset=".55" stopColor="#d9dbad" />
+              <Stop offset="0.55" stopColor="#d9dbad" />
               <Stop offset="1" stopColor="#bfca97" />
             </LinearGradient>
           </Defs>
-          <Path d={leaf} transform="translate(0 2)" fill="#34472e" opacity=".13" />
-          <Path d={leaf} fill={`url(#${token})`} stroke="#9aab79" strokeWidth=".8" />
-          <G fill="none" stroke="#788b5d" strokeWidth=".85" opacity=".17">
+          <Path d={leaf} transform="translate(0 2)" fill="#34472e" opacity="0.13" />
+          <Path d={leaf} fill={`url(#${token})`} stroke="#9aab79" strokeWidth="0.8" />
+          <G fill="none" stroke="#788b5d" strokeWidth="0.85" opacity="0.17">
             <Path d="M17 49 Q186 56 407 30 M72 51 Q68 31 79 19 M112 52 Q112 28 137 13 M165 52 Q173 30 196 20 M223 48 Q235 30 264 19 M290 42 Q307 28 335 18 M71 52 Q85 70 102 77 M127 53 Q145 68 166 77 M184 52 Q202 66 227 76 M245 47 Q263 61 289 71 M302 40 Q324 52 345 59" />
           </G>
           <Path
