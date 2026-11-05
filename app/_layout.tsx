@@ -16,6 +16,7 @@ import { restoration } from '../src/state/model';
 import { HerbariumTitle } from '../src/components/HerbariumTitle';
 import { HerbariumBookButton } from '../src/components/HerbariumBookButton';
 import { basePath } from '../src/config/paths';
+import { BookChromeContext, bookHeaderHeight } from '../src/components/BookScrollView';
 const nav = [
   { path: '/', name: 'L’Atelier', icon: 'flask-outline' },
   { path: '/herbier', name: 'Le Grand Herbier', icon: 'book-outline' },
@@ -72,45 +73,13 @@ function Shell() {
     setMenuOpen(false);
     router.push(destination);
   };
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: C.paper, zIndex: 0 }}>
-      <PaperTexture background />
-      {playing && (
-        <View
-          pointerEvents="none"
-          style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflow: 'hidden' }}
-        >
-          <View
-            testID="greenhouse-world-background"
-            pointerEvents="none"
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: sceneHeight ? sceneHeight + insets.top : '100%',
-            }}
-          >
-            <GreenhouseBackdrop />
-            <SceneVeil
-              ground={C.paper}
-              tint={
-                save.theme === 'sauge' ? '#ecf0e4' : save.theme === 'rose' ? '#f5eae3' : undefined
-              }
-            />
-          </View>
-        </View>
-      )}
-      <StatusBar style="dark" />
+  const header = (
+    <>
       <View
         pointerEvents="box-none"
         testID="game-hud"
         style={{
-          position: 'absolute',
-          top: insets.top,
-          left: 0,
-          right: 0,
-          zIndex: 20,
+          minHeight: bookHeaderHeight,
           paddingTop: 6,
           paddingHorizontal: mobile ? 16 : 28,
           flexDirection: 'row',
@@ -146,24 +115,57 @@ function Shell() {
           <T style={{ fontSize: 16 }}>{save.seeds}</T>
         </View>
       </View>
-      <View style={{ flex: 1, paddingTop: playing ? 0 : 100 }}>
-        {error && (
-          <Pressable
-            onPress={retry}
+      {error && (
+        <Pressable
+          onPress={retry}
+          style={{
+            padding: 12,
+            backgroundColor: '#f0dfcf',
+            zIndex: 21,
+          }}
+        >
+          <T accessibilityRole="alert">{error}</T>
+        </Pressable>
+      )}
+    </>
+  );
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: C.paper, zIndex: 0 }}>
+      <PaperTexture background />
+      {playing && (
+        <View
+          pointerEvents="none"
+          style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflow: 'hidden' }}
+        >
+          <View
+            testID="greenhouse-world-background"
+            pointerEvents="none"
             style={{
-              padding: 12,
-              marginTop: playing ? 100 : 0,
-              backgroundColor: '#f0dfcf',
-              zIndex: 21,
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: sceneHeight ? sceneHeight + insets.top : '100%',
             }}
           >
-            <T accessibilityRole="alert">{error}</T>
-          </Pressable>
-        )}
+            <GreenhouseBackdrop />
+            <SceneVeil
+              ground={C.paper}
+              tint={
+                save.theme === 'sauge' ? '#ecf0e4' : save.theme === 'rose' ? '#f5eae3' : undefined
+              }
+            />
+          </View>
+        </View>
+      )}
+      <StatusBar style="dark" />
+      <View style={{ flex: 1 }}>
         {ready ? (
           <SceneSizeContext.Provider value={setSceneHeight}>
             <PageTurnContext.Provider value={turnPage}>
-              <Slot />
+              <BookChromeContext.Provider value={{ header, motion: save.settings.motion }}>
+                <Slot />
+              </BookChromeContext.Provider>
             </PageTurnContext.Provider>
           </SceneSizeContext.Provider>
         ) : (

@@ -21,10 +21,11 @@ import { PageFolio } from '../src/components/PageFolio';
 import { HintScroll } from '../src/components/HintScroll';
 import { MistakeLeaves } from '../src/components/MistakeLeaves';
 import { SceneSizeContext } from '../src/components/SceneSize';
+import { BookScrollView, bookHeaderHeight } from '../src/components/BookScrollView';
 import { T, Label, Icon, Button, Progress, C, ui } from '../src/components/ui';
 import { feedback } from '../src/services/feedback';
 type Note = { text: string; kind: 'info' | 'hint'; request: number; pending: boolean };
-const scenePadding = { top: 100, bottom: 20 };
+const scenePadding = { top: 0, bottom: 20 };
 export default function Atelier() {
   const reportSceneHeight = React.useContext(SceneSizeContext);
   const turnPage = React.useContext(PageTurnContext);
@@ -146,7 +147,7 @@ export default function Atelier() {
     } else router.push('/herbier');
   };
   return (
-    <ScrollView
+    <BookScrollView
       ref={scroll}
       style={{ flex: 1 }}
       contentContainerStyle={{
@@ -162,7 +163,10 @@ export default function Atelier() {
       <View
         onLayout={(event) =>
           reportSceneHeight(
-            event.nativeEvent.layout.height + scenePadding.top + scenePadding.bottom,
+            event.nativeEvent.layout.height +
+              bookHeaderHeight +
+              scenePadding.top +
+              scenePadding.bottom,
           )
         }
         style={{
@@ -567,6 +571,6 @@ export default function Atelier() {
           </ScrollView>
         </View>
       </Modal>
-    </ScrollView>
+    </BookScrollView>
   );
 }

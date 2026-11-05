@@ -1,6 +1,7 @@
+import { BookScrollView } from '../src/components/BookScrollView';
 import { Paper } from '../src/components/Paper';
 import React, { useState } from 'react';
-import { View, ScrollView } from 'react-native';
+import { View } from 'react-native';
 import { useGame } from '../src/state/store';
 import { commerce } from '../src/services/commerce';
 import { T, Label, Button, Icon, C, ui } from '../src/components/ui';
@@ -10,7 +11,7 @@ export default function Boutique() {
     [note, setNote] = useState('');
   const day = new Date().toLocaleDateString('sv-SE');
   return (
-    <ScrollView contentContainerStyle={ui.page}>
+    <BookScrollView contentContainerStyle={ui.page}>
       <Label>LES PETITS PLAISIRS DU CARNET</Label>
       <T serif style={ui.title}>
         La Boutique
@@ -109,6 +110,6 @@ export default function Boutique() {
         </Button>
         {!!note && <T>{note}</T>}
       </Paper>
-    </ScrollView>
+    </BookScrollView>
   );
 }

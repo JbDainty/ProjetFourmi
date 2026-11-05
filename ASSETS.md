@@ -12,6 +12,7 @@
 - `src/components/VictoryPaper.tsx` : lianes originales en SVG qui se dessinent sur les marges de la page de réussite, avec feuilles nervurées et vrilles. Elles remplacent l’encadrement statique sur cet écran et ne prennent pas les gestes.
 - `src/components/StampPrompt.tsx` : courte invitation italique et petites lueurs dorées originales pour l’observation de la planche.
 - `src/components/HerbariumBookButton.tsx` : livre ancien original en SVG, reliure verte, tranche de papier, dorures et plantes gravées. L’animation ouvre la couverture puis révèle le menu ; aucun visuel de couverture externe.
+- `src/components/BookScrollView.tsx` : flèche botanique originale en SVG, tige, feuilles nervurées et dorure ; libellé manuscrit Caveat. Le bouton de retour se trouve dans le pied de page, sans superposition aux tubes ou aux commandes.
 - `src/components/PageFolio.tsx` : fleuron de pagination original en SVG, rameaux symétriques et chiffre en Almendra.
 - `src/components/MistakeLeaves.tsx` : feuille porteuse du conseil, nervures, ombre et quatre petites feuilles originales en SVG. Chute douce, balancement puis disparition ; texte manuscrit Caveat, taille adaptée aux petits écrans. Aucune image ou animation tierce.
 - `src/components/PencilNote.tsx` : crayon à papier original dessiné en SVG ; apparition progressive de l’écriture Caveat et positionnement du crayon d’après les lettres et les lignes réellement affichées.

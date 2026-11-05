@@ -1,7 +1,8 @@
+import { BookScrollView } from '../src/components/BookScrollView';
 import { F } from '../src/components/fonts';
 import { Paper } from '../src/components/Paper';
 import React, { useState } from 'react';
-import { ScrollView, View, Switch, TextInput } from 'react-native';
+import { View, Switch, TextInput } from 'react-native';
 import { useGame } from '../src/state/store';
 import { restore, Settings } from '../src/state/model';
 import { T, Label, Button, C, ui } from '../src/components/ui';
@@ -33,7 +34,7 @@ export default function Parametres() {
     },
   ];
   return (
-    <ScrollView contentContainerStyle={ui.page}>
+    <BookScrollView contentContainerStyle={ui.page}>
       <Label>À VOTRE RYTHME</Label>
       <T serif style={ui.title}>
         Les réglages du carnet
@@ -183,6 +184,6 @@ export default function Parametres() {
         </T>
         <T style={{ fontSize: 11, color: C.muted }}>Herbier des couleurs · version 1.0.0</T>
       </Paper>
-    </ScrollView>
+    </BookScrollView>
   );
 }

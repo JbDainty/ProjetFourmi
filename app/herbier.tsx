@@ -1,3 +1,4 @@
+import { BookScrollView } from '../src/components/BookScrollView';
 import { F } from '../src/components/fonts';
 import { Paper, PaperTexture } from '../src/components/Paper';
 import React, { useState } from 'react';
@@ -21,7 +22,7 @@ export default function Herbier() {
     [zoom, setZoom] = useState(false);
   const complete = species.filter((_, i) => restoration(save, i) === 5).length;
   return (
-    <ScrollView contentContainerStyle={ui.page}>
+    <BookScrollView contentContainerStyle={ui.page}>
       <Label>LA COLLECTION BOTANIQUE</Label>
       <T serif style={ui.title}>
         Le Grand Herbier
@@ -218,6 +219,6 @@ export default function Herbier() {
           )}
         </View>
       </Modal>
-    </ScrollView>
+    </BookScrollView>
   );
 }

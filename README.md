@@ -47,7 +47,9 @@ Pour une installation reproductible, utiliser `npm ci` avec le fichier `package-
 
 Les annulations, indices et reprises sont gratuits. Les étoiles comparent le nombre de mouvements à un parcours de référence vérifié, **pas à un optimum mathématique**. Rejouer peut améliorer les étoiles sans dupliquer les graines ou les pigments. Une nouvelle espèce s’ouvre après cinq niveaux, un écosystème après vingt. Le niveau 100 termine la collection sans charger de niveau 101.
 
-L’atelier est une scène de jeu continue : le décor de serre s’étend sous le titre et les flacons. L’ATH flottant présente « Herbier des couleurs », les graines et un bouton de carnet. Ce bouton ouvre le menu du jeu, avec la reprise de la partie, l’herbier, les écosystèmes, la boutique et les réglages. Il remplace la barre d’onglets et le panneau latéral. Ouvrir puis refermer le carnet conserve la sélection et le puzzle ; quitter l’atelier interrompt un versement en cours avant sa validation.
+L’atelier est une scène de jeu continue : le décor de serre s’étend sous le titre et les flacons. L’ATH présente « Herbier des couleurs », les graines et un bouton de carnet. Il appartient au contenu qui défile : en descendant, tout le bandeau sort de l’écran sans recouvrir les tubes ni les commandes. Ce bouton ouvre le menu du jeu, avec la reprise de la partie, l’herbier, les écosystèmes, la boutique et les réglages. Il remplace la barre d’onglets et le panneau latéral. Ouvrir puis refermer le carnet conserve la sélection et le puzzle ; quitter l’atelier interrompt un versement en cours avant sa validation.
+
+Les écrans du carnet partagent `BookScrollView` : le bandeau reste dans le flux, y compris dans l’herbier, les écosystèmes, la boutique et les réglages. Lorsque le contenu dépasse l’écran, une petite flèche végétale « Haut » est placée dans un pied de page, à droite, après les commandes. Elle devient visible en arrivant en bas et remonte au début sans toucher à la progression. Le retour est doux avec les animations activées et immédiat autrement. Le pied de page ne se superpose pas au jeu ; il est absent lorsque tout tient déjà à l’écran. Son calcul de débordement exclut sa propre hauteur pour éviter une apparition artificielle après redimensionnement. `npm run test:scroll` couvre le défilement d’un puzzle à deux rangées, le retour, les petits et grands écrans, l’herbier et la conservation de la sauvegarde.
 
 La présentation emploie « page » dans l’atelier, la carte et le parcours. Le compteur affiche uniquement la page courante, par exemple « PAGE 04 ». Le titre reprend la composition d’un frontispice botanique ancien, avec petites capitales et fleuron doré. Le bouton du carnet représente un livre relié dont la couverture s’ouvre avant l’affichage du menu. Désactiver « Animations douces » rend l’ouverture immédiate.
 
@@ -86,6 +88,7 @@ La typographie utilise **Almendra** pour les titres, **Alegreya Sans** pour les 
 ```sh
 # Après npm run preview :
 npm run test:greenhouse
+npm run test:scroll
 ```
 
 Ce contrôle vérifie le chargement du décor et des huit variantes typographiques, les supports sur chaque rangée, la hauteur compacte sur les écrans hauts et le passage d’une à deux rangées pour un même puzzle à différentes largeurs.

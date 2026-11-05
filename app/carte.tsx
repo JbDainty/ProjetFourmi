@@ -1,6 +1,7 @@
+import { BookScrollView } from '../src/components/BookScrollView';
 import { Paper } from '../src/components/Paper';
 import React from 'react';
-import { View, ScrollView, Pressable } from 'react-native';
+import { View, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { chapters, species } from '../src/data/botany';
 import { useGame } from '../src/state/store';
@@ -12,7 +13,7 @@ export default function Carte() {
   const { save, setSave } = useGame();
   const turnPage = React.useContext(PageTurnContext);
   return (
-    <ScrollView contentContainerStyle={ui.page}>
+    <BookScrollView contentContainerStyle={ui.page}>
       <Label>LE CARNET D’EXPLORATION</Label>
       <T serif style={ui.title}>
         Cinq paysages.{`\n`}Cent nuances à retrouver.
@@ -125,6 +126,6 @@ export default function Carte() {
           </Paper>
         );
       })}
-    </ScrollView>
+    </BookScrollView>
   );
 }
