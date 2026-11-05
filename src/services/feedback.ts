@@ -4,6 +4,7 @@ import { createAudioPlayer } from 'expo-audio';
 import { Settings } from '../state/model';
 import { prepareLeafWind } from './leafWind';
 import { preparePlantMelody } from './plantMelody';
+import { preparePageSounds } from './pageSounds';
 let player: ReturnType<typeof createAudioPlayer> | undefined;
 export function feedback(settings: Settings, success = false) {
   if (settings.haptics && Platform.OS !== 'web')
@@ -13,6 +14,7 @@ export function feedback(settings: Settings, success = false) {
   if (settings.sound) {
     prepareLeafWind();
     preparePlantMelody();
+    preparePageSounds();
     try {
       player ??= createAudioPlayer(require('../../assets/pour.wav'));
       void player.seekTo(0);

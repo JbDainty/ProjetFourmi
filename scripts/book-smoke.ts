@@ -73,7 +73,7 @@ async function main() {
       'aria-label',
       'Ouverture de la page 6',
     );
-    const curl = page.getByTestId('book-page-curl');
+    const curl = page.getByTestId('book-page-curl').first();
     await expect(curl).toHaveAttribute('opacity', '1');
     const shape = await curl.getAttribute('d');
     await expect.poll(() => curl.getAttribute('d')).not.toBe(shape);
@@ -86,7 +86,7 @@ async function main() {
     expect(after.completed).toEqual(before.completed);
     expect(after.seeds).toBe(before.seeds);
     expect(after.board).toEqual(levels[5].board);
-    // A page selected from the exploration book uses the same single transition.
+    // A page selected from the exploration book uses the same transition coordinator.
     await page.getByRole('button', { name: 'Ouvrir le carnet' }).click();
     await page.getByRole('link', { name: 'Écosystèmes' }).click();
     await page.getByRole('button', { name: 'Page 2', exact: true }).click();

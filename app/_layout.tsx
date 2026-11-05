@@ -12,7 +12,8 @@ import { GreenhouseBackdrop } from '../src/components/Greenhouse';
 import { SceneVeil } from '../src/components/SceneVeil';
 import { SceneSizeContext } from '../src/components/SceneSize';
 import { PageTurn, PageTurnContext, type TurningPage } from '../src/components/PageTurn';
-import { restoration } from '../src/state/model';
+import { planBookTurn } from '../src/animation/book';
+import { playPageSound } from '../src/services/pageSounds';
 import { HerbariumTitle } from '../src/components/HerbariumTitle';
 import { HerbariumBookButton } from '../src/components/HerbariumBookButton';
 import { basePath } from '../src/config/paths';
@@ -36,22 +37,23 @@ function Shell() {
   const [turn, setTurn] = React.useState<TurningPage | null>(null);
   const pendingTurn = React.useRef<(() => void) | null>(null);
   const turning = React.useRef(false);
+  const stopPageSound = React.useRef<() => void>(() => {});
+  React.useEffect(() => () => stopPageSound.current(), []);
+  React.useEffect(() => {
+    if (!save.settings.sound) stopPageSound.current();
+  }, [save.settings.sound]);
   const turnPage = (target: number, commit: () => void) => {
     if (turning.current) return;
+    const planned = planBookTurn(save, target, Date.now());
+    stopPageSound.current();
+    stopPageSound.current = playPageSound(planned.kind, save.settings.sound, save.settings.motion);
     if (!save.settings.motion) {
       commit();
       return;
     }
     turning.current = true;
     pendingTurn.current = commit;
-    const plant = Math.floor((save.current - 1) / 5);
-    setTurn({
-      id: Date.now(),
-      from: save.started ? save.current : 0,
-      to: target,
-      plant,
-      stage: restoration(save, plant),
-    });
+    setTurn(planned);
   };
   const commitTurn = () => {
     const commit = pendingTurn.current;
@@ -249,6 +251,7 @@ function Shell() {
           page={turn}
           onCovered={commitTurn}
           onFinished={() => {
+            stopPageSound.current();
             turning.current = false;
             setTurn(null);
           }}
