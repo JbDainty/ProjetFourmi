@@ -8,6 +8,7 @@ import {
 } from '../services/ambience';
 import { setAudioForeground } from '../services/audioFocus';
 import { stopBotanicalCues } from '../services/botanicalAudio';
+import { nativeAudioLifecycle } from '../services/nativeAudio';
 
 export function Soundscape({
   music,
@@ -31,7 +32,8 @@ export function Soundscape({
   }, [sound]);
   useEffect(() => {
     const focus = (active: boolean) => {
-      setAudioForeground(active);
+      if (Platform.OS === 'web') setAudioForeground(active);
+      else void nativeAudioLifecycle.setActive(active);
       if (!active) stopBotanicalCues();
     };
     if (Platform.OS === 'web') {
@@ -45,7 +47,7 @@ export function Soundscape({
         document.removeEventListener('pointerdown', gesture, true);
         document.removeEventListener('keydown', gesture, true);
         document.removeEventListener('visibilitychange', visible);
-        stopBotanicalCues();
+        focus(false);
         disposeAmbience();
       };
     }
@@ -53,7 +55,7 @@ export function Soundscape({
     const subscription = AppState.addEventListener('change', (state) => focus(state === 'active'));
     return () => {
       subscription.remove();
-      stopBotanicalCues();
+      focus(false);
       disposeAmbience();
     };
   }, []);

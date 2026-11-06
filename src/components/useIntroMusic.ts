@@ -9,6 +9,12 @@ export function useIntroMusic(prepare: boolean, playing: boolean, position: () =
   const read = useRef(position);
   read.current = position;
   useEffect(() => {
+    if (!prepare) {
+      current.current?.dispose();
+      current.current = null;
+      setStatus('idle');
+      return;
+    }
     if (prepare && !current.current) {
       try {
         current.current = createIntroMusic(() => read.current(), setStatus);

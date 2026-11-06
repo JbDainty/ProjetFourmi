@@ -1,5 +1,6 @@
 import { createBotanicalCue } from './botanicalAudio';
 import type { BookTurnKind } from '../animation/book';
+import { audioEpoch } from './audioFocus';
 
 const single = createBotanicalCue(require('../../assets/page-turn.wav'), 0.2);
 const multiple = createBotanicalCue(require('../../assets/pages-riffle.wav'), 0.2);
@@ -17,9 +18,10 @@ export function playPageSound(kind: BookTurnKind, enabled: boolean, animated: bo
   const delay = animated ? (kind === 'species' ? 280 : 350) : 0;
   let cancelled = false,
     stop = () => {};
+  const epoch = audioEpoch();
   let release: ReturnType<typeof setTimeout> | undefined;
   const begin = () => {
-    if (cancelled) return;
+    if (cancelled || audioEpoch() !== epoch) return;
     stop = cue.play(true);
     release = setTimeout(() => stop(), (kind === 'species' ? 1850 : 1150) + 750);
   };

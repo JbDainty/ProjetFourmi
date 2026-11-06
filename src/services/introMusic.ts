@@ -1,6 +1,11 @@
 import { Platform } from 'react-native';
 import { Asset } from 'expo-asset';
-import { createAudioPlayer } from 'expo-audio';
+import {
+  createGameAudioPlayer,
+  releaseGameAudioPlayer,
+  startGameAudioPlayer,
+  nativeAudioLifecycle,
+} from './nativeAudio';
 import { sharedAudioContext } from './audioContext';
 import { audioIsForeground, musicAttenuation, observeAudioFocus } from './audioFocus';
 import { scoreSession, type ScoreVoice } from './scoreSession';
@@ -57,7 +62,24 @@ function voice() {
     result = {
       async play(position, valid) {
         const decoded = await buffer;
-        if (!valid() || !decoded || !context || context.state !== 'running') return false;
+        if (!valid() || !decoded || !context) return false;
+        if (context.state !== 'running') {
+          let timer: ReturnType<typeof setTimeout> | undefined;
+          try {
+            // A browser can leave resume() pending until the first gesture.
+            // Keep the explicit "wake music" control available in that case.
+            await Promise.race([
+              context.resume(),
+              new Promise<void>((resolve) => {
+                timer = setTimeout(resolve, 100);
+              }),
+            ]);
+          } catch {
+          } finally {
+            clearTimeout(timer);
+          }
+        }
+        if (!valid() || context.state !== 'running') return false;
         pause();
         source = context.createBufferSource();
         gain = context.createGain();
@@ -73,48 +95,93 @@ function voice() {
       dispose: pause,
     };
   } else {
-    const player = createAudioPlayer(introScore);
-    player.loop = false;
-    player.volume = introScoreVolume * musicAttenuation();
-    let fade: ReturnType<typeof setInterval> | undefined;
-    const stopFade = () => {
-      clearInterval(fade);
-      fade = undefined;
+    let player: ReturnType<typeof createGameAudioPlayer> | undefined =
+      createGameAudioPlayer(introScore);
+    let abort: AbortController | undefined;
+    const retiring = new Map<
+      ReturnType<typeof createGameAudioPlayer>,
+      ReturnType<typeof setInterval>
+    >();
+    const clearRetiring = () => {
+      retiring.forEach((timer, old) => {
+        clearInterval(timer);
+        releaseGameAudioPlayer(old);
+      });
+      retiring.clear();
     };
     const pause = () => {
-      stopFade();
+      abort?.abort();
+      abort = undefined;
+      const old = player;
+      player = undefined;
+      if (!old) return;
       if (!audioIsForeground()) {
-        player.pause();
+        releaseGameAudioPlayer(old);
         return;
       }
-      const from = player.volume;
+      let from: number;
+      try {
+        from = old.volume;
+      } catch {
+        releaseGameAudioPlayer(old);
+        return;
+      }
       let step = 0;
-      fade = setInterval(() => {
+      const timer = setInterval(() => {
         step++;
-        player.volume = from * Math.max(0, 1 - step / 4);
+        try {
+          old.volume = from * Math.max(0, 1 - step / 4);
+        } catch {
+          step = 4;
+        }
         if (step >= 4) {
-          stopFade();
-          player.pause();
+          clearInterval(timer);
+          retiring.delete(old);
+          releaseGameAudioPlayer(old);
         }
       }, 20);
+      retiring.set(old, timer);
     };
     setLevel = (value) => {
-      if (!fade) player.volume = value;
+      if (!audioIsForeground()) clearRetiring();
+      try {
+        if (player) player.volume = value;
+      } catch {}
     };
     result = {
       async play(position, valid) {
-        stopFade();
-        await player.seekTo(position);
-        if (!valid() || !audioIsForeground()) return false;
-        player.volume = introScoreVolume * musicAttenuation();
-        player.play();
+        if (abort) pause();
+        clearRetiring();
+        if (!player) player = createGameAudioPlayer(introScore);
+        const next = player;
+        const controller = new AbortController();
+        abort = controller;
+        try {
+          next.loop = false;
+          next.volume = introScoreVolume * musicAttenuation();
+          await startGameAudioPlayer(next, controller.signal, position);
+        } catch (error) {
+          if (player === next) {
+            player = undefined;
+            abort = undefined;
+            controller.abort();
+            releaseGameAudioPlayer(next);
+          }
+          throw error;
+        }
+        if (!valid() || !audioIsForeground()) {
+          if (player === next) pause();
+          return false;
+        }
         return true;
       },
       pause,
       dispose() {
-        stopFade();
-        player.pause();
-        player.remove();
+        abort?.abort();
+        abort = undefined;
+        releaseGameAudioPlayer(player);
+        player = undefined;
+        clearRetiring();
       },
     };
   }
@@ -142,7 +209,7 @@ export function createIntroMusic(
       if (Platform.OS === 'web') {
         const context = sharedAudioContext();
         if (context?.state === 'suspended') await context.resume().catch(() => {});
-      }
+      } else await nativeAudioLifecycle.ensureReady();
       session.retry();
     },
     dispose() {

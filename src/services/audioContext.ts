@@ -5,10 +5,11 @@ export function sharedAudioContext(): AudioContext | undefined {
       globalThis.AudioContext ||
       (globalThis as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!Constructor) return;
-    context ??= new Constructor();
-    if (context.state === 'suspended') void context.resume().catch(() => {});
+    if (!context || context.state === 'closed') context = new Constructor();
+    if (audioIsForeground() && context.state !== 'running') void context.resume().catch(() => {});
     return context;
   } catch {
     return;
   }
 }
+import { audioIsForeground } from './audioFocus';

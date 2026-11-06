@@ -1,6 +1,11 @@
 import { Platform } from 'react-native';
 import { Asset } from 'expo-asset';
-import { createAudioPlayer } from 'expo-audio';
+import {
+  createGameAudioPlayer,
+  releaseGameAudioPlayer,
+  startGameAudioPlayer,
+  nativeAudioLifecycle,
+} from './nativeAudio';
 import { sharedAudioContext } from './audioContext';
 import { audioIsForeground, musicAttenuation, observeAudioFocus } from './audioFocus';
 
@@ -18,6 +23,8 @@ let enabled = false,
   unlocked = false,
   generation = 0;
 let current: Voice | undefined;
+let recovery: ReturnType<typeof setTimeout> | undefined;
+let recoveryAttempts = 0;
 const retiring = new Set<Voice>();
 const buffers = new Map<number, Promise<AudioBuffer>>();
 const positions = new Map<number, number>();
@@ -38,10 +45,12 @@ function makeVoice(index: number, buffer?: AudioBuffer): Voice | undefined {
       started = context.currentTime;
     source.start(0, offset);
     let stopped = false;
+    let target: string | undefined;
     return {
       chapter: index,
       level(value, ms) {
-        if (stopped) return;
+        if (stopped || target === `${value}:${ms}`) return;
+        target = `${value}:${ms}`;
         const now = context.currentTime;
         gain.gain.cancelScheduledValues(now);
         gain.gain.setValueAtTime(gain.gain.value, now);
@@ -59,26 +68,48 @@ function makeVoice(index: number, buffer?: AudioBuffer): Voice | undefined {
       },
     };
   }
+  let creating: ReturnType<typeof createGameAudioPlayer> | undefined;
   try {
-    const player = createAudioPlayer(ambienceTracks[index].source);
+    const player = createGameAudioPlayer(ambienceTracks[index].source);
+    creating = player;
+    const abort = new AbortController();
     player.loop = true;
     player.volume = 0;
     let stopped = false,
       fade: ReturnType<typeof setInterval> | undefined;
+    let target: string | undefined;
     const offset = positions.get(index) ?? 0;
-    void (async () => {
-      try {
-        if (offset) await player.seekTo(offset);
-        if (!stopped) player.play();
-      } catch {}
-    })();
-    return {
+    let heard = false;
+    const fail = () => {
+      if (stopped) return;
+      voice.stop();
+      if (current !== voice) return;
+      current = undefined;
+      if (desired() && recoveryAttempts < 2) {
+        recoveryAttempts++;
+        clearTimeout(recovery);
+        recovery = setTimeout(() => void reconcile(), recoveryAttempts * 600);
+      }
+    };
+    const subscription = player.addListener('playbackStatusUpdate', (status) => {
+      if (status.playing) heard = true;
+      // A system audio-focus interruption can pause a healthy player. Keep it
+      // registered so Expo can resume it on focus gain, rather than fighting a call.
+    });
+    const voice: Voice = {
       chapter: index,
       level(value, ms) {
+        if (stopped || target === `${value}:${ms}`) return;
+        target = `${value}:${ms}`;
         clearInterval(fade);
-        if (stopped) return;
-        const from = player.volume,
-          start = Date.now();
+        let from: number;
+        try {
+          from = player.volume;
+        } catch {
+          fail();
+          return;
+        }
+        const start = Date.now();
         fade = setInterval(() => {
           if (stopped) {
             clearInterval(fade);
@@ -87,22 +118,31 @@ function makeVoice(index: number, buffer?: AudioBuffer): Voice | undefined {
           const p = Math.min(1, (Date.now() - start) / Math.max(1, ms));
           try {
             player.volume = from + (value - from) * p;
-          } catch {}
+          } catch {
+            fail();
+            return;
+          }
           if (p === 1) clearInterval(fade);
         }, 40);
       },
       stop() {
         if (stopped) return;
         stopped = true;
+        abort.abort();
         clearInterval(fade);
         try {
-          positions.set(index, player.currentTime);
-          player.pause();
-          player.remove();
+          if (heard || player.currentTime > 0) positions.set(index, player.currentTime);
         } catch {}
+        try {
+          subscription.remove();
+        } catch {}
+        releaseGameAudioPlayer(player);
       },
     };
+    void startGameAudioPlayer(player, abort.signal, offset).catch(fail);
+    return voice;
   } catch {
+    releaseGameAudioPlayer(creating);
     return;
   }
 }
@@ -143,6 +183,7 @@ export function prepareAmbience(ecosystem: number) {
 let pendingChapter: number | undefined;
 async function reconcile() {
   if (!desired()) {
+    clearTimeout(recovery);
     generation++;
     pendingChapter = undefined;
     if (!audioIsForeground()) {
@@ -175,7 +216,7 @@ async function reconcile() {
         pendingChapter = undefined;
         return;
       }
-      if (context.state === 'suspended') await context.resume();
+      if (context.state !== 'running') await context.resume();
       buffer = await bufferFor(next, context);
     }
     if (token !== generation || !desired() || next !== chapter) return;
@@ -197,19 +238,28 @@ async function reconcile() {
     if (token === generation) pendingChapter = undefined;
   }
 }
+let wasForeground = audioIsForeground();
 observeAudioFocus(() => {
-  if (desired()) applyLevels();
+  if (wasForeground !== audioIsForeground()) {
+    wasForeground = audioIsForeground();
+    recoveryAttempts = 0;
+  }
   void reconcile();
 });
 
 export function unlockAmbience() {
   unlocked = true;
   if (Platform.OS === 'web') sharedAudioContext();
-  void reconcile();
+  if (Platform.OS === 'web') void reconcile();
+  else
+    void nativeAudioLifecycle.ensureReady().then((ready) => {
+      if (ready) void reconcile();
+    });
 }
 export function configureAmbience(active: boolean, ecosystem: number) {
   const next = Math.max(0, Math.min(4, ecosystem));
   if (enabled !== active || chapter !== next) {
+    recoveryAttempts = 0;
     generation++;
     pendingChapter = undefined;
   }
@@ -218,6 +268,7 @@ export function configureAmbience(active: boolean, ecosystem: number) {
   void reconcile();
 }
 export function disposeAmbience() {
+  clearTimeout(recovery);
   enabled = false;
   generation++;
   pendingChapter = undefined;

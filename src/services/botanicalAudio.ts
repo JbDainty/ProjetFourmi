@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import { Asset } from 'expo-asset';
-import { createAudioPlayer } from 'expo-audio';
+import { createGameAudioPlayer, releaseGameAudioPlayer, startGameAudioPlayer } from './nativeAudio';
 import { sharedAudioContext } from './audioContext';
 import { audioIsForeground, duckMusic } from './audioFocus';
 
@@ -33,30 +33,38 @@ export function createBotanicalCue(source: number, volume: number, attenuation =
       done = false,
       release = () => {};
     let voice: AudioBufferSourceNode | undefined, gain: GainNode | undefined;
-    let player: ReturnType<typeof createAudioPlayer> | undefined;
+    let player: ReturnType<typeof createGameAudioPlayer> | undefined;
+    const abort = new AbortController();
     let subscription: { remove: () => void } | undefined;
     let fallback: ReturnType<typeof setTimeout> | undefined;
     const finish = () => {
       if (done) return;
       done = true;
+      abort.abort();
       release();
       active.delete(stop);
       clearTimeout(fallback);
       try {
+        if (voice) {
+          voice.onended = null;
+          voice.stop();
+        }
         voice?.disconnect();
         gain?.disconnect();
       } catch {}
       try {
         subscription?.remove();
-        player?.pause();
-        player?.remove();
       } catch {}
+      releaseGameAudioPlayer(player);
+      player = undefined;
+      voice = undefined;
+      gain = undefined;
     };
     const stop = () => {
       if (cancelled || done) return;
       cancelled = true;
       const context = Platform.OS === 'web' ? sharedAudioContext() : undefined;
-      if (voice && gain && context?.state === 'running') {
+      if (voice && gain && context?.state === 'running' && audioIsForeground()) {
         try {
           const now = context.currentTime;
           gain.gain.cancelScheduledValues(now);
@@ -75,7 +83,12 @@ export function createBotanicalCue(source: number, volume: number, attenuation =
     };
     active.add(stop);
     if (Platform.OS === 'web') {
-      void prepare()?.then((decoded) => {
+      const prepared = prepare();
+      if (!prepared) {
+        finish();
+        return stop;
+      }
+      void prepared.then((decoded) => {
         const context = sharedAudioContext();
         if (
           cancelled ||
@@ -97,6 +110,8 @@ export function createBotanicalCue(source: number, volume: number, attenuation =
           release = duckMusic(attenuation);
           voice.onended = finish;
           voice.start();
+          clearTimeout(fallback);
+          fallback = setTimeout(finish, decoded.duration * 1000 + 300);
         } catch {
           finish();
         }
@@ -105,15 +120,29 @@ export function createBotanicalCue(source: number, volume: number, attenuation =
       fallback = setTimeout(finish, 12000);
     } else {
       try {
-        player = createAudioPlayer(source);
+        player = createGameAudioPlayer(source);
         player.volume = volume;
         player.loop = false;
+        let heard = false;
         subscription = player.addListener('playbackStatusUpdate', (status) => {
-          if (status.didJustFinish) finish();
+          if (done || cancelled) return;
+          if (!audioIsForeground() || status.didJustFinish) {
+            finish();
+            return;
+          }
+          if (status.playing && !heard) {
+            heard = true;
+            release = duckMusic(attenuation);
+            clearTimeout(fallback);
+            const remaining = Math.max(0, status.duration - status.currentTime);
+            fallback = setTimeout(finish, Math.min(12000, remaining * 1000 + 400));
+          } else if (heard && !status.playing) {
+            // An interrupted one-shot is cancelled, never kept as a silent music duck.
+            finish();
+          }
         });
-        release = duckMusic(attenuation);
-        player.play();
-        fallback = setTimeout(finish, 12000);
+        fallback = setTimeout(finish, 4000);
+        void startGameAudioPlayer(player, abort.signal).catch(finish);
       } catch {
         finish();
       }
