@@ -35,7 +35,7 @@ import { playVialChime } from '../src/services/vialChime';
 import { preparePageArtwork } from '../src/services/pageArtwork';
 import { RestorationProgress } from '../src/components/RestorationProgress';
 import { ColorReveal } from '../src/components/ColorReveal';
-import { SealAnimation } from '../src/components/SealAnimation';
+import { SealCeremony } from '../src/components/SealCeremony';
 import { restorationTitles } from '../src/animation/restoration';
 type Note = { text: string; kind: 'info' | 'hint'; request: number; pending: boolean };
 const scenePadding = { top: 0, bottom: 20 };
@@ -76,6 +76,8 @@ export default function Atelier() {
     stage = restoration(save, plant),
     sealPage = save.current % 5 === 0,
     victory = won(save.board);
+  const sealActive = sealPage && reveal && !sealFinished && revealAnimated;
+  const resultMotion = save.settings.motion && !(sealPage && reveal);
   const earnedStars = pageStars(save.moves, levels[save.current - 1].par);
   useEffect(() => {
     if (!victory) return;
@@ -610,9 +612,15 @@ export default function Atelier() {
             padding: 20,
           }}
         >
-          <ScrollView style={{ maxHeight: '95%', width: '100%', maxWidth: 460 }}>
+          <ScrollView
+            testID="victory-result-scroll"
+            pointerEvents={sealActive ? 'none' : 'auto'}
+            accessibilityElementsHidden={sealActive}
+            importantForAccessibility={sealActive ? 'no-hide-descendants' : 'auto'}
+            style={{ maxHeight: '95%', width: '100%', maxWidth: 460, opacity: sealActive ? 0 : 1 }}
+          >
             {victory && winReady && !dismissed && save.started && (
-              <VictoryPaper motion={save.settings.motion} sound={save.settings.sound}>
+              <VictoryPaper motion={resultMotion} sound={save.settings.sound}>
                 <Label>
                   {save.current === 100
                     ? 'L’HERBIER RETROUVE SES COULEURS'
@@ -629,7 +637,7 @@ export default function Atelier() {
                       ? s.name
                       : restorationTitles[(save.current - 1) % 5]}
                 </T>
-                <RewardStars count={earnedStars} motion={save.settings.motion} />
+                <RewardStars count={earnedStars} motion={resultMotion} />
                 <T
                   testID="page-result-moves"
                   style={{
@@ -720,14 +728,6 @@ export default function Atelier() {
                           stage={sealFinished ? 5 : 4}
                           size={resultPlateSize}
                         />
-                        {!sealFinished && (
-                          <SealAnimation
-                            size={resultPlateSize}
-                            motion={revealAnimated}
-                            sound={save.settings.sound}
-                            onDone={() => setSealFinished(true)}
-                          />
-                        )}
                       </View>
                     ) : (
                       <ColorReveal
@@ -773,6 +773,14 @@ export default function Atelier() {
               </VictoryPaper>
             )}
           </ScrollView>
+          {sealActive && (
+            <SealCeremony
+              index={plant}
+              name={s.name}
+              sound={save.settings.sound}
+              onDone={() => setSealFinished(true)}
+            />
+          )}
         </View>
       </Modal>
     </BookScrollView>

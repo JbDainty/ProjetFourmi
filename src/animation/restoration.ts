@@ -35,4 +35,4 @@ export function restorationWash(stage: number) {
   };
 }
 
-export const sealPosition = { x: 285, y: 426, diameter: 76, angle: -12 };
+export const sealPosition = { x: 278, y: 402, diameter: 132, angle: -12 };

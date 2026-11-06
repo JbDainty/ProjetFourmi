@@ -7,8 +7,8 @@ import { useNativeProgress } from './useNativeProgress';
 import { usePrimaryAnimation } from './usePrimaryAnimation';
 import { playSealSound } from '../services/sealSound';
 
-const duration = 1900;
-const impact = 0.34;
+const duration = 2800;
+const impact = 0.4;
 const WoodenStamp = memo(function WoodenStamp({ factor }: { factor: number }) {
   const id = 'wood-stamp-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
   return (
@@ -103,12 +103,13 @@ export function SealAnimation({
     if (!motion) onDone();
   }, [motion, onDone]);
   const factor = size / 360;
+  const toolFactor = (factor * sealPosition.diameter) / 76;
   const diameter = sealPosition.diameter * factor;
   const curves = useMemo(
     () => ({
       lift: value.interpolate({
-        inputRange: [0, 0.19, 0.29, impact, 0.39, 0.44, 0.68, 1],
-        outputRange: [-190, -100, -30, 0, -2, 0, -86, -210].map((y) => y * factor),
+        inputRange: [0, 0.16, 0.29, impact, 0.47, 0.55, 0.76, 1],
+        outputRange: [-190, -150, -52, 0, -1, 0, -100, -210].map((y) => y * toolFactor),
       }),
       drift: value.interpolate({
         inputRange: [0, impact, 0.5, 1],
@@ -119,8 +120,8 @@ export function SealAnimation({
         outputRange: ['22deg', '8deg', '0deg', '0deg', '-15deg'],
       }),
       scale: value.interpolate({
-        inputRange: [0, 0.27, impact, 0.4, 0.5, 1],
-        outputRange: [1.4, 1.16, 1, 0.97, 1, 1.2],
+        inputRange: [0, 0.29, impact, 0.46, 0.55, 1],
+        outputRange: [1.3, 1.12, 1, 0.97, 1, 1.15],
       }),
       toolOpacity: value.interpolate({
         inputRange: [0, 0.08, 0.72, 0.9, 1],
@@ -134,8 +135,16 @@ export function SealAnimation({
         inputRange: [0, impact, 0.42, 0.54, 1],
         outputRange: [1.1, 1.1, 0.99, 1, 1],
       }),
+      poolOpacity: value.interpolate({
+        inputRange: [0, 0.12, 0.2, impact, impact + 0.005, 1],
+        outputRange: [0, 0, 1, 1, 0, 0],
+      }),
+      poolScale: value.interpolate({
+        inputRange: [0, 0.12, 0.27, impact, 1],
+        outputRange: [0.1, 0.1, 0.85, 1, 1],
+      }),
       dustOpacity: value.interpolate({
-        inputRange: [0, impact, 0.4, 0.68, 1],
+        inputRange: [0, impact, 0.47, 0.76, 1],
         outputRange: [0, 0, 0.55, 0, 0],
       }),
       dustScale: value.interpolate({
@@ -143,7 +152,7 @@ export function SealAnimation({
         outputRange: [0.7, 0.7, 1.3, 1.3],
       }),
     }),
-    [value, factor],
+    [value, factor, toolFactor],
   );
   const cx = sealPosition.x * factor,
     cy = sealPosition.y * factor;
@@ -153,6 +162,42 @@ export function SealAnimation({
       pointerEvents="none"
       style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
     >
+      <Animated.View
+        testID="molten-red-wax"
+        renderToHardwareTextureAndroid
+        shouldRasterizeIOS
+        style={{
+          position: 'absolute',
+          left: cx - diameter / 2,
+          top: cy - diameter / 2,
+          opacity: curves.poolOpacity,
+          transform: [{ scale: curves.poolScale }],
+        }}
+      >
+        <Svg width={diameter} height={diameter} viewBox="-38 -38 76 76" accessible={false}>
+          <Defs>
+            <LinearGradient id="warm-wax-pool" x1="0" y1="0" x2="0.8" y2="1">
+              <Stop stopColor="#db7354" />
+              <Stop offset="0.48" stopColor="#ae3734" />
+              <Stop offset="1" stopColor="#7b1d29" />
+            </LinearGradient>
+          </Defs>
+          <Path
+            d="M-29-15 C-20-35 4-36 23-24 C41-12 34 13 21 27 C3 39-22 31-30 13 C-36 0-36-5-29-15Z"
+            fill="url(#warm-wax-pool)"
+            stroke="#8c252b"
+            strokeWidth="0.8"
+          />
+          <Path
+            d="M-24-13 Q-18-26-4-27"
+            fill="none"
+            stroke="#f4bd92"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            opacity="0.5"
+          />
+        </Svg>
+      </Animated.View>
       <Animated.View
         testID="seal-ink-impression"
         renderToHardwareTextureAndroid
@@ -196,22 +241,22 @@ export function SealAnimation({
         shouldRasterizeIOS
         style={{
           position: 'absolute',
-          width: 112 * factor,
-          height: 152 * factor,
-          left: cx - 56 * factor,
-          top: cy - 132 * factor,
+          width: 112 * toolFactor,
+          height: 152 * toolFactor,
+          left: cx - 56 * toolFactor,
+          top: cy - 132 * toolFactor,
           opacity: curves.toolOpacity,
           transform: [
             { translateY: curves.lift },
             { translateX: curves.drift },
-            { translateY: 56 * factor },
+            { translateY: 56 * toolFactor },
             { rotate: curves.turn },
             { scale: curves.scale },
-            { translateY: -56 * factor },
+            { translateY: -56 * toolFactor },
           ],
         }}
       >
-        <WoodenStamp factor={factor} />
+        <WoodenStamp factor={toolFactor} />
       </Animated.View>
     </View>
   );

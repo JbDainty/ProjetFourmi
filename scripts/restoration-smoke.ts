@@ -77,29 +77,52 @@ async function main() {
     const earned = await state();
     const began = await page.evaluate(() => performance.now());
     await result.getByRole('button', { name: 'Estampiller la planche', exact: true }).click();
-    const next = result.getByRole('button', { name: 'Découvrir l’espèce suivante', exact: true });
+    const next = result.getByRole('button', {
+      name: 'Découvrir l’espèce suivante',
+      exact: true,
+      includeHidden: true,
+    });
+    const focus = page.getByTestId('seal-ceremony-focus');
+    await expect(focus).toBeVisible();
+    await expect(focus.getByTestId('focused-finished-plate')).toBeInViewport();
+    const focusedPlate = (await focus.getByTestId('focused-finished-plate').boundingBox())!;
+    expect(focusedPlate.width).toBeGreaterThan(290);
+    expect(focusedPlate.y).toBeGreaterThan(0);
+    expect(focusedPlate.y + focusedPlate.height).toBeLessThan(852);
     await expect(next).toBeDisabled();
-    const tool = result.getByTestId('carved-wood-stamp');
+    const tool = focus.getByTestId('carved-wood-stamp');
     const first = await tool.evaluate((n) => getComputedStyle(n).transform);
     await expect.poll(() => tool.evaluate((n) => getComputedStyle(n).transform)).not.toBe(first);
     await expect
       .poll(() =>
-        result
+        focus
           .getByTestId('seal-ink-impression')
           .evaluate((n) => Number(getComputedStyle(n).opacity)),
       )
       .toBeGreaterThan(0.8);
     await page.screenshot({ path: 'test-results/botanical-stamp-press.png' });
+    expect(
+      (await focus.getByTestId('botanical-restoration-seal').boundingBox())!.width,
+    ).toBeGreaterThan(100);
     await expect.poll(sounds).toBe(1);
     const at = await page.evaluate(() => (window as any).sealSounds[0]);
-    expect(at - began).toBeGreaterThan(500);
+    expect(at - began).toBeGreaterThan(950);
     await expect(next).toBeEnabled();
-    await expect(result.getByTestId('ancient-stamp-animation')).toHaveCount(0);
+    await expect(page.getByTestId('seal-ceremony-focus')).toHaveCount(0);
     await expect(result.getByTestId('botanical-restoration-seal')).toHaveCount(1);
     await page.screenshot({ path: 'test-results/botanical-seal-finished.png' });
     expect((await state()).seeds).toBe(earned.seeds);
     expect((await state()).completed).toEqual(earned.completed);
     expect(await page.evaluate(() => (window as any).stampGeometryChanges)).toBe(0);
+    // An already completed fifth page still presents the ceremony after a reload/update.
+    await page.reload();
+    await openCarnet(page);
+    await result.getByRole('button', { name: 'Estampiller la planche', exact: true }).click();
+    await expect(focus).toBeVisible();
+    await expect(focus.getByTestId('carved-wood-stamp')).toBeAttached();
+    await expect(focus).toHaveCount(0);
+    expect((await state()).seeds).toBe(earned.seeds);
+    expect((await state()).completed).toEqual(earned.completed);
     await next.click();
     await expect(page.getByTestId('book-species-riffle')).toBeVisible();
     await expect(page.getByTestId('book-destination-species')).toHaveText('Bleuet');
@@ -107,6 +130,29 @@ async function main() {
     await page.reload();
     await openCarnet(page);
     expect((await state()).completed).toEqual(earned.completed);
+    // The result can be scrolled all the way down; the stamp still fills the viewport.
+    await page.setViewportSize({ width: 320, height: 568 });
+    await seed(5, true, false);
+    await page.getByTestId('victory-result-scroll').evaluate((n) => {
+      n.scrollTop = n.scrollHeight;
+    });
+    await result.getByRole('button', { name: 'Estampiller la planche', exact: true }).click();
+    await expect(focus).toBeVisible();
+    await expect(focus.getByTestId('focused-finished-plate')).toBeInViewport({ ratio: 1 });
+    await expect
+      .poll(() =>
+        focus
+          .getByTestId('seal-ink-impression')
+          .evaluate((n) => Number(getComputedStyle(n).opacity)),
+      )
+      .toBeGreaterThan(0.8);
+    const wax = (await focus.getByTestId('botanical-restoration-seal').boundingBox())!;
+    expect(wax.y).toBeGreaterThan(0);
+    expect(wax.y + wax.height).toBeLessThan(568);
+    await page.screenshot({ path: 'test-results/wax-seal-small-screen.png' });
+    await expect(focus).toHaveCount(0);
+    await expect(result.getByRole('button', { name: 'Découvrir l’espèce suivante' })).toBeEnabled();
+    expect(await sounds()).toBe(0);
     await page.setViewportSize({ width: 320, height: 740 });
     await seed(5, false, false);
     await result.getByRole('button', { name: 'Estampiller la planche', exact: true }).click();
@@ -121,7 +167,7 @@ async function main() {
     expect(await sounds()).toBe(0);
     expect(errors).toEqual([]);
     console.log(
-      'Restoration passed: original full watercolor on page 4; page 5 carved stamp, synchronized soft cue, immutable SVG, completion gate, new species, reload keeps rewards, 320px, mute, skip and reduced motion.',
+      'Restoration passed: original full watercolor on page 4; page 5 viewport-level carved stamp and large red wax seal, synchronized soft cue, immutable SVG, completion gate, new species, already completed fifth page after reload, unchanged rewards, 320×568 scrolled result, mute, skip and reduced motion.',
     );
   } finally {
     await browser.close();

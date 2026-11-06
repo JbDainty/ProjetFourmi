@@ -12,7 +12,7 @@ export function discoverPigment(level: number, now: string): Pigment {
   return {
     id: level,
     name: step === 4 ? 'Sceau du botaniste' : species[plant].organs[step],
-    shade: step === 4 ? '#526d51' : step < 2 ? '#7a9274' : species[plant].color,
+    shade: step === 4 ? '#a33436' : step < 2 ? '#7a9274' : species[plant].color,
     species: plant,
     discovered: now,
   };

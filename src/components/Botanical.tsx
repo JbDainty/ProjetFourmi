@@ -77,7 +77,7 @@ function BotanicalDrawing({ index, stage, size = 330, labels = true }: Props) {
       {restored.sealed && (
         <G
           testID="botanical-restoration-seal"
-          transform={`translate(${sealPosition.x} ${sealPosition.y}) rotate(${sealPosition.angle})`}
+          transform={`translate(${sealPosition.x} ${sealPosition.y}) rotate(${sealPosition.angle}) scale(${sealPosition.diameter / 76})`}
         >
           <SealMark />
         </G>
