@@ -1,13 +1,13 @@
 import React from 'react';
-import { View, Pressable, ScrollView, Modal, useWindowDimensions, Platform } from 'react-native';
+import { View, Pressable, Modal, useWindowDimensions, Platform } from 'react-native';
 import { Slot, usePathname, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { botanicalFonts } from '../src/components/fonts';
 import { GameProvider, useGame } from '../src/state/store';
-import { T, Label, Icon, Button, C, ui } from '../src/components/ui';
-import { Paper, PaperTexture } from '../src/components/Paper';
+import { T, C } from '../src/components/ui';
+import { PaperTexture } from '../src/components/Paper';
 import { GreenhouseBackdrop } from '../src/components/Greenhouse';
 import { SceneVeil } from '../src/components/SceneVeil';
 import { SceneSizeContext } from '../src/components/SceneSize';
@@ -22,13 +22,7 @@ import { Soundscape } from '../src/components/Soundscape';
 import { unlockAmbience } from '../src/services/ambience';
 import { SeedPouch } from '../src/components/SeedPouch';
 import { BookEntrance } from '../src/components/BookEntrance';
-const nav = [
-  { path: '/', name: 'L’Atelier', icon: 'flask-outline' },
-  { path: '/herbier', name: 'Le Grand Herbier', icon: 'book-outline' },
-  { path: '/carte', name: 'Écosystèmes', icon: 'map-outline' },
-  { path: '/boutique', name: 'La Boutique', icon: 'bag-handle-outline' },
-  { path: '/parametres', name: 'Paramètres', icon: 'options-outline' },
-] as const;
+import { CarnetMenu, type CarnetPath } from '../src/components/CarnetMenu';
 function Shell() {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions(),
@@ -79,7 +73,7 @@ function Shell() {
         .register(`${basePath}/sw.js`, { scope: `${basePath}/` })
         .catch(() => {});
   }, []);
-  const navigate = (destination: (typeof nav)[number]['path']) => {
+  const navigate = (destination: CarnetPath) => {
     setMenuOpen(false);
     router.push(destination);
   };
@@ -181,79 +175,19 @@ function Shell() {
           </View>
         )}
       </View>
-      <Modal
-        visible={menuOpen}
-        transparent
-        animationType={save.settings.motion ? 'fade' : 'none'}
-        onRequestClose={() => setMenuOpen(false)}
-      >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: '#1e342bd4',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 20,
-          }}
-        >
-          <ScrollView style={{ width: '100%', maxWidth: 430, maxHeight: '94%' }}>
-            <Paper testID="game-carnet-menu" style={[ui.card, { padding: 26 }]}>
-              <View style={[ui.row, { justifyContent: 'space-between' }]}>
-                <Label>
-                  {save.nickname
-                    ? `LE CARNET DE ${save.nickname.toLocaleUpperCase('fr')}`
-                    : 'VOTRE CARNET'}
-                </Label>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Fermer le carnet"
-                  onPress={() => setMenuOpen(false)}
-                  style={{
-                    width: 44,
-                    height: 44,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Icon name="close-outline" size={24} />
-                </Pressable>
-              </View>
-              <View style={{ alignItems: 'center', marginBottom: 20 }}>
-                <HerbariumTitle compact={mobile} motion={save.settings.motion} />
-              </View>
-              <Button
-                icon="flask-outline"
-                onPress={() => (playing ? setMenuOpen(false) : navigate('/'))}
-              >
-                Reprendre la partie
-              </Button>
-              <View style={{ gap: 7, marginTop: 18 }}>
-                {nav.map((n) => (
-                  <Pressable
-                    key={n.path}
-                    accessibilityRole="link"
-                    accessibilityLabel={n.name}
-                    onPress={() => navigate(n.path)}
-                    style={({ pressed }) => ({
-                      flexDirection: 'row',
-                      gap: 14,
-                      alignItems: 'center',
-                      minHeight: 48,
-                      paddingHorizontal: 12,
-                      borderRadius: 20,
-                      backgroundColor:
-                        path === n.path ? '#dde4cf' : pressed ? '#e8ddc5' : 'transparent',
-                    })}
-                  >
-                    <Icon name={n.icon} size={25} color={C.green} />
-                    <T style={{ fontSize: 16 }}>{n.name}</T>
-                  </Pressable>
-                ))}
-              </View>
-            </Paper>
-          </ScrollView>
-        </View>
-      </Modal>
+      {menuOpen && (
+        <Modal transparent animationType="none" onRequestClose={() => setMenuOpen(false)}>
+          <CarnetMenu
+            nickname={save.nickname}
+            page={save.current}
+            path={path}
+            motion={save.settings.motion}
+            onClose={() => setMenuOpen(false)}
+            onResume={() => (playing ? setMenuOpen(false) : navigate('/'))}
+            onNavigate={navigate}
+          />
+        </Modal>
+      )}
       {ready && (!save.started || !sessionOpen) && (
         <BookEntrance
           key={save.started ? 'returning' : 'new-journey'}
