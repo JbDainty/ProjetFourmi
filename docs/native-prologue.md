@@ -10,6 +10,10 @@ Le navigateur et son cache hors ligne servent les requêtes partielles de vidéo
 
 Le film est reproductible avec `scripts/cinematic/render-opening.py` puis `finish-opening.py`. Les modèles sont originaux, les planches et polices proviennent du projet et le cuir/bois photographiques sont sous CC0 de Poly Haven ; les sources et empreintes sont dans `art/cinematic/texture-sources.json`. Le calcul hors ligne n’ajoute ni Blender ni le débruiteur au jeu. Le manifeste du film décrit le codec, les dimensions et son empreinte.
 
+La couverture laisse une garde réelle au-dessus des feuilles courbées. Les folios partent après son ouverture, se soulèvent au passage de la reliure et se reposent sur la face intérieure ; les feuillets volants décollent de la droite et restent au-dessus de l’éventail avant de poursuivre leur spirale. `scripts/cinematic/check-clearance.py` vérifie les surfaces évaluées, déformations et épaisseur comprises, sur les 356 images et leurs demi-images : couverture contre papier et notes volantes contre folios reliés. Exécution : `blender -b /chemin/herbier-opening.blend --python-exit-code 1 --python scripts/cinematic/check-clearance.py`. Le contrôle ne s’exécute pas sur téléphone.
+
+Après la signature d’un nouveau carnet, le [premier feuillet](first-feuillet.md) présente les règles et un essai indépendant avant l’arrivée dans l’atelier. Les joueurs déjà inscrits retrouvent ce guide par « Aide » dans le menu du livre.
+
 ## Secours 3D en temps réel
 
 Le secours Android/iOS utilise une scène Three.js sur `expo-gl` 16 (Expo SDK 54), via OpenGL ES 3. Ce secours ne fait appel ni à un navigateur ni à une WebView sur mobile. La version Web est une prévisualisation du même noyau, des mêmes textures et de la même chronologie.

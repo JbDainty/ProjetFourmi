@@ -24,7 +24,7 @@ html = html.replace(
 );
 writeFileSync('dist/index.html', html);
 // GitHub Pages serves these routes without a catch-all server or an HTTP 404.
-for (const route of ['herbier', 'carte', 'boutique', 'parametres']) {
+for (const route of ['herbier', 'carte', 'boutique', 'parametres', 'aide']) {
   mkdirSync(`dist/${route}`, { recursive: true });
   writeFileSync(`dist/${route}/index.html`, html);
 }

@@ -113,9 +113,10 @@ book=empty('THE LIVING HERBARIUM');book.rotation_euler.z=-.12
 cube('Lower leather board',(0,0,.055),(1.68,2.32,.1),leather,.035,book)
 cube('Deckled paper block',(0,0,.276),(1.51,2.15,.34),edge,.018,book)
 for j in range(34):cube('Uneven groups of deckled folios',(random.uniform(-.006,.006),random.uniform(-.007,.007),.111+j*.01),(1.52+random.random()*.022,2.16+random.random()*.025,.007),edge,.003,book)
-cube('Rounded book spine',(-.81,0,.28),(.13,2.28,.42),leather,.045,book)
-for y in [-.85,-.42,0,.42,.85]:cube('Raised binding band',(-.85,y,.29),(.06,.065,.42),gold,.012,book)
-cover=empty('Opening front board',(-.8,0,.484),book)
+cube('Rounded book spine',(-.81,0,.33),(.13,2.28,.55),leather,.045,book)
+for y in [-.85,-.42,0,.42,.85]:cube('Raised binding band',(-.85,y,.33),(.06,.065,.55),gold,.012,book)
+# Leave real clearance above the highest cambered folio, including board thickness.
+cover=empty('Opening front board',(-.8,0,.58),book)
 cube('Embossed calfskin cover',(.8,0,0),(1.68,2.32,.085),leather,.035,cover)
 cube('Marbled inner endpaper',(.8,0,-.046),(1.52,2.15,.007),paper,.018,cover)
 # Double blind-embossed rules, raised gold corners, hand stitching.
@@ -177,10 +178,13 @@ def page_mesh(name,mat,w=1.5,h=2.12):
  return o,curl
 page,curl=page_mesh('Restored watercolor on right page',plates[0]);page.location=(-.75,0,.454);curl.value=.08
 for i in range(14):
- page,curl=page_mesh(f'Turning rag paper leaf {i+1}',plates[i%3]);page.location=(-.75,0,.464+i*.002)
- st=65+i*3;en=st+42
- for f,ang,bend in [(1,0,0),(st,0,0),(st+17,-1.2,1),(en,-2.7,.25),(356,-2.7,.25)]:
-  page.rotation_euler.y=ang;page.keyframe_insert('rotation_euler',frame=f);curl.value=bend;curl.keyframe_insert('value',frame=f)
+ page,curl=page_mesh(f'Turning rag paper leaf {i+1}',plates[i%3]);base=.464+(13-i)*.002
+ # The board must lead the folios. Starting at 65 let the first sheets overtake
+ # the still-opening cover; at 103 its angle already clears every paper curl.
+ st=103+i*3;en=st+42
+ final=-2.5+i*.003
+ for f,ang,bend,z in [(1,0,0,base),(st,0,0,base),(st+17,-1.2,1,.79+i*.002),(en,final,.25,.66+i*.002),(356,final,.25,.66+i*.002)]:
+  page.location=(-.75,0,z);page.keyframe_insert('location',frame=f);page.rotation_euler.y=ang;page.keyframe_insert('rotation_euler',frame=f);curl.value=bend;curl.keyframe_insert('value',frame=f)
 # Loose pages lift away in a natural arcing spiral, with real motion blur.
 for i in range(9):
  page,curl=page_mesh(f'Airborne botanical sheet {i+1}',plates[(i+1)%3],.52,.76);page.parent=None
@@ -189,7 +193,11 @@ for i in range(9):
   page.hide_render=not(start<=f<end);page.keyframe_insert('hide_render',frame=f)
  for f in range(start,end+1,6):
   t=(f-start)/(end-start);theta=i*.61+t*5
-  page.location=(-.4+math.cos(theta)*(.4+t*2.3),math.sin(theta)*(.25+t*.8),.54+2.8*t)
+  # Lift from the right-hand folio before the spiral moves over the left board.
+  # Keep loose notes above the turning fan, then let the breeze settle them once
+  # the last bound folio has landed. Smooth endpoints avoid a sudden drop.
+  settle=max(0,min(1,(f-184)/24));clearance=2*(1-settle*settle*(3-2*settle))
+  page.location=(.2+math.cos(theta)*(.25+t*2.3),math.sin(theta)*(.25+t*.8),.98+2.8*t+clearance)
   page.rotation_euler=(.25*math.sin(theta*2),.5*math.sin(theta)+t*.9,theta*.7);page.keyframe_insert('location',frame=f);page.keyframe_insert('rotation_euler',frame=f);curl.value=.45+.45*math.sin(theta*2);curl.keyframe_insert('value',frame=f)
 
 # A reusable sculpted leaf, including its midrib and secondary veins.

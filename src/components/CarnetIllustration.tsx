@@ -2,7 +2,7 @@ import React, { memo, useId } from 'react';
 import { View } from 'react-native';
 import Svg, { Circle, Defs, Ellipse, G, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 export type CarnetEmblem =
-  'herbier' | 'ecosystemes' | 'boutique' | 'parametres' | 'atelier' | 'resume';
+  'herbier' | 'ecosystemes' | 'boutique' | 'parametres' | 'atelier' | 'resume' | 'aide';
 
 /** Original miniature engravings, rasterized as small immutable views on mobile. */
 export const CarnetIllustration = memo(function CarnetIllustration({
@@ -260,6 +260,32 @@ export const CarnetIllustration = memo(function CarnetIllustration({
                 strokeWidth="0.8"
               />
               <Path d="M11 69 Q40 72 65 68" stroke={gold} strokeWidth="1.3" />
+            </G>
+          )}
+          {name === 'aide' && (
+            <G stroke={ink} strokeWidth="0.85">
+              <Path d="M18 21Q39 17 60 21L58 64Q39 60 16 64Z" fill={`url(#${id}-paper)`} />
+              <Path
+                d="M22 26Q39 23 54 26 M22 31Q37 28 48 31 M22 53Q36 50 49 53 M22 57Q36 54 45 57"
+                stroke={gold}
+                strokeWidth="0.55"
+              />
+              <Path
+                d="M36 51Q38 39 32 31 M37 43Q27 40 30 35Q39 36 37 43 M36 38Q44 34 43 29"
+                fill="#9eaf83"
+                fillOpacity="0.3"
+              />
+              <Path
+                d="M44 60Q52 38 63 12Q74 28 64 40L49 53 M49 53 60 31 M57 37 56 27 M59 32 66 27 M54 44 66 39"
+                fill="#c6cda7"
+                fillOpacity="0.45"
+              />
+              <Circle cx="25" cy="42" r="2" fill={gold} stroke="none" />
+              <Path
+                d="M14 15 15 19 19 20 15 21 14 25 13 21 9 20 13 19Z"
+                fill={gold}
+                stroke="none"
+              />
             </G>
           )}
           {name === 'resume' && (

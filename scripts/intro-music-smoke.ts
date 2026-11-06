@@ -91,7 +91,7 @@ async function main() {
       Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' });
       document.dispatchEvent(new Event('visibilitychange'));
     });
-    await expect.poll(async () => (await scores())[1].stopped).toBe(true);
+    await expect.poll(async () => (await scores()).every((voice: any) => voice.stopped)).toBe(true);
     const held = await page
       .getByTestId('opening-cinematic-video')
       .locator('video')
@@ -108,13 +108,27 @@ async function main() {
       Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'visible' });
       document.dispatchEvent(new Event('visibilitychange'));
     });
-    await expect.poll(async () => (await scores()).length).toBe(3);
-    expect(Math.abs((await scores())[2].offset - held * 14.8)).toBeLessThan(0.4);
+    // A decoder may buffer after returning, legitimately pausing/restarting audio.
+    // Verify exclusivity and the resume position instead of counting buffer events.
+    await expect
+      .poll(async () => (await scores()).filter((voice: any) => !voice.stopped).length)
+      .toBe(1);
+    const resumed = await scores();
+    expect(resumed.length).toBeGreaterThanOrEqual(3);
+    expect(resumed.slice(0, -1).every((voice: any) => voice.stopped)).toBe(true);
+    expect(Math.abs(resumed[2].offset - held * 14.8)).toBeLessThan(0.4);
     await page.getByRole('button', { name: 'Passer le prologue' }).click();
     await expect(page.getByTestId('book-signature-page')).toBeVisible();
     await expect.poll(async () => (await scores()).every((voice: any) => voice.stopped)).toBe(true);
     await page.getByRole('textbox', { name: 'Votre pseudo' }).fill('Camille');
     await page.getByRole('button', { name: 'Créer mon carnet', exact: true }).click();
+    await expect(page.getByTestId('botanical-guide')).toBeVisible();
+    expect(
+      await page.evaluate(
+        () => (window as any).scoreVoices.filter((voice: any) => voice.loop).length,
+      ),
+    ).toBe(0);
+    await page.getByRole('button', { name: 'Aller directement au jeu', exact: true }).click();
     await expect
       .poll(() =>
         page.evaluate(() => (window as any).scoreVoices.filter((voice: any) => voice.loop).length),

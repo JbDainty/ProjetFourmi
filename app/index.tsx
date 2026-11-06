@@ -40,6 +40,10 @@ import { restorationTitles } from '../src/animation/restoration';
 type Note = { text: string; kind: 'info' | 'hint'; request: number; pending: boolean };
 const scenePadding = { top: 0, bottom: 20 };
 export default function Atelier() {
+  const { save } = useGame();
+  return save.guideSeen ? <Workshop /> : null;
+}
+function Workshop() {
   const reportSceneHeight = React.useContext(SceneSizeContext);
   const turnPage = React.useContext(PageTurnContext);
   const scroll = useRef<ScrollView>(null);

@@ -10,7 +10,7 @@ import { T, C } from './ui';
 import { useNativeProgress } from './useNativeProgress';
 import { usePrimaryAnimation } from './usePrimaryAnimation';
 
-export type CarnetPath = '/' | '/herbier' | '/carte' | '/boutique' | '/parametres';
+export type CarnetPath = '/' | '/herbier' | '/carte' | '/boutique' | '/parametres' | '/aide';
 const destinations = [
   {
     path: '/herbier',
@@ -402,7 +402,14 @@ export function CarnetMenu({
             </View>
             <Animated.View
               style={[
-                { alignItems: 'center', marginTop: compact ? 4 : 7, width: '100%' },
+                {
+                  alignItems: 'center',
+                  marginTop: compact ? 4 : 7,
+                  width: '100%',
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  gap: 6,
+                },
                 entrance(0.26, 0.5),
               ]}
             >
@@ -417,7 +424,8 @@ export function CarnetMenu({
                   gap: 5,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  paddingHorizontal: 16,
+                  paddingHorizontal: 6,
+                  flex: 1,
                   opacity: pressed ? 0.6 : 1,
                 })}
               >
@@ -427,15 +435,28 @@ export function CarnetMenu({
                 >
                   L’Atelier
                 </T>
+              </Pressable>
+              <Pressable
+                accessibilityRole="link"
+                accessibilityLabel="Aide"
+                accessibilityState={{ selected: path === '/aide' }}
+                onPress={() => onNavigate('/aide')}
+                style={({ pressed }) => ({
+                  flex: 1,
+                  minHeight: 48,
+                  flexDirection: 'row',
+                  gap: 5,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingHorizontal: 6,
+                  opacity: pressed ? 0.6 : 1,
+                })}
+              >
+                <CarnetIllustration name="aide" size={37} />
                 <T
-                  style={{
-                    fontFamily: F.handwriting,
-                    fontSize: 19,
-                    color: '#9b824d',
-                    marginLeft: 4,
-                  }}
+                  style={{ fontFamily: F.scientific, fontSize: 17, lineHeight: 23, color: C.green }}
                 >
-                  vous attend…
+                  Aide
                 </T>
               </Pressable>
             </Animated.View>

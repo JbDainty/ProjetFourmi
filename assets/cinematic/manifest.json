@@ -2,17 +2,20 @@
   "title": "Le livre se souvient",
   "original": true,
   "renderer": "Blender 4.3.2 Cycles CPU",
-  "resolution": [720, 1280],
+  "rendered_frames": 356,
+  "encoded_frames": 355,
+  "resolution": [
+    720,
+    1280
+  ],
   "fps": 24,
   "ray_samples": 4,
   "denoiser": "Intel Open Image Denoise 2.5.1 with albedo and normal passes",
   "duration": "14.791667",
-  "bytes": 8074353,
-  "sha256": "da7a392fd9518a1673c724918fea2bb6fb970e26ce0ad18cf7178e53d7272fe4",
+  "bytes": 8128912,
+  "sha256": "19021abd6e2ff278f7506260c3ba2d6e3d606905f267987bb13d68564435c987",
   "audio": "Silent video; original prologue music remains managed separately",
   "models": "Original procedural geometry, CC0",
   "textures": "Original project botanical plates and paper; Poly Haven CC0 leather/wood maps; bundled SIL fonts",
-  "codec": "H.264 High, level 3.1, yuv420p, BT.709, faststart",
-  "rendered_frames": 356,
-  "encoded_frames": 355
+  "codec": "H.264 High, level 3.1, yuv420p, BT.709, faststart"
 }

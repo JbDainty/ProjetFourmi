@@ -45,6 +45,8 @@ async function main() {
     await page.screenshot({ path: 'test-results/book-signature-mobile.png' });
     await page.getByRole('button', { name: 'Créer mon carnet', exact: true }).click();
     await expect(page.getByTestId('book-signature-page')).toHaveCount(0);
+    await expect(page.getByTestId('botanical-guide')).toBeVisible();
+    await page.getByRole('button', { name: 'Aller directement au jeu', exact: true }).click();
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 01');
     await expect.poll(() => page.evaluate(() => (window as any).musicStarts)).toBe(1);
     expect((await stored()).moves).toBe(0);

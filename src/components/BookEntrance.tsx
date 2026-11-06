@@ -4,6 +4,7 @@ import {
   AppState,
   Easing,
   KeyboardAvoidingView,
+  Keyboard,
   Modal,
   Platform,
   Pressable,
@@ -27,6 +28,8 @@ export function BookEntrance({
   music,
   onMusicChange,
   onEnter,
+  guide,
+  onGuideClose,
 }: {
   returning: boolean;
   nickname: string;
@@ -34,6 +37,8 @@ export function BookEntrance({
   music: boolean;
   onMusicChange: (enabled: boolean) => void;
   onEnter: (nickname: string) => void;
+  guide?: React.ReactNode;
+  onGuideClose?: () => void;
 }) {
   const value = useRef(new Animated.Value(returning || !motion ? 1 : 0)).current;
   const clock = useMemo(() => movieClock(prologueDuration, () => performance.now()), []);
@@ -142,6 +147,7 @@ export function BookEntrance({
       return;
     }
     submitted.current = true;
+    Keyboard.dismiss();
     onEnter(cleaned || nickname);
   };
   return (
@@ -149,267 +155,270 @@ export function BookEntrance({
       visible
       animationType="none"
       onRequestClose={() => {
-        if (!finished) {
+        if (guide) onGuideClose?.();
+        else if (!finished) {
           finishMovie();
         }
       }}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1, backgroundColor: finished ? C.paper : '#203b30' }}
-      >
-        {finished ? (
-          <PaperTexture background />
-        ) : (
-          <View
-            testID="book-opening-film"
-            onTouchStart={intro.unlock}
-            style={{ flex: 1, backgroundColor: '#101f19' }}
-          >
-            <Animated.Image
-              source={require('../../assets/illustrations/serre.png')}
-              blurRadius={4}
-              resizeMode="cover"
-              style={{
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                opacity: curves.growth,
-                transform: [{ scale: curves.scale }],
-              }}
-            />
+      {guide || (
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ flex: 1, backgroundColor: finished ? C.paper : '#203b30' }}
+        >
+          {finished ? (
+            <PaperTexture background />
+          ) : (
             <View
-              pointerEvents="none"
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: '#0b2019',
-                opacity: 0.33,
-              }}
-            />
-            <View style={{ flex: 1 }}>
-              <OpeningScene
-                progress={0}
-                progressSource={readProgress}
-                onReady={() => setSceneReady(true)}
-                onLoading={() => setSceneReady(false)}
-              />
-            </View>
-            <Animated.View
-              style={{
-                position: 'absolute',
-                top: 64,
-                opacity: curves.caption,
-                left: 20,
-                right: 20,
-                alignItems: 'center',
-                gap: 12,
-              }}
+              testID="book-opening-film"
+              onTouchStart={intro.unlock}
+              style={{ flex: 1, backgroundColor: '#101f19' }}
             >
-              <T style={{ fontSize: 10, letterSpacing: 2, color: '#d5c698' }}>
-                HERBIER DES COULEURS
-              </T>
-              <View style={{ width: '100%', height: 120 }} accessible={false}>
-                {captions.map((caption) => (
-                  <Animated.View
-                    key={caption.text}
-                    pointerEvents="none"
-                    style={{
-                      position: 'absolute',
-                      left: 0,
-                      right: 0,
-                      opacity: caption.opacity,
+              <Animated.Image
+                source={require('../../assets/illustrations/serre.png')}
+                blurRadius={4}
+                resizeMode="cover"
+                style={{
+                  position: 'absolute',
+                  width: '100%',
+                  height: '100%',
+                  opacity: curves.growth,
+                  transform: [{ scale: curves.scale }],
+                }}
+              />
+              <View
+                pointerEvents="none"
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: '#0b2019',
+                  opacity: 0.33,
+                }}
+              />
+              <View style={{ flex: 1 }}>
+                <OpeningScene
+                  progress={0}
+                  progressSource={readProgress}
+                  onReady={() => setSceneReady(true)}
+                  onLoading={() => setSceneReady(false)}
+                />
+              </View>
+              <Animated.View
+                style={{
+                  position: 'absolute',
+                  top: 64,
+                  opacity: curves.caption,
+                  left: 20,
+                  right: 20,
+                  alignItems: 'center',
+                  gap: 12,
+                }}
+              >
+                <T style={{ fontSize: 10, letterSpacing: 2, color: '#d5c698' }}>
+                  HERBIER DES COULEURS
+                </T>
+                <View style={{ width: '100%', height: 120 }} accessible={false}>
+                  {captions.map((caption) => (
+                    <Animated.View
+                      key={caption.text}
+                      pointerEvents="none"
+                      style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        opacity: caption.opacity,
+                      }}
+                    >
+                      <T serif style={{ fontSize: 34, color: '#f4e5bc', textAlign: 'center' }}>
+                        {caption.text}
+                      </T>
+                    </Animated.View>
+                  ))}
+                </View>
+              </Animated.View>
+              <Animated.View
+                pointerEvents="none"
+                testID="prologue-paper-dissolve"
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: C.paper,
+                  opacity: curves.arrival,
+                }}
+              />
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={
+                  intro.blocked
+                    ? 'Éveiller la musique de l’introduction'
+                    : music
+                      ? 'Couper la musique de l’introduction'
+                      : 'Activer la musique de l’introduction'
+                }
+                onPress={() => {
+                  intro.unlock();
+                  onMusicChange(intro.blocked ? true : !music);
+                }}
+                style={{
+                  position: 'absolute',
+                  bottom: 104,
+                  alignSelf: 'center',
+                  padding: 12,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 7,
+                }}
+              >
+                <Icon name="leaf-outline" size={18} color="#dfd0ad" />
+                <T style={{ fontFamily: F.scientific, fontSize: 13, color: '#dfd0ad' }}>
+                  {intro.blocked
+                    ? 'Éveiller la musique'
+                    : music
+                      ? 'Musique éveillée'
+                      : 'Musique en sommeil'}
+                </T>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Passer le prologue"
+                onPress={() => {
+                  finishMovie();
+                }}
+                style={{ position: 'absolute', bottom: 36, alignSelf: 'center', padding: 15 }}
+              >
+                <T style={{ fontFamily: F.scientific, color: '#dfd0ad' }}>Passer le prologue</T>
+              </Pressable>
+            </View>
+          )}
+          {finished && (
+            <ScrollView
+              contentContainerStyle={{
+                flexGrow: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                padding: 24,
+                paddingVertical: 42,
+              }}
+              keyboardShouldPersistTaps="handled"
+            >
+              <Paper
+                testID="book-signature-page"
+                style={{
+                  width: '100%',
+                  maxWidth: 460,
+                  padding: 30,
+                  gap: 18,
+                  backgroundColor: '#f2e4c8',
+                  borderRadius: 8,
+                }}
+              >
+                <Label>{returning ? 'VOTRE LIVRE VOUS ATTEND' : 'CE CARNET APPARTIENT À'}</Label>
+                <T serif style={{ fontSize: 39, lineHeight: 44, textAlign: 'center' }}>
+                  {returning
+                    ? nickname
+                      ? `L’herbier de ${nickname}`
+                      : 'Herbier des couleurs'
+                    : 'Herbier des couleurs'}
+                </T>
+                {!returning && (
+                  <>
+                    <T style={{ fontFamily: F.scientific, textAlign: 'center', color: C.muted }}>
+                      Les couleurs se sont endormies entre ces pages. Signez le livre pour leur
+                      redonner vie.
+                    </T>
+                    <TextInput
+                      testID="nickname-input"
+                      accessibilityLabel="Votre pseudo"
+                      value={name}
+                      onChangeText={(v) => {
+                        setName(v);
+                        setError('');
+                      }}
+                      maxLength={24}
+                      placeholder="Votre pseudo"
+                      autoCapitalize="words"
+                      autoComplete="off"
+                      returnKeyType="done"
+                      onSubmitEditing={enter}
+                      style={{
+                        fontFamily: F.handwritingMedium,
+                        fontSize: 29,
+                        color: C.ink,
+                        borderBottomWidth: 1,
+                        borderColor: C.gold,
+                        paddingVertical: 13,
+                        textAlign: 'center',
+                        minHeight: 56,
+                      }}
+                    />
+                    {!!error && (
+                      <T accessibilityRole="alert" style={{ color: '#875342' }}>
+                        {error}
+                      </T>
+                    )}
+                    <T style={{ fontSize: 13, textAlign: 'center', color: C.muted }}>
+                      Regroupez chaque couleur dans une fiole pleine. Une graine vous attend ; trois
+                      étoiles en feront éclore une autre.
+                    </T>
+                  </>
+                )}
+                <Button icon="book-outline" onPress={enter}>
+                  {returning ? 'Rouvrir mon herbier' : 'Créer mon carnet'}
+                </Button>
+                {returning && motion && (
+                  <Button
+                    icon="leaf-outline"
+                    secondary
+                    onPress={() => {
+                      value.stopAnimation();
+                      value.setValue(0);
+                      clock.seek(0);
+                      setFinished(false);
+                      setSceneReady(false);
+                      setReplayRun((n) => n + 1);
                     }}
                   >
-                    <T serif style={{ fontSize: 34, color: '#f4e5bc', textAlign: 'center' }}>
-                      {caption.text}
+                    Revoir le prologue
+                  </Button>
+                )}
+                {!returning && (
+                  <>
+                    <T
+                      style={{
+                        fontFamily: F.scientific,
+                        fontSize: 12,
+                        textAlign: 'center',
+                        color: C.muted,
+                      }}
+                    >
+                      Votre pseudo et votre progression sont enregistrés sur cet appareil.
                     </T>
-                  </Animated.View>
-                ))}
-              </View>
-            </Animated.View>
-            <Animated.View
-              pointerEvents="none"
-              testID="prologue-paper-dissolve"
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: C.paper,
-                opacity: curves.arrival,
-              }}
-            />
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={
-                intro.blocked
-                  ? 'Éveiller la musique de l’introduction'
-                  : music
-                    ? 'Couper la musique de l’introduction'
-                    : 'Activer la musique de l’introduction'
-              }
-              onPress={() => {
-                intro.unlock();
-                onMusicChange(intro.blocked ? true : !music);
-              }}
-              style={{
-                position: 'absolute',
-                bottom: 104,
-                alignSelf: 'center',
-                padding: 12,
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 7,
-              }}
-            >
-              <Icon name="leaf-outline" size={18} color="#dfd0ad" />
-              <T style={{ fontFamily: F.scientific, fontSize: 13, color: '#dfd0ad' }}>
-                {intro.blocked
-                  ? 'Éveiller la musique'
-                  : music
-                    ? 'Musique éveillée'
-                    : 'Musique en sommeil'}
-              </T>
-            </Pressable>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Passer le prologue"
-              onPress={() => {
-                finishMovie();
-              }}
-              style={{ position: 'absolute', bottom: 36, alignSelf: 'center', padding: 15 }}
-            >
-              <T style={{ fontFamily: F.scientific, color: '#dfd0ad' }}>Passer le prologue</T>
-            </Pressable>
-          </View>
-        )}
-        {finished && (
-          <ScrollView
-            contentContainerStyle={{
-              flexGrow: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              padding: 24,
-              paddingVertical: 42,
-            }}
-            keyboardShouldPersistTaps="handled"
-          >
-            <Paper
-              testID="book-signature-page"
-              style={{
-                width: '100%',
-                maxWidth: 460,
-                padding: 30,
-                gap: 18,
-                backgroundColor: '#f2e4c8',
-                borderRadius: 8,
-              }}
-            >
-              <Label>{returning ? 'VOTRE LIVRE VOUS ATTEND' : 'CE CARNET APPARTIENT À'}</Label>
-              <T serif style={{ fontSize: 39, lineHeight: 44, textAlign: 'center' }}>
-                {returning
-                  ? nickname
-                    ? `L’herbier de ${nickname}`
-                    : 'Herbier des couleurs'
-                  : 'Herbier des couleurs'}
-              </T>
-              {!returning && (
-                <>
-                  <T style={{ fontFamily: F.scientific, textAlign: 'center', color: C.muted }}>
-                    Les couleurs se sont endormies entre ces pages. Signez le livre pour leur
-                    redonner vie.
-                  </T>
-                  <TextInput
-                    testID="nickname-input"
-                    accessibilityLabel="Votre pseudo"
-                    value={name}
-                    onChangeText={(v) => {
-                      setName(v);
-                      setError('');
-                    }}
-                    maxLength={24}
-                    placeholder="Votre pseudo"
-                    autoCapitalize="words"
-                    autoComplete="off"
-                    returnKeyType="done"
-                    onSubmitEditing={enter}
-                    style={{
-                      fontFamily: F.handwritingMedium,
-                      fontSize: 29,
-                      color: C.ink,
-                      borderBottomWidth: 1,
-                      borderColor: C.gold,
-                      paddingVertical: 13,
-                      textAlign: 'center',
-                      minHeight: 56,
-                    }}
-                  />
-                  {!!error && (
-                    <T accessibilityRole="alert" style={{ color: '#875342' }}>
-                      {error}
-                    </T>
-                  )}
-                  <T style={{ fontSize: 13, textAlign: 'center', color: C.muted }}>
-                    Regroupez chaque couleur dans une fiole pleine. Une graine vous attend ; trois
-                    étoiles en feront éclore une autre.
-                  </T>
-                </>
-              )}
-              <Button icon="book-outline" onPress={enter}>
-                {returning ? 'Rouvrir mon herbier' : 'Créer mon carnet'}
-              </Button>
-              {returning && motion && (
-                <Button
-                  icon="leaf-outline"
-                  secondary
-                  onPress={() => {
-                    value.stopAnimation();
-                    value.setValue(0);
-                    clock.seek(0);
-                    setFinished(false);
-                    setSceneReady(false);
-                    setReplayRun((n) => n + 1);
-                  }}
-                >
-                  Revoir le prologue
-                </Button>
-              )}
-              {!returning && (
-                <>
+                    <AccountConnections />
+                  </>
+                )}
+                {returning && (
                   <T
                     style={{
                       fontFamily: F.scientific,
-                      fontSize: 12,
+                      fontSize: 13,
                       textAlign: 'center',
                       color: C.muted,
                     }}
                   >
-                    Votre pseudo et votre progression sont enregistrés sur cet appareil.
+                    Ouvrez le livre pour retrouver vos pages et leur musique.
                   </T>
-                  <AccountConnections />
-                </>
-              )}
-              {returning && (
-                <T
-                  style={{
-                    fontFamily: F.scientific,
-                    fontSize: 13,
-                    textAlign: 'center',
-                    color: C.muted,
-                  }}
-                >
-                  Ouvrez le livre pour retrouver vos pages et leur musique.
-                </T>
-              )}
-            </Paper>
-          </ScrollView>
-        )}
-      </KeyboardAvoidingView>
+                )}
+              </Paper>
+            </ScrollView>
+          )}
+        </KeyboardAvoidingView>
+      )}
     </Modal>
   );
 }

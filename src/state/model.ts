@@ -13,6 +13,7 @@ export type Settings = {
 export type Save = {
   version: 2;
   started: boolean;
+  guideSeen: boolean;
   nickname: string;
   attemptRewarded: boolean;
   paidHints: Record<string, Move>;
@@ -32,6 +33,7 @@ export function initial(): Save {
   return {
     version: 2,
     started: false,
+    guideSeen: false,
     nickname: '',
     attemptRewarded: false,
     paidHints: {},
@@ -165,6 +167,8 @@ export function restore(raw: string | null): Save {
   }
   if (v.nickname !== undefined && (typeof v.nickname !== 'string' || v.nickname.length > 80))
     throw Error('Pseudo invalide.');
+  if (v.guideSeen !== undefined && typeof v.guideSeen !== 'boolean')
+    throw Error('État du guide invalide.');
   if (v.attemptRewarded !== undefined && typeof v.attemptRewarded !== 'boolean')
     throw Error('Récompense de tentative invalide.');
   if (v.paidHints !== undefined) {
@@ -203,6 +207,8 @@ export function restore(raw: string | null): Save {
     ...initial(),
     ...v,
     version: 2,
+    // Existing signed carnets keep their place; the guide remains available from Aide.
+    guideSeen: v.guideSeen ?? v.started,
     nickname: typeof v.nickname === 'string' ? normalizeNickname(v.nickname) : '',
     attemptRewarded: v.attemptRewarded ?? (!!v.completed[v.current] && won(v.board)),
     paidHints: v.paidHints ?? {},

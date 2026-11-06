@@ -23,6 +23,7 @@ import { unlockAmbience } from '../src/services/ambience';
 import { SeedPouch } from '../src/components/SeedPouch';
 import { BookEntrance } from '../src/components/BookEntrance';
 import { CarnetMenu, type CarnetPath } from '../src/components/CarnetMenu';
+import { BotanicalGuide } from '../src/components/BotanicalGuide';
 function Shell() {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions(),
@@ -33,6 +34,12 @@ function Shell() {
   const [sceneHeight, setSceneHeight] = React.useState(0);
   const { save, setSave, ready, error, retry } = useGame();
   const [sessionOpen, setSessionOpen] = React.useState(false);
+  const needsGuide = !save.guideSeen;
+  const enterWorkshop = () => {
+    unlockAmbience();
+    setSave((value) => ({ ...value, guideSeen: true }));
+    router.replace('/');
+  };
   React.useEffect(() => {
     if (!save.started) setSessionOpen(false);
   }, [save.started]);
@@ -124,7 +131,7 @@ function Shell() {
       <Soundscape
         music={ready && save.settings.music}
         sound={save.settings.sound}
-        started={ready && save.started && sessionOpen}
+        started={ready && save.started && sessionOpen && !needsGuide}
         ecosystem={Math.floor((save.current - 1) / 20)}
       />
       <PaperTexture background />
@@ -157,9 +164,11 @@ function Shell() {
       <StatusBar style="dark" />
       <View
         style={{ flex: 1 }}
-        aria-hidden={!save.started || !sessionOpen}
-        accessibilityElementsHidden={!save.started || !sessionOpen}
-        importantForAccessibility={!save.started || !sessionOpen ? 'no-hide-descendants' : 'auto'}
+        aria-hidden={!save.started || !sessionOpen || needsGuide}
+        accessibilityElementsHidden={!save.started || !sessionOpen || needsGuide}
+        importantForAccessibility={
+          !save.started || !sessionOpen || needsGuide ? 'no-hide-descendants' : 'auto'
+        }
       >
         {ready ? (
           <SceneSizeContext.Provider value={setSceneHeight}>
@@ -188,13 +197,26 @@ function Shell() {
           />
         </Modal>
       )}
-      {ready && (!save.started || !sessionOpen) && (
+      {ready && (!save.started || !sessionOpen || needsGuide) && (
         <BookEntrance
-          key={save.started ? 'returning' : 'new-journey'}
           returning={save.started}
           nickname={save.nickname}
           motion={save.settings.motion}
           music={save.settings.music}
+          onGuideClose={enterWorkshop}
+          guide={
+            save.started && sessionOpen && needsGuide ? (
+              <SafeAreaView style={{ flex: 1, backgroundColor: C.paper }}>
+                <BotanicalGuide
+                  firstRun
+                  nickname={save.nickname}
+                  motion={save.settings.motion}
+                  onEnter={enterWorkshop}
+                  onClose={enterWorkshop}
+                />
+              </SafeAreaView>
+            ) : undefined
+          }
           onMusicChange={(enabled) =>
             setSave((value) => ({ ...value, settings: { ...value.settings, music: enabled } }))
           }

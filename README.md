@@ -6,7 +6,7 @@ Jeu de tri de pigments en français, réalisé avec Expo SDK 54, React Native, E
 
 Adresse de la version de test : **https://jbdainty.github.io/ProjetFourmi/**
 
-Ouvrir le lien dans un navigateur sur ordinateur ou téléphone, puis choisir « Commencer la restauration ». La progression est enregistrée sur cet appareil ; elle n’est pas partagée automatiquement avec un autre téléphone ou navigateur. Aucun paiement ni publicité n’est actif.
+Ouvrir le lien dans un navigateur sur ordinateur ou téléphone, laisser le livre s’ouvrir puis signer le carnet avec un pseudo. Le premier feuillet explique les règles et propose un petit essai de versement, avant d’entrer dans la serre. Il reste disponible dans le menu du livre, sous « Aide ». La progression est enregistrée sur cet appareil ; elle n’est pas partagée automatiquement avec un autre téléphone ou navigateur. Aucun paiement ni publicité n’est actif.
 
 Les fichiers sources sont conservés sur https://github.com/JbDainty/ProjetFourmi. La branche `master` contient le code source, et la branche `gh-pages` contient le site compilé. GitHub Pages est activé sur **gh-pages / (root)**. Le site est accessible à l’adresse ci-dessus ; aucune installation ni activation supplémentaire n’est nécessaire pour jouer.
 
@@ -31,7 +31,7 @@ GAME_TEST_URL=http://localhost:8083/ProjetFourmi/ npm run test:browser
 npm run test:pouring
 ```
 
-Le préfixe est appliqué au routeur, aux ressources, au manifeste et au service worker. Les quatre pages de navigation possèdent une entrée HTML pour fonctionner après un rechargement chez l’hébergeur. `404.html` permet aussi de reprendre les autres routes du site.
+Le préfixe est appliqué au routeur, aux ressources, au manifeste et au service worker. Les pages de navigation, dont `/aide`, possèdent une entrée HTML pour fonctionner après un rechargement chez l’hébergeur. `404.html` permet aussi de reprendre les autres routes du site.
 
 ## Jouer dans le navigateur
 

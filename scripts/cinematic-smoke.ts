@@ -84,6 +84,8 @@ async function main() {
     await expect(page.getByTestId('opening-cinematic-video')).toHaveCount(0);
     await page.getByRole('textbox', { name: 'Votre pseudo' }).fill('Camille');
     await page.getByRole('button', { name: 'Créer mon carnet', exact: true }).click();
+    await expect(page.getByTestId('botanical-guide')).toBeVisible();
+    await page.getByRole('button', { name: 'Aller directement au jeu', exact: true }).click();
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 01');
     await page.context().setOffline(false);
     await page.reload();

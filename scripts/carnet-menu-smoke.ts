@@ -45,6 +45,7 @@ async function main() {
       'La Boutique',
       'Paramètres',
       'L’Atelier',
+      'Aide',
     ]) {
       await expect(menu.getByRole('link', { name, exact: true })).toBeInViewport();
     }
@@ -86,6 +87,7 @@ async function main() {
         'La Boutique',
         'Paramètres',
         'L’Atelier',
+        'Aide',
       ]) {
         const item = menu.getByRole(name === 'Reprendre la partie' ? 'button' : 'link', {
           name,

@@ -21,4 +21,9 @@ export async function openCarnet(page: Page, nickname = 'Camille') {
     await page.getByRole('button', { name: 'Créer mon carnet', exact: true }).click();
   }
   await expect(page.getByTestId('book-signature-page')).toHaveCount(0);
+  const guide = page.getByTestId('botanical-guide');
+  if (await guide.isVisible()) {
+    await page.getByRole('button', { name: 'Aller directement au jeu', exact: true }).click();
+    await expect(guide).toHaveCount(0);
+  }
 }
