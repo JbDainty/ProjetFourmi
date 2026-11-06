@@ -1,0 +1,42 @@
+{
+  "sous-bois": {
+    "title": "Murmures du sous-bois",
+    "bpm": 56,
+    "seconds": 68.571429,
+    "programs": [49, 48, 49, 48, 42, 46, 0, 42, 46],
+    "identity": "Forest meditation: warm low cello, slow divided strings, widely spaced harp and soft piano.",
+    "integrated_lufs": -23.0,
+    "estimated_true_peak_db": -7.95,
+    "sha256": "6be282708cc65b66329324bd84c3338a6439f9349abe432197079cf0529c31d0"
+  },
+  "zones-humides": {
+    "title": "Reflets des roseaux",
+    "bpm": 64,
+    "seconds": 60.0,
+    "programs": [49, 48, 49, 48, 42, 46, 0, 42, 46],
+    "identity": "Water reflections: gentle piano droplets over suspended strings and floating harp inversions.",
+    "integrated_lufs": -23.0,
+    "estimated_true_peak_db": -8.96,
+    "sha256": "3d7e4e685053a6542ded20d8ff25497dde4b2a63040099b2d906cb09c82c66f0"
+  },
+  "montagnes": {
+    "title": "Lumière des cimes",
+    "bpm": 58,
+    "seconds": 66.206897,
+    "programs": [49, 48, 49, 48, 42, 46, 0, 42, 46],
+    "identity": "Mountain breath: spacious string chorale, open fifths, soft piano answers and sparse harp.",
+    "integrated_lufs": -23.0,
+    "estimated_true_peak_db": -7.82,
+    "sha256": "bd0f3cad36f38eca7752cdd2e704e951a4f2337755d0e5c8444739096a4b2793"
+  },
+  "mediterranee": {
+    "title": "Brise de garrigue",
+    "bpm": 62,
+    "seconds": 61.935484,
+    "programs": [49, 48, 49, 48, 42, 46, 0, 42, 46],
+    "identity": "Mediterranean light: rounded harp melody, warm strings and cello, relaxed luminous suspended chords.",
+    "integrated_lufs": -23.14,
+    "estimated_true_peak_db": -7.0,
+    "sha256": "e9d7a29fd883c1d4917b1225f441546b8ef7865065c086a3be9078fd39a1d267"
+  }
+}

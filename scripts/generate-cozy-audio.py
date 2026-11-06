@@ -11,6 +11,7 @@ import ctypes.util
 import hashlib
 import json
 import subprocess
+import sys
 import wave
 from pathlib import Path
 import numpy as np
@@ -111,13 +112,12 @@ def wav(name, samples, rate=RATE):
         out.writeframes(samples.tobytes())
 
 
+# Keep the original meadow score; the four later ecosystems now use the
+# independent meditative orchestration below, with no reed/brass lead.
 tracks = [
     ('prairies', 'Clairière d’ivoire', 60, [48, 45, 53, 55, 52, 53, 50, 55], [4,3,4,4,3,4,3,4], 73),
-    ('sous-bois', 'Murmures du sous-bois', 56, [45, 50, 48, 43, 45, 53, 50, 52], [3,3,4,4,3,4,3,4], 71),
-    ('zones-humides', 'Reflets des roseaux', 64, [53, 50, 46, 48, 45, 46, 55, 48], [4,3,4,4,3,4,3,4], 73),
-    ('montagnes', 'Lumière des cimes', 58, [50, 47, 55, 57, 54, 55, 52, 57], [4,3,4,4,3,4,3,4], 73),
-    ('mediterranee', 'Brise de garrigue', 62, [55, 52, 48, 50, 47, 48, 45, 50], [4,3,4,4,3,4,3,4], 71),
 ]
+
 # Phrase contours: chord steps, including sixths and ninths resolved to chord tones.
 phrases = [
     [(0.5, 12, 1.4), (2.4, 16, 1.6), (4.5, 19, 1.8), (6.7, 14, 1.1)],
@@ -165,6 +165,8 @@ for index, (name, title, bpm, roots, thirds, wood) in enumerate(tracks):
                     '-metadata','artist=Herbier des couleurs','-metadata','copyright=Original score CC0; FluidR3 instruments MIT',str(output)], input=data.tobytes(),check=True)
     print(f'{name}: {duration:.2f}s, harp/cello/strings/woodwind/piano chamber arrangement', flush=True)
 
+subprocess.run([sys.executable, 'scripts/generate-meditative-music.py', '--soundfont', str(font)], check=True)
+
 # Both reveal cues use the same quiet acoustic palette, never the former sine tones.
 for name, duration, long in [('reveal-celebration.wav',3.2,False),('plant-celebration.wav',5.6,True)]:
     events=[]
@@ -211,8 +213,11 @@ legal=Path('public/licenses/cozy-audio-CC0.txt').read_text().split('Creative Com
 Path('public/licenses/cozy-audio-CC0.txt').write_text('''Herbier des couleurs — Acoustic chamber soundscape
 
 The original compositions/arrangements, scripts/generate-cozy-audio.py and the
-original glass sound assets/vial-complete.wav are dedicated under CC0 1.0.
-The five music MP3s and both reveal cues use FluidR3 GM acoustic instrument
+original glass sound assets/vial-complete.wav, the original introduction score
+assets/music/prologue.mp3 (L’éveil du grimoire), scripts/generate-intro-music.py
+and the meditative scores rendered by scripts/generate-meditative-music.py
+are dedicated under CC0 1.0.
+The five ecosystem music MP3s, introduction score and both reveal cues use FluidR3 GM acoustic instrument
 samples (Frank Wen and Toby Smithe, MIT); see FluidR3-MIT.txt for their notice.
 No SoundFont is distributed in the game.
 
