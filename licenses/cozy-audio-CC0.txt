@@ -3,7 +3,8 @@ Herbier des couleurs — Acoustic chamber soundscape
 The original compositions/arrangements, scripts/generate-cozy-audio.py and the
 original glass sound assets/vial-complete.wav, the original introduction score
 assets/music/prologue.mp3 (L’éveil du grimoire) and its rendering script
-scripts/generate-intro-music.py are dedicated under CC0 1.0.
+scripts/generate-intro-music.py and the meditative scores and renderer
+scripts/generate-meditative-music.py are dedicated under CC0 1.0.
 The five ecosystem music MP3s, introduction score and both reveal cues use FluidR3 GM acoustic instrument
 samples (Frank Wen and Toby Smithe, MIT); see FluidR3-MIT.txt for their notice.
 No SoundFont is distributed in the game.
