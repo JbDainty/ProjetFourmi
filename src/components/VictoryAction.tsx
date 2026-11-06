@@ -12,11 +12,13 @@ export function VictoryAction({
   onPress,
   secondary = false,
   icon,
+  disabled = false,
 }: {
   children: string;
   onPress: () => void;
   secondary?: boolean;
   icon: BotanicalIconName;
+  disabled?: boolean;
 }) {
   const id = 'ribbon-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const ink = secondary ? C.green : '#f4e7bf';
@@ -25,6 +27,8 @@ export function VictoryAction({
       accessibilityRole="button"
       accessibilityLabel={children}
       onPress={onPress}
+      disabled={disabled}
+      accessibilityState={{ disabled }}
       testID={secondary ? 'victory-action-secondary' : 'victory-action-primary'}
       style={({ pressed }) => ({
         width: '100%',
@@ -35,7 +39,7 @@ export function VictoryAction({
         paddingVertical: 13,
         alignItems: 'center',
         justifyContent: 'center',
-        opacity: pressed ? 0.76 : 1,
+        opacity: disabled ? 0.45 : pressed ? 0.76 : 1,
         transform: [{ scale: pressed ? 0.98 : 1 }],
       })}
     >

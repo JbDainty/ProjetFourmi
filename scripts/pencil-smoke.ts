@@ -186,7 +186,7 @@ async function main() {
     await page.goto(url);
     await openCarnet(page);
     await expect(page.getByTestId('current-botanical-stamp')).toHaveAccessibleName(
-      'Ouvrir la planche de Bleuet, 0 pigments sur 5',
+      'Ouvrir la planche de Bleuet, 0 couleurs sur 4 restaurées',
     );
     await expect(note).toHaveCount(0);
     await expect(page.getByTestId('hint-scroll')).toHaveCount(0);

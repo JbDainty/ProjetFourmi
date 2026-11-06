@@ -3,29 +3,33 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import { species } from '../data/botany';
 import { botanicalRasters } from '../data/botanicalRasters';
 import { F } from './fonts';
+import { restorationDescription, restorationState } from '../animation/restoration';
+import { PlateSeal } from './BotanicalSeal';
 
 type Props = { index: number; stage: number; size?: number; labels?: boolean };
 
-/** The same six SVG restoration states, compiled once instead of filtering an
+/** Five watercolor washes cached once, with a small static seal after the fifth page.
+ * This avoids filtering an
  * entire atlas into several offscreen bitmaps every time Android paints it. */
 function BotanicalDrawing({ index, stage, size = 330, labels = true }: Props) {
-  const restored = Math.round(Math.max(0, Math.min(5, stage)));
+  const restored = restorationState(stage);
   const ink = '#806c4d';
   return (
     <View
       accessible
       accessibilityRole="image"
-      accessibilityLabel={`Planche de ${species[index].name}, ${restored} couleurs sur cinq restaurées`}
+      accessibilityLabel={`Planche de ${species[index].name}, ${restorationDescription(stage)}`}
       pointerEvents="none"
       style={{ width: size, height: size * 1.36 }}
     >
       <Image
-        source={botanicalRasters[index][restored]}
+        source={botanicalRasters[index][restored.colors]}
         resizeMode="contain"
         fadeDuration={0}
         accessible={false}
         style={[StyleSheet.absoluteFill, { width: size, height: size * 1.36 }]}
       />
+      {restored.sealed && <PlateSeal size={size} />}
       {labels && (
         <View
           style={{

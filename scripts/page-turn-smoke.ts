@@ -79,7 +79,11 @@ async function main() {
     await finish(id);
     const before = await page.evaluate(() => JSON.parse(localStorage.getItem('color-world.save')!));
     const multiple = id % 5 === 0;
-    await page.getByRole('button', { name: 'Poursuivre la restauration' }).click();
+    await page
+      .getByRole('button', {
+        name: multiple ? 'Découvrir l’espèce suivante' : 'Poursuivre la restauration',
+      })
+      .click();
     if (motion) {
       await expect(
         page.getByTestId(multiple ? 'book-species-riffle' : 'book-single-turn'),

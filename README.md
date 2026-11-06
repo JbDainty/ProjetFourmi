@@ -1,6 +1,6 @@
 # Herbier des couleurs
 
-Jeu de tri de pigments en français, réalisé avec Expo SDK 54, React Native, Expo Router et TypeScript strict. Les cent niveaux se répartissent entre cinq écosystèmes et vingt espèces. Chaque première victoire révèle un cinquième de la planche et ajoute un pigment daté à la collection.
+Jeu de tri de pigments en français, réalisé avec Expo SDK 54, React Native, Expo Router et TypeScript strict. Les cent niveaux se répartissent entre cinq écosystèmes et vingt espèces. Les quatre premières pages rendent progressivement ses couleurs à chaque plante ; la cinquième appose un sceau botanique daté.
 
 ## Tester le jeu sans rien installer
 
@@ -221,7 +221,7 @@ Aucun compte, mesure d’audience ou service publicitaire actif. Les ressources 
 - `src/data/botany.ts` : vingt fiches et cinq écosystèmes.
 - `src/components/Paper.tsx` : texture de papier et vieillissement discret.
 - `src/components/FoliageFrame.tsx` : encadrements végétaux adaptatifs, tiges courbes, feuilles nervurées et rameaux d’angle. Les cadres des planches et des chapitres passent du sépia au vert avec la restauration. Les ornements sont non interactifs et restent dans les marges.
-- `src/components/Botanical.tsx` : vingt planches à rendu aquarelle en atlas PNG, filtres et masques SVG pour cinq étapes de coloration, détails agrandissables.
+- `src/components/Botanical.tsx` : vingt planches à rendu aquarelle en atlas PNG, quatre lavis homogènes puis un sceau, détails agrandissables.
 - `src/components/BotanicalStamp.tsx` : aperçu mobile de la planche courante, timbre dentelé et progression partagée avec l’herbier.
 - `src/components/BotanicalIcon.tsx` : pictogrammes botaniques SVG originaux, communs aux commandes et à la navigation.
 - `src/components/SceneVeil.tsx` : lavis continu pour la lisibilité de l’ATH dans la serre ; il reprend le thème de papier sélectionné.
@@ -276,3 +276,7 @@ Le prologue natif ne télécharge ni modèle 3D ni ressource externe en producti
 Android et iOS sont les cibles de production du prologue. Le noyau `src/scene/prologueScene.ts` est partagé ; `src/components/OpeningScene.tsx` utilise un vrai `GLView` Expo et `OpeningScene.web.tsx` ne sert qu’à la prévisualisation. Voir `docs/native-prologue.md` pour l’intégration, les contrôles réalisés et les essais sur appareils restant à faire. `npm run assets:prologue` régénère les textures ; `npm run test:native-prologue` vérifie l’adaptateur natif et les shaders sur un contexte GL2 de test, sans prétendre exécuter Android/iOS.
 
 La musique du prologue peut être régénérée avec `python3 scripts/generate-intro-music.py --soundfont /chemin/FluidR3_GM.sf2`. Les optimisations natives du film et du feuilletage sont décrites dans `docs/native-prologue.md` et `docs/mobile-rendering.md` ; leur cible de 60 images par seconde reste à vérifier sur appareil.
+
+La couleur de chaque planche revient par quatre lavis homogènes. La quatrième page rend toutes les couleurs ; la cinquième est consacrée au sceau du botaniste : un tampon ancien descend, presse le papier et laisse une empreinte florale avant le passage à l’espèce suivante. Les indicateurs distinguent 4/4 couleurs et planche estampillée. Les cent pages, étoiles, graines et sauvegardes existantes sont conservées.
+
+Vérification du nouveau parcours de restauration : `node --import tsx scripts/restoration-smoke.ts` avec `GAME_TEST_URL` vers le serveur Web exporté. Le test couvre les couleurs complètes à la quatrième page, la pression du tampon et son son à la cinquième, le bouton de continuation, le passage d’espèce, la conservation des gains, les SVG immuables, le silence, le passage direct et les animations désactivées à 320 pixels.

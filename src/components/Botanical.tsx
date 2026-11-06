@@ -7,25 +7,30 @@ import Svg, {
   G,
   ClipPath,
   Rect,
-  Path,
-  Mask,
   Line,
   Text as SvgText,
 } from 'react-native-svg';
 import { F } from './fonts';
 import { species } from '../data/botany';
 import { illustrationAtlases } from '../data/illustrations';
+import {
+  restorationDescription,
+  restorationState,
+  restorationWash,
+  sealPosition,
+} from '../animation/restoration';
+import { SealMark } from './BotanicalSeal';
 
 type Props = { index: number; stage: number; size?: number; labels?: boolean };
-// Four independently painted species per atlas, in reading order. The PNGs stay
-// unmodified: desaturation and anatomical reveals are rendered by native SVG.
+// Four independently painted species per atlas. One uniform wash preserves their natural edges.
 function BotanicalDrawing({ index, stage, size = 330, labels = true }: Props) {
   const token = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const uid = (name: string) => `botanical-${token}-${name}`;
   const s = species[index],
     local = index % 4,
     chapter = Math.floor(index / 4),
-    restored = Math.max(0, Math.min(5, stage));
+    restored = restorationState(stage);
+  const wash = restorationWash(stage);
   const atlas = illustrationAtlases[chapter];
   const bounds = atlas.bounds[local];
   const left = Math.max(0, bounds[0] - 6),
@@ -53,61 +58,30 @@ function BotanicalDrawing({ index, stage, size = 330, labels = true }: Props) {
       width={size}
       height={size * 1.36}
       viewBox="0 0 360 490"
-      accessibilityLabel={`Planche de ${s.name}, ${restored} couleurs sur cinq restaurées`}
+      accessibilityLabel={`Planche de ${s.name}, ${restorationDescription(stage)}`}
     >
       <Defs>
         <ClipPath id={uid('cell')}>
           <Rect {...frame} />
         </ClipPath>
-        <ClipPath id={uid('stem')}>
-          <Path
-            d="M180 460 Q165 342 184 227 Q190 175 180 106 M178 354 Q125 300 95 250 M181 308 Q235 260 253 178"
-            fill="none"
-            stroke="white"
-            strokeWidth="10"
-          />
-        </ClipPath>
-        <ClipPath id={uid('flowers')}>
-          <Rect
-            x="26"
-            y="4"
-            width="308"
-            height={index === 5 || index === 10 || index === 16 ? 310 : 235}
-          />
-        </ClipPath>
-        <Filter id={uid('ink')} x="0%" y="0%" width="100%" height="100%">
-          <FeColorMatrix
-            type="matrix"
-            values="0.23 0.64 0.10 0 0.06 0.21 0.58 0.09 0 0.04 0.16 0.46 0.07 0 0.02 0 0 0 1 0"
-          />
+        <Filter id={uid('wash')} x="0%" y="0%" width="100%" height="100%">
+          <FeColorMatrix type="matrix" values={wash.matrix.join(' ')} />
         </Filter>
-        <Filter id={uid('green-channel')} x="0%" y="0%" width="100%" height="100%">
-          <FeColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -6 10 -4 0 -0.6" />
-        </Filter>
-        <Mask
-          id={uid('foliage')}
-          x="26"
-          y="4"
-          width="308"
-          height="462"
-          maskUnits="userSpaceOnUse"
-          maskType="alpha"
-        >
-          {art({ filter: `url(#${uid('green-channel')})` })}
-        </Mask>
       </Defs>
       <G clipPath={`url(#${uid('cell')})`}>
-        {restored < 5 &&
-          art({ filter: `url(#${uid('ink')})`, opacity: restored === 0 ? 0.76 : 0.9 })}
-        {restored === 1 && (
-          <G clipPath={`url(#${uid('stem')})`} mask={`url(#${uid('foliage')})`}>
-            {art()}
-          </G>
-        )}
-        {restored >= 2 && restored < 4 && <G mask={`url(#${uid('foliage')})`}>{art()}</G>}
-        {restored === 3 && <G clipPath={`url(#${uid('flowers')})`}>{art({ opacity: 0.88 })}</G>}
-        {restored >= 4 && art({ opacity: restored === 5 ? 1 : 0.87 })}
+        {art({
+          filter: restored.colors < 4 ? `url(#${uid('wash')})` : undefined,
+          opacity: wash.opacity,
+        })}
       </G>
+      {restored.sealed && (
+        <G
+          testID="botanical-restoration-seal"
+          transform={`translate(${sealPosition.x} ${sealPosition.y}) rotate(${sealPosition.angle})`}
+        >
+          <SealMark />
+        </G>
+      )}
       {labels && (
         <>
           <Line

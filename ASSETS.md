@@ -57,4 +57,7 @@ Les licences des dépendances JavaScript sont également disponibles dans leurs 
 
 # Cache de rendu botanique mobile
 
-`assets/botanical/` contient les six états de restauration des vingt illustrations existantes, compilés par `npm run assets:botanical` à partir de `Botanical.tsx`. Ces PNG transparents reprennent le même dessin, le même cadrage et les mêmes filtres ; les atlas sources restent inchangés. Android et iOS les affichent comme images natives pour éviter les filtres SVG pendant le jeu. Leur provenance et leurs droits restent ceux des illustrations sources décrites ci-dessous.
+`assets/botanical/` contient les cinq états de couleur (sépia puis quatre lavis) des vingt illustrations existantes, compilés par `npm run assets:botanical` à partir de `Botanical.tsx`. Ces PNG transparents reprennent le même dessin, le même cadrage et les mêmes filtres ; les atlas sources restent inchangés. Android et iOS les affichent comme images natives pour éviter les filtres SVG pendant le jeu. Leur provenance et leurs droits restent ceux des illustrations sources décrites ci-dessous.
+
+- `src/components/BotanicalSeal.tsx` et `SealAnimation.tsx` : gravure botanique et tampon en bois originaux en SVG. Animation par transformations natives de dessins immuables. La cinquième page appose le sceau séparément du cache de couleurs.
+- `assets/seal-impression.wav` : pression de bois et froissement de papier doux, son procédural original de 0,42 seconde sous CC0 ; reproductible avec `python3 scripts/generate-seal-sound.py`. Notice dans `public/licenses/cozy-audio-CC0.txt`.

@@ -8,7 +8,10 @@ import { species } from '../src/data/botany';
 import { useGame } from '../src/state/store';
 import { restoration, unlocked } from '../src/state/model';
 import { Botanical } from '../src/components/Botanical';
-import { T, Label, Button, Progress, Icon, C, ui } from '../src/components/ui';
+import { BotanicalSeal } from '../src/components/BotanicalSeal';
+import { RestorationProgress } from '../src/components/RestorationProgress';
+import { restorationCaption } from '../src/animation/restoration';
+import { T, Label, Button, Icon, C, ui } from '../src/components/ui';
 export default function Herbier() {
   const { save } = useGame(),
     params = useLocalSearchParams<{ plant?: string }>(),
@@ -36,10 +39,10 @@ export default function Herbier() {
             Les planches
           </Button>
           <Button icon="water-outline" secondary={!pigments} onPress={() => setPigments(true)}>
-            Les pigments
+            Pigments et sceaux
           </Button>
         </View>
-        <Label>{complete} / 20 PLANCHES RESTAURÉES</Label>
+        <Label>{complete} / 20 PLANCHES ESTAMPILLÉES</Label>
       </View>
       {pigments ? (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 14 }}>
@@ -48,21 +51,28 @@ export default function Herbier() {
           ) : (
             save.pigments.map((p) => (
               <Paper key={p.id} style={[ui.card, { width: width < 600 ? '100%' : 230 }]}>
-                <View
-                  style={{
-                    height: 75,
-                    backgroundColor: p.shade,
-                    borderRadius: 14,
-                    marginBottom: 16,
-                  }}
-                />
+                {p.id % 5 === 0 ? (
+                  <View style={{ height: 75, alignItems: 'center' }}>
+                    <BotanicalSeal size={74} />
+                  </View>
+                ) : (
+                  <View
+                    style={{
+                      height: 75,
+                      backgroundColor: p.shade,
+                      borderRadius: 14,
+                      marginBottom: 16,
+                    }}
+                  />
+                )}
                 <T serif style={{ fontSize: 24 }}>
-                  {p.name}
+                  {p.id % 5 === 0 ? 'Sceau du botaniste' : p.name}
                 </T>
                 <T style={{ fontSize: 12, color: C.muted }}>{species[p.species].name}</T>
                 <T style={{ fontFamily: F.scientific, fontSize: 16 }}>{species[p.species].latin}</T>
                 <T style={{ fontSize: 10, marginTop: 10, color: C.muted }}>
-                  Découvert le {new Date(p.discovered).toLocaleDateString('fr-FR')}
+                  {p.id % 5 === 0 ? 'Apposé' : 'Découvert'} le{' '}
+                  {new Date(p.discovered).toLocaleDateString('fr-FR')}
                 </T>
               </Paper>
             ))
@@ -114,10 +124,11 @@ export default function Herbier() {
                 </T>
                 <T style={{ fontFamily: F.scientific, fontSize: 17, color: C.muted }}>{s.latin}</T>
                 <View style={{ width: '100%', marginTop: 18 }}>
-                  <Progress value={stage / 5} />
-                  <T style={{ textAlign: 'center', fontSize: 10, color: C.muted, marginTop: 7 }}>
-                    {stage === 5 ? 'RESTAURÉE' : open ? `${stage} / 5 PIGMENTS` : 'À DÉCOUVRIR'}
-                  </T>
+                  {open ? (
+                    <RestorationProgress stage={stage} compact />
+                  ) : (
+                    <T style={{ textAlign: 'center', fontSize: 10, color: C.muted }}>À DÉCOUVRIR</T>
+                  )}
                 </View>
               </Pressable>
             );
@@ -201,7 +212,7 @@ export default function Herbier() {
                 <T style={{ marginTop: 6, marginBottom: 20 }}>{species[selected].bloom}</T>
                 <T style={{ lineHeight: 25 }}>{species[selected].facts}</T>
                 <T style={{ fontSize: 11, color: C.muted, marginTop: 20 }}>
-                  Restauration : {restoration(save, selected)} / 5 pigments
+                  {restorationCaption(restoration(save, selected))}
                   {restoration(save, selected) === 5
                     ? ` · Achevée le ${new Date(save.completed[(selected + 1) * 5].date).toLocaleDateString('fr-FR')}`
                     : ''}

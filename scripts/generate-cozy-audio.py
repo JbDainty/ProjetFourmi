@@ -212,6 +212,9 @@ wav('vial-complete.wav',finish(chime,.30,.002))
 legal=Path('public/licenses/cozy-audio-CC0.txt').read_text().split('Creative Commons Legal Code',1)[1]
 Path('public/licenses/cozy-audio-CC0.txt').write_text('''Herbier des couleurs — Acoustic chamber soundscape
 
+The original wooden stamp and paper sound assets/seal-impression.wav and its
+generator scripts/generate-seal-sound.py are dedicated under CC0 1.0.
+
 The original compositions/arrangements, scripts/generate-cozy-audio.py and the
 original glass sound assets/vial-complete.wav, the original introduction score
 assets/music/prologue.mp3 (L’éveil du grimoire), scripts/generate-intro-music.py

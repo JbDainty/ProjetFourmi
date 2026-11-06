@@ -6,6 +6,8 @@ import { chapters, species } from '../data/botany';
 import { T, C } from './ui';
 import { F } from './fonts';
 import { SvgBackdrop } from './SvgBackdrop';
+import { restorationDescription, restorationState } from '../animation/restoration';
+import { SealMark } from './BotanicalSeal';
 
 export function ChapterVignette({
   plant,
@@ -24,6 +26,7 @@ export function ChapterVignette({
   busy: boolean;
   onOpen: () => void;
 }) {
+  const { colors, sealed } = restorationState(stage);
   return (
     <View
       testID="chapter-vignette"
@@ -75,7 +78,7 @@ export function ChapterVignette({
         </T>
         <View
           accessible
-          accessibilityLabel={`${stage} pigments sur 5 restaurés`}
+          accessibilityLabel={restorationDescription(stage)}
           style={{
             alignSelf: 'flex-end',
             alignItems: 'center',
@@ -86,26 +89,29 @@ export function ChapterVignette({
         >
           <Svg pointerEvents="none" accessible={false} width="118" height="20" viewBox="0 0 118 20">
             <Path d="M4 17 Q47 20 113 8" fill="none" stroke="#8e9b70" strokeWidth="0.8" />
-            {Array.from({ length: 5 }, (_, i) => (
+            {Array.from({ length: 4 }, (_, i) => (
               <G
                 key={i}
                 transform={`translate(${15 + i * 21} ${16 - i * 1.6}) rotate(${i % 2 ? 28 : -20})`}
               >
                 <Path
                   d="M0 0 Q-8-4-2-12 Q5-9 0 0Z"
-                  fill={i < stage ? '#829e68' : '#e9dcc0'}
-                  stroke={i < stage ? '#536f49' : '#b2a37d'}
+                  fill={i < colors ? '#829e68' : '#e9dcc0'}
+                  stroke={i < colors ? '#536f49' : '#b2a37d'}
                   strokeWidth="0.7"
                 />
                 <Path
                   d="M0 0-2-10"
                   fill="none"
-                  stroke={i < stage ? '#536f49' : '#b2a37d'}
+                  stroke={i < colors ? '#536f49' : '#b2a37d'}
                   strokeWidth="0.55"
                 />
-                {i < stage && <Circle cx="-0.8" cy="-5" r="0.55" fill="#f7ecc9" />}
+                {i < colors && <Circle cx="-0.8" cy="-5" r="0.55" fill="#f7ecc9" />}
               </G>
             ))}
+            <G opacity={sealed ? 1 : 0.25} transform="translate(104 8) scale(0.19)">
+              <SealMark />
+            </G>
           </Svg>
           <T
             style={{
@@ -115,11 +121,13 @@ export function ChapterVignette({
               color: C.green,
             }}
           >
-            {stage === 5
-              ? 'Planche épanouie'
-              : stage === 0
-                ? 'À faire renaître'
-                : `${stage} nuance${stage > 1 ? 's' : ''} retrouvée${stage > 1 ? 's' : ''}`}
+            {sealed
+              ? 'Planche estampillée'
+              : colors === 4
+                ? 'Couleurs retrouvées'
+                : colors === 0
+                  ? 'À faire renaître'
+                  : `${colors} nuance${colors > 1 ? 's' : ''} retrouvée${colors > 1 ? 's' : ''}`}
           </T>
         </View>
       </View>

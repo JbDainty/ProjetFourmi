@@ -55,7 +55,7 @@ async function main() {
     const last = levels[3].solution.at(-1)!;
     await page.getByRole('button', { name: new RegExp(`^Flacon ${last.from + 1},`) }).click();
     await page.getByRole('button', { name: new RegExp(`^Flacon ${last.to + 1},`) }).click();
-    await expect(page.getByText('Détails floraux', { exact: true })).toBeVisible();
+    await expect(page.getByText('Les couleurs retrouvées', { exact: true })).toBeVisible();
   };
   try {
     await page.goto(url);

@@ -6,7 +6,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-00-2.png'),
     require('../../assets/botanical/plant-00-3.png'),
     require('../../assets/botanical/plant-00-4.png'),
-    require('../../assets/botanical/plant-00-5.png'),
   ],
   [
     require('../../assets/botanical/plant-01-0.png'),
@@ -14,7 +13,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-01-2.png'),
     require('../../assets/botanical/plant-01-3.png'),
     require('../../assets/botanical/plant-01-4.png'),
-    require('../../assets/botanical/plant-01-5.png'),
   ],
   [
     require('../../assets/botanical/plant-02-0.png'),
@@ -22,7 +20,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-02-2.png'),
     require('../../assets/botanical/plant-02-3.png'),
     require('../../assets/botanical/plant-02-4.png'),
-    require('../../assets/botanical/plant-02-5.png'),
   ],
   [
     require('../../assets/botanical/plant-03-0.png'),
@@ -30,7 +27,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-03-2.png'),
     require('../../assets/botanical/plant-03-3.png'),
     require('../../assets/botanical/plant-03-4.png'),
-    require('../../assets/botanical/plant-03-5.png'),
   ],
   [
     require('../../assets/botanical/plant-04-0.png'),
@@ -38,7 +34,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-04-2.png'),
     require('../../assets/botanical/plant-04-3.png'),
     require('../../assets/botanical/plant-04-4.png'),
-    require('../../assets/botanical/plant-04-5.png'),
   ],
   [
     require('../../assets/botanical/plant-05-0.png'),
@@ -46,7 +41,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-05-2.png'),
     require('../../assets/botanical/plant-05-3.png'),
     require('../../assets/botanical/plant-05-4.png'),
-    require('../../assets/botanical/plant-05-5.png'),
   ],
   [
     require('../../assets/botanical/plant-06-0.png'),
@@ -54,7 +48,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-06-2.png'),
     require('../../assets/botanical/plant-06-3.png'),
     require('../../assets/botanical/plant-06-4.png'),
-    require('../../assets/botanical/plant-06-5.png'),
   ],
   [
     require('../../assets/botanical/plant-07-0.png'),
@@ -62,7 +55,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-07-2.png'),
     require('../../assets/botanical/plant-07-3.png'),
     require('../../assets/botanical/plant-07-4.png'),
-    require('../../assets/botanical/plant-07-5.png'),
   ],
   [
     require('../../assets/botanical/plant-08-0.png'),
@@ -70,7 +62,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-08-2.png'),
     require('../../assets/botanical/plant-08-3.png'),
     require('../../assets/botanical/plant-08-4.png'),
-    require('../../assets/botanical/plant-08-5.png'),
   ],
   [
     require('../../assets/botanical/plant-09-0.png'),
@@ -78,7 +69,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-09-2.png'),
     require('../../assets/botanical/plant-09-3.png'),
     require('../../assets/botanical/plant-09-4.png'),
-    require('../../assets/botanical/plant-09-5.png'),
   ],
   [
     require('../../assets/botanical/plant-10-0.png'),
@@ -86,7 +76,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-10-2.png'),
     require('../../assets/botanical/plant-10-3.png'),
     require('../../assets/botanical/plant-10-4.png'),
-    require('../../assets/botanical/plant-10-5.png'),
   ],
   [
     require('../../assets/botanical/plant-11-0.png'),
@@ -94,7 +83,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-11-2.png'),
     require('../../assets/botanical/plant-11-3.png'),
     require('../../assets/botanical/plant-11-4.png'),
-    require('../../assets/botanical/plant-11-5.png'),
   ],
   [
     require('../../assets/botanical/plant-12-0.png'),
@@ -102,7 +90,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-12-2.png'),
     require('../../assets/botanical/plant-12-3.png'),
     require('../../assets/botanical/plant-12-4.png'),
-    require('../../assets/botanical/plant-12-5.png'),
   ],
   [
     require('../../assets/botanical/plant-13-0.png'),
@@ -110,7 +97,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-13-2.png'),
     require('../../assets/botanical/plant-13-3.png'),
     require('../../assets/botanical/plant-13-4.png'),
-    require('../../assets/botanical/plant-13-5.png'),
   ],
   [
     require('../../assets/botanical/plant-14-0.png'),
@@ -118,7 +104,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-14-2.png'),
     require('../../assets/botanical/plant-14-3.png'),
     require('../../assets/botanical/plant-14-4.png'),
-    require('../../assets/botanical/plant-14-5.png'),
   ],
   [
     require('../../assets/botanical/plant-15-0.png'),
@@ -126,7 +111,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-15-2.png'),
     require('../../assets/botanical/plant-15-3.png'),
     require('../../assets/botanical/plant-15-4.png'),
-    require('../../assets/botanical/plant-15-5.png'),
   ],
   [
     require('../../assets/botanical/plant-16-0.png'),
@@ -134,7 +118,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-16-2.png'),
     require('../../assets/botanical/plant-16-3.png'),
     require('../../assets/botanical/plant-16-4.png'),
-    require('../../assets/botanical/plant-16-5.png'),
   ],
   [
     require('../../assets/botanical/plant-17-0.png'),
@@ -142,7 +125,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-17-2.png'),
     require('../../assets/botanical/plant-17-3.png'),
     require('../../assets/botanical/plant-17-4.png'),
-    require('../../assets/botanical/plant-17-5.png'),
   ],
   [
     require('../../assets/botanical/plant-18-0.png'),
@@ -150,7 +132,6 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-18-2.png'),
     require('../../assets/botanical/plant-18-3.png'),
     require('../../assets/botanical/plant-18-4.png'),
-    require('../../assets/botanical/plant-18-5.png'),
   ],
   [
     require('../../assets/botanical/plant-19-0.png'),
@@ -158,6 +139,5 @@ export const botanicalRasters = [
     require('../../assets/botanical/plant-19-2.png'),
     require('../../assets/botanical/plant-19-3.png'),
     require('../../assets/botanical/plant-19-4.png'),
-    require('../../assets/botanical/plant-19-5.png'),
   ],
 ] as const;

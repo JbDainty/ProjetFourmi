@@ -4,6 +4,9 @@ import Svg, { Defs, Mask, Rect, Circle, Path } from 'react-native-svg';
 import { Botanical } from './Botanical';
 import { species } from '../data/botany';
 import { C } from './ui';
+import { restorationDescription, restorationState } from '../animation/restoration';
+import { SealMark } from './BotanicalSeal';
+import { G } from 'react-native-svg';
 export function BotanicalStamp({
   index,
   stage,
@@ -15,12 +18,13 @@ export function BotanicalStamp({
   onPress: () => void;
   disabled?: boolean;
 }) {
+  const { colors, sealed } = restorationState(stage);
   const id = 'stamp-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
   return (
     <Pressable
       testID="current-botanical-stamp"
       accessibilityRole="button"
-      accessibilityLabel={`Ouvrir la planche de ${species[index].name}, ${stage} pigments sur 5`}
+      accessibilityLabel={`Ouvrir la planche de ${species[index].name}, ${restorationDescription(stage)}`}
       accessibilityHint="Agrandir la plante sans quitter le puzzle"
       accessibilityState={{ disabled }}
       disabled={disabled}
@@ -85,9 +89,12 @@ export function BotanicalStamp({
           stroke="#7c9469"
           strokeWidth="0.7"
         />
-        {Array.from({ length: 5 }, (_, i) => (
-          <Circle key={i} cx={23 + i * 8} cy="94" r="2" fill={i < stage ? C.green : '#d4c7a8'} />
+        {Array.from({ length: 4 }, (_, i) => (
+          <Circle key={i} cx={19 + i * 9} cy="94" r="2" fill={i < colors ? C.green : '#d4c7a8'} />
         ))}
+        <G opacity={sealed ? 1 : 0.25} transform="translate(62 94) scale(0.13)">
+          <SealMark />
+        </G>
       </Svg>
       <View pointerEvents="none" style={{ marginTop: -12 }}>
         <Botanical index={index} stage={stage} size={58} labels={false} />

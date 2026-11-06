@@ -5,7 +5,7 @@ import { StampPrompt } from '../src/components/StampPrompt';
 import { VictoryAction } from '../src/components/VictoryAction';
 import { PageTurnContext } from '../src/components/PageTurn';
 import React, { useEffect, useRef, useState } from 'react';
-import { View, ScrollView, Pressable, Modal, Animated, useWindowDimensions } from 'react-native';
+import { View, ScrollView, Pressable, Modal, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
 import { useGame } from '../src/state/store';
 import { loadLevel, move, undo, restoration, currentHint, purchaseHint } from '../src/state/model';
@@ -23,7 +23,7 @@ import { HintSlot, emptySeedHint, missingPathHint } from '../src/components/Hint
 import { MistakeLeaves } from '../src/components/MistakeLeaves';
 import { SceneSizeContext } from '../src/components/SceneSize';
 import { BookScrollView, bookHeaderHeight } from '../src/components/BookScrollView';
-import { T, Label, Icon, Button, Progress, C, ui } from '../src/components/ui';
+import { T, Label, Icon, Button, C, ui } from '../src/components/ui';
 import { feedback } from '../src/services/feedback';
 import { pageStars, starLimits } from '../src/state/stars';
 import { RewardStars } from '../src/components/RewardStars';
@@ -33,6 +33,10 @@ import { playPlantMelody } from '../src/services/plantMelody';
 import { completedByPour, type TubeReward } from '../src/animation/tubeReward';
 import { playVialChime } from '../src/services/vialChime';
 import { preparePageArtwork } from '../src/services/pageArtwork';
+import { RestorationProgress } from '../src/components/RestorationProgress';
+import { ColorReveal } from '../src/components/ColorReveal';
+import { SealAnimation } from '../src/components/SealAnimation';
+import { restorationTitles } from '../src/animation/restoration';
 type Note = { text: string; kind: 'info' | 'hint'; request: number; pending: boolean };
 const scenePadding = { top: 0, bottom: 20 };
 export default function Atelier() {
@@ -61,14 +65,16 @@ export default function Atelier() {
     [busy, setBusy] = useState(false),
     [pouring, setPouring] = useState<Move | null>(null),
     [reveal, setReveal] = useState(false),
+    [revealAnimated, setRevealAnimated] = useState(true),
+    [sealFinished, setSealFinished] = useState(false),
     [dismissed, setDismissed] = useState(false),
     [plateOpen, setPlateOpen] = useState(false);
-  const fade = useRef(new Animated.Value(0)).current,
-    timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const plant = Math.floor((save.current - 1) / 5),
     s = species[plant],
     chapter = Math.floor((save.current - 1) / 20),
     stage = restoration(save, plant),
+    sealPage = save.current % 5 === 0,
     victory = won(save.board);
   const earnedStars = pageStars(save.moves, levels[save.current - 1].par);
   useEffect(() => {
@@ -87,6 +93,7 @@ export default function Atelier() {
     setHint(null);
     clearNote();
     setReveal(false);
+    setSealFinished(false);
     setDismissed(false);
     setPlateOpen(false);
     setTubeReward(null);
@@ -230,6 +237,8 @@ export default function Atelier() {
   const restorePigment = (animate = true) => {
     if (revealPlayed.current) return;
     revealPlayed.current = true;
+    setRevealAnimated(save.settings.motion && animate);
+    setSealFinished(!save.settings.motion || !animate);
     setReveal(true);
     feedback({ ...save.settings, sound: false }, true);
     stopReveal.current();
@@ -237,14 +246,9 @@ export default function Atelier() {
       stage === 5 && save.current % 5 === 0 && !replay
         ? playPlantMelody(save.settings.sound)
         : playRevealMelody(save.settings.sound);
-    fade.setValue(0);
-    Animated.timing(fade, {
-      toValue: 1,
-      duration: save.settings.motion && animate ? 1400 : 0,
-      useNativeDriver: true,
-    }).start();
   };
   const next = () => {
+    if (sealPage && !sealFinished) return;
     setDismissed(true);
     if (save.current < 100) {
       const target = save.current + 1;
@@ -269,7 +273,7 @@ export default function Atelier() {
       stopPour.current();
       stopReveal.current();
       stopChime.current();
-      fade.setValue(0);
+      setSealFinished(false);
       scroll.current?.scrollTo({ y: 0, animated: false });
       setSave((value) => loadLevel(value, current));
       setDismissed(false);
@@ -503,9 +507,9 @@ export default function Atelier() {
                 style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}
               >
                 <T style={{ fontSize: 11, color: C.muted }}>Restauration de la planche</T>
-                <T style={{ fontSize: 11, color: C.green }}>{stage} / 5 pigments</T>
+                <T style={{ fontSize: 11, color: C.green }}>{Math.min(stage, 4)} / 4 couleurs</T>
               </View>
-              <Progress value={stage / 5} />
+              <RestorationProgress stage={stage} />
             </View>
             <Pressable
               accessibilityRole="link"
@@ -583,10 +587,7 @@ export default function Atelier() {
                 {s.latin}
               </T>
               <View style={{ width: '100%', marginVertical: 22 }}>
-                <T style={{ fontSize: 12, color: C.muted, textAlign: 'center', marginBottom: 9 }}>
-                  {stage} / 5 pigments restaurés
-                </T>
-                <Progress value={stage / 5} />
+                <RestorationProgress stage={stage} />
               </View>
               <Button icon="flask-outline" onPress={() => setPlateOpen(false)}>
                 Revenir au jeu
@@ -615,14 +616,18 @@ export default function Atelier() {
                 <Label>
                   {save.current === 100
                     ? 'L’HERBIER RETROUVE SES COULEURS'
-                    : replay
-                      ? 'UNE PAGE À NOUVEAU COLORÉE'
-                      : 'VOTRE HERBIER REPREND VIE'}
+                    : sealPage
+                      ? 'LE SCEAU DU BOTANISTE'
+                      : replay
+                        ? 'UNE PAGE À NOUVEAU COLORÉE'
+                        : 'VOTRE HERBIER REPREND VIE'}
                 </Label>
                 <T serif style={{ fontSize: 32, marginTop: 13, lineHeight: 38 }}>
                   {save.current === 100
                     ? 'Votre collection est complète.'
-                    : s.organs[(save.current - 1) % 5]}
+                    : sealPage
+                      ? s.name
+                      : restorationTitles[(save.current - 1) % 5]}
                 </T>
                 <RewardStars count={earnedStars} motion={save.settings.motion} />
                 <T
@@ -685,11 +690,11 @@ export default function Atelier() {
                   <>
                     <Botanical
                       index={plant}
-                      stage={replay ? stage : Math.max(0, stage - 1)}
+                      stage={sealPage ? 4 : replay ? stage : Math.max(0, stage - 1)}
                       size={resultPlateSize}
                     />
                     <VictoryAction icon="water-outline" onPress={() => restorePigment()}>
-                      Révéler la couleur
+                      {sealPage ? 'Estampiller la planche' : 'Révéler la couleur'}
                     </VictoryAction>
                     <Pressable
                       accessibilityRole="button"
@@ -705,19 +710,50 @@ export default function Atelier() {
                   </>
                 ) : (
                   <>
-                    <Animated.View style={{ opacity: fade }}>
-                      <Botanical index={plant} stage={stage} size={resultPlateSize + 8} />
-                    </Animated.View>
+                    {sealPage ? (
+                      <View
+                        testID="finished-plate-ceremony"
+                        style={{ width: resultPlateSize, height: resultPlateSize * 1.36 }}
+                      >
+                        <Botanical
+                          index={plant}
+                          stage={sealFinished ? 5 : 4}
+                          size={resultPlateSize}
+                        />
+                        {!sealFinished && (
+                          <SealAnimation
+                            size={resultPlateSize}
+                            motion={revealAnimated}
+                            sound={save.settings.sound}
+                            onDone={() => setSealFinished(true)}
+                          />
+                        )}
+                      </View>
+                    ) : (
+                      <ColorReveal
+                        index={plant}
+                        from={replay ? stage : Math.max(0, stage - 1)}
+                        to={stage}
+                        size={resultPlateSize}
+                        motion={revealAnimated}
+                      />
+                    )}
                     <T
                       testID="restoration-botanical-fact"
                       style={{ textAlign: 'center', color: C.muted, marginBottom: 18 }}
                     >
                       {botanicalFact(save.current, 'reveal')}
                     </T>
-                    <VictoryAction icon="arrow-forward-outline" onPress={next}>
+                    <VictoryAction
+                      icon="arrow-forward-outline"
+                      onPress={next}
+                      disabled={sealPage && !sealFinished}
+                    >
                       {save.current === 100
                         ? 'Contempler mon herbier'
-                        : 'Poursuivre la restauration'}
+                        : sealPage
+                          ? 'Découvrir l’espèce suivante'
+                          : 'Poursuivre la restauration'}
                     </VictoryAction>
                   </>
                 )}

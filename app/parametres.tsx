@@ -85,7 +85,7 @@ export default function Parametres() {
           {[
             [Object.keys(save.completed).length, 'pages'],
             [Object.values(save.completed).reduce((n, l) => n + l.stars, 0), 'étoiles'],
-            [save.pigments.length, 'pigments'],
+            [save.pigments.length, 'découvertes'],
           ].map(([n, l]) => (
             <View key={l} style={{ alignItems: 'center' }}>
               <T serif style={{ fontSize: 38, lineHeight: 45 }}>

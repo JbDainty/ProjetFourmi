@@ -36,10 +36,12 @@ async function main() {
         .evaluate((node) => getComputedStyle(node).backgroundColor),
     ).toBe('rgba(0, 0, 0, 0)');
     const stamp = page.getByTestId('current-botanical-stamp');
-    await expect(stamp).toHaveAccessibleName('Ouvrir la planche de Coquelicot, 0 pigments sur 5');
+    await expect(stamp).toHaveAccessibleName(
+      'Ouvrir la planche de Coquelicot, 0 couleurs sur 4 restaurées',
+    );
     await expect(page.getByTestId('atelier-full-plate')).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Indice', exact: true })).toBeInViewport();
-    await expect(page.getByTestId('botanical-button-icon').first()).toBeVisible();
+    await expect(page.getByTestId('spell-icon-hint')).toBeVisible();
     const first = levels[0].solution[0];
     await page.getByRole('button', { name: new RegExp(`^Flacon ${first.from + 1},`) }).click();
     const before = await page.evaluate(() => localStorage.getItem('color-world.save'));
@@ -54,7 +56,7 @@ async function main() {
     await stamp.click();
     const dialog = page.getByTestId('current-plate-dialog');
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByText('0 / 5 pigments restaurés')).toBeVisible();
+    await expect(dialog.getByText('0 / 4 couleurs restaurées')).toBeVisible();
     await page.screenshot({ path: 'test-results/mobile-stamp-open.png', fullPage: true });
     await page.getByRole('button', { name: 'Revenir au jeu' }).click();
     await expect(dialog).toHaveCount(0);
@@ -73,12 +75,16 @@ async function main() {
     }
     await page.getByRole('button', { name: 'Passer l’animation' }).click();
     await page.getByRole('button', { name: 'Poursuivre la restauration' }).click();
-    await expect(stamp).toHaveAccessibleName('Ouvrir la planche de Coquelicot, 1 pigments sur 5');
+    await expect(stamp).toHaveAccessibleName(
+      'Ouvrir la planche de Coquelicot, 1 couleur sur 4 restaurée',
+    );
     await page.reload();
     await openCarnet(page);
-    await expect(stamp).toHaveAccessibleName('Ouvrir la planche de Coquelicot, 1 pigments sur 5');
+    await expect(stamp).toHaveAccessibleName(
+      'Ouvrir la planche de Coquelicot, 1 couleur sur 4 restaurée',
+    );
     await stamp.click();
-    await expect(dialog.getByText('1 / 5 pigments restaurés')).toBeVisible();
+    await expect(dialog.getByText('1 / 4 couleur restaurée')).toBeVisible();
     await page.getByRole('button', { name: 'Fermer la planche' }).click();
     await page.screenshot({ path: 'test-results/mobile-stamp-restored.png', fullPage: true });
     for (const width of [320, 390]) {
@@ -93,7 +99,7 @@ async function main() {
       });
       await openScreen(page, 'Le Grand Herbier');
       await expect(
-        page.getByRole('button', { name: 'Les pigments', exact: true }),
+        page.getByRole('button', { name: 'Pigments et sceaux', exact: true }),
       ).toBeInViewport();
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
         width,
@@ -120,6 +126,7 @@ async function main() {
       bookSave,
     );
     await animated.reload();
+    await openCarnet(animated);
     await expect(animated.getByText('PAGE 04', { exact: true })).toBeVisible();
     await expect(animated.getByText(/\/ 100/)).toHaveCount(0);
     await animated.screenshot({
