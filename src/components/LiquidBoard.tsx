@@ -28,7 +28,7 @@ import {
   INNER,
   GLASS_HEIGHT,
   MOUTH_Y,
-  band,
+  clip,
   polygonPath,
   layers,
   drain,
@@ -263,11 +263,29 @@ function LiquidBoardDrawing({
       ? Math.sin(state.approach * Math.PI) * 0.035 - Math.sin(state.returning * Math.PI) * 0.045
       : 0;
     const fluidAngle = p.angle - inertia;
+    // Adjacent layers share a boundary; solve its height only once per drawing.
+    const planes = new Map<number, number>();
+    const plane = (units: number) => {
+      let found = planes.get(units);
+      if (found === undefined) {
+        found = surfacePlane(units, fluidAngle);
+        planes.set(units, found);
+      }
+      return found;
+    };
     let lower = 0;
     const total = stock.reduce((n, l) => n + l.units, 0),
-      surface = surfacePlane(total, fluidAngle);
+      surface = plane(total);
     const pieces = stock.map((layer, j) => {
-      const polygon = band(lower, lower + layer.units, fluidAngle);
+      const polygon =
+        layer.units < 0.0001
+          ? []
+          : clip(
+              clip(INNER, fluidAngle, plane(lower + layer.units)),
+              fluidAngle,
+              plane(lower),
+              false,
+            );
       lower += layer.units;
       const d = polygonPath(polygon);
       return { layer, d, polygon, j };

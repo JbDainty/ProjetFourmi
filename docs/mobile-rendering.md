@@ -26,7 +26,15 @@ npm run assets:botanical
 
 `SvgBackdrop` mesure une vue absolue, puis donne au SVG une largeur et une hauteur numériques. Le fond décoratif ne participe plus à la mesure du texte d’un bouton. Ce mécanisme est utilisé pour les rubans, le voile de la serre et le chapitre. Les textes natifs désactivent l’ajout de marge de police Android ; les boutons peuvent grandir et le texte peut revenir à la ligne.
 
-La planche du bilan dépend de la hauteur disponible et du facteur de police. Les statistiques sont centrées, les commandes du bas sont plus compactes et un emplacement d’indice vide ne réserve plus la hauteur du parchemin entier. La progression et les règles des graines ne changent pas.
+La planche du bilan dépend de la hauteur disponible et du facteur de police. Les statistiques sont centrées, les commandes du bas sont plus compactes et les trois actions restent accessibles sous la zone réservée aux indices. La progression et les règles des graines ne changent pas.
+
+## Indice sans déplacement des commandes
+
+L’emplacement du parchemin est désormais réservé même lorsqu’il reste invisible. `HintSlot` mesure à l’avance les paragraphes possibles avec la police manuscrite réelle, la largeur disponible et le réglage de taille de texte du téléphone. L’indice, la recherche et les messages de réserve vide occupent cette même surface ; ni les boutons ni la hauteur de la serre ne changent à leur apparition. Aucun papier ni texte n’est visible avant un appui sur « Indice ».
+
+Le papier et les deux rouleaux sont des surfaces fixes animées par transformations natives, sans mise à jour SVG à chaque image. L’écriture ne commence qu’après leur ouverture. Une nouvelle demande remonte la séquence avec un papier fermé, ce qui évite de réafficher brièvement l’ancien message. La serre couvre au minimum toute la fenêtre, même quand le contenu du jeu est plus court, pour supprimer la coupure au-dessus de la marge inférieure.
+
+Le calcul de surface du liquide ne construit plus de polygones temporaires pendant chaque étape de sa recherche de volume. Les projections sont calculées une fois et les couches voisines partagent leurs frontières. Le contour final conserve la même géométrie ; la conservation du volume est vérifiée sur 1 271 couples angle/quantité supplémentaires. Un microbenchmark Node local de 1 800 échantillons (contact et cinq surfaces) est passé de 316 à 60 ms avec le même résultat numérique ; ce chiffre n’est pas une mesure de FPS Android.
 
 ## Validation
 
@@ -35,6 +43,7 @@ La planche du bilan dépend de la hauteur disponible et du facteur de police. Le
 - `tests/native-svg.test.ts` : les 71 décalages littéraux de dégradé du jeu sont acceptés sans avertissement par le parseur SVG natif réel.
 - `npm run test:pouring` : filet visible, validation atomique, annulation, navigation, mode sans animations et versement entre rangées.
 - `npm run test:mobile-rendering` : aucun changement du SVG du plateau pendant 1,2 seconde au repos, sur la première et la dernière page ; le support reste inchangé pendant un versement ; rubans et textes contenus dans les boutons à 320 et 393 pixels, avant et après révélation.
+- `node --import tsx scripts/hint-layout-smoke.ts` : positions des commandes et hauteur du décor constantes pendant recherche, déroulement, écriture, nouvelle demande et fermeture ; messages longs à 320/393 pixels, deux rangées de tubes et mode sans animations. Aucun changement des attributs SVG du parchemin pendant son ouverture.
 - Les exports Hermes Android et iOS contrôlent l’inclusion des ressources natives. Les essais navigateur et les exports restent distincts d’un essai matériel Android/iOS.
 
 Le nouvel APK doit être installé par-dessus le précédent, sans désinstallation, pour conserver le carnet local. Vérifier ensuite les captures signalées, le défilement, les versements, les sons, les retours d’arrière-plan et le prologue sur le téléphone du joueur.

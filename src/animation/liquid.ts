@@ -43,8 +43,10 @@ export function area(poly: Point[]): number {
 export const INNER_AREA = area(INNER);
 export const UNIT_AREA = (INNER_AREA * 0.865) / CAPACITY;
 export function clip(poly: Point[], angle: number, plane: number, below = true): Point[] {
+  const sin = Math.sin(angle),
+    cos = Math.cos(angle);
   const result: Point[] = [],
-    normal = (p: Point) => p.x * Math.sin(angle) + p.y * Math.cos(angle) - plane;
+    normal = (p: Point) => p.x * sin + p.y * cos - plane;
   for (let i = 0; i < poly.length; i++) {
     const p = poly[i],
       q = poly[(i + 1) % poly.length],
@@ -60,14 +62,57 @@ export function clip(poly: Point[], angle: number, plane: number, below = true):
   }
   return result;
 }
+/** Area under a projected free surface, without allocating a clipped polygon
+ * for each step of the volume search. The final visible contour still uses clip(). */
+function submergedArea(heights: number[], plane: number) {
+  let sum = 0,
+    count = 0,
+    firstX = 0,
+    firstY = 0,
+    lastX = 0,
+    lastY = 0;
+  for (let i = 0; i < INNER.length; i++) {
+    const next = (i + 1) % INNER.length;
+    const p = INNER[i],
+      q = INNER[next];
+    const dp = heights[i] - plane,
+      dq = heights[next] - plane;
+    const insideP = dp >= -1e-8,
+      insideQ = dq >= -1e-8;
+    if (insideP) {
+      if (count++) sum += lastX * p.y - p.x * lastY;
+      else {
+        firstX = p.x;
+        firstY = p.y;
+      }
+      lastX = p.x;
+      lastY = p.y;
+    }
+    if (insideP !== insideQ) {
+      const t = dp / (dp - dq),
+        x = mix(p.x, q.x, t),
+        y = mix(p.y, q.y, t);
+      if (count++) sum += lastX * y - x * lastY;
+      else {
+        firstX = x;
+        firstY = y;
+      }
+      lastX = x;
+      lastY = y;
+    }
+  }
+  return Math.abs(sum + lastX * firstY - firstX * lastY) / 2;
+}
 export function surfacePlane(units: number, angle: number): number {
-  const heights = INNER.map((p) => rotate(p, angle).y);
+  const sin = Math.sin(angle),
+    cos = Math.cos(angle);
+  const heights = INNER.map((p) => p.x * sin + p.y * cos);
   let low = Math.min(...heights),
     high = Math.max(...heights);
   const target = clamp(units, 0, 4) * UNIT_AREA;
   for (let i = 0; i < 26; i++) {
     const mid = (low + high) / 2;
-    if (area(clip(INNER, angle, mid)) > target) low = mid;
+    if (submergedArea(heights, mid) > target) low = mid;
     else high = mid;
   }
   return (low + high) / 2;

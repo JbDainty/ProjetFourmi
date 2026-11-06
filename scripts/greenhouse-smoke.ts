@@ -94,7 +94,7 @@ async function main() {
     expect(await tightPlayArea()).toBeCloseTo(mobileOneRow, 0);
     expect(
       (await page.getByTestId('greenhouse-world-background').boundingBox())!.height,
-    ).toBeCloseTo(mobileBackdrop, 0);
+    ).toBeCloseTo(Math.max(1200, mobileBackdrop), 0);
     await page.screenshot({
       path: 'test-results/greenhouse-tall-phone-compact.png',
       fullPage: true,

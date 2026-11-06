@@ -19,6 +19,7 @@ import { ChapterVignette } from '../src/components/ChapterVignette';
 import { SpellIcon } from '../src/components/SpellIcon';
 import { PageFolio } from '../src/components/PageFolio';
 import { HintScroll } from '../src/components/HintScroll';
+import { HintSlot, emptySeedHint, missingPathHint } from '../src/components/HintSlot';
 import { MistakeLeaves } from '../src/components/MistakeLeaves';
 import { SceneSizeContext } from '../src/components/SceneSize';
 import { BookScrollView, bookHeaderHeight } from '../src/components/BookScrollView';
@@ -182,7 +183,7 @@ export default function Atelier() {
     const owned = currentHint(save);
     if (!owned && save.seeds < 1) {
       setNote((previous) => ({
-        text: 'Votre réserve est vide. Obtenez trois étoiles sur une page pour gagner une graine.',
+        text: emptySeedHint,
         kind: 'hint',
         request: previous.request + 1,
         pending: false,
@@ -220,7 +221,7 @@ export default function Atelier() {
         pending: false,
         text: suggestion
           ? `Versez le flacon ${suggestion.from + 1} dans le flacon ${suggestion.to + 1}.`
-          : 'Aucun chemin trouvé. Aucune graine dépensée. Annulez vos derniers mouvements ou recommencez.',
+          : missingPathHint,
       }));
       hintPending.current = false;
       setBusy(false);
@@ -363,24 +364,19 @@ export default function Atelier() {
               onFinish={finishPour}
             />
           </View>
-          <View
-            testID="hint-scroll-slot"
-            style={{
-              minHeight: note.kind === 'hint' ? 64 : 12,
-              justifyContent: 'center',
-              marginBottom: 8,
-            }}
-          >
+          <HintSlot>
             {note.kind === 'hint' && (
               <HintScroll
+                key={note.request}
                 text={note.text}
                 pending={note.pending}
                 motion={save.settings.motion}
                 request={note.request}
               />
             )}
-          </View>
+          </HintSlot>
           <Paper
+            testID="game-actions"
             style={{
               flexDirection: 'row',
               justifyContent: 'center',

@@ -18,6 +18,13 @@ type Props = {
   ready?: boolean;
   bare?: boolean;
 };
+export const handwrittenLettering = {
+  includeFontPadding: false,
+  fontFamily: F.handwriting,
+  fontSize: 22,
+  lineHeight: 27,
+  color: '#535348',
+};
 export function PencilNote({
   text,
   handwritten,
@@ -88,13 +95,15 @@ export function PencilNote({
     setPen({ x: letter.right - box.left + 1, y: letter.bottom - box.top - 5 });
   }, [prefix, width, writing]);
 
-  const lettering = {
-    includeFontPadding: false,
-    fontFamily: handwritten ? F.handwriting : F.body,
-    fontSize: handwritten ? 22 : 12,
-    lineHeight: handwritten ? 27 : 22,
-    color: handwritten ? '#535348' : C.muted,
-  };
+  const lettering = handwritten
+    ? handwrittenLettering
+    : {
+        includeFontPadding: false,
+        fontFamily: F.body,
+        fontSize: 12,
+        lineHeight: 22,
+        color: C.muted,
+      };
   return (
     <View
       testID={writing ? 'pencil-note-writing' : 'pencil-note-idle'}

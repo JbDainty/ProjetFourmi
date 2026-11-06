@@ -8,6 +8,7 @@ import {
   clip,
   contactAngle,
   rotate,
+  surfacePlane,
   layers,
   drain,
   receive,
@@ -15,6 +16,15 @@ import {
   timeline,
 } from '../src/animation/liquid';
 describe('viscous pigment geometry', () => {
+  it('conserves fractional volume throughout a full tilt after the area-search optimization', () => {
+    for (let step = -15; step <= 15; step++)
+      for (let n = 0; n <= 40; n++) {
+        const angle = step / 10,
+          units = n / 10;
+        const contour = clip(INNER, angle, surfacePlane(units, angle));
+        expect(Math.abs(area(contour) - units * UNIT_AREA)).toBeLessThan(0.001);
+      }
+  });
   it('preserves volume as a vessel tilts in either direction', () => {
     for (const angle of [-1.4, -0.8, 0, 0.55, 1.4])
       for (const units of [0.1, 1, 2, 3, 4])

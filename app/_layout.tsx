@@ -31,7 +31,7 @@ const nav = [
 ] as const;
 function Shell() {
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions(),
+  const { width, height } = useWindowDimensions(),
     mobile = width < 800,
     path = usePathname(),
     playing = path === '/';
@@ -147,7 +147,7 @@ function Shell() {
               top: 0,
               left: 0,
               right: 0,
-              height: sceneHeight ? sceneHeight + insets.top : '100%',
+              height: Math.max(height, sceneHeight + insets.top),
             }}
           >
             <GreenhouseBackdrop />
