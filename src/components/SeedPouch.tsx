@@ -4,13 +4,15 @@ import Svg, { Circle, Ellipse, G, Path } from 'react-native-svg';
 import { Paper } from './Paper';
 import { Button, C, Label, T, ui } from './ui';
 import { F } from './fonts';
+import { useAmbientMotion } from './usePrimaryAnimation';
 
 export function SeedPouch({ count, motion }: { count: number; motion: boolean }) {
+  const animate = useAmbientMotion(motion);
   const [open, setOpen] = useState(false);
   const value = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     value.setValue(0);
-    if (!motion) return;
+    if (!animate) return;
     let animation: Animated.CompositeAnimation | undefined;
     const stir = () => {
       animation = Animated.sequence([
@@ -19,18 +21,21 @@ export function SeedPouch({ count, motion }: { count: number; motion: boolean })
           duration: 430,
           easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
+          isInteraction: false,
         }),
         Animated.timing(value, {
           toValue: -0.65,
           duration: 350,
           easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
+          isInteraction: false,
         }),
         Animated.timing(value, {
           toValue: 0,
           duration: 420,
           easing: Easing.out(Easing.sin),
           useNativeDriver: true,
+          isInteraction: false,
         }),
       ]);
       animation.start();
@@ -41,7 +46,7 @@ export function SeedPouch({ count, motion }: { count: number; motion: boolean })
       animation?.stop();
       value.setValue(0);
     };
-  }, [motion, value]);
+  }, [animate, value]);
   return (
     <>
       <Pressable

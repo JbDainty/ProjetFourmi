@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { AppState, StyleSheet, View, Pressable } from 'react-native';
 import { framePlayback } from '../animation/framePlayback';
 import Svg, {
@@ -23,6 +23,7 @@ import { F } from './fonts';
 import { GreenhouseBackdrop, RackDefinitions, TubeRack, RackStand } from './Greenhouse';
 import { TubeBloom } from './TubeBloom';
 import type { TubeReward } from '../animation/tubeReward';
+import { usePrimaryAnimation } from './usePrimaryAnimation';
 import {
   type Point,
   INNER,
@@ -72,6 +73,7 @@ function LiquidBoardDrawing({
   reward,
   onRewardDone,
 }: Props) {
+  usePrimaryAnimation(!!pouring);
   const [width, setWidth] = useState(0),
     [elapsed, setElapsed] = useState(0);
   const animationMove = useRef<Move | null>(null);
@@ -79,6 +81,12 @@ function LiquidBoardDrawing({
   tap.current = onTap;
   const finish = useRef(onFinish);
   finish.current = onFinish;
+  const rewardFinished = useRef(onRewardDone);
+  rewardFinished.current = onRewardDone;
+  const rewardId = reward?.id;
+  const finishReward = useCallback(() => {
+    if (rewardId !== undefined) rewardFinished.current?.(rewardId);
+  }, [rewardId]);
   const unique = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const id = (name: string, active = false) =>
     `liquid-${unique}-${active ? 'active' : 'still'}-${name}`;
@@ -683,24 +691,15 @@ function LiquidBoardDrawing({
             </Svg>
           )}
           {reward && layout[reward.tube] && (
-            <Svg
-              width={width}
-              height={height}
-              viewBox={`0 0 ${width} ${height}`}
-              style={[StyleSheet.absoluteFill, { zIndex: 1 }]}
-              pointerEvents="none"
-            >
-              <G
-                transform={`translate(${layout[reward.tube].x} ${layout[reward.tube].y}) scale(${scale})`}
-              >
-                <TubeBloom
-                  key={reward.id}
-                  color={reward.color}
-                  motion={motion}
-                  onDone={() => onRewardDone?.(reward.id)}
-                />
-              </G>
-            </Svg>
+            <TubeBloom
+              key={reward.id}
+              color={reward.color}
+              motion={motion}
+              x={layout[reward.tube].x}
+              y={layout[reward.tube].y}
+              scale={scale}
+              onDone={finishReward}
+            />
           )}
           {touchTargets}
         </>

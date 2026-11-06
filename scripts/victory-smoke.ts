@@ -76,9 +76,14 @@ async function main() {
     await page.getByRole('button', { name: 'Revenir au jeu' }).click();
     await finish();
     await expect(page.getByTestId('victory-vines-growing')).toBeAttached();
-    const stem = page.getByTestId('victory-living-paper').getByTestId('victory-vine-stem').first();
-    const first = await stem.getAttribute('stroke-dashoffset');
-    await expect.poll(() => stem.getAttribute('stroke-dashoffset')).not.toBe(first);
+    const stem = page
+      .getByTestId('victory-living-paper')
+      .getByTestId('victory-vine-growth')
+      .first();
+    const first = await stem.evaluate((node) => getComputedStyle(node).transform);
+    await expect
+      .poll(() => stem.evaluate((node) => getComputedStyle(node).transform))
+      .not.toBe(first);
     await expect
       .poll(() =>
         page.evaluate(
@@ -108,7 +113,9 @@ async function main() {
     await seed(true, false);
     await finish();
     await expect(page.getByTestId('victory-vines-settled')).toBeAttached();
-    await expect(stem).toHaveAttribute('stroke-dashoffset', '0');
+    expect(
+      await stem.evaluate((node) => new DOMMatrix(getComputedStyle(node).transform).m22),
+    ).toBeCloseTo(1);
     expect(
       await page.evaluate(
         () => (window as unknown as { leafWindStarts: unknown[] }).leafWindStarts.length,

@@ -1,11 +1,84 @@
-import { listenVector } from './vectorFrames';
-import React, { useEffect, useId, useRef, useState } from 'react';
-import { Animated, Easing, StyleSheet, View } from 'react-native';
-import Svg, { Defs, LinearGradient, Stop, G, Path, Circle } from 'react-native-svg';
+import React, { memo, useEffect, useMemo, useState } from 'react';
+import { Animated, StyleSheet, View } from 'react-native';
+import Svg, { Circle, Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 import { Paper } from './Paper';
 import { ui } from './ui';
 import { playLeafWind } from '../services/leafWind';
+import { useNativeProgress } from './useNativeProgress';
+import { usePrimaryAnimation } from './usePrimaryAnimation';
 
+const VineLeaf = memo(function VineLeaf() {
+  return (
+    <Svg width={28} height={32} viewBox="-14 -24 28 32" accessible={false}>
+      <Defs>
+        <LinearGradient id="victory-leaf" x1="0" y1="0" x2="1" y2="1">
+          <Stop stopColor="#d0d7aa" />
+          <Stop offset="0.45" stopColor="#a0b581" />
+          <Stop offset="1" stopColor="#718b60" />
+        </LinearGradient>
+      </Defs>
+      <Path
+        d="M0 0 C-7-2-9-10-3-20 C4-17 9-5 0 0Z"
+        fill="url(#victory-leaf)"
+        stroke="#6a8054"
+        strokeWidth="0.6"
+      />
+      <Path
+        d="M0 0-3-18 M-1-7-6-11 M-2-12 2-15 M0 0 Q8 3 11-4 Q4-8 0 0"
+        fill="none"
+        stroke="#667f50"
+        strokeWidth="0.55"
+      />
+    </Svg>
+  );
+});
+const Stem = memo(function Stem({ height }: { height: number }) {
+  return (
+    <Svg width={32} height={height} viewBox={`0 0 32 ${height}`} accessible={false}>
+      <Path
+        testID="victory-vine-stem"
+        d={`M16 ${height - 4} C6 ${height * 0.8} 22 ${height * 0.65} 14 ${height * 0.48} S20 ${height * 0.22} 16 4`}
+        fill="none"
+        stroke="#658153"
+        strokeWidth="0.95"
+        strokeLinecap="round"
+      />
+      <Path
+        d={`M16 ${height - 30} Q31 ${height - 47} 24 ${height - 57} Q11 ${height - 58} 19 ${height - 47} M16 36 Q32 25 24 15 Q16 10 16 19 Q19 26 24 20`}
+        fill="none"
+        stroke="#88925f"
+        strokeWidth="0.7"
+      />
+    </Svg>
+  );
+});
+const Cap = memo(function Cap({ width }: { width: number }) {
+  return (
+    <Svg width={width} height={26} viewBox={`0 0 ${width} 26`} accessible={false}>
+      <Path
+        d={`M0 20 Q-3 1 22 6 C${width * 0.3} 15 ${width * 0.4} 1 ${width / 2} 7 C${width * 0.6} 1 ${width * 0.7} 15 ${width - 22} 6 Q${width + 3} 1 ${width} 20`}
+        fill="none"
+        stroke="#658153"
+        strokeWidth="0.95"
+        strokeLinecap="round"
+      />
+      {[0.2, 0.36, 0.64, 0.8].map((x, i) => (
+        <Path
+          key={i}
+          d="M0 0 C-6-2-9-12-3-18 Q9-10 0 0Z"
+          transform={`translate(${width * x} 8) rotate(${i % 2 ? 20 : -28}) scale(0.65)`}
+          fill="#a0b581"
+          stroke="#6a8054"
+          strokeWidth="0.6"
+        />
+      ))}
+      <Circle cx="9" cy="12" r="1.7" fill="#b69b5c" />
+      <Circle cx={width - 9} cy="12" r="1.7" fill="#b69b5c" />
+    </Svg>
+  );
+});
+
+/** Narrow, cached botanical drawings move natively; the result card never redraws per frame. */
 export function VictoryPaper({
   children,
   motion,
@@ -15,124 +88,138 @@ export function VictoryPaper({
   motion: boolean;
   sound: boolean;
 }) {
-  const value = useRef(new Animated.Value(motion ? 0 : 1)).current;
-  const [progress, setProgress] = useState(motion ? 0 : 1);
+  usePrimaryAnimation(true);
+  const { value, settled } = useNativeProgress(2200, motion);
   const [size, setSize] = useState({ width: 0, height: 0 });
-  const token = 'victory-leaves-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
-  useEffect(() => {
-    const listener = listenVector(value, setProgress);
-    if (!motion) value.setValue(1);
-    else
-      Animated.timing(value, {
-        toValue: 1,
-        duration: 2200,
-        easing: Easing.inOut(Easing.cubic),
-        useNativeDriver: false,
-      }).start();
-    return () => {
-      value.stopAnimation();
-      value.removeListener(listener);
-    };
-  }, [motion, value]);
   useEffect(() => playLeafWind(sound), [sound]);
-  const { width: w, height: h } = size;
-  const stemLength = Math.max(1, h + w - 60);
-  const leftStem = `M${w / 2} ${h - 12} C${w * 0.32} ${h - 5} ${w * 0.22} ${h - 19} 42 ${h - 12} Q9 ${h - 10} 12 ${h - 42} C19 ${h * 0.72} 7 ${h * 0.65} 13 ${h * 0.48} S8 ${h * 0.23} 14 43 Q9 11 42 12 C${w * 0.22} 21 ${w * 0.32} 5 ${w / 2} 12`;
-  const count = Math.max(2, Math.floor((h - 88) / 43));
-  const reveal = (start: number) => Math.max(0, Math.min(1, (progress - start) / 0.18));
+  const decoration = useMemo(() => {
+    const { width: w, height: h } = size;
+    if (!w || !h) return null;
+    const stemHeight = h - 20;
+    const count = Math.min(14, Math.max(2, Math.floor((h - 88) / 43)));
+    const growth = value.interpolate({
+      inputRange: [0, 0.78],
+      outputRange: [0.02, 1],
+      extrapolate: 'clamp',
+    });
+    const opacity = value.interpolate({
+      inputRange: [0, 0.08],
+      outputRange: [0, 1],
+      extrapolate: 'clamp',
+    });
+    const caps = value.interpolate({
+      inputRange: [0.55, 1],
+      outputRange: [0.02, 1],
+      extrapolate: 'clamp',
+    });
+    return (
+      <>
+        {[false, true].map((mirror) => (
+          <View
+            key={String(mirror)}
+            style={{
+              position: 'absolute',
+              top: 10,
+              left: mirror ? undefined : 1,
+              right: mirror ? 1 : undefined,
+              width: 32,
+              height: stemHeight,
+              transform: [{ scaleX: mirror ? -1 : 1 }],
+            }}
+          >
+            <Animated.View
+              testID="victory-vine-growth"
+              renderToHardwareTextureAndroid
+              shouldRasterizeIOS
+              style={{
+                position: 'absolute',
+                width: 32,
+                height: stemHeight,
+                opacity,
+                transform: [
+                  { translateY: stemHeight / 2 },
+                  { scaleY: growth },
+                  { translateY: -stemHeight / 2 },
+                ],
+              }}
+            >
+              <Stem height={stemHeight} />
+            </Animated.View>
+            {Array.from({ length: count }, (_, i) => {
+              const start = 0.08 + (i / (count - 1)) * 0.64;
+              const pop = value.interpolate({
+                inputRange: [start, start + 0.11, start + 0.18],
+                outputRange: [0.02, 0.9, 0.8],
+                extrapolate: 'clamp',
+              });
+              const alpha = value.interpolate({
+                inputRange: [start, start + 0.04],
+                outputRange: [0, 1],
+                extrapolate: 'clamp',
+              });
+              return (
+                <Animated.View
+                  key={i}
+                  renderToHardwareTextureAndroid
+                  shouldRasterizeIOS
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: stemHeight - 68 - (i / (count - 1)) * (stemHeight - 104),
+                    opacity: alpha,
+                    transform: [{ rotate: `${35 + (i % 3) * 7}deg` }, { scale: pop }],
+                  }}
+                >
+                  <VineLeaf />
+                </Animated.View>
+              );
+            })}
+          </View>
+        ))}
+        {[false, true].map((bottom) => (
+          <Animated.View
+            key={String(bottom)}
+            renderToHardwareTextureAndroid
+            shouldRasterizeIOS
+            style={{
+              position: 'absolute',
+              left: 17,
+              top: bottom ? undefined : 5,
+              bottom: bottom ? 5 : undefined,
+              width: w - 34,
+              height: 26,
+              opacity: caps,
+              transform: [{ scaleX: caps }, { scaleY: bottom ? -1 : 1 }],
+            }}
+          >
+            <Cap width={w - 34} />
+          </Animated.View>
+        ))}
+      </>
+    );
+  }, [size, value]);
   return (
     <Paper
       testID="victory-living-paper"
       frame={false}
       style={[ui.card, { width: '100%', alignItems: 'center' }]}
-      onLayout={(event) => {
-        const { width, height } = event.nativeEvent.layout;
+      onLayout={({ nativeEvent: { layout } }) =>
         setSize((previous) =>
-          previous.width === width && previous.height === height ? previous : { width, height },
-        );
-      }}
+          previous.width === layout.width && previous.height === layout.height
+            ? previous
+            : { width: layout.width, height: layout.height },
+        )
+      }
     >
       {children}
       <View
         pointerEvents="none"
         accessible={false}
         accessibilityElementsHidden
-        testID={progress < 1 ? 'victory-vines-growing' : 'victory-vines-settled'}
+        testID={settled ? 'victory-vines-settled' : 'victory-vines-growing'}
         style={[StyleSheet.absoluteFill, { zIndex: 2 }]}
       >
-        {w > 0 && h > 0 && (
-          <Svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} accessible={false}>
-            <Defs>
-              <LinearGradient id={token} x1="0" y1="0" x2="1" y2="1">
-                <Stop stopColor="#d0d7aa" />
-                <Stop offset="0.45" stopColor="#a0b581" />
-                <Stop offset="1" stopColor="#718b60" />
-              </LinearGradient>
-            </Defs>
-            {[false, true].map((mirror) => (
-              <G
-                key={String(mirror)}
-                transform={mirror ? `translate(${w} 0) scale(-1 1)` : undefined}
-              >
-                <Path
-                  testID="victory-vine-stem"
-                  d={leftStem}
-                  fill="none"
-                  stroke="#658153"
-                  strokeWidth="0.95"
-                  strokeLinecap="round"
-                  strokeDasharray={`${stemLength} ${stemLength}`}
-                  strokeDashoffset={stemLength * (1 - progress)}
-                />
-                {Array.from({ length: count }, (_, i) => {
-                  const growth = reveal(0.08 + (i / (count - 1)) * 0.64);
-                  const y = h - 52 - (i / (count - 1)) * (h - 104);
-                  return (
-                    <G
-                      key={i}
-                      transform={`translate(${12 + Math.sin(i * 1.7) * 1.5} ${y}) rotate(${35 + (i % 3) * 7 + (1 - progress) * Math.sin(progress * 12 + i) * 4}) scale(${growth * 0.8})`}
-                    >
-                      <Path
-                        d="M0 0 C-7-2-9-10-3-20 C4-17 9-5 0 0Z"
-                        fill={`url(#${token})`}
-                        stroke="#6a8054"
-                        strokeWidth="0.6"
-                      />
-                      <Path
-                        d="M0 0-3-18 M-1-7-6-11 M-2-12 2-15 M0 0 Q8 3 11-4 Q4-8 0 0"
-                        fill="none"
-                        stroke="#667f50"
-                        strokeWidth="0.55"
-                      />
-                    </G>
-                  );
-                })}
-                <Path
-                  d={`M15 ${h - 43} Q30 ${h - 60} 23 ${h - 70} Q10 ${h - 71} 18 ${h - 60} M15 46 Q32 35 24 25 Q16 20 16 29 Q19 36 24 30`}
-                  fill="none"
-                  stroke="#88925f"
-                  strokeWidth="0.7"
-                  opacity={reveal(0.55)}
-                />
-                {[0.2, 0.36].map((x, i) => (
-                  <G
-                    key={i}
-                    transform={`translate(${w * x} 13) rotate(${i ? 20 : -28}) scale(${reveal(0.78 + i * 0.03) * 0.65})`}
-                  >
-                    <Path
-                      d="M0 0 C-6-2-9-12-3-18 Q9-10 0 0Z"
-                      fill={`url(#${token})`}
-                      stroke="#6a8054"
-                      strokeWidth="0.6"
-                    />
-                    <Path d="M0 0-3-16" stroke="#6a8054" strokeWidth="0.5" />
-                  </G>
-                ))}
-                <Circle cx="24" cy="24" r="1.7" fill="#b69b5c" opacity={reveal(0.8)} />
-              </G>
-            ))}
-          </Svg>
-        )}
+        {decoration}
       </View>
     </Paper>
   );

@@ -99,12 +99,16 @@ async function main() {
     await expect.poll(() => cueCount(0.72)).toBe(1);
     const glass = (await voices()).find((v: any) => Math.abs(v.duration - 0.72) < 0.01)!;
     expect(glass.gain).toBeCloseTo(0.14, 2);
-    const stem = page.getByTestId('vial-bloom-stem');
-    const dash = await stem.getAttribute('stroke-dashoffset');
-    await expect.poll(() => stem.getAttribute('stroke-dashoffset')).not.toBe(dash);
+    const stem = page.getByTestId('vial-bloom-growth');
+    const initialTransform = await stem.evaluate((node) => getComputedStyle(node).transform);
     await expect
-      .poll(async () => Number(await stem.getAttribute('stroke-dashoffset')), { intervals: [40] })
-      .toBeLessThan(30);
+      .poll(() => stem.evaluate((node) => getComputedStyle(node).transform))
+      .not.toBe(initialTransform);
+    await expect
+      .poll(() => stem.evaluate((node) => new DOMMatrix(getComputedStyle(node).transform).m22), {
+        intervals: [40],
+      })
+      .toBeGreaterThan(0.9);
     mkdirSync('test-results', { recursive: true });
     await page.screenshot({ path: 'test-results/completed-vial-bloom.png' });
     await expect(page.getByTestId('completed-vial-bloom')).toHaveCount(0);

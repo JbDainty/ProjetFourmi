@@ -349,7 +349,7 @@ export default function Atelier() {
             )}
             <LiquidBoard
               integrated
-              reward={tubeReward}
+              reward={victory && winReady ? null : tubeReward}
               onRewardDone={(id) =>
                 setTubeReward((previous) => (previous?.id === id ? null : previous))
               }

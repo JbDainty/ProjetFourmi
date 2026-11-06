@@ -1,10 +1,13 @@
 import { type Animated } from 'react-native';
+import { primaryAnimations } from '../animation/primaryAnimations';
 
 /** SVG changes allocate a fresh native bitmap. Keep decorative effects finite
  * and limit their React updates; opacity/transform effects still use the GPU. */
 export function listenVector(value: Animated.Value, update: (progress: number) => void) {
   let nextPaint = 0;
   return value.addListener(({ value: progress }) => {
+    // Legacy title/book flourishes yield their SVG work to play and modal rewards.
+    if (primaryAnimations.active() && progress > 0 && progress < 1) return;
     const now = performance.now();
     if (progress <= 0 || progress >= 1 || now + 0.5 >= nextPaint) {
       const step = 1000 / 60;

@@ -13,6 +13,7 @@ import Svg, { Defs, LinearGradient, Stop, Rect, Path } from 'react-native-svg';
 import { Paper } from './Paper';
 import { PrintedPage } from './PrintedBookPage';
 import { nativeSequence } from '../animation/nativeSequence';
+import { usePrimaryAnimation } from './usePrimaryAnimation';
 import { singleTurnDuration, speciesTurnDuration, type TurningPage } from '../animation/book';
 export type { TurningPage } from '../animation/book';
 
@@ -209,6 +210,7 @@ export function PageTurn({
   onFinished: () => void;
 }) {
   const { width, height } = useWindowDimensions();
+  usePrimaryAnimation(true);
   const cover = useRef(new Animated.Value(0)).current;
   const clock = useRef(new Animated.Value(0)).current;
   const callbacks = useRef({ onCovered, onFinished });

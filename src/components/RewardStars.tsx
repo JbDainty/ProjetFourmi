@@ -1,8 +1,9 @@
-import React, { useEffect, useId, useRef, useState } from 'react';
-import { Animated, Easing, View } from 'react-native';
+import React, { memo, useId, useMemo } from 'react';
+import { Animated, View } from 'react-native';
+import { useNativeProgress } from './useNativeProgress';
 import Svg, { Circle, Defs, G, LinearGradient, Path, Stop } from 'react-native-svg';
 
-function StarFlower({ filled }: { filled: boolean }) {
+const StarFlower = memo(function StarFlower({ filled }: { filled: boolean }) {
   const token = 'star-flower-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
   return (
     <Svg width="64" height="64" viewBox="0 0 80 80" accessible={false}>
@@ -55,39 +56,29 @@ function StarFlower({ filled }: { filled: boolean }) {
       </G>
     </Svg>
   );
-}
+});
 
 /** Finite, staggered blooms: no replay on colour reveal or ordinary rerenders. */
-export function RewardStars({ count, motion }: { count: 1 | 2 | 3; motion: boolean }) {
-  const values = useRef([0, 1, 2].map(() => new Animated.Value(motion ? 0 : 1))).current;
-  const [settled, setSettled] = useState(!motion);
-  useEffect(() => {
-    if (!motion) {
-      values.forEach((value) => value.setValue(1));
-      setSettled(true);
-      return;
-    }
-    setSettled(false);
-    values.forEach((value) => value.setValue(0));
-    const animation = Animated.sequence([
-      Animated.delay(220),
-      Animated.stagger(
-        360,
-        values.slice(0, count).map((value) =>
-          Animated.timing(value, {
-            toValue: 1,
-            duration: 850,
-            easing: Easing.linear,
-            useNativeDriver: true,
-          }),
-        ),
+export const RewardStars = memo(function RewardStars({
+  count,
+  motion,
+}: {
+  count: 1 | 2 | 3;
+  motion: boolean;
+}) {
+  const duration = 220 + (count - 1) * 360 + 850;
+  const { value, settled } = useNativeProgress(duration, motion);
+  const values = useMemo(
+    () =>
+      [0, 1, 2].map((i) =>
+        value.interpolate({
+          inputRange: [(220 + i * 360) / duration, (1070 + i * 360) / duration],
+          outputRange: [0, 1],
+          extrapolate: 'clamp',
+        }),
       ),
-    ]);
-    animation.start(({ finished }) => {
-      if (finished) setSettled(true);
-    });
-    return () => animation.stop();
-  }, [count, motion, values]);
+    [value, duration],
+  );
   return (
     <View
       testID="page-earned-stars"
@@ -110,7 +101,11 @@ export function RewardStars({ count, motion }: { count: 1 | 2 | 3; motion: boole
             testID={i < count ? 'botanical-star-earned' : 'botanical-star-empty'}
             style={{ width: 66, height: 78, marginTop: i === 1 ? 0 : 6 }}
           >
-            <View style={{ position: 'absolute', top: 8, left: 1 }}>
+            <View
+              renderToHardwareTextureAndroid
+              shouldRasterizeIOS
+              style={{ position: 'absolute', top: 8, left: 1 }}
+            >
               <StarFlower filled={false} />
             </View>
             {i < count && (
@@ -119,6 +114,8 @@ export function RewardStars({ count, motion }: { count: 1 | 2 | 3; motion: boole
                   <Animated.View
                     pointerEvents="none"
                     testID="reward-star-sparks"
+                    renderToHardwareTextureAndroid
+                    shouldRasterizeIOS
                     style={{
                       position: 'absolute',
                       top: 4,
@@ -160,6 +157,8 @@ export function RewardStars({ count, motion }: { count: 1 | 2 | 3; motion: boole
                 )}
                 <Animated.View
                   testID="reward-star-bloom"
+                  renderToHardwareTextureAndroid
+                  shouldRasterizeIOS
                   style={{
                     position: 'absolute',
                     top: 8,
@@ -200,4 +199,4 @@ export function RewardStars({ count, motion }: { count: 1 | 2 | 3; motion: boole
       </View>
     </View>
   );
-}
+});

@@ -3,6 +3,7 @@ import { Animated, Easing, Platform, Pressable } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { T } from './ui';
 import { F } from './fonts';
+import { useAmbientMotion } from './usePrimaryAnimation';
 
 export function StampPrompt({
   onPress,
@@ -13,9 +14,10 @@ export function StampPrompt({
   disabled: boolean;
   motion: boolean;
 }) {
+  const animate = useAmbientMotion(motion);
   const shimmer = useRef(new Animated.Value(0.4)).current;
   useEffect(() => {
-    if (!motion) {
+    if (!animate) {
       shimmer.setValue(0.5);
       return;
     }
@@ -26,19 +28,21 @@ export function StampPrompt({
           duration: 1400,
           easing: Easing.inOut(Easing.sin),
           useNativeDriver: Platform.OS !== 'web',
+          isInteraction: false,
         }),
         Animated.timing(shimmer, {
           toValue: 0.3,
           duration: 1400,
           easing: Easing.inOut(Easing.sin),
           useNativeDriver: Platform.OS !== 'web',
+          isInteraction: false,
         }),
         Animated.delay(2800),
       ]),
     );
     animation.start();
     return () => animation.stop();
-  }, [motion, shimmer]);
+  }, [animate, shimmer]);
   return (
     <Pressable
       testID="stamp-observation-prompt"
