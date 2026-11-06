@@ -11,7 +11,11 @@ async function main() {
       '--use-gl=angle',
     ],
   });
-  const page = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true });
+  const page = await browser.newPage({
+    viewport: { width: 390, height: 844 },
+    hasTouch: true,
+    serviceWorkers: 'block',
+  });
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   const url = process.env.GAME_TEST_URL || 'http://localhost:8110/';
@@ -59,9 +63,16 @@ async function main() {
   try {
     await page.goto(url);
     await seed(true);
-    await expect(page.getByTestId('opening-webgl-book')).toHaveAttribute('data-renderer', 'webgl', {
-      timeout: 20000,
-    });
+    await expect
+      .poll(
+        () =>
+          page
+            .getByTestId('opening-cinematic-video')
+            .locator('video')
+            .evaluate((v: HTMLVideoElement) => v.readyState),
+        { timeout: 15000 },
+      )
+      .toBeGreaterThanOrEqual(2);
     await page.waitForTimeout(150);
     const wake = page.getByRole('button', { name: 'Éveiller la musique de l’introduction' });
     if (await wake.isVisible()) await wake.click();
@@ -81,10 +92,16 @@ async function main() {
       document.dispatchEvent(new Event('visibilitychange'));
     });
     await expect.poll(async () => (await scores())[1].stopped).toBe(true);
-    const held = Number(await page.getByTestId('opening-webgl-book').getAttribute('data-progress'));
+    const held = await page
+      .getByTestId('opening-cinematic-video')
+      .locator('video')
+      .evaluate((v: HTMLVideoElement) => v.currentTime / 14.8);
     await page.waitForTimeout(250);
     expect(
-      Number(await page.getByTestId('opening-webgl-book').getAttribute('data-progress')),
+      await page
+        .getByTestId('opening-cinematic-video')
+        .locator('video')
+        .evaluate((v: HTMLVideoElement) => v.currentTime / 14.8),
     ).toBeCloseTo(held, 2);
     await page.evaluate(() => {
       Object.defineProperty(document, 'hidden', { configurable: true, value: false });
@@ -119,9 +136,16 @@ async function main() {
     expect(await page.evaluate(() => localStorage.getItem('color-world.save'))).toBe(saved);
 
     await seed(false);
-    await expect(page.getByTestId('opening-webgl-book')).toHaveAttribute('data-renderer', 'webgl', {
-      timeout: 20000,
-    });
+    await expect
+      .poll(
+        () =>
+          page
+            .getByTestId('opening-cinematic-video')
+            .locator('video')
+            .evaluate((v: HTMLVideoElement) => v.readyState),
+        { timeout: 15000 },
+      )
+      .toBeGreaterThanOrEqual(2);
     await page.waitForTimeout(250);
     expect(await scores()).toEqual([]);
     await page.getByRole('button', { name: 'Passer le prologue' }).click();

@@ -14,7 +14,11 @@ async function main() {
     ],
     proxy: process.env.GAME_TEST_PROXY ? { server: process.env.GAME_TEST_PROXY } : undefined,
   });
-  const page = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true });
+  const page = await browser.newPage({
+    viewport: { width: 390, height: 844 },
+    hasTouch: true,
+    serviceWorkers: 'block',
+  });
   const url = process.env.GAME_TEST_URL || 'http://localhost:8104/ProjetFourmi/';
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -40,7 +44,21 @@ async function main() {
       return result;
     } as any;
   });
+  // This suite now exercises the retained realtime fallback, independent of the default film.
+  await page.route('**/*.mp4', (route) => route.abort());
   const book = page.getByTestId('opening-webgl-book');
+  const ready = async () => {
+    // React Native's image loader needs animation-frame callbacks even while the film clock is mocked.
+    await expect
+      .poll(
+        async () => {
+          await page.clock.runFor(50);
+          return (await book.count()) ? book.getAttribute('data-renderer') : 'absent';
+        },
+        { timeout: 20000 },
+      )
+      .toBe('webgl');
+  };
   const phase = async (p: number) => {
     const current = Number(await book.getAttribute('data-progress'));
     await page.clock.fastForward(Math.max(0, Math.ceil((p - current) * prologueDuration)));
@@ -56,7 +74,7 @@ async function main() {
     await page.clock.install({ time: new Date(now) });
     await page.clock.pauseAt(new Date(now + 250));
     await page.goto(url);
-    await expect(book).toHaveAttribute('data-renderer', 'webgl');
+    await ready();
     await phase(0.13);
     const held = Number(await book.getAttribute('data-progress'));
     await page.evaluate(() => {
@@ -102,7 +120,7 @@ async function main() {
     await expect(book).toHaveCount(0);
     const signed = await page.evaluate(() => localStorage.getItem('color-world.save'));
     await page.getByRole('button', { name: 'Revoir le prologue' }).click();
-    await expect(book).toHaveAttribute('data-renderer', 'webgl');
+    await ready();
     await page.getByRole('button', { name: 'Passer le prologue' }).click();
     await expect(page.getByRole('button', { name: 'Rouvrir mon herbier' })).toBeVisible();
     expect(await page.evaluate(() => localStorage.getItem('color-world.save'))).toBe(signed);
@@ -113,7 +131,7 @@ async function main() {
     );
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.goto(url);
-    await expect(book).toHaveAttribute('data-renderer', 'webgl');
+    await ready();
     await phase(0.56);
     await page.screenshot({ path: 'test-results/prologue-3d-desktop.png' });
     await finishFilm();
@@ -125,7 +143,7 @@ async function main() {
     ).toBe(false);
     // Skip at the start of a fresh scene, independent of screenshot readback time.
     await page.goto(url);
-    await expect(book).toHaveAttribute('data-renderer', 'webgl');
+    await ready();
     await page.getByRole('button', { name: 'Passer le prologue' }).click();
     await expect(page.getByTestId('book-signature-page')).toBeVisible();
     await expect.poll(() => page.evaluate(() => (window as any).webglReleased)).toBe(1);
@@ -137,7 +155,7 @@ async function main() {
     await expect(book).toHaveCount(0);
     // Context loss switches to the moving SVG version, never to a blank screen.
     await page.goto(url);
-    await expect(book).toHaveAttribute('data-renderer', 'webgl');
+    await ready();
     await book.evaluate((element: HTMLCanvasElement) =>
       element.getContext('webgl2')?.getExtension('WEBGL_lose_context')?.loseContext(),
     );

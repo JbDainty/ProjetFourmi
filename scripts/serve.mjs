@@ -1,4 +1,6 @@
 import http from 'node:http';
+import { createReadStream } from 'node:fs';
+import { mediaRange } from './media-ranges.mjs';
 import { readFile, stat } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
 const root = resolve('dist'),
@@ -11,6 +13,8 @@ const types = {
   '.svg': 'image/svg+xml',
   '.ttf': 'font/ttf',
   '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.mp4': 'video/mp4',
   '.wav': 'audio/wav',
   '.mp3': 'audio/mpeg',
   '.txt': 'text/plain; charset=utf-8',
@@ -44,6 +48,28 @@ http
         file = resolve(root, 'index.html');
       }
       res.setHeader('Content-Type', types[extname(file)] || 'application/octet-stream');
+      const size = (await stat(file)).size;
+      res.setHeader('Accept-Ranges', 'bytes');
+      if (req.headers.range) {
+        const range = mediaRange(req.headers.range, size);
+        if (!range) {
+          res.writeHead(416, { 'Content-Range': `bytes */${size}` });
+          res.end();
+          return;
+        }
+        res.writeHead(206, {
+          'Content-Range': `bytes ${range.start}-${range.end}/${size}`,
+          'Content-Length': range.end - range.start + 1,
+        });
+        if (req.method === 'HEAD') res.end();
+        else createReadStream(file, range).pipe(res);
+        return;
+      }
+      res.setHeader('Content-Length', size);
+      if (req.method === 'HEAD') {
+        res.end();
+        return;
+      }
       if (file.endsWith('sw.js')) res.setHeader('Cache-Control', 'no-cache');
       res.end(await readFile(file));
     } catch {

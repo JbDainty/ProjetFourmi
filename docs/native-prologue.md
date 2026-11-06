@@ -1,6 +1,18 @@
-# Prologue de production Android et iOS
+# Cinématique d’ouverture Android et iOS
 
-Android et iOS utilisent désormais une vraie scène Three.js sur `expo-gl` 16 (Expo SDK 54), via OpenGL ES 3. Aucun Canvas HTML, navigateur, vidéo distante ou WebView n’est utilisé pour le rendu natif. La version Web est une prévisualisation du même noyau, des mêmes textures et de la même chronologie.
+Depuis la version 1.0.2 (code Android 3), le chemin normal utilise un film 3D précalculé avec Blender, embarqué en H.264 vertical 720 × 1280, 24 images par seconde et environ 14,8 secondes. Le téléphone décode une vidéo locale via `expo-video` 3.0.16 ; il ne calcule plus les géométries, ombres et déformations du film. La version Web lit le même MP4 dans un lecteur HTML silencieux, avec gestion explicite des promesses de lecture annulées.
+
+Le MP4 ne contient pas de piste audio. La musique originale reste gérée par le coordinateur audio du jeu et ses réglages. Sur mobile, le lecteur vidéo est muet, utilise `mixWithOthers`, désactive les notifications, la lecture en arrière-plan et le mode incrustation. La préparation est asynchrone sur iOS ; le papier d’attente disparaît à la première image décodée. Le passage en arrière-plan suspend le film et l’horloge ; une reprise recale la position une fois, sans chercher la vidéo ni modifier React à chaque image. Passer le prologue, atteindre la signature ou démonter la scène libère le lecteur. Le mode sans animations et l’accueil d’un joueur déjà inscrit n’instancient aucun lecteur.
+
+Le navigateur et son cache hors ligne servent les requêtes partielles de vidéo (`Range`, réponses 206 et suffixes), y compris hors ligne. Les réglages de musique restent indépendants du son du jeu. Le fondu de papier et la signature interactive sont conservés. Une erreur de média, ou une préparation qui dépasse douze secondes en premier plan, utilise la scène de secours décrite ci-dessous.
+
+**Un nouvel APK est nécessaire** : le lecteur vidéo est un nouveau module natif. Les APK 1.0.1 gardent leur runtime précédent ; une mise à jour JavaScript ne peut pas leur ajouter ce lecteur. Installer la 1.0.2 par-dessus la précédente conserve le même package et la signature EAS. Un joueur déjà inscrit peut utiliser « Revoir le prologue » sur sa page d’accueil pour voir le nouveau film.
+
+Le film est reproductible avec `scripts/cinematic/render-opening.py` puis `finish-opening.py`. Les modèles sont originaux, les planches et polices proviennent du projet et le cuir/bois photographiques sont sous CC0 de Poly Haven ; les sources et empreintes sont dans `art/cinematic/texture-sources.json`. Le calcul hors ligne n’ajoute ni Blender ni le débruiteur au jeu. Le manifeste du film décrit le codec, les dimensions et son empreinte.
+
+## Secours 3D en temps réel
+
+Le secours Android/iOS utilise une scène Three.js sur `expo-gl` 16 (Expo SDK 54), via OpenGL ES 3. Ce secours ne fait appel ni à un navigateur ni à une WebView sur mobile. La version Web est une prévisualisation du même noyau, des mêmes textures et de la même chronologie.
 
 ## Scène et rendu
 
@@ -18,7 +30,7 @@ Le film ne commence qu’après le chargement des textures et la soumission effe
 
 La musique originale « L’éveil du grimoire » accompagne le film : valse acoustique à 104 BPM, harpe, célesta, flûte, cordes et violoncelle, environ 14,8 secondes. Elle se précharge pendant la préparation et commence avec la scène, à faible volume. Le réglage « Musique du livre » et le bouton du prologue la contrôlent. Pause, reprise, passage du film et démontage invalident les lectures différées ; elle ne se superpose pas à l’ambiance de l’atelier. Le navigateur peut demander un toucher pour autoriser le son. Composition CC0, instruments FluidR3 GM sous MIT ; notice également intégrée aux métadonnées MP3.
 
-Le `GLView` possède son contexte et le détruit à son démontage. Le composant libère ses géométries, matériaux et textures et annule ses tâches, sans appeler une seconde destruction du contexte. Le mode sans animations n’instancie pas de `GLView`. Une erreur de contexte ou un appareil sans OpenGL ES 3 affiche le secours SVG ; il ne s’agit plus du chemin natif normal.
+Le `GLView` possède son contexte et le détruit à son démontage. Le composant libère ses géométries, matériaux et textures et annule ses tâches, sans appeler une seconde destruction du contexte. Le mode sans animations n’instancie pas de `GLView`. Une erreur de contexte ou un appareil sans OpenGL ES 3 affiche le secours SVG ; ce troisième secours reste passable et ne bloque pas la signature.
 
 ## Prévisualisation et vérifications
 

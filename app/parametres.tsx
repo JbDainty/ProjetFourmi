@@ -1,4 +1,5 @@
 import { BookScrollView } from '../src/components/BookScrollView';
+import Constants from 'expo-constants';
 import { F } from '../src/components/fonts';
 import { Paper } from '../src/components/Paper';
 import React, { useState } from 'react';
@@ -188,7 +189,9 @@ export default function Parametres() {
         <T serif style={{ fontSize: 24, marginTop: 22 }}>
           Herbier des couleurs · Volume I
         </T>
-        <T style={{ fontSize: 11, color: C.muted }}>Herbier des couleurs · version 1.0.0</T>
+        <T style={{ fontSize: 11, color: C.muted }}>
+          Herbier des couleurs · version {Constants.expoConfig?.version ?? '1.0.2'}
+        </T>
       </Paper>
     </BookScrollView>
   );

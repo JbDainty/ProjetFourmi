@@ -3,7 +3,7 @@
     "name": "Herbier des couleurs",
     "slug": "color-world-herbier",
     "owner": "jbame",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "scheme": "colorworld",
     "userInterfaceStyle": "light",
@@ -13,7 +13,7 @@
     },
     "android": {
       "package": "com.colorworld.herbier",
-      "versionCode": 2,
+      "versionCode": 3,
       "blockedPermissions": ["android.permission.RECORD_AUDIO"]
     },
     "web": {
@@ -33,6 +33,13 @@
           "microphonePermission": false,
           "recordAudioAndroid": false,
           "enableBackgroundRecording": false
+        }
+      ],
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": false,
+          "supportsPictureInPicture": false
         }
       ]
     ],

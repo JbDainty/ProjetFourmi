@@ -1,0 +1,83 @@
+[
+  {
+    "asset": "brown_leather",
+    "name": "Brown Leather",
+    "authors": {
+      "Rob Tuytel": "All"
+    },
+    "channel": "Diffuse",
+    "file": "art/cinematic/textures/leather-diffuse.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_leather/brown_leather_albedo_1k.jpg",
+    "sha256": "7e9e1d6566d1fd91d4ceb4966c4820361e85d53a7a828b6bab3b2a093a876cd1",
+    "license": "CC0 1.0",
+    "license_url": "https://polyhaven.com/license"
+  },
+  {
+    "asset": "brown_leather",
+    "name": "Brown Leather",
+    "authors": {
+      "Rob Tuytel": "All"
+    },
+    "channel": "nor_gl",
+    "file": "art/cinematic/textures/leather-nor_gl.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_leather/brown_leather_nor_gl_1k.jpg",
+    "sha256": "506a0b7650c2dea285e247f26ed2d0d6ec38fc10dd584359f0d203e9c082236d",
+    "license": "CC0 1.0",
+    "license_url": "https://polyhaven.com/license"
+  },
+  {
+    "asset": "brown_leather",
+    "name": "Brown Leather",
+    "authors": {
+      "Rob Tuytel": "All"
+    },
+    "channel": "Rough",
+    "file": "art/cinematic/textures/leather-rough.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brown_leather/brown_leather_rough_1k.jpg",
+    "sha256": "f9739ef2da2e3d17b9ec253f5042f61b10dc10f3ae28f6cf6491650d3d1b0ca3",
+    "license": "CC0 1.0",
+    "license_url": "https://polyhaven.com/license"
+  },
+  {
+    "asset": "wood_table_001",
+    "name": "Wood Table 001",
+    "authors": {
+      "Dimitrios Savva": "Photography",
+      "Rico Cilliers": "Processing"
+    },
+    "channel": "Diffuse",
+    "file": "art/cinematic/textures/wood-diffuse.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_table_001/wood_table_001_diff_1k.jpg",
+    "sha256": "460dd08d240f4a1f02982415048c3c5c200f385db212da18dc7e2df68bf4d0be",
+    "license": "CC0 1.0",
+    "license_url": "https://polyhaven.com/license"
+  },
+  {
+    "asset": "wood_table_001",
+    "name": "Wood Table 001",
+    "authors": {
+      "Dimitrios Savva": "Photography",
+      "Rico Cilliers": "Processing"
+    },
+    "channel": "nor_gl",
+    "file": "art/cinematic/textures/wood-nor_gl.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_table_001/wood_table_001_nor_gl_1k.jpg",
+    "sha256": "9bf7ddf5721e225c20290f1772ae37f9bdfd49658f6d458259eb794e2149d3cf",
+    "license": "CC0 1.0",
+    "license_url": "https://polyhaven.com/license"
+  },
+  {
+    "asset": "wood_table_001",
+    "name": "Wood Table 001",
+    "authors": {
+      "Dimitrios Savva": "Photography",
+      "Rico Cilliers": "Processing"
+    },
+    "channel": "Rough",
+    "file": "art/cinematic/textures/wood-rough.jpg",
+    "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wood_table_001/wood_table_001_rough_1k.jpg",
+    "sha256": "a2ca9ae89dfe7b8e2e5e92f0aa43467845417de8a50205b5852ef0d57c7624f9",
+    "license": "CC0 1.0",
+    "license_url": "https://polyhaven.com/license"
+  }
+]

@@ -2,20 +2,22 @@
 
 Le projet Expo appartient au compte `jbame` : https://expo.dev/accounts/jbame/projects/color-world-herbier.
 
-Le profil EAS `preview` compile une application Android autonome au format APK. L’application fonctionne sans Expo Go, sans ordinateur connecté et sans serveur de développement. Les illustrations, textures, polices et sons sont embarqués. L’installation de test ne passe pas par Google Play.
+Le profil EAS `preview` compile une application Android autonome au format APK. L’application fonctionne sans Expo Go, sans ordinateur connecté et sans serveur de développement. Les illustrations, textures, polices, sons et la cinématique sont embarqués. L’installation de test ne passe pas par Google Play.
 
 ## Sur le téléphone
 
-1. Ouvrir la [compilation Android corrigée 1.0.1](https://expo.dev/accounts/jbame/projects/color-world-herbier/builds/747137e5-7a50-44eb-9b79-acf3a8545682), ou la dernière compilation Android `preview` dans l’onglet Builds du projet.
+1. Ouvrir la [compilation Android 1.0.2](https://expo.dev/accounts/jbame/projects/color-world-herbier/builds?platform=android), ou la dernière compilation Android `preview` dans l’onglet Builds du projet.
 2. Attendre que la compilation indique **Finished**, puis toucher **Install** ou **Download** pour télécharger le fichier `.apk`.
 3. Ouvrir le téléchargement. Si Android demande une autorisation, ouvrir ses paramètres et autoriser l’installation depuis le navigateur utilisé pour ce téléchargement, puis revenir à l’installation.
-4. Toucher **Installer**, puis **Ouvrir**. L’application s’appelle **Herbier des couleurs**. L’autorisation d’installation du navigateur peut ensuite être retirée dans les paramètres Android.
+4. Installer cette version par-dessus la précédente, sans désinstaller le jeu, puis toucher **Ouvrir**. L’application s’appelle **Herbier des couleurs**. L’autorisation d’installation du navigateur peut ensuite être retirée dans les paramètres Android.
 
 La progression de la version Web reste dans le navigateur : ce premier lancement Android crée un carnet distinct avec une graine. La connexion Expo utilisée pour compiler n’est pas un compte joueur. Les boutons Google/Apple du jeu restent préparatoires ; aucune sauvegarde en ligne n’est encore active.
 
+Un carnet déjà signé arrive sur sa page d’accueil habituelle : toucher **Revoir le prologue** pour voir le nouveau film. Les animations doivent être activées. La signature et la progression existantes sont conservées.
+
 ## Premier essai
 
-- Regarder le prologue 3D, signer le carnet, puis vérifier l’arrivée sur les fioles et le démarrage de la musique avant tout versement.
+- Regarder la cinématique 3D précalculée, signer le carnet, puis vérifier l’arrivée sur les fioles et le démarrage de la musique avant tout versement.
 - Terminer une page, révéler sa couleur et continuer ; contrôler les sons, le tintement d’une fiole complète, les étoiles, les graines et le changement de page.
 - Passer l’application en arrière-plan, revenir, puis la fermer et la rouvrir : vérifier la pause audio, la reprise et la conservation du carnet.
 - Dans les paramètres, essayer le silence et les animations désactivées. Au prochain lancement, essayer « Revoir le prologue » ; vérifier le confort sur l’écran et la fluidité du film.
@@ -39,7 +41,7 @@ Les identifiants publics du projet sont dans `app.json`. Les clés et mots de pa
 
 ## Petites mises à jour de test
 
-La version 1.0.1 (code Android 2) prépare `expo-updates` et le canal EAS `preview`. **Il faut installer ce nouvel APK une fois** : le premier APK 1.0.0 ne contient pas le mécanisme de mise à jour et ne peut pas recevoir ces correctifs à distance.
+La version 1.0.1 (code Android 2) a introduit `expo-updates` et le canal EAS `preview`. La **1.0.2 (code Android 3)** ajoute le lecteur vidéo natif : il faut installer ce nouvel APK une fois pour voir la cinématique. La 1.0.1 ne peut pas recevoir ce nouveau module par une simple mise à jour JavaScript. Les modifications suivantes compatibles avec le nouveau runtime restent distribuables par EAS Update.
 
 Le runtime est identifié par l’empreinte native (`fingerprint`). Une mise à jour JavaScript compatible peut ensuite être envoyée au canal de test, séparé du canal `production` :
 

@@ -1,126 +1,149 @@
 import React, { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
-import { createPrologueScene } from '../scene/prologueScene';
-import { createProloguePlayer } from '../scene/prologuePlayer';
-import { loadPrologueTextures } from '../scene/loadPrologueTextures.web';
-import {
-  disposePrologueTextures,
-  type OpeningSceneProps,
-  type PrologueTextures,
-} from '../scene/prologueTextures';
-import { OpeningScene as Fallback } from './OpeningSceneFallback';
+import { AppState, Image, StyleSheet, View } from 'react-native';
+import { prologueDuration } from '../animation/prologue';
+import type { OpeningSceneProps } from '../scene/prologueTextures';
+import { OpeningScene as RealtimeFallback } from './OpeningSceneRealtime';
 
-/** Browser preview of the production mobile scene, with the same geometry/textures. */
-export function OpeningScene({ progress, progressSource, onReady, onLoading }: OpeningSceneProps) {
-  const canvas = useRef<HTMLCanvasElement>(null),
-    clock = useRef(progress);
-  clock.current = progress;
-  const callbacks = useRef({ onReady, onLoading, progressSource });
-  callbacks.current = { onReady, onLoading, progressSource };
-  const [mode, setMode] = useState<'loading' | 'webgl' | 'fallback'>('loading');
+const film: string = require('../../assets/cinematic/herbier-opening.mp4');
+const poster = require('../../assets/cinematic/opening-poster.jpg');
+
+/** HTML media playback keeps browser play-promise cancellation under our control. */
+export function OpeningScene(props: OpeningSceneProps) {
+  const callbacks = useRef(props);
+  callbacks.current = props;
+  const video = useRef<HTMLVideoElement>(null);
+  const [failed, setFailed] = useState(false);
+  const [decoded, setDecoded] = useState(false);
+  const actions = useRef({ ready: () => {}, waiting: () => {}, error: () => {} });
   useEffect(() => {
-    const element = canvas.current;
-    if (!element) return;
-    let renderer: THREE.WebGLRenderer;
-    try {
-      renderer = new THREE.WebGLRenderer({
-        canvas: element,
-        alpha: true,
-        antialias: true,
-        powerPreference: 'low-power',
-      });
-    } catch {
-      setMode('fallback');
-      return;
-    }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
-    const abort = new AbortController();
-    let disposed = false,
-      maps: PrologueTextures | undefined,
-      world: ReturnType<typeof createPrologueScene> | undefined,
-      player: ReturnType<typeof createProloguePlayer> | undefined;
-    const resize = () => {
-      world?.resize(element.clientWidth || 390, element.clientHeight || 844);
-    };
-    const observer = new ResizeObserver(resize);
-    observer.observe(element);
-    const clean = () => {
-      if (disposed) return;
-      disposed = true;
-      abort.abort();
-      player?.dispose();
-      observer.disconnect();
-      document.removeEventListener('visibilitychange', visible);
-      element.removeEventListener('webglcontextlost', lost);
-      if (world) world.dispose();
-      else if (maps) disposePrologueTextures(maps);
-      renderer.dispose();
-      renderer.forceContextLoss();
+    const media = video.current;
+    if (!media) return;
+    let alive = true,
+      failed = false;
+    let active = AppState.currentState !== 'background' && AppState.currentState !== 'inactive';
+    let watchdog: ReturnType<typeof setTimeout> | undefined;
+    const cancel = () => {
+      clearTimeout(watchdog);
+      watchdog = undefined;
     };
     const fail = () => {
-      clean();
-      setMode('fallback');
+      if (!alive || failed) return;
+      failed = true;
+      cancel();
+      media.pause();
+      callbacks.current.onLoading?.();
+      setFailed(true);
     };
-    const visible = () => player?.setActive(!document.hidden);
-    const lost = (event: Event) => {
-      event.preventDefault();
-      fail();
+    const watch = () => {
+      cancel();
+      if (active) watchdog = setTimeout(fail, 12000);
     };
-    document.addEventListener('visibilitychange', visible);
-    element.addEventListener('webglcontextlost', lost);
-    callbacks.current.onLoading?.();
-    void (async () => {
-      try {
-        maps = await loadPrologueTextures(abort.signal);
-        if (disposed) {
-          disposePrologueTextures(maps);
-          return;
-        }
-        world = createPrologueScene(renderer, maps);
-        resize();
-        const draw = (p: number) => {
-          const metrics = world?.update(p);
-          element.dataset.progress = p.toFixed(3);
-          element.dataset.pages = String(metrics?.pages);
-          element.dataset.draws = String(renderer.info.render.calls);
-        };
-        draw(callbacks.current.progressSource?.() ?? clock.current);
-        setMode('webgl');
-        callbacks.current.onReady?.();
-        player = createProloguePlayer({
-          request: (callback) => requestAnimationFrame(callback),
-          cancel: (id) => cancelAnimationFrame(id),
-          fps: 60,
-          progress: () => callbacks.current.progressSource?.() ?? clock.current,
-          draw,
-          failed: fail,
+    const start = () => {
+      if (!alive || failed || !active || media.readyState < 2) return;
+      const position =
+        ((callbacks.current.progressSource?.() ?? callbacks.current.progress) * prologueDuration) /
+        1000;
+      if (Math.abs(media.currentTime - position) > 0.12) media.currentTime = position;
+      void media
+        .play()
+        .then(() => {
+          if (!alive || failed || !active) return;
+          cancel();
+          callbacks.current.onReady?.();
+        })
+        .catch((error: DOMException) => {
+          // Skipping or replacing an intro legitimately cancels a pending play request.
+          if (alive && error.name !== 'AbortError') fail();
         });
-        visible();
-      } catch {
-        if (!disposed) fail();
-      }
-    })();
-    return clean;
-  }, []);
-  return React.createElement(
-    'div',
-    {
-      'data-testid': 'opening-film-art',
-      style: { position: 'relative', width: '100%', height: '100%' },
-    },
-    mode === 'fallback' && React.createElement(Fallback, { progress, progressSource, onReady }),
-    React.createElement('canvas', {
-      ref: canvas,
-      'data-testid': 'opening-webgl-book',
-      'data-renderer': mode,
-      'aria-hidden': true,
-      style: {
-        position: 'absolute',
-        inset: 0,
-        width: '100%',
-        height: '100%',
-        display: mode === 'fallback' ? 'none' : 'block',
+    };
+    media.muted = true;
+    media.volume = 0;
+    actions.current = {
+      ready: () => {
+        if (alive) {
+          setDecoded(true);
+          start();
+        }
       },
-    }),
+      waiting: () => {
+        if (alive && !failed) {
+          callbacks.current.onLoading?.();
+          watch();
+        }
+      },
+      error: fail,
+    };
+    callbacks.current.onLoading?.();
+    const subscription = AppState.addEventListener('change', (state) => {
+      active = state === 'active';
+      if (active) {
+        watch();
+        start();
+      } else {
+        cancel();
+        media.pause();
+      }
+    });
+    watch();
+    // loadeddata may already have arrived from the HTTP cache before effects mount.
+    if (media.error) fail();
+    else if (media.readyState >= 2) actions.current.ready();
+    return () => {
+      alive = false;
+      cancel();
+      subscription.remove();
+      media.pause();
+      media.removeAttribute('src');
+      media.load();
+    };
+  }, []);
+  if (failed) return <RealtimeFallback {...props} />;
+  return (
+    <View
+      testID="opening-film-art"
+      pointerEvents="none"
+      style={{ flex: 1, backgroundColor: '#15231c', overflow: 'hidden' }}
+    >
+      <View testID="opening-cinematic-video" style={StyleSheet.absoluteFill}>
+        <video
+          ref={video}
+          src={film}
+          muted
+          playsInline
+          preload="auto"
+          controls={false}
+          disablePictureInPicture
+          onLoadedData={() => actions.current.ready()}
+          onCanPlay={() => actions.current.ready()}
+          onWaiting={() => actions.current.waiting()}
+          onError={() => actions.current.error()}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }}
+        />
+      </View>
+      {!decoded && (
+        <Image
+          testID="opening-cinematic-poster"
+          source={poster}
+          resizeMode="cover"
+          style={StyleSheet.absoluteFill}
+        />
+      )}
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 210,
+          backgroundColor: '#0b171c24',
+        }}
+      />
+    </View>
   );
 }

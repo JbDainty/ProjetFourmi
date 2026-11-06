@@ -64,3 +64,9 @@ Les licences des dépendances JavaScript sont également disponibles dans leurs 
 
 - `src/components/CarnetIllustration.tsx` : six miniatures SVG originales pour le menu du carnet : livre fleuri, globe botanique, bourse de graines, cadran végétal, verrerie d’atelier et marque-page. Dessin à l’encre sauge, papier ivoire, détails de laiton et couleurs aquarellées ; aucun pictogramme commercial supplémentaire. Les miniatures restent immuables pendant les animations et sont mises en cache dans de petites vues natives.
 - `src/components/CarnetMenu.tsx` : page de garde originale, filets végétaux et vignettes courbes en SVG, typographie avec les polices embarquées déjà documentées. L’ouverture et deux éclats de pollen utilisent une seule progression native finie ; aucune boucle décorative au repos.
+
+# Cinématique 3D précalculée
+
+- `assets/cinematic/herbier-opening.mp4` et `opening-poster.jpg` : film et image d’attente originaux, calculés dans Blender avec le livre articulé, ses gravures, les feuillets courbés, les feuilles nervurées et les fleurs en 3D. Sources reproductibles dans `scripts/cinematic/` ; géométrie et animation originales CC0. La vidéo est muette, la musique existante restant séparée.
+- `art/cinematic/textures/*.jpg` : cartes photographiques PBR 1K de Brown Leather (Rob Tuytel) et Wood Table 001 (Dimitrios Savva et Rico Cilliers), sous CC0 de Poly Haven. Utilisées uniquement pour fabriquer le film ; elles ne sont pas référencées par le moteur du jeu. Auteurs, URLs et empreintes vérifiées dans `art/cinematic/texture-sources.json`, notice dans `public/licenses/cinematic-textures-CC0.txt`.
+- Blender 4.3.2 et Intel Open Image Denoise 2.5.1 sont des outils de fabrication hors ligne et ne sont pas embarqués. Le texte de couverture utilise les polices SIL déjà documentées.
