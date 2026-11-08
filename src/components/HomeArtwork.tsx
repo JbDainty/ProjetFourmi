@@ -131,9 +131,9 @@ export function CabinetFrame({ dark = false }: { dark?: boolean }) {
   );
 }
 
-function Fern() {
+function Fern({ scale }: { scale: number }) {
   return (
-    <Svg width="64" height="138" viewBox="0 0 64 138" accessible={false}>
+    <Svg width={64 * scale} height={138 * scale} viewBox="0 0 64 138" accessible={false}>
       <G stroke="#6f885b" strokeWidth="0.7" fill="#9bad7d" fillOpacity="0.5">
         <Path d="M14 133Q48 73 38 10" fill="none" strokeWidth="1" />
         {[0, 1, 2, 3, 4, 5].map((i) => (
@@ -181,7 +181,7 @@ export const CabinetBook = memo(function CabinetBook({
   const artWidth = Math.min(430, width),
     height = (artWidth * 2) / 3;
   return (
-    <View style={{ height: height + 7, width: '100%', alignItems: 'center', overflow: 'hidden' }}>
+    <View style={{ height: height + 7, width: artWidth, alignItems: 'center', overflow: 'hidden' }}>
       <Animated.View
         pointerEvents="none"
         style={{
@@ -196,7 +196,7 @@ export const CabinetBook = memo(function CabinetBook({
           ],
         }}
       >
-        <Fern />
+        <Fern scale={artWidth / 370} />
       </Animated.View>
       <Animated.View
         pointerEvents="none"
@@ -208,7 +208,7 @@ export const CabinetBook = memo(function CabinetBook({
           transform: [{ scaleY: interpolate(value, [0.2, 0.65], [0.2, 1]) }, { rotate: '165deg' }],
         }}
       >
-        <Fern />
+        <Fern scale={artWidth / 370} />
       </Animated.View>
       <Pressable
         accessibilityRole="button"
@@ -263,6 +263,8 @@ export const CabinetBook = memo(function CabinetBook({
             }}
           >
             <T
+              allowFontScaling={false}
+              accessible={false}
               style={{
                 fontFamily: F.display,
                 fontSize: artWidth * 0.054,
@@ -273,7 +275,12 @@ export const CabinetBook = memo(function CabinetBook({
             >
               Flora{String.fromCharCode(10)}mirabilis
             </T>
-            <Svg width={artWidth * 0.19} height={18} viewBox="0 0 80 18" accessible={false}>
+            <Svg
+              width={artWidth * 0.19}
+              height={(artWidth * 18) / 370}
+              viewBox="0 0 80 18"
+              accessible={false}
+            >
               <Path
                 d="M4 12Q24 15 38 7Q51 14 76 10 M37 7Q28-2 27 5Q29 11 37 7 M39 8Q46-1 49 4Q49 10 39 8"
                 fill="none"
@@ -282,6 +289,8 @@ export const CabinetBook = memo(function CabinetBook({
               />
             </Svg>
             <T
+              allowFontScaling={false}
+              accessible={false}
               style={{
                 fontFamily: F.scientific,
                 fontSize: artWidth * 0.026,

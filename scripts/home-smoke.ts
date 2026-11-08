@@ -103,32 +103,87 @@ async function main() {
     await expect(home).toBeVisible();
     expect(await stored()).toEqual(progressed);
     for (const [width, height] of [
+      [320, 480],
       [320, 568],
+      [360, 640],
+      [393, 760],
       [390, 844],
+      [430, 932],
+      [600, 960],
+      [768, 1024],
+      [820, 1180],
+      [1024, 768],
       [1280, 900],
+      [568, 280],
+      [667, 320],
       [740, 360],
+      [932, 430],
     ]) {
       await page.setViewportSize({ width, height });
-      await page.getByTestId('home-scroll').evaluate((node) => {
-        node.scrollTop = 0;
-      });
-      await expect
-        .poll(() => page.getByTestId('home-scroll').evaluate((node) => node.scrollTop))
-        .toBe(0);
       await expect(page.getByTestId('home-stage-settled')).toBeAttached();
+      const targets = [
+        page.getByTestId('home-modes'),
+        page.getByTestId('home-footer'),
+        play(),
+        page.getByRole('button', { name: /^Graines dorées/ }),
+        ...['Herbier', 'Boutique', 'Paramètres', 'Aide'].map((name) =>
+          page.getByRole('link', { name, exact: true }),
+        ),
+        page.getByRole('button', { name: 'Revoir le prologue', exact: true }),
+      ];
+      for (const target of targets) {
+        await expect
+          .poll(
+            async () => {
+              const b = await target.boundingBox();
+              return (
+                !!b &&
+                b.x >= -1 &&
+                b.y >= -1 &&
+                b.x + b.width <= width + 1 &&
+                b.y + b.height <= height + 1
+              );
+            },
+            { message: `Visible without scrolling at ${width}×${height}` },
+          )
+          .toBe(true);
+      }
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
         width,
       );
-      await page.screenshot({ path: `test-results/home-${width}x${height}.png` });
-      await play().scrollIntoViewIfNeeded();
-      await expect(play()).toBeInViewport();
-      const box = (await play().boundingBox())!;
-      expect(box.height).toBeGreaterThanOrEqual(48);
-      for (const link of ['Herbier', 'Boutique', 'Paramètres']) {
-        await page.getByRole('link', { name: link, exact: true }).scrollIntoViewIfNeeded();
-        await expect(page.getByRole('link', { name: link, exact: true })).toBeInViewport();
-      }
+      expect(
+        await home.evaluate((node) => node.scrollHeight - node.clientHeight),
+      ).toBeLessThanOrEqual(1);
+      expect((await play().boundingBox())!.height).toBeGreaterThanOrEqual(48);
+      const title = (await page.getByTestId('home-modes-title').boundingBox())!;
+      const seeds = (await page.getByRole('button', { name: /^Graines dorées/ }).boundingBox())!;
+      expect(Math.abs(title.y + title.height / 2 - (seeds.y + seeds.height / 2))).toBeLessThan(2);
+      expect(seeds.x).toBeGreaterThanOrEqual(title.x + title.width);
+      await page.mouse.wheel(0, 800);
+      expect(await page.evaluate(() => window.scrollY)).toBe(0);
+      await page.screenshot({ path: `test-results/home-fit-${width}x${height}.png` });
     }
+    // Reserve real space for phone system bars; the measured book shrinks again.
+    await page.setViewportSize({ width: 360, height: 640 });
+    await home.evaluate((node) => {
+      node.style.paddingTop = '28px';
+      node.style.paddingBottom = '24px';
+    });
+    await expect
+      .poll(async () => {
+        const b = (await page.getByTestId('home-footer').boundingBox())!;
+        return b.y + b.height <= 616;
+      })
+      .toBe(true);
+    const reserve = page.getByRole('button', { name: /^Graines dorées/ });
+    await reserve.click();
+    await expect(page.getByTestId('seed-explanation')).toBeVisible();
+    await page.getByRole('button', { name: 'Retourner à mon herbier', exact: true }).click();
+    expect(await stored()).toEqual(progressed);
+    await home.evaluate((node) => {
+      node.style.paddingTop = '0px';
+      node.style.paddingBottom = '0px';
+    });
     // The simplified card still displays the real current plant and page.
     let advanced = { ...initial(), started: true, guideSeen: true, nickname: 'Dainty' };
     for (const level of levels.slice(0, 5)) {
@@ -178,7 +233,7 @@ async function main() {
     expect((await stored()).completed).toEqual({});
     expect(errors).toEqual([]);
     console.log(
-      'Home passed: signature → cabinet, direct returning launch, real resume preserving board/history/seeds, optional help and first-play guide, voluntary prologue replay, honest future modes, immutable SVG choreography, 320/390/desktop/landscape access, advanced plant progression, reduced motion and reset.',
+      'Home passed: signature → cabinet, direct returning launch, real resume preserving board/history/seeds, optional help and first-play guide, voluntary prologue replay, honest future modes, immutable SVG choreography, 15 phone/tablet/landscape sizes without scrolling, safe areas and adjacent working seed reserve, advanced plant progression, reduced motion and reset.',
     );
   } finally {
     await browser.close();

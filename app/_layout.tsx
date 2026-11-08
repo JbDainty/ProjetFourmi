@@ -82,33 +82,31 @@ function Shell() {
   };
   const header = (
     <>
-      <View
-        pointerEvents="box-none"
-        testID="game-hud"
-        style={{
-          minHeight: home ? 52 : bookHeaderHeight,
-          paddingTop: home ? 0 : 6,
-          paddingHorizontal: mobile ? 16 : 28,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: home ? 'flex-end' : 'space-between',
-          gap: 4,
-        }}
-      >
-        {!home && (
-          <>
-            <HerbariumBookButton
-              open={menuOpen}
-              motion={save.settings.motion && !replayOpen}
-              onOpen={() => setMenuOpen(true)}
-            />
-            <View style={{ flex: 1, alignItems: 'center' }}>
-              <HerbariumTitle compact={mobile} motion={save.settings.motion} />
-            </View>
-          </>
-        )}
-        <SeedPouch count={save.seeds} motion={save.settings.motion && !replayOpen} />
-      </View>
+      {!home && (
+        <View
+          pointerEvents="box-none"
+          testID="game-hud"
+          style={{
+            minHeight: bookHeaderHeight,
+            paddingTop: 6,
+            paddingHorizontal: mobile ? 16 : 28,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 4,
+          }}
+        >
+          <HerbariumBookButton
+            open={menuOpen}
+            motion={save.settings.motion && !replayOpen}
+            onOpen={() => setMenuOpen(true)}
+          />
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            <HerbariumTitle compact={mobile} motion={save.settings.motion} />
+          </View>
+          <SeedPouch count={save.seeds} motion={save.settings.motion && !replayOpen} />
+        </View>
+      )}
       {error && (
         <Pressable
           onPress={retry}

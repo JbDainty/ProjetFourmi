@@ -6,7 +6,15 @@ import { Button, C, Label, T, ui } from './ui';
 import { F } from './fonts';
 import { useAmbientMotion } from './usePrimaryAnimation';
 
-export function SeedPouch({ count, motion }: { count: number; motion: boolean }) {
+export function SeedPouch({
+  count,
+  motion,
+  compact = false,
+}: {
+  count: number;
+  motion: boolean;
+  compact?: boolean;
+}) {
   const animate = useAmbientMotion(motion);
   const [open, setOpen] = useState(false);
   const value = useRef(new Animated.Value(0)).current;
@@ -54,8 +62,8 @@ export function SeedPouch({ count, motion }: { count: number; motion: boolean })
         accessibilityLabel={`Graines dorées : ${count}. Comprendre les graines`}
         onPress={() => setOpen(true)}
         style={{
-          minWidth: 66,
-          minHeight: 52,
+          minWidth: compact ? 60 : 66,
+          minHeight: compact ? 44 : 52,
           alignItems: 'center',
           justifyContent: 'center',
           flexDirection: 'row',
@@ -75,7 +83,12 @@ export function SeedPouch({ count, motion }: { count: number; motion: boolean })
             ],
           }}
         >
-          <Svg width="37" height="46" viewBox="0 0 48 58" accessible={false}>
+          <Svg
+            width={compact ? 30 : 37}
+            height={compact ? 38 : 46}
+            viewBox="0 0 48 58"
+            accessible={false}
+          >
             <Path
               d="M18 17 14 9 Q23 12 30 8 L28 17 C39 26 42 43 32 49 Q23 54 13 47 C5 40 9 25 18 17Z"
               fill="#e2cfa4"
@@ -108,7 +121,12 @@ export function SeedPouch({ count, motion }: { count: number; motion: boolean })
             <Circle cx="38" cy="41" r="1.1" fill="#b79a56" />
           </Svg>
         </Animated.View>
-        <T testID="seed-count" style={{ fontFamily: F.display, fontSize: 21, color: C.ink }}>
+        <T
+          testID="seed-count"
+          maxFontSizeMultiplier={compact ? 1.3 : undefined}
+          numberOfLines={1}
+          style={{ fontFamily: F.display, fontSize: compact ? 19 : 21, color: C.ink }}
+        >
           {count}
         </T>
       </Pressable>

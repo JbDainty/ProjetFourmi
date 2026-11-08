@@ -13,12 +13,16 @@ export function VictoryAction({
   secondary = false,
   icon,
   disabled = false,
+  compact = false,
+  maxFontSizeMultiplier,
 }: {
   children: string;
   onPress: () => void;
   secondary?: boolean;
   icon: BotanicalIconName;
   disabled?: boolean;
+  compact?: boolean;
+  maxFontSizeMultiplier?: number;
 }) {
   const id = 'ribbon-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const ink = secondary ? C.green : '#f4e7bf';
@@ -34,9 +38,9 @@ export function VictoryAction({
         width: '100%',
         maxWidth: 350,
         marginTop: secondary ? 9 : 0,
-        minHeight: 64,
+        minHeight: compact ? 48 : 64,
         paddingHorizontal: 23,
-        paddingVertical: 13,
+        paddingVertical: compact ? 6 : 13,
         alignItems: 'center',
         justifyContent: 'center',
         opacity: disabled ? 0.45 : pressed ? 0.76 : 1,
@@ -89,6 +93,7 @@ export function VictoryAction({
       >
         <Icon name={icon} size={23} color={ink} />
         <T
+          maxFontSizeMultiplier={maxFontSizeMultiplier}
           style={{
             fontFamily: secondary ? F.scientific : F.display,
             fontSize: 19,
