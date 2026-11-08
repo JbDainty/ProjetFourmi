@@ -24,7 +24,6 @@ import { SeedPouch } from '../src/components/SeedPouch';
 import { BookEntrance } from '../src/components/BookEntrance';
 import { CarnetMenu, type CarnetPath } from '../src/components/CarnetMenu';
 import { BookActionsContext } from '../src/components/BookActions';
-import { F } from '../src/components/fonts';
 function Shell() {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions(),
@@ -87,39 +86,27 @@ function Shell() {
         pointerEvents="box-none"
         testID="game-hud"
         style={{
-          minHeight: home ? 62 : bookHeaderHeight,
-          paddingTop: 6,
+          minHeight: home ? 52 : bookHeaderHeight,
+          paddingTop: home ? 0 : 6,
           paddingHorizontal: mobile ? 16 : 28,
           flexDirection: 'row',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          justifyContent: home ? 'flex-end' : 'space-between',
           gap: 4,
         }}
       >
-        <HerbariumBookButton
-          open={menuOpen}
-          motion={save.settings.motion && !replayOpen}
-          onOpen={() => setMenuOpen(true)}
-        />
-        <View style={{ flex: 1, alignItems: 'center' }}>
-          {home ? (
-            <T
-              numberOfLines={2}
-              style={{
-                fontFamily: F.scientific,
-                alignSelf: 'stretch',
-                fontSize: 15,
-                lineHeight: 20,
-                textAlign: 'center',
-                color: '#7d704d',
-              }}
-            >
-              {save.nickname ? `Le cabinet de ${save.nickname}` : 'Le cabinet botanique'}
-            </T>
-          ) : (
-            <HerbariumTitle compact={mobile} motion={save.settings.motion} />
-          )}
-        </View>
+        {!home && (
+          <>
+            <HerbariumBookButton
+              open={menuOpen}
+              motion={save.settings.motion && !replayOpen}
+              onOpen={() => setMenuOpen(true)}
+            />
+            <View style={{ flex: 1, alignItems: 'center' }}>
+              <HerbariumTitle compact={mobile} motion={save.settings.motion} />
+            </View>
+          </>
+        )}
         <SeedPouch count={save.seeds} motion={save.settings.motion && !replayOpen} />
       </View>
       {error && (

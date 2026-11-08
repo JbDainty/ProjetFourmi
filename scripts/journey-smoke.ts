@@ -103,7 +103,7 @@ async function main() {
     );
     expect((await stored()).seeds).toBe(0);
     await page.goto(url);
-    await expect(page.getByText('Le cabinet de Camille', { exact: true })).toBeVisible();
+    await expect(page.getByTestId('home-screen')).toBeVisible();
     await expect(page.getByTestId('book-opening-film')).toHaveCount(0);
     await openCarnet(page);
     await hint.click();

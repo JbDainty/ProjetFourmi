@@ -29,7 +29,13 @@ async function main() {
     await expect(home).toBeVisible();
     await expect(page.getByTestId('botanical-guide')).toHaveCount(0);
     await expect(page.getByTestId('page-folio')).toHaveCount(0);
-    await expect(page.getByText('Le cabinet de Dainty', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Ouvrir le carnet', exact: true })).toHaveCount(
+      0,
+    );
+    await expect(page.getByTestId('herbarium-book-title')).toHaveCount(0);
+    await expect(page.getByText('Le cabinet de Dainty', { exact: true })).toHaveCount(0);
+    await expect(page.getByTestId('seed-count')).toHaveText('1');
+    await expect(page.getByRole('heading', { name: 'Modes de jeu', exact: true })).toBeVisible();
     await expect(page.getByTestId('home-current-page')).toHaveText('Page 01');
     expect((await stored()).guideSeen).toBe(false);
     expect((await stored()).seeds).toBe(1);
@@ -123,7 +129,7 @@ async function main() {
         await expect(page.getByRole('link', { name: link, exact: true })).toBeInViewport();
       }
     }
-    // A real, advanced carnet displays its own current plant, page and completed plates.
+    // The simplified card still displays the real current plant and page.
     let advanced = { ...initial(), started: true, guideSeen: true, nickname: 'Dainty' };
     for (const level of levels.slice(0, 5)) {
       advanced = loadLevel(advanced, level.id);
@@ -148,7 +154,7 @@ async function main() {
     await expect(home).toBeVisible();
     await expect(page.getByTestId('home-current-page')).toHaveText('Page 06');
     await expect(page.getByTestId('home-current-species')).toHaveText('Bleuet');
-    await expect(page.getByTestId('home-collection-caption')).toHaveText('1 planche estampillée');
+    await expect(page.getByTestId('home-collection-caption')).toHaveCount(0);
     await expect(page.getByTestId('home-stage-settled')).toBeAttached();
     await expect(page.getByTestId('home-butterfly')).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Revoir le prologue', exact: true })).toHaveCount(

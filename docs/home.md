@@ -1,8 +1,10 @@
 # Le cabinet botanique
 
-`/` est le véritable accueil du jeu ; la restauration continue sur `/atelier`. La signature d’un nouveau carnet ouvre cet accueil. Les carnets existants y arrivent directement au lancement, avec leur nom et leur progression, sans fenêtre de confirmation ni lecture automatique du prologue.
+`/` est le véritable accueil du jeu ; la restauration continue sur `/atelier`. La signature d’un nouveau carnet ouvre cet accueil. Les carnets existants y arrivent directement au lancement, avec leur progression, sans fenêtre de confirmation ni lecture automatique du prologue.
 
-La carte de restauration reprend la tentative courante : page, espèce, quatre lavis puis sceau. `homeProgress` lit la sauvegarde et ne charge pas de niveau. « Continuer » conserve donc les fioles, mouvements, historique, indices acquis et ressources. Les liens vers l’herbier, les écosystèmes, la boutique et les paramètres restent disponibles ; le menu du livre comporte un retour à l’accueil.
+L’accueil met le grand livre en avant, avec seulement la réserve de graines en haut. Le petit livre de menu, le nom du cabinet et le titre ont été retirés de cet écran. Les trois cartes de même largeur sont regroupées sous « Modes de jeu » : aventure botanique, puzzle quotidien et énigmes aux couleurs cachées. Chaque carte a une courte explication ; la restauration ne conserve que l’espèce et la page en cours. Le chapitre, le compteur de couleurs, les feuilles de progression et les images répétées ont été retirés.
+
+`homeProgress` lit la sauvegarde et ne charge pas de niveau. « Continuer » conserve donc les fioles, mouvements, historique, indices acquis et ressources. Les raccourcis vers l’herbier, la boutique, les paramètres et l’aide restent disponibles. Le menu du livre, sur les autres écrans, conserve l’accès aux écosystèmes et le retour à l’accueil.
 
 Le Feuillet du jour et les Encres oubliées sont des emplacements de futurs modes, explicitement marqués « À venir ». Ils ne simulent aucun puzzle, déblocage, achat ni récompense. La restauration reste le mode jouable de cette version.
 
