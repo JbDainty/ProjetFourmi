@@ -1,8 +1,6 @@
 import { F } from '../src/components/fonts';
 import { Paper } from '../src/components/Paper';
-import { VictoryPaper } from '../src/components/VictoryPaper';
 import { StampPrompt } from '../src/components/StampPrompt';
-import { VictoryAction } from '../src/components/VictoryAction';
 import { PageTurnContext } from '../src/components/PageTurn';
 import React, { useEffect, useRef, useState } from 'react';
 import { View, ScrollView, Pressable, Modal, useWindowDimensions } from 'react-native';
@@ -12,7 +10,6 @@ import { loadLevel, move, undo, restoration, currentHint, purchaseHint } from '.
 import { won, solve, pour, Move } from '../src/engine/puzzle';
 import levels from '../src/data/levels.json';
 import { species } from '../src/data/botany';
-import { botanicalFact } from '../src/data/botanicalFacts';
 import { LiquidBoard } from '../src/components/LiquidBoard';
 import { Botanical } from '../src/components/Botanical';
 import { ChapterVignette } from '../src/components/ChapterVignette';
@@ -29,8 +26,6 @@ import {
 } from '../src/components/BookScrollView';
 import { T, Label, Icon, Button, C, ui } from '../src/components/ui';
 import { feedback } from '../src/services/feedback';
-import { pageStars, starLimits } from '../src/state/stars';
-import { RewardStars } from '../src/components/RewardStars';
 import { playPourSound } from '../src/services/pourSound';
 import { playRevealMelody } from '../src/services/revealMelody';
 import { playPlantMelody } from '../src/services/plantMelody';
@@ -38,10 +33,9 @@ import { completedByPour, type TubeReward } from '../src/animation/tubeReward';
 import { playVialChime } from '../src/services/vialChime';
 import { preparePageArtwork } from '../src/services/pageArtwork';
 import { RestorationProgress } from '../src/components/RestorationProgress';
-import { ColorReveal } from '../src/components/ColorReveal';
-import { SealCeremony } from '../src/components/SealCeremony';
+import { useMeasuredSize } from '../src/components/useMeasuredSize';
+import { RestorationResult } from '../src/components/RestorationResult';
 import { workshopLayout } from '../src/layout/workshop';
-import { restorationTitles } from '../src/animation/restoration';
 type Note = { text: string; kind: 'info' | 'hint'; request: number; pending: boolean };
 const scenePadding = { top: 0, bottom: 20 };
 export default function Atelier() {
@@ -56,13 +50,12 @@ function Workshop() {
   const turnPage = React.useContext(PageTurnContext);
   const scroll = useRef<ScrollView>(null);
   const { save, setSave } = useGame(),
-    { width, height, fontScale } = useWindowDimensions();
+    { width, fontScale } = useWindowDimensions();
   const { availableWidth } = React.useContext(BookChromeContext);
   const layout = workshopLayout(width, availableWidth);
   const { wide } = layout;
-  const resultPlateSize = Math.max(
-    112,
-    Math.min(200, Math.round((height * 0.23) / Math.max(1, fontScale / 1.2))),
+  const scene = useMeasuredSize(({ height: measured }) =>
+    reportSceneHeight(measured + bookHeaderHeight + scenePadding.top + scenePadding.bottom),
   );
   const [replay, setReplay] = useState(!!save.completed[save.current]);
   const [tubeReward, setTubeReward] = useState<TubeReward | null>(null);
@@ -90,9 +83,6 @@ function Workshop() {
     stage = restoration(save, plant),
     sealPage = save.current % 5 === 0,
     victory = won(save.board);
-  const sealActive = sealPage && reveal && !sealFinished && revealAnimated;
-  const resultMotion = save.settings.motion && !(sealPage && reveal);
-  const earnedStars = pageStars(save.moves, levels[save.current - 1].par);
   useEffect(() => {
     if (!victory) return;
     preparePageArtwork(plant, stage);
@@ -295,11 +285,6 @@ function Workshop() {
       setDismissed(false);
     });
   };
-  const replayAction = (
-    <VictoryAction icon="refresh-outline" secondary onPress={replayPage}>
-      Rejouer la page
-    </VictoryAction>
-  );
   return (
     <BookScrollView
       ref={scroll}
@@ -315,14 +300,9 @@ function Workshop() {
       }}
     >
       <View
-        onLayout={(event) =>
-          reportSceneHeight(
-            event.nativeEvent.layout.height +
-              bookHeaderHeight +
-              scenePadding.top +
-              scenePadding.bottom,
-          )
-        }
+        ref={scene.ref}
+        collapsable={false}
+        onLayout={scene.onLayout}
         style={{
           flexDirection: wide ? 'row' : 'column',
           gap: layout.gap,
@@ -621,185 +601,23 @@ function Workshop() {
         transparent
         animationType={save.settings.motion ? 'fade' : 'none'}
       >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: '#233e31b0',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 20,
-          }}
-        >
-          <ScrollView
-            testID="victory-result-scroll"
-            pointerEvents={sealActive ? 'none' : 'auto'}
-            accessibilityElementsHidden={sealActive}
-            importantForAccessibility={sealActive ? 'no-hide-descendants' : 'auto'}
-            style={{ maxHeight: '95%', width: '100%', maxWidth: 460, opacity: sealActive ? 0 : 1 }}
-          >
-            {victory && winReady && !dismissed && save.started && (
-              <VictoryPaper motion={resultMotion} sound={save.settings.sound}>
-                <Label>
-                  {save.current === 100
-                    ? 'L’HERBIER RETROUVE SES COULEURS'
-                    : sealPage
-                      ? 'LE SCEAU DU BOTANISTE'
-                      : replay
-                        ? 'UNE PAGE À NOUVEAU COLORÉE'
-                        : 'VOTRE HERBIER REPREND VIE'}
-                </Label>
-                <T serif style={{ fontSize: 32, marginTop: 13, lineHeight: 38 }}>
-                  {save.current === 100
-                    ? 'Votre collection est complète.'
-                    : sealPage
-                      ? s.name
-                      : restorationTitles[(save.current - 1) % 5]}
-                </T>
-                <RewardStars count={earnedStars} motion={resultMotion} />
-                <T
-                  testID="page-result-moves"
-                  style={{
-                    fontFamily: F.handwriting,
-                    fontSize: 21,
-                    lineHeight: 28,
-                    color: C.muted,
-                    marginTop: 4,
-                    textAlign: 'center',
-                    width: '100%',
-                  }}
-                >
-                  Page achevée en {save.moves} {save.moves === 1 ? 'mouvement' : 'mouvements'}.
-                </T>
-                <T
-                  testID="page-star-target"
-                  accessibilityLabel={`Minimum possible : ${levels[save.current - 1].par} mouvements. Trois étoiles jusqu’à ${starLimits(levels[save.current - 1].par).three} mouvements.`}
-                  style={{
-                    fontFamily: F.scientific,
-                    fontSize: 15,
-                    color: C.muted,
-                    textAlign: 'center',
-                    marginTop: 3,
-                  }}
-                >
-                  Minimum : {levels[save.current - 1].par} · Objectif ★★★ :{' '}
-                  {starLimits(levels[save.current - 1].par).three}
-                </T>
-                {(save.completed[save.current]?.stars ?? 0) > earnedStars && (
-                  <T
-                    testID="page-saved-best-stars"
-                    style={{
-                      fontFamily: F.scientific,
-                      fontSize: 14,
-                      color: C.green,
-                      textAlign: 'center',
-                      marginTop: 2,
-                    }}
-                  >
-                    Meilleur résultat conservé : {'★'.repeat(save.completed[save.current].stars)}
-                  </T>
-                )}
-                <T
-                  testID="page-seed-reward"
-                  style={{
-                    fontFamily: F.scientific,
-                    color: C.green,
-                    textAlign: 'center',
-                    marginTop: 12,
-                  }}
-                >
-                  {earnedStars === 3
-                    ? 'Trois étoiles : une graine a rejoint votre réserve.'
-                    : 'Trois étoiles feront éclore une nouvelle graine.'}
-                </T>
-                {earnedStars < 3 && replayAction}
-                {!reveal ? (
-                  <>
-                    <Botanical
-                      index={plant}
-                      stage={sealPage ? 4 : replay ? stage : Math.max(0, stage - 1)}
-                      size={resultPlateSize}
-                    />
-                    <VictoryAction icon="water-outline" onPress={() => restorePigment()}>
-                      {sealPage ? 'Estampiller la planche' : 'Révéler la couleur'}
-                    </VictoryAction>
-                    <Pressable
-                      accessibilityRole="button"
-                      onPress={() => {
-                        restorePigment(false);
-                      }}
-                      style={{ padding: 16 }}
-                    >
-                      <T style={{ fontFamily: F.scientific, fontSize: 16, color: C.muted }}>
-                        Passer l’animation
-                      </T>
-                    </Pressable>
-                  </>
-                ) : (
-                  <>
-                    {sealPage ? (
-                      <View
-                        testID="finished-plate-ceremony"
-                        style={{ width: resultPlateSize, height: resultPlateSize * 1.36 }}
-                      >
-                        <Botanical
-                          index={plant}
-                          stage={sealFinished ? 5 : 4}
-                          size={resultPlateSize}
-                        />
-                      </View>
-                    ) : (
-                      <ColorReveal
-                        index={plant}
-                        from={replay ? stage : Math.max(0, stage - 1)}
-                        to={stage}
-                        size={resultPlateSize}
-                        motion={revealAnimated}
-                      />
-                    )}
-                    <T
-                      testID="restoration-botanical-fact"
-                      style={{ textAlign: 'center', color: C.muted, marginBottom: 18 }}
-                    >
-                      {botanicalFact(save.current, 'reveal')}
-                    </T>
-                    <VictoryAction
-                      icon="arrow-forward-outline"
-                      onPress={next}
-                      disabled={sealPage && !sealFinished}
-                    >
-                      {save.current === 100
-                        ? 'Contempler mon herbier'
-                        : sealPage
-                          ? 'Découvrir l’espèce suivante'
-                          : 'Poursuivre la restauration'}
-                    </VictoryAction>
-                  </>
-                )}
-                {earnedStars === 3 && replayAction}
-                {reveal && (
-                  <VictoryAction
-                    icon="book-outline"
-                    secondary
-                    onPress={() => {
-                      setDismissed(true);
-                      router.push('/herbier');
-                    }}
-                  >
-                    Ouvrir l’herbier
-                  </VictoryAction>
-                )}
-              </VictoryPaper>
-            )}
-          </ScrollView>
-          {sealActive && (
-            <SealCeremony
-              index={plant}
-              name={s.name}
-              sound={save.settings.sound}
-              onDone={() => setSealFinished(true)}
-            />
-          )}
-        </View>
+        {victory && winReady && !dismissed && save.started && (
+          <RestorationResult
+            save={save}
+            replay={replay}
+            reveal={reveal}
+            revealAnimated={revealAnimated}
+            sealFinished={sealFinished}
+            onReveal={restorePigment}
+            onContinue={next}
+            onReplay={replayPage}
+            onHerbarium={() => {
+              setDismissed(true);
+              router.push('/herbier');
+            }}
+            onSealDone={() => setSealFinished(true)}
+          />
+        )}
       </Modal>
     </BookScrollView>
   );

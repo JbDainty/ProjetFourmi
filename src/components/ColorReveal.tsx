@@ -11,12 +11,14 @@ export function ColorReveal({
   to,
   size,
   motion,
+  labels = true,
 }: {
   index: number;
   from: number;
   to: number;
   size: number;
   motion: boolean;
+  labels?: boolean;
 }) {
   const { value, settled } = useNativeProgress(1400, motion && from !== to);
   usePrimaryAnimation(!settled);
@@ -34,7 +36,7 @@ export function ColorReveal({
             { opacity: value.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }) },
           ]}
         >
-          <Botanical index={index} stage={from} size={size} />
+          <Botanical index={index} stage={from} size={size} labels={labels} />
         </Animated.View>
       )}
       <Animated.View
@@ -43,7 +45,7 @@ export function ColorReveal({
         shouldRasterizeIOS
         style={[StyleSheet.absoluteFill, { opacity: value }]}
       >
-        <Botanical index={index} stage={to} size={size} />
+        <Botanical index={index} stage={to} size={size} labels={labels} />
       </Animated.View>
     </View>
   );

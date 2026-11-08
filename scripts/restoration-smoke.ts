@@ -130,12 +130,10 @@ async function main() {
     await page.reload();
     await openCarnet(page);
     expect((await state()).completed).toEqual(earned.completed);
-    // The result can be scrolled all the way down; the stamp still fills the viewport.
+    // A short result keeps the stamp and continuation visible without scrolling.
     await page.setViewportSize({ width: 320, height: 568 });
     await seed(5, true, false);
-    await page.getByTestId('victory-result-scroll').evaluate((n) => {
-      n.scrollTop = n.scrollHeight;
-    });
+    await expect(page.getByTestId('victory-result-view')).toBeInViewport({ ratio: 1 });
     await result.getByRole('button', { name: 'Estampiller la planche', exact: true }).click();
     await expect(focus).toBeVisible();
     await expect(focus.getByTestId('focused-finished-plate')).toBeInViewport({ ratio: 1 });
@@ -167,7 +165,7 @@ async function main() {
     expect(await sounds()).toBe(0);
     expect(errors).toEqual([]);
     console.log(
-      'Restoration passed: original full watercolor on page 4; page 5 viewport-level carved stamp and large red wax seal, synchronized soft cue, immutable SVG, completion gate, new species, already completed fifth page after reload, unchanged rewards, 320×568 scrolled result, mute, skip and reduced motion.',
+      'Restoration passed: original full watercolor on page 4; page 5 viewport-level carved stamp and large red wax seal, synchronized soft cue, immutable SVG, completion gate, new species, already completed fifth page after reload, unchanged rewards, 320×568 result without scrolling, mute, skip and reduced motion.',
     );
   } finally {
     await browser.close();

@@ -15,6 +15,8 @@ export function VictoryAction({
   disabled = false,
   compact = false,
   maxFontSizeMultiplier,
+  label,
+  narrow = false,
 }: {
   children: string;
   onPress: () => void;
@@ -23,13 +25,15 @@ export function VictoryAction({
   disabled?: boolean;
   compact?: boolean;
   maxFontSizeMultiplier?: number;
+  label?: string;
+  narrow?: boolean;
 }) {
   const id = 'ribbon-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const ink = secondary ? C.green : '#f4e7bf';
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={children}
+      accessibilityLabel={label ?? children}
       onPress={onPress}
       disabled={disabled}
       accessibilityState={{ disabled }}
@@ -37,9 +41,9 @@ export function VictoryAction({
       style={({ pressed }) => ({
         width: '100%',
         maxWidth: 350,
-        marginTop: secondary ? 9 : 0,
+        marginTop: secondary && !narrow ? 9 : 0,
         minHeight: compact ? 48 : 64,
-        paddingHorizontal: 23,
+        paddingHorizontal: narrow ? 12 : 23,
         paddingVertical: compact ? 6 : 13,
         alignItems: 'center',
         justifyContent: 'center',
@@ -88,16 +92,19 @@ export function VictoryAction({
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 9,
+          gap: narrow ? 6 : 9,
         }}
       >
-        <Icon name={icon} size={23} color={ink} />
+        <Icon name={icon} size={narrow ? 19 : 23} color={ink} />
         <T
           maxFontSizeMultiplier={maxFontSizeMultiplier}
+          numberOfLines={compact ? 1 : undefined}
+          adjustsFontSizeToFit={compact}
+          minimumFontScale={0.8}
           style={{
             fontFamily: secondary ? F.scientific : F.display,
-            fontSize: 19,
-            lineHeight: 24,
+            fontSize: narrow ? 17 : 19,
+            lineHeight: narrow ? 22 : 24,
             color: ink,
             textAlign: 'center',
             flexShrink: 1,

@@ -7,7 +7,7 @@ import { firstPageAttempt } from './test-fixtures';
 import { openCarnet, openScreen } from './navigation-test-helper';
 
 function progressedSave() {
-  let save = { ...initial(), started: true };
+  let save = { ...initial(), started: true, guideSeen: true };
   for (const level of levels.slice(0, 8)) {
     save = loadLevel(save, level.id);
     for (const m of level.solution) save = move(save, m.from, m.to);

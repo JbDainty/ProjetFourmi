@@ -76,7 +76,7 @@ function LiquidBoardDrawing({
   onRewardDone,
 }: Props) {
   usePrimaryAnimation(!!pouring);
-  const [width, setWidth] = useState(initialWidth),
+  const [width, setWidth] = useState(Math.round(initialWidth)),
     [elapsed, setElapsed] = useState(0);
   const animationMove = useRef<Move | null>(null);
   const tap = useRef(onTap);

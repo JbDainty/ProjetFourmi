@@ -24,6 +24,7 @@ import { SeedPouch } from '../src/components/SeedPouch';
 import { BookEntrance } from '../src/components/BookEntrance';
 import { HintSlot, hintLayoutKey } from '../src/components/HintSlot';
 import { workshopLayout } from '../src/layout/workshop';
+import { useMeasuredSize } from '../src/components/useMeasuredSize';
 import { BookActionsContext } from '../src/components/BookActions';
 function Shell() {
   const insets = useSafeAreaInsets();
@@ -36,6 +37,7 @@ function Shell() {
   const [replayOpen, setReplayOpen] = React.useState(false);
   const [sceneHeight, setSceneHeight] = React.useState(0);
   const [availableWidth, setAvailableWidth] = React.useState(0);
+  const viewport = useMeasuredSize(({ width }) => setAvailableWidth(width));
   const [greenhouseReady, setGreenhouseReady] = React.useState(false);
   const [hintReadyKey, setHintReadyKey] = React.useState('');
   const [workshopRequest, setWorkshopRequest] = React.useState<{
@@ -217,7 +219,9 @@ function Shell() {
       <StatusBar style="dark" />
       <View
         style={{ flex: 1 }}
-        onLayout={({ nativeEvent: { layout } }) => setAvailableWidth(layout.width)}
+        ref={viewport.ref}
+        collapsable={false}
+        onLayout={viewport.onLayout}
         aria-hidden={!save.started || replayOpen}
         accessibilityElementsHidden={!save.started || replayOpen}
         importantForAccessibility={!save.started || replayOpen ? 'no-hide-descendants' : 'auto'}

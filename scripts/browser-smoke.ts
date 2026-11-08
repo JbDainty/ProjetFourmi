@@ -41,12 +41,12 @@ async function main() {
         );
         expect(partial.completed['1']).toBeUndefined();
         expect(partial.pigments).toHaveLength(0);
-        await expect(page.getByText('VOTRE HERBIER REPREND VIE')).not.toBeVisible();
+        await expect(page.getByTestId('victory-living-paper')).not.toBeVisible();
         await page.getByRole('button', { name: 'Indice', exact: true }).click();
         await expect(page.getByTestId('hint-writing-text')).toContainText('Votre réserve est vide');
       }
     }
-    await expect(page.getByText('VOTRE HERBIER REPREND VIE')).toBeVisible();
+    await expect(page.getByTestId('victory-living-paper')).toBeVisible();
     await expect(page.getByTestId('page-result-moves')).toContainText(
       `${levels[0].solution.length} mouvements`,
     );

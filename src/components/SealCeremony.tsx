@@ -4,7 +4,7 @@ import { Botanical } from './Botanical';
 import { SealAnimation } from './SealAnimation';
 import { Paper } from './Paper';
 import { F } from './fonts';
-import { Label, T, C } from './ui';
+import { T, C } from './ui';
 import { useNativeProgress } from './useNativeProgress';
 
 /** A viewport-level presentation: scrolling the result cannot hide the stamping. */
@@ -13,16 +13,26 @@ export function SealCeremony({
   name,
   sound,
   onDone,
+  viewport,
 }: {
   index: number;
   name: string;
   sound: boolean;
   onDone: () => void;
+  viewport?: { width: number; height: number };
 }) {
   const { width, height, fontScale } = useWindowDimensions();
+  const availableWidth = viewport?.width ?? width;
+  const availableHeight = viewport?.height ?? height;
+  const compact = availableHeight < 640;
+  const short = availableHeight < 350;
   const size = Math.max(
-    90,
-    Math.min(320, width - 80, (height - 220 * Math.max(1, fontScale / 1.2)) / 1.36),
+    40,
+    Math.min(
+      320,
+      availableWidth - 60,
+      (availableHeight - (short ? 118 : compact ? 160 : 220) * Math.min(1.3, fontScale)) / 1.36,
+    ),
   );
   const { value } = useNativeProgress(240, true);
   return (
@@ -36,7 +46,7 @@ export function SealCeremony({
           backgroundColor: '#1d302be6',
           justifyContent: 'center',
           alignItems: 'center',
-          padding: 16,
+          padding: compact ? 8 : 16,
         },
       ]}
     >
@@ -53,19 +63,24 @@ export function SealCeremony({
           style={{
             backgroundColor: C.paper,
             borderRadius: 28,
-            paddingVertical: 24,
+            paddingVertical: compact ? 12 : 24,
             paddingHorizontal: 20,
             alignItems: 'center',
           }}
         >
-          <Label>LE SCEAU DU BOTANISTE</Label>
+          <T maxFontSizeMultiplier={1.3} style={{ fontSize: 10, lineHeight: 16, letterSpacing: 2 }}>
+            LE SCEAU DU BOTANISTE
+          </T>
           <T
             serif
+            maxFontSizeMultiplier={1.3}
+            numberOfLines={1}
+            adjustsFontSizeToFit
             style={{
-              fontSize: 29,
-              lineHeight: 35,
-              marginTop: 8,
-              marginBottom: 12,
+              fontSize: compact ? 23 : 29,
+              lineHeight: compact ? 27 : 35,
+              marginTop: compact ? 4 : 8,
+              marginBottom: compact ? 8 : 12,
               textAlign: 'center',
             }}
           >
@@ -75,18 +90,22 @@ export function SealCeremony({
             <Botanical index={index} stage={4} size={size} />
             <SealAnimation size={size} motion sound={sound} onDone={onDone} />
           </View>
-          <T
-            style={{
-              marginTop: 14,
-              fontSize: 15,
-              lineHeight: 21,
-              textAlign: 'center',
-              fontFamily: F.scientific,
-              color: C.green,
-            }}
-          >
-            Une nouvelle merveille rejoint votre herbier.
-          </T>
+          {!short && (
+            <T
+              maxFontSizeMultiplier={1.3}
+              numberOfLines={2}
+              style={{
+                marginTop: compact ? 8 : 14,
+                fontSize: 15,
+                lineHeight: 21,
+                textAlign: 'center',
+                fontFamily: F.scientific,
+                color: C.green,
+              }}
+            >
+              Une nouvelle merveille rejoint votre herbier.
+            </T>
+          )}
         </Paper>
       </Animated.View>
     </View>

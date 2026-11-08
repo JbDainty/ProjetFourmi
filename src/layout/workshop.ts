@@ -10,6 +10,6 @@ export function workshopLayout(windowWidth: number, viewportWidth = windowWidth)
     padding,
     maxWidth,
     gap,
-    boardWidth: Math.round(wide ? ((content - gap) * 1.35) / 2.35 : content),
+    boardWidth: wide ? ((content - gap) * 1.35) / 2.35 : content,
   };
 }

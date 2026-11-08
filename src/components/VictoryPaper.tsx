@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useMemo, useState } from 'react';
-import { Animated, StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, View, type ViewStyle } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 import { Paper } from './Paper';
 import { ui } from './ui';
@@ -83,14 +83,19 @@ export function VictoryPaper({
   children,
   motion,
   sound,
+  frame,
+  style,
 }: {
   children: React.ReactNode;
   motion: boolean;
   sound: boolean;
+  frame?: { width: number; height: number };
+  style?: ViewStyle;
 }) {
   usePrimaryAnimation(true);
   const { value, settled } = useNativeProgress(2200, motion);
-  const [size, setSize] = useState({ width: 0, height: 0 });
+  const [measured, setSize] = useState({ width: 0, height: 0 });
+  const size = frame ?? measured;
   useEffect(() => playLeafWind(sound), [sound]);
   const decoration = useMemo(() => {
     const { width: w, height: h } = size;
@@ -202,8 +207,9 @@ export function VictoryPaper({
     <Paper
       testID="victory-living-paper"
       frame={false}
-      style={[ui.card, { width: '100%', alignItems: 'center' }]}
+      style={[ui.card, { width: '100%', alignItems: 'center' }, style]}
       onLayout={({ nativeEvent: { layout } }) =>
+        !frame &&
         setSize((previous) =>
           previous.width === layout.width && previous.height === layout.height
             ? previous

@@ -153,11 +153,11 @@ async function main() {
       await page.getByRole('button', { name: new RegExp(`^Flacon ${m.to + 1},`) }).click();
     }
     await expect(page.getByTestId('page-result-moves')).toHaveText(
-      `Page achevée en ${levels[0].solution.length} mouvements.`,
+      `${levels[0].solution.length} mouvements`,
     );
     await page.screenshot({ path: 'test-results/page-result-movements.png', fullPage: true });
     await page.getByRole('button', { name: 'Passer l’animation' }).click();
-    await expect(page.getByText('VOTRE HERBIER REPREND VIE', { exact: true })).toBeVisible();
+    await expect(page.getByTestId('victory-living-paper')).toBeVisible();
     await expect(page.getByTestId('restoration-botanical-fact')).toHaveText(
       botanicalFact(1, 'reveal'),
     );

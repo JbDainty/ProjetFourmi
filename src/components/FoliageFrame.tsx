@@ -1,5 +1,6 @@
-import React, { useId, useState } from 'react';
+import React, { useId } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useMeasuredSize } from './useMeasuredSize';
 import Svg, { Defs, LinearGradient, Stop, Path, G, Circle } from 'react-native-svg';
 
 type Props = { vitality?: number; scene?: boolean };
@@ -17,7 +18,7 @@ const blend = (a: string, b: string, t: number) =>
     .join('');
 /** Responsive marginal foliage. Decorative only: it never intercepts a touch. */
 function FoliageFrameDrawing({ vitality = 0.65, scene = false }: Props) {
-  const [size, setSize] = useState({ width: 0, height: 0 });
+  const { ref, size, onLayout } = useMeasuredSize(undefined, true);
   const token = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const { width: w, height: h } = size,
     life = Math.max(0, Math.min(1, vitality));
@@ -101,11 +102,9 @@ function FoliageFrameDrawing({ vitality = 0.65, scene = false }: Props) {
       accessible={false}
       accessibilityElementsHidden
       style={[StyleSheet.absoluteFill, { zIndex: scene ? 3 : 0 }]}
-      onLayout={(e) => {
-        const width = Math.round(e.nativeEvent.layout.width),
-          height = Math.round(e.nativeEvent.layout.height);
-        if (width !== w || height !== h) setSize({ width, height });
-      }}
+      ref={ref}
+      collapsable={false}
+      onLayout={onLayout}
     >
       {!!w && !!h && (
         <Svg

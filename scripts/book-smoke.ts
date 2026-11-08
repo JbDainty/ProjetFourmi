@@ -66,7 +66,7 @@ async function main() {
     expect(
       await page
         .getByRole('button', { name: 'Poursuivre la restauration' })
-        .getByText('Poursuivre la restauration')
+        .getByText('Page suivante')
         .evaluate((n) => getComputedStyle(n).fontFamily),
     ).toContain('HerbariumDisplay');
     await page.screenshot({ path: 'test-results/botanical-victory-actions.png', fullPage: true });
@@ -111,7 +111,7 @@ async function main() {
     const box = (await button.boundingBox())!;
     expect(box.x).toBeGreaterThanOrEqual(0);
     expect(box.x + box.width).toBeLessThanOrEqual(320);
-    expect(box.height).toBeGreaterThanOrEqual(56);
+    expect(box.height).toBeGreaterThanOrEqual(48);
     await page.screenshot({ path: 'test-results/botanical-actions-narrow.png', fullPage: true });
     await button.click();
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 06');

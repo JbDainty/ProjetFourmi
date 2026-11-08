@@ -36,7 +36,7 @@ async function buttonFits(page: Page, testID: string) {
   const bounds = await button.boundingBox();
   const art = await button.locator('svg').first().boundingBox();
   const text = await button
-    .getByText(/Révéler la couleur|Rejouer la page|Poursuivre la restauration|Ouvrir l’herbier/)
+    .getByText(/Révéler la couleur|Rejouer|Page suivante|Herbier/)
     .last()
     .boundingBox();
   expect(bounds).toBeTruthy();

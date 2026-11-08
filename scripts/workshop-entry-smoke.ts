@@ -12,12 +12,14 @@ async function main() {
   mkdirSync('test-results', { recursive: true });
   try {
     for (const scenario of [
-      { width: 393, height: 852, level: 1, motion: true },
+      { width: 393, height: 852, level: 1, motion: true, inset: 0 },
+      { width: 413, height: 892, level: 1, motion: true, inset: 0.2 },
       { width: 320, height: 740, level: 7, motion: false },
       { width: 1280, height: 900, level: 61, motion: true },
       { width: 393, height: 980, level: 100, motion: true },
     ]) {
       const { width, height, level, motion } = scenario;
+      const inset = 'inset' in scenario ? scenario.inset : 0;
       let save = { ...initial(), started: true, guideSeen: true, nickname: 'Dainty' };
       for (const prior of levels.slice(0, level - 1)) {
         save = loadLevel(save, prior.id);
@@ -47,6 +49,10 @@ async function main() {
       });
       try {
         await page.goto(url);
+        if (inset)
+          await page.addStyleTag({
+            content: `#root { padding-left: ${inset}px; padding-right: ${inset}px; box-sizing: border-box; }`,
+          });
         await expect(page.getByTestId('home-stage-settled')).toBeAttached();
         await expect.poll(() => requestedImage).toBe(true);
         const stored = () =>
@@ -80,6 +86,10 @@ async function main() {
               const images = Array.from(el('greenhouse-world-background')!.querySelectorAll('img'));
               (window as any).entrySamples.push({
                 boardHeight: board.getBoundingClientRect().height,
+                backdropHeight: el('greenhouse-world-background')!.getBoundingClientRect().height,
+                frameDrawn: !!el('game-actions')!.querySelector(
+                  '[data-testid=botanical-foliage-frame] svg',
+                ),
                 boardWidth: board.getBoundingClientRect().width,
                 racks: document.querySelectorAll('g[id^="tube-rack-"]').length,
                 tubes: document.querySelectorAll('[aria-label^="Flacon "]').length,
@@ -116,6 +126,8 @@ async function main() {
         const last = samples.at(-1)!;
         for (const frame of samples) {
           expect(frame.racks).toBeGreaterThan(0);
+          expect(frame.frameDrawn).toBe(true);
+          expect(frame.backdropHeight).toBeCloseTo(last.backdropHeight, 1);
           expect(frame.tubes).toBe(save.board.length);
           expect(frame.imageReady).toBe(true);
           expect(frame.boardHeight).toBeCloseTo(last.boardHeight, 1);
@@ -136,7 +148,7 @@ async function main() {
       }
     }
     console.log(
-      'Workshop entry passed: menu retained until image and layout readiness, cancellation when navigating away, complete tubes/background on the first painted game frame, stable hint/buttons, one/two rows, mobile/desktop, reduced motion and unchanged progress under 4× CPU throttling.',
+      'Workshop entry passed: menu retained until image and layout readiness, cancellation when navigating away, complete tubes/background/foliage on the first painted game frame, including fractional viewport widths, stable hint/buttons, one/two rows, mobile/desktop, reduced motion and unchanged progress under 4× CPU throttling.',
     );
   } finally {
     await browser.close();

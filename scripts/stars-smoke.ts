@@ -45,12 +45,8 @@ async function main() {
       );
       await expect(page.getByTestId('botanical-star-earned')).toHaveCount(stars);
       await expect(page.getByTestId('botanical-star-empty')).toHaveCount(3 - stars);
-      await expect(page.getByTestId('page-star-target')).toHaveText(
-        'Minimum : 4 · Objectif ★★★ : 5',
-      );
-      await expect(page.getByTestId('page-result-moves')).toHaveText(
-        `Page achevée en ${4 + extra} mouvements.`,
-      );
+      await expect(page.getByTestId('page-star-target')).toHaveText('Objectif ★★★ : 5');
+      await expect(page.getByTestId('page-result-moves')).toHaveText(`${4 + extra} mouvements`);
       const stored = await page.evaluate(() =>
         JSON.parse(localStorage.getItem('color-world.save')!),
       );
@@ -74,9 +70,7 @@ async function main() {
       '1 étoile obtenue sur 3',
     );
     await expect(page.getByTestId('botanical-star-earned')).toHaveCount(1);
-    await expect(page.getByTestId('page-saved-best-stars')).toHaveText(
-      'Meilleur résultat conservé : ★★★',
-    );
+    await expect(page.getByTestId('page-saved-best-stars')).toHaveText('Record : ★★★');
     const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('color-world.save')!));
     expect(stored.completed).toEqual(replay.save.completed);
     expect(stored.seeds).toBe(replay.save.seeds);

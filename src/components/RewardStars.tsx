@@ -62,9 +62,11 @@ const StarFlower = memo(function StarFlower({ filled }: { filled: boolean }) {
 export const RewardStars = memo(function RewardStars({
   count,
   motion,
+  scale = 1,
 }: {
   count: 1 | 2 | 3;
   motion: boolean;
+  scale?: number;
 }) {
   const duration = 220 + (count - 1) * 360 + 850;
   const { value, settled } = useNativeProgress(duration, motion);
@@ -86,14 +88,23 @@ export const RewardStars = memo(function RewardStars({
       accessibilityRole="image"
       accessibilityLabel={`${count} ${count === 1 ? 'étoile obtenue' : 'étoiles obtenues'} sur 3`}
       accessibilityLiveRegion="polite"
-      style={{ marginTop: 6, width: '100%' }}
+      style={{ marginTop: 4, width: '100%', height: 84 * scale }}
     >
       <View
         testID={settled ? 'reward-stars-settled' : 'reward-stars-animating'}
         accessible={false}
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
-        style={{ flexDirection: 'row', justifyContent: 'center', gap: 4, minHeight: 84 }}
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'center',
+          gap: 4,
+          minHeight: 84,
+          width: 206,
+          alignSelf: 'center',
+          transform: [{ scale }],
+          transformOrigin: 'top center',
+        }}
       >
         {values.map((value, i) => (
           <View

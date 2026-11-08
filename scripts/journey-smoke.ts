@@ -123,9 +123,7 @@ async function main() {
     );
     expect((await stored()).seeds).toBe(0);
     for (const m of levels[0].solution) await transfer(m.from, m.to);
-    await expect(page.getByTestId('page-seed-reward')).toContainText(
-      'une graine a rejoint votre réserve',
-    );
+    await expect(page.getByTestId('page-seed-reward')).toContainText('+1 graine');
     expect((await stored()).seeds).toBe(1);
     await page.getByRole('button', { name: 'Rejouer la page' }).click();
     await hint.click();
