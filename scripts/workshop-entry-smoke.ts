@@ -114,6 +114,8 @@ async function main() {
           (window as any).entrySampling = false;
           return (window as any).entrySamples as {
             boardHeight: number;
+            backdropHeight: number;
+            frameDrawn: boolean;
             boardWidth: number;
             racks: number;
             tubes: number;

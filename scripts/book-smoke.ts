@@ -59,29 +59,28 @@ async function main() {
     await finish();
     await expect.poll(async () => (await cues()).length).toBe(1);
     expect(await cues()).toEqual([2.8]);
-    await page.getByRole('button', { name: 'Révéler la couleur' }).click();
+    await page.getByRole('button', { name: 'Estampiller la planche' }).click();
     await expect.poll(async () => (await cues()).length).toBe(2);
     expect((await cues()).sort()).toEqual([2.8, 5.6]);
     await expect(page.getByTestId('victory-action-primary')).toBeVisible();
     expect(
       await page
-        .getByRole('button', { name: 'Poursuivre la restauration' })
-        .getByText('Page suivante')
+        .getByRole('button', { name: 'Découvrir l’espèce suivante' })
+        .getByText('Espèce suivante')
         .evaluate((n) => getComputedStyle(n).fontFamily),
     ).toContain('HerbariumDisplay');
     await page.screenshot({ path: 'test-results/botanical-victory-actions.png', fullPage: true });
     expect((await cues()).length).toBe(2);
     const before = await page.evaluate(() => JSON.parse(localStorage.getItem('color-world.save')!));
-    await page.getByRole('button', { name: 'Poursuivre la restauration' }).click();
+    await page.getByRole('button', { name: 'Découvrir l’espèce suivante' }).click();
     await expect(page.getByTestId('book-page-turn')).toBeVisible();
     await expect(page.getByTestId('book-page-turn')).toHaveAttribute(
       'aria-label',
       'Ouverture de la page 6',
     );
     const curl = page.getByTestId('book-page-curl').first();
-    await expect(curl).toHaveAttribute('opacity', '1');
-    const shape = await curl.getAttribute('d');
-    await expect.poll(() => curl.getAttribute('d')).not.toBe(shape);
+    await expect(curl).toBeAttached();
+    await expect(page.getByTestId('book-species-riffle')).toBeVisible();
     await page.screenshot({ path: 'test-results/old-book-page-turn.png', fullPage: true });
     await expect(page.getByTestId('book-page-turn')).toHaveCount(0);
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 06');
@@ -94,6 +93,7 @@ async function main() {
     // A page selected from the exploration book uses the same transition coordinator.
     await openScreen(page, 'Écosystèmes');
     await page.getByRole('button', { name: 'Page 2', exact: true }).click();
+    await page.getByRole('button', { name: 'Rejouer cette page', exact: true }).click();
     await expect(page.getByTestId('book-page-turn')).toBeVisible();
     await expect(page.getByTestId('book-page-turn')).toHaveCount(0);
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 02');
@@ -107,7 +107,7 @@ async function main() {
     expect(await cues()).toEqual([2.8]); // Replaying a completed plant does not repeat its fanfare.
     await page.setViewportSize({ width: 320, height: 740 });
     await page.getByRole('button', { name: 'Passer l’animation' }).click();
-    const button = page.getByRole('button', { name: 'Poursuivre la restauration' });
+    const button = page.getByRole('button', { name: 'Découvrir l’espèce suivante' });
     const box = (await button.boundingBox())!;
     expect(box.x).toBeGreaterThanOrEqual(0);
     expect(box.x + box.width).toBeLessThanOrEqual(320);

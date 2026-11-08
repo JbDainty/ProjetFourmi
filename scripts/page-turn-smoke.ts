@@ -167,6 +167,7 @@ async function main() {
     await seed(6, true, true);
     await openScreen(page, 'Écosystèmes');
     await page.getByRole('button', { name: 'Page 2', exact: true }).click();
+    await page.getByRole('button', { name: 'Rejouer cette page', exact: true }).click();
     await expect(page.getByTestId('book-species-riffle')).toBeVisible();
     await expect(page.getByTestId('book-destination-species')).toHaveText('Coquelicot');
     await expect(page.getByTestId('book-page-turn')).toHaveCount(0);
