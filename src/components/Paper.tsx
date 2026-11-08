@@ -21,6 +21,7 @@ export function PaperTexture({
     >
       <Image
         source={require('../../assets/illustrations/papier.png')}
+        fadeDuration={0}
         resizeMode="cover"
         style={[
           StyleSheet.absoluteFill,

@@ -12,9 +12,14 @@ import { T, C } from './ui';
 import { F } from './fonts';
 
 export const bookHeaderHeight = 100;
-export const BookChromeContext = createContext<{ header: React.ReactNode; motion: boolean }>({
+export const BookChromeContext = createContext<{
+  header: React.ReactNode;
+  motion: boolean;
+  availableWidth: number;
+}>({
   header: null,
   motion: true,
+  availableWidth: 0,
 });
 
 /** The book's header and return arrow belong to the page, so nothing covers play. */

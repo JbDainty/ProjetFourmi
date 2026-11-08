@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useRef, useState } from 'react';
 import { Animated, Pressable, View, useWindowDimensions } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { useGame } from '../state/store';
@@ -123,18 +123,24 @@ export function HomeScreen() {
   const bookColumnWidth = horizontal ? pageWidth - modeWidth - gap * 2 : pageWidth;
   const progress = homeProgress(save);
   const [focused, setFocused] = useState(true);
+  const entering = useRef(false);
   useFocusEffect(
     useCallback(() => {
       setFocused(true);
+      entering.current = false;
       return () => setFocused(false);
     }, []),
   );
-  const { replayPrologue, replaying } = useContext(BookActionsContext);
+  const { replayPrologue, replaying, openWorkshop, enteringWorkshop } =
+    useContext(BookActionsContext);
   const { value, settled } = useNativeProgress(2600, save.settings.motion && focused && !replaying);
   usePrimaryAnimation(!settled);
   const enter = () => {
+    if (entering.current) return;
+    entering.current = true;
     unlockAmbience();
-    router.push('/atelier');
+    if (!save.guideSeen) router.push({ pathname: '/aide', params: { premiersPas: '1' } });
+    else openWorkshop();
   };
   const observe = () =>
     router.push({ pathname: '/herbier', params: { plant: String(progress.plant) } });
@@ -320,14 +326,17 @@ export function HomeScreen() {
             <VictoryAction
               icon="leaf-outline"
               onPress={enter}
+              disabled={enteringWorkshop}
               compact={compact}
               maxFontSizeMultiplier={1.3}
             >
-              {progress.firstPage
-                ? 'Commencer'
-                : progress.collectionComplete
-                  ? 'Rejouer'
-                  : 'Continuer'}
+              {enteringWorkshop
+                ? 'Préparation…'
+                : progress.firstPage
+                  ? 'Commencer'
+                  : progress.collectionComplete
+                    ? 'Rejouer'
+                    : 'Continuer'}
             </VictoryAction>
           </View>
         </Paper>

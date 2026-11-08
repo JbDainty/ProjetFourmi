@@ -22,7 +22,11 @@ import { HintScroll } from '../src/components/HintScroll';
 import { HintSlot, emptySeedHint, missingPathHint } from '../src/components/HintSlot';
 import { MistakeLeaves } from '../src/components/MistakeLeaves';
 import { SceneSizeContext } from '../src/components/SceneSize';
-import { BookScrollView, bookHeaderHeight } from '../src/components/BookScrollView';
+import {
+  BookScrollView,
+  BookChromeContext,
+  bookHeaderHeight,
+} from '../src/components/BookScrollView';
 import { T, Label, Icon, Button, C, ui } from '../src/components/ui';
 import { feedback } from '../src/services/feedback';
 import { pageStars, starLimits } from '../src/state/stars';
@@ -36,6 +40,7 @@ import { preparePageArtwork } from '../src/services/pageArtwork';
 import { RestorationProgress } from '../src/components/RestorationProgress';
 import { ColorReveal } from '../src/components/ColorReveal';
 import { SealCeremony } from '../src/components/SealCeremony';
+import { workshopLayout } from '../src/layout/workshop';
 import { restorationTitles } from '../src/animation/restoration';
 type Note = { text: string; kind: 'info' | 'hint'; request: number; pending: boolean };
 const scenePadding = { top: 0, bottom: 20 };
@@ -51,8 +56,10 @@ function Workshop() {
   const turnPage = React.useContext(PageTurnContext);
   const scroll = useRef<ScrollView>(null);
   const { save, setSave } = useGame(),
-    { width, height, fontScale } = useWindowDimensions(),
-    wide = width > 1100;
+    { width, height, fontScale } = useWindowDimensions();
+  const { availableWidth } = React.useContext(BookChromeContext);
+  const layout = workshopLayout(width, availableWidth);
+  const { wide } = layout;
   const resultPlateSize = Math.max(
     112,
     Math.min(200, Math.round((height * 0.23) / Math.max(1, fontScale / 1.2))),
@@ -300,9 +307,9 @@ function Workshop() {
       contentContainerStyle={{
         flexGrow: 1,
         width: '100%',
-        maxWidth: 1180,
+        maxWidth: layout.maxWidth,
         alignSelf: 'center',
-        paddingHorizontal: width < 800 ? 18 : 32,
+        paddingHorizontal: layout.padding,
         paddingTop: scenePadding.top,
         paddingBottom: scenePadding.bottom,
       }}
@@ -318,11 +325,14 @@ function Workshop() {
         }
         style={{
           flexDirection: wide ? 'row' : 'column',
-          gap: 28,
+          gap: layout.gap,
           alignItems: wide ? 'flex-start' : 'stretch',
         }}
       >
-        <View testID="integrated-game-scene" style={{ flex: wide ? 1.35 : undefined }}>
+        <View
+          testID="integrated-game-scene"
+          style={{ width: wide ? layout.boardWidth : undefined }}
+        >
           <PageFolio page={save.current} />
           <ChapterVignette
             plant={plant}
@@ -361,6 +371,7 @@ function Workshop() {
               />
             )}
             <LiquidBoard
+              initialWidth={layout.boardWidth}
               integrated
               reward={victory && winReady ? null : tubeReward}
               onRewardDone={(id) =>
@@ -377,7 +388,7 @@ function Workshop() {
               onFinish={finishPour}
             />
           </View>
-          <HintSlot>
+          <HintSlot key={`${layout.boardWidth}/${fontScale}`} layoutWidth={layout.boardWidth}>
             {note.kind === 'hint' && (
               <HintScroll
                 key={note.request}

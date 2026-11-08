@@ -22,19 +22,60 @@ import { Soundscape } from '../src/components/Soundscape';
 import { unlockAmbience } from '../src/services/ambience';
 import { SeedPouch } from '../src/components/SeedPouch';
 import { BookEntrance } from '../src/components/BookEntrance';
+import { HintSlot, hintLayoutKey } from '../src/components/HintSlot';
+import { workshopLayout } from '../src/layout/workshop';
 import { BookActionsContext } from '../src/components/BookActions';
 function Shell() {
   const insets = useSafeAreaInsets();
-  const { width, height } = useWindowDimensions(),
+  const { width, height, fontScale } = useWindowDimensions(),
     mobile = width < 800,
     path = usePathname(),
     playing = path === '/atelier',
     home = path === '/';
-  const [sceneHeight, setSceneHeight] = React.useState(0);
   const { save, setSave, ready, error, retry } = useGame();
   const [replayOpen, setReplayOpen] = React.useState(false);
+  const [sceneHeight, setSceneHeight] = React.useState(0);
+  const [availableWidth, setAvailableWidth] = React.useState(0);
+  const [greenhouseReady, setGreenhouseReady] = React.useState(false);
+  const [hintReadyKey, setHintReadyKey] = React.useState('');
+  const [workshopRequest, setWorkshopRequest] = React.useState<{
+    replace: boolean;
+    owner: string;
+  } | null>(null);
+  const requested = React.useRef(false);
+  const geometry = workshopLayout(width, availableWidth);
+  const measureKey = hintLayoutKey(geometry.boardWidth, fontScale);
+  const sceneReady = greenhouseReady && availableWidth > 0 && hintReadyKey === measureKey;
+  const onGreenhouseReady = React.useCallback(() => setGreenhouseReady(true), []);
+  const openWorkshop = (replace = false) => {
+    if (requested.current || !save.started || replayOpen) return;
+    requested.current = true;
+    if (sceneReady) {
+      if (replace) router.replace('/atelier');
+      else router.push('/atelier');
+    } else setWorkshopRequest({ replace, owner: path });
+  };
   React.useEffect(() => {
-    if (!save.started) setReplayOpen(false);
+    requested.current = false;
+  }, [path]);
+  React.useEffect(() => {
+    if (!workshopRequest) return;
+    if (workshopRequest.owner !== path || !save.started || replayOpen) {
+      setWorkshopRequest(null);
+      requested.current = false;
+      return;
+    }
+    if (!sceneReady) return;
+    setWorkshopRequest(null);
+    if (workshopRequest.replace) router.replace('/atelier');
+    else router.push('/atelier');
+  }, [workshopRequest, path, sceneReady, save.started, replayOpen]);
+  React.useEffect(() => {
+    if (!save.started) {
+      setReplayOpen(false);
+      setGreenhouseReady(false);
+      setHintReadyKey('');
+    }
   }, [save.started]);
   const [turn, setTurn] = React.useState<TurningPage | null>(null);
   const pendingTurn = React.useRef<(() => void) | null>(null);
@@ -125,35 +166,58 @@ function Shell() {
         ecosystem={Math.floor((save.current - 1) / 20)}
       />
       <PaperTexture background />
-      {playing && (
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+          overflow: 'hidden',
+          opacity: playing ? 1 : 0,
+        }}
+      >
+        <View
+          testID="greenhouse-world-background"
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: Math.max(height, sceneHeight + insets.top),
+          }}
+        >
+          {ready && save.started && <GreenhouseBackdrop onReady={onGreenhouseReady} />}
+          <SceneVeil
+            ground={C.paper}
+            tint={
+              save.theme === 'sauge' ? '#ecf0e4' : save.theme === 'rose' ? '#f5eae3' : undefined
+            }
+          />
+        </View>
+      </View>
+      {ready && save.started && availableWidth > 0 && (
         <View
           pointerEvents="none"
-          style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, overflow: 'hidden' }}
+          accessible={false}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          style={{ position: 'absolute', top: 0, left: 0, width: geometry.boardWidth, opacity: 0 }}
         >
-          <View
-            testID="greenhouse-world-background"
-            pointerEvents="none"
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: Math.max(height, sceneHeight + insets.top),
-            }}
-          >
-            <GreenhouseBackdrop />
-            <SceneVeil
-              ground={C.paper}
-              tint={
-                save.theme === 'sauge' ? '#ecf0e4' : save.theme === 'rose' ? '#f5eae3' : undefined
-              }
-            />
-          </View>
+          <HintSlot
+            key={measureKey}
+            layoutWidth={geometry.boardWidth}
+            measureOnly
+            onReady={setHintReadyKey}
+          />
         </View>
       )}
       <StatusBar style="dark" />
       <View
         style={{ flex: 1 }}
+        onLayout={({ nativeEvent: { layout } }) => setAvailableWidth(layout.width)}
         aria-hidden={!save.started || replayOpen}
         accessibilityElementsHidden={!save.started || replayOpen}
         importantForAccessibility={!save.started || replayOpen ? 'no-hide-descendants' : 'auto'}
@@ -161,9 +225,16 @@ function Shell() {
         {ready ? (
           <SceneSizeContext.Provider value={setSceneHeight}>
             <PageTurnContext.Provider value={turnPage}>
-              <BookChromeContext.Provider value={{ header, motion: save.settings.motion }}>
+              <BookChromeContext.Provider
+                value={{ header, motion: save.settings.motion, availableWidth }}
+              >
                 <BookActionsContext.Provider
-                  value={{ replayPrologue: () => setReplayOpen(true), replaying: replayOpen }}
+                  value={{
+                    replayPrologue: () => setReplayOpen(true),
+                    replaying: replayOpen,
+                    openWorkshop,
+                    enteringWorkshop: !!workshopRequest,
+                  }}
                 >
                   <Slot />
                 </BookActionsContext.Provider>

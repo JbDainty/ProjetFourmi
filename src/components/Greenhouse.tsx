@@ -13,7 +13,7 @@ import {
   Rect,
 } from 'react-native-svg';
 
-function GreenhouseBackdropDrawing() {
+function GreenhouseBackdropDrawing({ onReady }: { onReady?: () => void }) {
   return (
     <View
       pointerEvents="none"
@@ -23,6 +23,8 @@ function GreenhouseBackdropDrawing() {
     >
       <Image
         source={require('../../assets/illustrations/serre.png')}
+        fadeDuration={0}
+        onLoadEnd={onReady}
         resizeMode="cover"
         style={[StyleSheet.absoluteFill, { width: '100%', height: '100%' }]}
       />

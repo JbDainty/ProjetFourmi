@@ -2,16 +2,17 @@ import { BookScrollView } from '../src/components/BookScrollView';
 import { Paper } from '../src/components/Paper';
 import React from 'react';
 import { View, Pressable } from 'react-native';
-import { router } from 'expo-router';
 import { chapters, species } from '../src/data/botany';
 import { useGame } from '../src/state/store';
 import { unlocked, loadLevel } from '../src/state/model';
 import { T, Label, Icon, Progress, C, ui } from '../src/components/ui';
 import { Botanical } from '../src/components/Botanical';
+import { BookActionsContext } from '../src/components/BookActions';
 import { PageTurnContext } from '../src/components/PageTurn';
 export default function Carte() {
   const { save, setSave } = useGame();
   const turnPage = React.useContext(PageTurnContext);
+  const { openWorkshop } = React.useContext(BookActionsContext);
   return (
     <BookScrollView contentContainerStyle={ui.page}>
       <Label>LE CARNET D’EXPLORATION</Label>
@@ -76,7 +77,7 @@ export default function Carte() {
                     onPress={() => {
                       turnPage(id, () => {
                         setSave((s) => loadLevel(s, id));
-                        router.push('/atelier');
+                        openWorkshop();
                       });
                     }}
                     style={{

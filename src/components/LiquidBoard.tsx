@@ -52,6 +52,7 @@ type Props = {
   motion: boolean;
   patterns: boolean;
   integrated?: boolean;
+  initialWidth?: number;
   onTap: (index: number) => void;
   onFinish: () => void;
   reward?: TubeReward | null;
@@ -68,13 +69,14 @@ function LiquidBoardDrawing({
   motion,
   patterns,
   integrated = false,
+  initialWidth = 0,
   onTap,
   onFinish,
   reward,
   onRewardDone,
 }: Props) {
   usePrimaryAnimation(!!pouring);
-  const [width, setWidth] = useState(0),
+  const [width, setWidth] = useState(initialWidth),
     [elapsed, setElapsed] = useState(0);
   const animationMove = useRef<Move | null>(null);
   const tap = useRef(onTap);
