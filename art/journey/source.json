@@ -1,0 +1,8 @@
+{
+  "source": "art/journey/biomes-atlas.png",
+  "sha256": "a655f95438e6206f73bd0b76585cccf4412bacf103b2337108742d6b5aa8e0cc",
+  "dimensions": [1774, 887],
+  "creation": "Illustration originale générée pour Herbier des couleurs avec image_gen le 2026-11-08.",
+  "composition": "Cinq panneaux de largeur égale, vus du dessus : prairie ensoleillée, sous-bois avec lucioles, marais turquoise, rocailles alpines enneigées, garrigue et lavande. Aucun chemin, texte ou élément de jeu dans l’illustration.",
+  "packaging": "scripts/generate-journey-art.mjs découpe les panneaux, les redimensionne et ajoute les bords transparents. Le fichier source ne fait pas partie des assets chargés dans le jeu."
+}

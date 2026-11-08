@@ -74,4 +74,4 @@ Les licences des dépendances JavaScript sont également disponibles dans leurs 
 
 ## Parcours des écosystèmes
 
-`assets/journey/*.png` : cinq paysages originaux vus du dessus, dessinés et rasterisés par `scripts/generate-journey-art.mjs`, sans image externe. Créés pour ce jeu ; réutilisation sous CC0 1.0. Les cadres et médaillons sont des dessins vectoriels originaux dans `JourneyFrame.tsx` et `JourneyMap.tsx`.
+`assets/journey/*.png` : cinq paysages réalistes et magiques vus du dessus, issus d’une illustration originale générée pour ce jeu avec `image_gen`. Source conservée dans `art/journey/biomes-atlas.png`, provenance et SHA-256 dans `art/journey/source.json`. Aucun paysage provenant d’une banque d’images externe. Le script `scripts/generate-journey-art.mjs` prépare les panneaux avec redimensionnement, masque de transparence et palette PNG optimisée. Les cadres et médaillons sont des dessins vectoriels originaux dans `JourneyFrame.tsx` et `JourneyMap.tsx`.

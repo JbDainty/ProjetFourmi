@@ -25,7 +25,7 @@ const landscapes = [
   require('../../assets/journey/montagnes.png'),
   require('../../assets/journey/garrigue.png'),
 ];
-const colors = ['#d3d7ad', '#a0b29a', '#b5c9b5', '#d2d3c4', '#ddd0ae'];
+const colors = ['#718549', '#29442d', '#487f79', '#a2aaa3', '#b5a276'];
 export function JourneyMap({
   save,
   frontier,
@@ -402,19 +402,33 @@ const JourneyNode = memo(function JourneyNode({
           {String(id).padStart(2, '0')}
         </T>
       </Pressable>
-      <T
-        testID={`journey-stars-${id}`}
-        accessibilityLabel={stars ? `${stars} étoiles sur 3` : 'Aucune étoile pour le moment'}
+      <View
         style={{
-          fontSize: 14,
-          lineHeight: 18,
-          letterSpacing: 1,
-          color: stars ? '#956d2d' : '#536e54',
-          fontFamily: stars ? F.body : F.scientific,
+          backgroundColor: '#f1e5c8ed',
+          borderRadius: 8,
+          paddingHorizontal: 6,
+          paddingVertical: 1,
+          marginTop: 1,
+          minWidth: 54,
+          alignItems: 'center',
+          borderWidth: 0.5,
+          borderColor: '#b29d6c',
         }}
       >
-        {stars ? '★'.repeat(stars) + '☆'.repeat(3 - stars) : next ? 'À vous' : 'En cours'}
-      </T>
+        <T
+          testID={`journey-stars-${id}`}
+          accessibilityLabel={stars ? `${stars} étoiles sur 3` : 'Aucune étoile pour le moment'}
+          style={{
+            fontSize: 14,
+            lineHeight: 18,
+            letterSpacing: 1,
+            color: stars ? '#956d2d' : '#536e54',
+            fontFamily: stars ? F.body : F.scientific,
+          }}
+        >
+          {stars ? '★'.repeat(stars) + '☆'.repeat(3 - stars) : next ? 'À vous' : 'En cours'}
+        </T>
+      </View>
     </View>
   );
 });

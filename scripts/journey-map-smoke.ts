@@ -33,6 +33,28 @@ async function main() {
   const scroll = page.getByTestId('ecosystem-map-scroll');
   const root = page.getByTestId('ecosystems-screen');
   const bounds = async () => {
+    // Window dimensions reach React after the CSS viewport has already resized.
+    await expect
+      .poll(() =>
+        page
+          .getByTestId('journey-biome-title')
+          .evaluate((n) => parseFloat(getComputedStyle(n).fontSize)),
+      )
+      .toBe(page.viewportSize()!.height < 550 ? 23 : 32);
+    await expect
+      .poll(async () => {
+        const content = await page.getByTestId('journey-landscape').boundingBox();
+        const viewport = await scroll.boundingBox();
+        return Math.abs(content!.width - viewport!.width);
+      })
+      .toBeLessThan(0.5);
+    // Let the committed resize's initial-position effect finish before a test gesture.
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+        ),
+    );
     const frame = (await page.getByTestId('journey-frame').boundingBox())!;
     const viewport = page.viewportSize()!;
     expect(frame.y).toBeGreaterThanOrEqual(0);
@@ -78,6 +100,7 @@ async function main() {
       await page.screenshot({ path: `test-results/journey-${width}x${height}.png` });
     }
     await page.setViewportSize({ width: 393, height: 852 });
+    await bounds();
     const y = (await page.getByTestId('journey-frame').boundingBox())!.y;
     await scroll.evaluate((n) => (n.scrollTop = n.scrollHeight));
     await expect(page.getByTestId('journey-page-1')).toBeInViewport();
