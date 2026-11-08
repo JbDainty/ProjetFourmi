@@ -1,4 +1,4 @@
-import { openCarnet } from './navigation-test-helper';
+import { openCarnet, openScreen } from './navigation-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { initial, loadLevel, move, type Save } from '../src/state/model';
@@ -92,8 +92,7 @@ async function main() {
     expect(after.seeds).toBe(before.seeds);
     expect(after.board).toEqual(levels[5].board);
     // A page selected from the exploration book uses the same transition coordinator.
-    await page.getByRole('button', { name: 'Ouvrir le carnet' }).click();
-    await page.getByRole('link', { name: 'Écosystèmes' }).click();
+    await openScreen(page, 'Écosystèmes');
     await page.getByRole('button', { name: 'Page 2', exact: true }).click();
     await expect(page.getByTestId('book-page-turn')).toBeVisible();
     await expect(page.getByTestId('book-page-turn')).toHaveCount(0);

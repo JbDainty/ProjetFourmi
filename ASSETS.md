@@ -14,7 +14,7 @@
 - `src/components/RewardStars.tsx` : trois fleurs étoilées originales en SVG, cinq pétales nervurés, cœur de pollen, petits rameaux, dorure et éclats discrets. Éclosion successive et contours des étoiles non obtenues ; aucune image, bibliothèque d’animation ou ressource tierce.
 - `src/components/VictoryPaper.tsx` : lianes originales en SVG qui se dessinent sur les marges de la page de réussite, avec feuilles nervurées et vrilles. Elles remplacent l’encadrement statique sur cet écran et ne prennent pas les gestes.
 - `src/components/StampPrompt.tsx` : courte invitation italique et petites lueurs dorées originales pour l’observation de la planche.
-- `src/components/HerbariumBookButton.tsx` : livre ancien original en SVG, reliure verte, tranche de papier, dorures et plantes gravées. L’animation ouvre la couverture puis révèle le menu ; aucun visuel de couverture externe.
+- `src/components/HerbariumBookButton.tsx` : icône originale de livre botanique gravé, flèche de retour et légende « Menu ». La couverture verte et une feuille dessinées en SVG sont déplacées par des vues natives pendant 320 ms ; aucun dessin externe ni modification du SVG image par image.
 - `src/components/BookScrollView.tsx` : flèche botanique originale en SVG, tige, feuilles nervurées et dorure ; libellé manuscrit Caveat. Le bouton de retour se trouve dans le pied de page, sans superposition aux tubes ou aux commandes.
 - `src/components/PageFolio.tsx` : fleuron de pagination original en SVG, rameaux symétriques et chiffre en Almendra.
 - `src/components/MistakeLeaves.tsx` : feuille porteuse du conseil, nervures, ombre et quatre petites feuilles originales en SVG. Chute douce, balancement puis disparition ; texte manuscrit Caveat, taille adaptée aux petits écrans. Aucune image ou animation tierce.
@@ -64,8 +64,7 @@ Les licences des dépendances JavaScript sont également disponibles dans leurs 
 - `src/components/BotanicalSeal.tsx` et `SealAnimation.tsx` : sceau original de cire rouge bordeaux, gravure botanique en creux et tampon en bois en SVG. Le relief, les reflets et les bords irréguliers sont dessinés sans filtre ; le diamètre sur la planche passe de 76 à 132 unités. Animation par transformations natives de dessins immuables. La cinquième page appose le sceau séparément du cache de couleurs.
 - `assets/seal-impression.wav` : pression de bois et froissement de papier doux, son procédural original de 0,42 seconde sous CC0 ; reproductible avec `python3 scripts/generate-seal-sound.py`. Notice dans `public/licenses/cozy-audio-CC0.txt`.
 
-- `src/components/CarnetIllustration.tsx` : six miniatures SVG originales pour le menu du carnet : livre fleuri, globe botanique, bourse de graines, cadran végétal, verrerie d’atelier et marque-page. Dessin à l’encre sauge, papier ivoire, détails de laiton et couleurs aquarellées ; aucun pictogramme commercial supplémentaire. Les miniatures restent immuables pendant les animations et sont mises en cache dans de petites vues natives.
-- `src/components/CarnetMenu.tsx` : page de garde originale, filets végétaux et vignettes courbes en SVG, typographie avec les polices embarquées déjà documentées. L’ouverture et deux éclats de pollen utilisent une seule progression native finie ; aucune boucle décorative au repos.
+- `src/components/CarnetIllustration.tsx` : huit miniatures SVG originales pour les accès du jeu : livre fleuri, globe botanique, bourse de graines, cadran végétal, verrerie d’atelier et marque-page. Dessin à l’encre sauge, papier ivoire, détails de laiton et couleurs aquarellées ; aucun pictogramme commercial supplémentaire. Les miniatures restent immuables pendant les animations et sont mises en cache dans de petites vues natives.
 
 # Cinématique 3D précalculée
 

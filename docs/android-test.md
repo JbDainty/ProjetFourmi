@@ -20,7 +20,7 @@ Les évolutions d’accueil sont distribuées sur le canal de test `preview` par
 ## Premier essai
 
 - Regarder la cinématique, signer le carnet, puis vérifier l’arrivée sur le cabinet. Démarrer la restauration, consulter ou passer le premier feuillet, puis vérifier les fioles et leur musique avant tout versement.
-- Revenir à l’accueil depuis le menu du livre et continuer la partie : vérifier les mêmes fioles, mouvements et graines. Relancer le jeu : l’accueil doit apparaître directement, sans confirmation de signature.
+- Revenir à l’accueil avec le livre gravé « Menu » et vérifier les accès Herbier, Écosystèmes, Boutique, Paramètres et Aide. Continuer la partie : vérifier les mêmes fioles, mouvements et graines. Relancer le jeu : l’accueil doit apparaître directement, sans confirmation de signature.
 - Terminer une page, révéler sa couleur et continuer ; contrôler les sons, le tintement d’une fiole complète, les étoiles, les graines et le changement de page.
 - Passer l’application en arrière-plan, revenir, puis la fermer et la rouvrir : vérifier la pause audio, la reprise et la conservation du carnet.
 - Dans les paramètres, essayer le silence et les animations désactivées. Au prochain lancement, essayer « Revoir le prologue » ; vérifier le confort sur l’écran et la fluidité du film.

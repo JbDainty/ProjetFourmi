@@ -45,14 +45,14 @@ async function main() {
     const first = levels[0].solution[0];
     await page.getByRole('button', { name: new RegExp(`^Flacon ${first.from + 1},`) }).click();
     const before = await page.evaluate(() => localStorage.getItem('color-world.save'));
-    await page.getByRole('button', { name: 'Ouvrir le carnet' }).click();
-    await expect(page.getByTestId('game-carnet-menu')).toBeVisible();
-    await expect(page.getByTestId('herbarium-book-opening')).toHaveCount(0);
-    await expect(page.getByRole('link', { name: 'Le Grand Herbier', exact: true })).toBeVisible();
-    await page.screenshot({ path: 'test-results/game-carnet-menu.png', fullPage: true });
-    await page.getByRole('button', { name: 'Reprendre la partie' }).click();
-    await expect(page.getByTestId('game-carnet-menu')).toHaveCount(0);
+    await openScreen(page, 'Accueil');
+    await expect(page.getByTestId('home-screen')).toBeVisible();
+    await expect(page.getByTestId('menu-return-opening')).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Herbier', exact: true })).toBeVisible();
+    await page.screenshot({ path: 'test-results/game-main-menu.png', fullPage: true });
+    await openCarnet(page);
     expect(await page.evaluate(() => localStorage.getItem('color-world.save'))).toBe(before);
+    await page.getByRole('button', { name: new RegExp(`^Flacon ${first.from + 1},`) }).click();
     await stamp.click();
     const dialog = page.getByTestId('current-plate-dialog');
     await expect(dialog).toBeVisible();
@@ -165,28 +165,14 @@ async function main() {
       )
       .toBe(1);
     await animated.getByRole('button', { name: 'Annuler', exact: true }).click();
-    await expect(animated.getByTestId('game-carnet-menu')).toHaveCount(0);
+    await expect(animated.getByTestId('menu-return-opening')).toHaveCount(0);
     await animated.screenshot({
       path: 'test-results/living-title-bloomed-mobile.png',
       fullPage: true,
     });
-    await animated.evaluate(() => {
-      const cover = document.getElementById('antique-book-cover')!;
-      const frames = new Set<string>();
-      (window as unknown as { bookFrames: Set<string> }).bookFrames = frames;
-      new MutationObserver(() =>
-        frames.add(cover.parentElement!.getAttribute('transform')!),
-      ).observe(cover.parentElement!, { attributes: true });
-    });
-    await animated.getByRole('button', { name: 'Ouvrir le carnet' }).click();
-    await expect(animated.getByTestId('game-carnet-menu')).toBeVisible();
-    expect(
-      await animated.evaluate(
-        () => (window as unknown as { bookFrames: Set<string> }).bookFrames.size,
-      ),
-    ).toBeGreaterThan(3);
-    await animated.getByRole('button', { name: 'Reprendre la partie' }).click();
-    await expect(animated.getByTestId('game-carnet-menu')).toHaveCount(0);
+    await openScreen(animated, 'Accueil');
+    await expect(animated.getByTestId('home-screen')).toBeVisible();
+    await openCarnet(animated);
     await expect(animated.getByText('PAGE 04', { exact: true })).toBeVisible();
     await openScreen(animated, 'Paramètres');
     await animated.getByRole('switch', { name: 'Animations douces' }).click();

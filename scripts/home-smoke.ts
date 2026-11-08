@@ -29,9 +29,7 @@ async function main() {
     await expect(home).toBeVisible();
     await expect(page.getByTestId('botanical-guide')).toHaveCount(0);
     await expect(page.getByTestId('page-folio')).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'Ouvrir le carnet', exact: true })).toHaveCount(
-      0,
-    );
+    await expect(page.getByRole('button', { name: 'Menu principal', exact: true })).toHaveCount(0);
     await expect(page.getByTestId('herbarium-book-title')).toHaveCount(0);
     await expect(page.getByText('Le cabinet de Dainty', { exact: true })).toHaveCount(0);
     await expect(page.getByTestId('seed-count')).toHaveText('1');
@@ -126,7 +124,7 @@ async function main() {
         page.getByTestId('home-footer'),
         play(),
         page.getByRole('button', { name: /^Graines dorées/ }),
-        ...['Herbier', 'Boutique', 'Paramètres', 'Aide'].map((name) =>
+        ...['Herbier', 'Écosystèmes', 'Boutique', 'Paramètres', 'Aide'].map((name) =>
           page.getByRole('link', { name, exact: true }),
         ),
         page.getByRole('button', { name: 'Revoir le prologue', exact: true }),

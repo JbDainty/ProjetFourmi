@@ -158,9 +158,10 @@ export function HomeScreen() {
   const links: {
     title: string;
     emblem: CarnetEmblem;
-    path: '/herbier' | '/boutique' | '/parametres';
+    path: '/herbier' | '/carte' | '/boutique' | '/parametres';
   }[] = [
     { title: 'Herbier', emblem: 'herbier', path: '/herbier' },
+    { title: 'Écosystèmes', emblem: 'ecosystemes', path: '/carte' },
     { title: 'Boutique', emblem: 'boutique', path: '/boutique' },
     { title: 'Paramètres', emblem: 'parametres', path: '/parametres' },
   ];
@@ -351,6 +352,7 @@ export function HomeScreen() {
       </Animated.View>
     </View>
   );
+  const shortcutColumns = horizontal && bookColumnWidth < 320 ? 2 : 4;
   const footer = (
     <View testID="home-footer" style={{ width: '100%', flexShrink: 0, alignItems: 'center' }}>
       <Animated.View
@@ -360,7 +362,7 @@ export function HomeScreen() {
             maxWidth: 440,
             flexDirection: 'row',
             justifyContent: 'center',
-            gap: 6,
+            flexWrap: 'wrap',
           },
           part(0.55, 0.78),
         ]}
@@ -372,7 +374,7 @@ export function HomeScreen() {
             accessibilityLabel={link.title}
             onPress={() => router.push(link.path)}
             style={({ pressed }) => ({
-              flex: 1,
+              width: `${100 / shortcutColumns}%`,
               minHeight: compact ? 56 : 68,
               alignItems: 'center',
               justifyContent: 'center',
@@ -387,7 +389,7 @@ export function HomeScreen() {
               adjustsFontSizeToFit
               style={{
                 fontFamily: F.scientific,
-                fontSize: compact ? 14 : 15,
+                fontSize: shortcutColumns === 4 && bookColumnWidth < 360 ? 12 : compact ? 14 : 15,
                 lineHeight: compact ? 18 : 21,
                 color: '#627052',
                 marginTop: -2,

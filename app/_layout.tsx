@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Pressable, Modal, useWindowDimensions, Platform } from 'react-native';
+import { View, Pressable, useWindowDimensions, Platform } from 'react-native';
 import { Slot, usePathname, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -22,7 +22,6 @@ import { Soundscape } from '../src/components/Soundscape';
 import { unlockAmbience } from '../src/services/ambience';
 import { SeedPouch } from '../src/components/SeedPouch';
 import { BookEntrance } from '../src/components/BookEntrance';
-import { CarnetMenu, type CarnetPath } from '../src/components/CarnetMenu';
 import { BookActionsContext } from '../src/components/BookActions';
 function Shell() {
   const insets = useSafeAreaInsets();
@@ -31,7 +30,6 @@ function Shell() {
     path = usePathname(),
     playing = path === '/atelier',
     home = path === '/';
-  const [menuOpen, setMenuOpen] = React.useState(false);
   const [sceneHeight, setSceneHeight] = React.useState(0);
   const { save, setSave, ready, error, retry } = useGame();
   const [replayOpen, setReplayOpen] = React.useState(false);
@@ -75,11 +73,6 @@ function Shell() {
         .register(`${basePath}/sw.js`, { scope: `${basePath}/` })
         .catch(() => {});
   }, []);
-  const navigate = (destination: CarnetPath) => {
-    setMenuOpen(false);
-    if (destination === path) return;
-    router.push(destination);
-  };
   const header = (
     <>
       {!home && (
@@ -97,9 +90,8 @@ function Shell() {
           }}
         >
           <HerbariumBookButton
-            open={menuOpen}
             motion={save.settings.motion && !replayOpen}
-            onOpen={() => setMenuOpen(true)}
+            onHome={() => router.dismissTo('/')}
           />
           <View style={{ flex: 1, alignItems: 'center' }}>
             <HerbariumTitle compact={mobile} motion={save.settings.motion} />
@@ -184,19 +176,6 @@ function Shell() {
           </View>
         )}
       </View>
-      {menuOpen && (
-        <Modal transparent animationType="none" onRequestClose={() => setMenuOpen(false)}>
-          <CarnetMenu
-            nickname={save.nickname}
-            page={save.current}
-            path={path}
-            motion={save.settings.motion}
-            onClose={() => setMenuOpen(false)}
-            onResume={() => (playing ? setMenuOpen(false) : navigate('/atelier'))}
-            onNavigate={navigate}
-          />
-        </Modal>
-      )}
       {ready && (!save.started || replayOpen) && (
         <BookEntrance
           key={replayOpen ? 'replay' : 'signature'}

@@ -2,7 +2,7 @@
 
 Le premier lancement suit l’ordre film → signature → accueil du cabinet. Un carnet déjà signé arrive directement sur cet accueil. Le premier bouton de restauration passe ensuite par `BotanicalGuide`, sur `/aide?premiersPas=1`, avant d’entrer dans `/atelier`.
 
-Ce feuillet explique le versement, les quatre mesures identiques exigées pour finir une fiole, les quatre lavis puis le sceau, les étoiles, les graines et les commandes gratuites. Il est accessible librement depuis « Les premiers gestes » sur l’accueil et « Aide » dans le menu du livre.
+Ce feuillet explique le versement, les quatre mesures identiques exigées pour finir une fiole, les quatre lavis puis le sceau, les étoiles, les graines et les commandes gratuites. Il est accessible librement depuis « Aide » sur l’accueil, qui est le menu principal.
 
 L’essai de trois fioles utilise les vraies fonctions `pour` et `won` sur un état local indépendant. Il ne touche ni au plateau, ni aux mouvements, ni à l’historique, ni aux étoiles, ni aux graines de la sauvegarde. Il peut être recommencé et n’est jamais obligatoire pour entrer dans la serre. Le titre apparaît une fois par ouverture du guide ; la sélection d’une fiole est un court déplacement natif. Il n’y a ni boucle décorative ni animation géométrique à chaque image. Le mode sans animations affiche directement le contenu.
 

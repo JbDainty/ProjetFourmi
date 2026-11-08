@@ -111,6 +111,8 @@ async function main() {
         await expect(page.getByRole('heading', { name, exact: true })).toHaveCount(1);
     }
     await page.getByRole('button', { name: 'Fermer l’aide', exact: true }).click();
+    await expect(page.getByTestId('home-screen')).toBeVisible();
+    await openCarnet(page);
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 01');
     expect(await saved()).toEqual(progress);
     await page.reload();

@@ -53,7 +53,7 @@ async function main() {
     await expect.poll(offset).toBeGreaterThan(150);
     await expect(hud).not.toBeInViewport();
     await expect(
-      page.getByRole('button', { name: 'Ouvrir le carnet', exact: true }),
+      page.getByRole('button', { name: 'Menu principal', exact: true }),
     ).not.toBeInViewport();
     await expect(top).toBeInViewport();
     const arrow = (await top.boundingBox())!,

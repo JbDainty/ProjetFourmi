@@ -654,8 +654,7 @@ export function BotanicalGuide({
               {firstRun ? 'Votre première fleur vous attend.' : 'Le jardin vous attend.'}
             </T>
             <T style={[s.aside, { textAlign: 'center', marginTop: 8, marginBottom: 17 }]}>
-              Ouvrez le petit livre, puis « Aide », pour retrouver ce feuillet quand vous le
-              souhaitez.
+              Touchez « Menu », puis « Aide », pour retrouver ce feuillet quand vous le souhaitez.
             </T>
             <VictoryAction icon="leaf-outline" onPress={onEnter}>
               {firstRun ? 'Faire renaître mon herbier' : 'Retrouver mon atelier'}
