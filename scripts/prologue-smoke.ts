@@ -110,19 +110,23 @@ async function main() {
     await expect.poll(() => page.evaluate(() => (window as any).webglReleased)).toBe(1);
     await page.getByRole('textbox', { name: 'Votre pseudo' }).fill('Camille');
     await page.getByRole('button', { name: 'Créer mon carnet', exact: true }).click();
+    await expect(page.getByTestId('home-screen')).toBeVisible();
+    await page.clock.runFor(2700);
+    await page.getByTestId('home-restore-action').getByRole('button').click();
+    await page.getByRole('button', { name: 'Aller directement au jeu', exact: true }).click();
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 01');
     expect(
       await page.evaluate(() => JSON.parse(localStorage.getItem('color-world.save')!).seeds),
     ).toBe(1);
     // A returning player is never forced to watch the film again.
-    await page.reload();
-    await expect(page.getByRole('button', { name: 'Rouvrir mon herbier' })).toBeVisible();
+    await page.goto(url);
+    await expect(page.getByTestId('home-screen')).toBeVisible();
     await expect(book).toHaveCount(0);
     const signed = await page.evaluate(() => localStorage.getItem('color-world.save'));
     await page.getByRole('button', { name: 'Revoir le prologue' }).click();
     await ready();
     await page.getByRole('button', { name: 'Passer le prologue' }).click();
-    await expect(page.getByRole('button', { name: 'Rouvrir mon herbier' })).toBeVisible();
+    await expect(page.getByTestId('home-screen')).toBeVisible();
     expect(await page.evaluate(() => localStorage.getItem('color-world.save'))).toBe(signed);
     // Check a desktop framing and early cancellation without creating a nickname/account.
     await page.evaluate(
@@ -192,7 +196,7 @@ async function main() {
     );
     expect(errors).toEqual([]);
     console.log(
-      'Prologue passed: real textured WebGL book, curved sheets, vortex and blossoms, mobile/desktop framing, natural completion and early skip release context, return gate, context-loss fallback, reduced motion and unchanged initial seed/signature.',
+      'Prologue passed: real textured WebGL book, curved sheets, vortex and blossoms, mobile/desktop framing, natural completion and early skip release context, direct cabinet return, context-loss fallback, reduced motion and unchanged initial seed/signature.',
     );
   } finally {
     await browser.close();

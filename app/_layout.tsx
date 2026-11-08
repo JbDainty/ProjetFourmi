@@ -23,25 +23,21 @@ import { unlockAmbience } from '../src/services/ambience';
 import { SeedPouch } from '../src/components/SeedPouch';
 import { BookEntrance } from '../src/components/BookEntrance';
 import { CarnetMenu, type CarnetPath } from '../src/components/CarnetMenu';
-import { BotanicalGuide } from '../src/components/BotanicalGuide';
+import { BookActionsContext } from '../src/components/BookActions';
+import { F } from '../src/components/fonts';
 function Shell() {
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions(),
     mobile = width < 800,
     path = usePathname(),
-    playing = path === '/';
+    playing = path === '/atelier',
+    home = path === '/';
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [sceneHeight, setSceneHeight] = React.useState(0);
   const { save, setSave, ready, error, retry } = useGame();
-  const [sessionOpen, setSessionOpen] = React.useState(false);
-  const needsGuide = !save.guideSeen;
-  const enterWorkshop = () => {
-    unlockAmbience();
-    setSave((value) => ({ ...value, guideSeen: true }));
-    router.replace('/');
-  };
+  const [replayOpen, setReplayOpen] = React.useState(false);
   React.useEffect(() => {
-    if (!save.started) setSessionOpen(false);
+    if (!save.started) setReplayOpen(false);
   }, [save.started]);
   const [turn, setTurn] = React.useState<TurningPage | null>(null);
   const pendingTurn = React.useRef<(() => void) | null>(null);
@@ -82,6 +78,7 @@ function Shell() {
   }, []);
   const navigate = (destination: CarnetPath) => {
     setMenuOpen(false);
+    if (destination === path) return;
     router.push(destination);
   };
   const header = (
@@ -90,7 +87,7 @@ function Shell() {
         pointerEvents="box-none"
         testID="game-hud"
         style={{
-          minHeight: bookHeaderHeight,
+          minHeight: home ? 62 : bookHeaderHeight,
           paddingTop: 6,
           paddingHorizontal: mobile ? 16 : 28,
           flexDirection: 'row',
@@ -101,13 +98,29 @@ function Shell() {
       >
         <HerbariumBookButton
           open={menuOpen}
-          motion={save.settings.motion}
+          motion={save.settings.motion && !replayOpen}
           onOpen={() => setMenuOpen(true)}
         />
         <View style={{ flex: 1, alignItems: 'center' }}>
-          <HerbariumTitle compact={mobile} motion={save.settings.motion} />
+          {home ? (
+            <T
+              numberOfLines={2}
+              style={{
+                fontFamily: F.scientific,
+                alignSelf: 'stretch',
+                fontSize: 15,
+                lineHeight: 20,
+                textAlign: 'center',
+                color: '#7d704d',
+              }}
+            >
+              {save.nickname ? `Le cabinet de ${save.nickname}` : 'Le cabinet botanique'}
+            </T>
+          ) : (
+            <HerbariumTitle compact={mobile} motion={save.settings.motion} />
+          )}
         </View>
-        <SeedPouch count={save.seeds} motion={save.settings.motion} />
+        <SeedPouch count={save.seeds} motion={save.settings.motion && !replayOpen} />
       </View>
       {error && (
         <Pressable
@@ -131,7 +144,7 @@ function Shell() {
       <Soundscape
         music={ready && save.settings.music}
         sound={save.settings.sound}
-        started={ready && save.started && sessionOpen && !needsGuide}
+        started={ready && save.started && !replayOpen && path !== '/aide'}
         ecosystem={Math.floor((save.current - 1) / 20)}
       />
       <PaperTexture background />
@@ -164,17 +177,19 @@ function Shell() {
       <StatusBar style="dark" />
       <View
         style={{ flex: 1 }}
-        aria-hidden={!save.started || !sessionOpen || needsGuide}
-        accessibilityElementsHidden={!save.started || !sessionOpen || needsGuide}
-        importantForAccessibility={
-          !save.started || !sessionOpen || needsGuide ? 'no-hide-descendants' : 'auto'
-        }
+        aria-hidden={!save.started || replayOpen}
+        accessibilityElementsHidden={!save.started || replayOpen}
+        importantForAccessibility={!save.started || replayOpen ? 'no-hide-descendants' : 'auto'}
       >
         {ready ? (
           <SceneSizeContext.Provider value={setSceneHeight}>
             <PageTurnContext.Provider value={turnPage}>
               <BookChromeContext.Provider value={{ header, motion: save.settings.motion }}>
-                <Slot />
+                <BookActionsContext.Provider
+                  value={{ replayPrologue: () => setReplayOpen(true), replaying: replayOpen }}
+                >
+                  <Slot />
+                </BookActionsContext.Provider>
               </BookChromeContext.Provider>
             </PageTurnContext.Provider>
           </SceneSizeContext.Provider>
@@ -192,38 +207,27 @@ function Shell() {
             path={path}
             motion={save.settings.motion}
             onClose={() => setMenuOpen(false)}
-            onResume={() => (playing ? setMenuOpen(false) : navigate('/'))}
+            onResume={() => (playing ? setMenuOpen(false) : navigate('/atelier'))}
             onNavigate={navigate}
           />
         </Modal>
       )}
-      {ready && (!save.started || !sessionOpen || needsGuide) && (
+      {ready && (!save.started || replayOpen) && (
         <BookEntrance
-          returning={save.started}
+          key={replayOpen ? 'replay' : 'signature'}
+          returning={false}
+          replayOnly={replayOpen}
+          onReplayDone={() => setReplayOpen(false)}
           nickname={save.nickname}
           motion={save.settings.motion}
           music={save.settings.music}
-          onGuideClose={enterWorkshop}
-          guide={
-            save.started && sessionOpen && needsGuide ? (
-              <SafeAreaView style={{ flex: 1, backgroundColor: C.paper }}>
-                <BotanicalGuide
-                  firstRun
-                  nickname={save.nickname}
-                  motion={save.settings.motion}
-                  onEnter={enterWorkshop}
-                  onClose={enterWorkshop}
-                />
-              </SafeAreaView>
-            ) : undefined
-          }
           onMusicChange={(enabled) =>
             setSave((value) => ({ ...value, settings: { ...value.settings, music: enabled } }))
           }
           onEnter={(nickname) => {
             unlockAmbience();
-            setSessionOpen(true);
             if (!save.started) setSave((value) => ({ ...value, nickname, started: true }));
+            router.replace('/');
           }}
         />
       )}

@@ -76,7 +76,7 @@ export default function Carte() {
                     onPress={() => {
                       turnPage(id, () => {
                         setSave((s) => loadLevel(s, id));
-                        router.push('/');
+                        router.push('/atelier');
                       });
                     }}
                     style={{

@@ -48,7 +48,11 @@ async function main() {
     await tube(2).click();
     await tube(1).click();
     await page.locator('#pour-jet').waitFor();
-    await openScreen(page, 'Le Grand Herbier');
+    await page.getByRole('button', { name: 'Ouvrir le carnet', exact: true }).click();
+    // Navigate during the transfer, without Playwright waiting for the menu's
+    // entrance transform to settle after the liquid has already landed.
+    await page.getByRole('link', { name: 'Le Grand Herbier', exact: true }).click({ force: true });
+    await expect(page.getByTestId('game-carnet-menu')).toHaveCount(0);
     await page.waitForTimeout(1900);
     expect((await saved()).moves).toBe(0);
     expect((await saved()).board).toEqual(before.board);

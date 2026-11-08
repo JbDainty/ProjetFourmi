@@ -49,12 +49,15 @@ async function main() {
     await page.getByRole('button', { name: 'Passer le prologue', exact: true }).click();
     await page.getByRole('textbox', { name: 'Votre pseudo', exact: true }).fill('Élise');
     await page.getByRole('button', { name: 'Créer mon carnet', exact: true }).click();
+    await expect(page.getByTestId('home-screen')).toBeVisible();
+    await expect.poll(() => page.evaluate(() => (window as any).ambienceStarts)).toBe(1);
+    await page.getByTestId('home-restore-action').getByRole('button').click();
     await expect(page.getByTestId('botanical-guide')).toBeVisible();
     await expect(
       page.getByText('Bienvenue dans votre carnet, Élise.', { exact: true }),
     ).toBeVisible();
     await expect(page.getByTestId('page-folio')).toHaveCount(0);
-    expect(await page.evaluate(() => (window as any).ambienceStarts)).toBe(0);
+    expect(await page.evaluate(() => (window as any).ambienceStarts)).toBe(1);
     expect((await saved()).guideSeen).toBe(false);
     const before = await saved();
     await page.waitForTimeout(1000);
@@ -69,7 +72,6 @@ async function main() {
     expect(await saved()).toEqual(before);
     // A signed but unread carnet still offers its introduction after an interruption.
     await page.reload();
-    await page.getByRole('button', { name: 'Rouvrir mon herbier', exact: true }).click();
     await expect(page.getByTestId('botanical-guide')).toBeVisible();
     await page.getByRole('button', { name: 'Entrer dans la serre', exact: true }).click();
     await expect(page.getByTestId('botanical-guide')).toHaveCount(0);
@@ -124,6 +126,8 @@ async function main() {
     await page.getByRole('button', { name: 'Passer le prologue', exact: true }).click();
     await page.getByRole('textbox', { name: 'Votre pseudo', exact: true }).fill('Camille');
     await page.getByRole('button', { name: 'Créer mon carnet', exact: true }).click();
+    await expect(page.getByTestId('home-screen')).toBeVisible();
+    await page.getByTestId('home-restore-action').getByRole('button').click();
     await expect(page.getByTestId('botanical-guide')).toBeVisible();
     expect((await saved()).seeds).toBe(1);
     await page.getByRole('button', { name: 'Aller directement au jeu', exact: true }).click();
@@ -140,7 +144,7 @@ async function main() {
     expect((await saved()).seeds).toBe(8);
     expect(errors).toEqual([]);
     console.log(
-      'Guide passed: first signature, interrupted welcome, correct practice pours/win, no progress or seed changes, music waits for the greenhouse, help menu/close, 320/390/1280 layouts, reset, migration.',
+      'Guide passed: first signature, interrupted welcome, correct practice pours/win, no progress or seed changes, cabinet music and workshop restart, help menu/close, 320/390/1280 layouts, reset, migration.',
     );
   } finally {
     await browser.close();

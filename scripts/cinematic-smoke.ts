@@ -84,14 +84,14 @@ async function main() {
     await expect(page.getByTestId('opening-cinematic-video')).toHaveCount(0);
     await page.getByRole('textbox', { name: 'Votre pseudo' }).fill('Camille');
     await page.getByRole('button', { name: 'Créer mon carnet', exact: true }).click();
+    await expect(page.getByTestId('home-screen')).toBeVisible();
+    await page.getByTestId('home-restore-action').getByRole('button').click();
     await expect(page.getByTestId('botanical-guide')).toBeVisible();
     await page.getByRole('button', { name: 'Aller directement au jeu', exact: true }).click();
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 01');
     await page.context().setOffline(false);
-    await page.reload();
-    await expect(
-      page.getByRole('button', { name: 'Rouvrir mon herbier', exact: true }),
-    ).toBeVisible();
+    await page.goto(url);
+    await expect(page.getByTestId('home-screen')).toBeVisible();
     await expect(page.getByTestId('opening-cinematic-video')).toHaveCount(0);
     const saved = await page.evaluate(() => localStorage.getItem('color-world.save'));
     await page.getByRole('button', { name: 'Revoir le prologue' }).click();
@@ -99,6 +99,8 @@ async function main() {
       .poll(() => video().evaluate((v: HTMLVideoElement) => v.currentTime), { timeout: 15000 })
       .toBeGreaterThan(0.2);
     await page.getByRole('button', { name: 'Passer le prologue' }).click();
+    await expect(page.getByTestId('home-screen')).toBeVisible();
+    await expect(page.getByTestId('book-signature-page')).toHaveCount(0);
     expect(await page.evaluate(() => localStorage.getItem('color-world.save'))).toBe(saved);
     await seed(false);
     await expect(page.getByTestId('book-signature-page')).toBeVisible();

@@ -13,11 +13,14 @@ Le profil EAS `preview` compile une application Android autonome au format APK. 
 
 La progression de la version Web reste dans le navigateur : ce premier lancement Android crée un carnet distinct avec une graine. La connexion Expo utilisée pour compiler n’est pas un compte joueur. Les boutons Google/Apple du jeu restent préparatoires ; aucune sauvegarde en ligne n’est encore active.
 
-Un carnet déjà signé arrive sur sa page d’accueil habituelle : toucher **Revoir le prologue** pour voir le nouveau film. Les animations doivent être activées. La signature et la progression existantes sont conservées.
+Un carnet déjà signé arrive directement sur le cabinet, avec ses modes et sa page en cours. **Continuer la restauration** reprend ses fioles ; **Revoir le prologue** rejoue volontairement le film et revient à l’accueil. Les animations doivent être activées pour cette relecture.
+
+Les évolutions d’accueil sont distribuées sur le canal de test `preview` par EAS Update. Après installation d’un APK antérieur à ces évolutions, ouvrir l’application pour télécharger la mise à jour, la fermer complètement puis la rouvrir. L’APK 1.0.2 reste compatible ; la progression locale est conservée.
 
 ## Premier essai
 
-- Regarder la cinématique 3D précalculée, signer le carnet, puis vérifier l’arrivée sur les fioles et le démarrage de la musique avant tout versement.
+- Regarder la cinématique, signer le carnet, puis vérifier l’arrivée sur le cabinet. Démarrer la restauration, consulter ou passer le premier feuillet, puis vérifier les fioles et leur musique avant tout versement.
+- Revenir à l’accueil depuis le menu du livre et continuer la partie : vérifier les mêmes fioles, mouvements et graines. Relancer le jeu : l’accueil doit apparaître directement, sans confirmation de signature.
 - Terminer une page, révéler sa couleur et continuer ; contrôler les sons, le tintement d’une fiole complète, les étoiles, les graines et le changement de page.
 - Passer l’application en arrière-plan, revenir, puis la fermer et la rouvrir : vérifier la pause audio, la reprise et la conservation du carnet.
 - Dans les paramètres, essayer le silence et les animations désactivées. Au prochain lancement, essayer « Revoir le prologue » ; vérifier le confort sur l’écran et la fluidité du film.

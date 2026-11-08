@@ -30,6 +30,8 @@ export function BookEntrance({
   onEnter,
   guide,
   onGuideClose,
+  replayOnly = false,
+  onReplayDone,
 }: {
   returning: boolean;
   nickname: string;
@@ -39,6 +41,8 @@ export function BookEntrance({
   onEnter: (nickname: string) => void;
   guide?: React.ReactNode;
   onGuideClose?: () => void;
+  replayOnly?: boolean;
+  onReplayDone?: () => void;
 }) {
   const value = useRef(new Animated.Value(returning || !motion ? 1 : 0)).current;
   const clock = useMemo(() => movieClock(prologueDuration, () => performance.now()), []);
@@ -58,13 +62,16 @@ export function BookEntrance({
     readPosition,
   );
   const submitted = useRef(false);
+  const replayDone = useRef(onReplayDone);
+  replayDone.current = onReplayDone;
   const finishMovie = useCallback(() => {
     clock.setActive(false);
     clock.seek(1);
     value.stopAnimation();
     value.setValue(1);
     setFinished(true);
-  }, [clock, value]);
+    if (replayOnly) replayDone.current?.();
+  }, [clock, value, replayOnly]);
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
       if (state !== 'active') {

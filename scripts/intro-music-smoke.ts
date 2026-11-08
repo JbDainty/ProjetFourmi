@@ -122,26 +122,40 @@ async function main() {
     await expect.poll(async () => (await scores()).every((voice: any) => voice.stopped)).toBe(true);
     await page.getByRole('textbox', { name: 'Votre pseudo' }).fill('Camille');
     await page.getByRole('button', { name: 'Créer mon carnet', exact: true }).click();
+    await expect(page.getByTestId('home-screen')).toBeVisible();
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            (window as any).scoreVoices.filter((voice: any) => voice.loop && !voice.stopped).length,
+        ),
+      )
+      .toBe(1);
+    await page.getByTestId('home-restore-action').getByRole('button').click();
     await expect(page.getByTestId('botanical-guide')).toBeVisible();
-    expect(
-      await page.evaluate(
-        () => (window as any).scoreVoices.filter((voice: any) => voice.loop).length,
-      ),
-    ).toBe(0);
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            (window as any).scoreVoices.filter((voice: any) => voice.loop && !voice.stopped).length,
+        ),
+      )
+      .toBe(0);
     await page.getByRole('button', { name: 'Aller directement au jeu', exact: true }).click();
     await expect
       .poll(() =>
-        page.evaluate(() => (window as any).scoreVoices.filter((voice: any) => voice.loop).length),
+        page.evaluate(
+          () =>
+            (window as any).scoreVoices.filter((voice: any) => voice.loop && !voice.stopped).length,
+        ),
       )
       .toBe(1);
     expect(
       await page.evaluate(() => JSON.parse(localStorage.getItem('color-world.save')!).moves),
     ).toBe(0);
 
-    await page.reload();
-    await expect(
-      page.getByRole('button', { name: 'Rouvrir mon herbier', exact: true }),
-    ).toBeVisible();
+    await page.goto(url);
+    await expect(page.getByTestId('home-screen')).toBeVisible();
     expect(await scores()).toEqual([]);
     const saved = await page.evaluate(() => localStorage.getItem('color-world.save'));
     await page.getByRole('button', { name: 'Revoir le prologue' }).click();

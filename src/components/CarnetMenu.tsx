@@ -10,7 +10,8 @@ import { T, C } from './ui';
 import { useNativeProgress } from './useNativeProgress';
 import { usePrimaryAnimation } from './usePrimaryAnimation';
 
-export type CarnetPath = '/' | '/herbier' | '/carte' | '/boutique' | '/parametres' | '/aide';
+export type CarnetPath =
+  '/' | '/atelier' | '/herbier' | '/carte' | '/boutique' | '/parametres' | '/aide';
 const destinations = [
   {
     path: '/herbier',
@@ -415,13 +416,32 @@ export function CarnetMenu({
             >
               <Pressable
                 accessibilityRole="link"
-                accessibilityLabel="L’Atelier"
+                accessibilityLabel="Accueil"
                 accessibilityState={{ selected: path === '/' }}
                 onPress={() => onNavigate('/')}
                 style={({ pressed }) => ({
-                  minHeight: 44,
-                  flexDirection: 'row',
-                  gap: 5,
+                  flex: 1,
+                  minHeight: 64,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: pressed ? 0.6 : 1,
+                })}
+              >
+                <CarnetIllustration name="accueil" size={33} />
+                <T
+                  style={{ fontFamily: F.scientific, fontSize: 15, lineHeight: 21, color: C.green }}
+                >
+                  Accueil
+                </T>
+              </Pressable>
+              <Pressable
+                accessibilityRole="link"
+                accessibilityLabel="L’Atelier"
+                accessibilityState={{ selected: path === '/atelier' }}
+                onPress={() => onNavigate('/atelier')}
+                style={({ pressed }) => ({
+                  minHeight: 64,
+                  gap: 0,
                   alignItems: 'center',
                   justifyContent: 'center',
                   paddingHorizontal: 6,
@@ -443,16 +463,15 @@ export function CarnetMenu({
                 onPress={() => onNavigate('/aide')}
                 style={({ pressed }) => ({
                   flex: 1,
-                  minHeight: 48,
-                  flexDirection: 'row',
-                  gap: 5,
+                  minHeight: 64,
+                  gap: 0,
                   alignItems: 'center',
                   justifyContent: 'center',
                   paddingHorizontal: 6,
                   opacity: pressed ? 0.6 : 1,
                 })}
               >
-                <CarnetIllustration name="aide" size={37} />
+                <CarnetIllustration name="aide" size={33} />
                 <T
                   style={{ fontFamily: F.scientific, fontSize: 17, lineHeight: 23, color: C.green }}
                 >

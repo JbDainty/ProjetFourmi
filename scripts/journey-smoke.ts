@@ -45,10 +45,12 @@ async function main() {
     await page.screenshot({ path: 'test-results/book-signature-mobile.png' });
     await page.getByRole('button', { name: 'Créer mon carnet', exact: true }).click();
     await expect(page.getByTestId('book-signature-page')).toHaveCount(0);
+    await expect(page.getByTestId('home-screen')).toBeVisible();
+    await page.getByTestId('home-restore-action').getByRole('button').click();
     await expect(page.getByTestId('botanical-guide')).toBeVisible();
     await page.getByRole('button', { name: 'Aller directement au jeu', exact: true }).click();
     await expect(page.getByTestId('page-folio')).toHaveText('PAGE 01');
-    await expect.poll(() => page.evaluate(() => (window as any).musicStarts)).toBe(1);
+    await expect.poll(() => page.evaluate(() => (window as any).musicStarts)).toBe(2);
     expect((await stored()).moves).toBe(0);
     expect((await stored()).nickname).toBe('Élise des bois');
     expect((await stored()).seeds).toBe(1);
@@ -100,8 +102,8 @@ async function main() {
       'Versez le flacon 1 dans le flacon 3.',
     );
     expect((await stored()).seeds).toBe(0);
-    await page.reload();
-    await expect(page.getByTestId('book-signature-page')).toContainText('L’herbier de Camille');
+    await page.goto(url);
+    await expect(page.getByText('Le cabinet de Camille', { exact: true })).toBeVisible();
     await expect(page.getByTestId('book-opening-film')).toHaveCount(0);
     await openCarnet(page);
     await hint.click();
