@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, View, useWindowDimensions } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { useGame } from '../state/store';
@@ -124,26 +124,52 @@ export function HomeScreen() {
   const progress = homeProgress(save);
   const [focused, setFocused] = useState(true);
   const entering = useRef(false);
+  const [departure, setDeparture] = useState<(() => void) | null>(null);
+  const performed = useRef<(() => void) | null>(null);
   useFocusEffect(
     useCallback(() => {
       setFocused(true);
       entering.current = false;
+      setDeparture(null);
+      performed.current = null;
       return () => setFocused(false);
     }, []),
   );
   const { replayPrologue, replaying, openWorkshop, enteringWorkshop } =
     useContext(BookActionsContext);
-  const { value, settled } = useNativeProgress(2600, save.settings.motion && focused && !replaying);
-  usePrimaryAnimation(!settled);
+  const { value, settled } = useNativeProgress(
+    2600,
+    save.settings.motion && focused && !replaying && !departure,
+  );
+  usePrimaryAnimation(!settled && focused && !replaying && !departure);
+  const leave = (go: () => void) => setDeparture(() => go);
+  useEffect(() => {
+    if (!departure || !settled || !focused || replaying || performed.current === departure) return;
+    // Cancel the native entrance and commit its final pose before changing screens.
+    // No fixed wait: one painted layout is enough, including with reduced motion.
+    const frame = requestAnimationFrame(() => {
+      performed.current = departure;
+      departure();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [departure, settled, focused, replaying]);
+  useEffect(() => {
+    if (!replaying) return;
+    setDeparture(null);
+    performed.current = null;
+    entering.current = false;
+  }, [replaying]);
   const enter = () => {
     if (entering.current) return;
     entering.current = true;
     unlockAmbience();
-    if (!save.guideSeen) router.push({ pathname: '/aide', params: { premiersPas: '1' } });
-    else openWorkshop();
+    leave(() => {
+      if (!save.guideSeen) router.push({ pathname: '/aide', params: { premiersPas: '1' } });
+      else openWorkshop();
+    });
   };
   const observe = () =>
-    router.push({ pathname: '/herbier', params: { plant: String(progress.plant) } });
+    leave(() => router.push({ pathname: '/herbier', params: { plant: String(progress.plant) } }));
   const part = (from: number, to: number) => ({
     opacity: value.interpolate({
       inputRange: [from, to],
@@ -326,11 +352,11 @@ export function HomeScreen() {
             <VictoryAction
               icon="leaf-outline"
               onPress={enter}
-              disabled={enteringWorkshop}
+              disabled={enteringWorkshop || (!!departure && entering.current)}
               compact={compact}
               maxFontSizeMultiplier={1.3}
             >
-              {enteringWorkshop
+              {enteringWorkshop || (!!departure && entering.current)
                 ? 'Préparation…'
                 : progress.firstPage
                   ? 'Commencer'
@@ -381,7 +407,7 @@ export function HomeScreen() {
             key={link.path}
             accessibilityRole="link"
             accessibilityLabel={link.title}
-            onPress={() => router.push(link.path)}
+            onPress={() => leave(() => router.push(link.path))}
             style={({ pressed }) => ({
               width: `${100 / shortcutColumns}%`,
               minHeight: compact ? 56 : 68,
@@ -420,7 +446,7 @@ export function HomeScreen() {
         <Pressable
           accessibilityRole="link"
           accessibilityLabel="Aide"
-          onPress={() => router.push('/aide')}
+          onPress={() => leave(() => router.push('/aide'))}
           style={({ pressed }) => ({
             minHeight: 44,
             paddingHorizontal: 9,
@@ -444,7 +470,7 @@ export function HomeScreen() {
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Revoir le prologue"
-              onPress={replayPrologue}
+              onPress={() => leave(replayPrologue)}
               style={({ pressed }) => ({
                 minHeight: 44,
                 paddingHorizontal: 8,
