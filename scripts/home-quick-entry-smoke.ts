@@ -12,7 +12,7 @@ async function main() {
   try {
     for (const scenario of [
       { target: 'play', motion: true, guide: true, destination: 'page-folio' },
-      { target: 'book', motion: true, guide: true, destination: 'book-page-scroll' },
+      { target: 'book', motion: true, guide: true, destination: 'herbarium-direct-plate' },
       { target: 'ecosystem', motion: true, guide: true, destination: 'ecosystems-screen' },
       { target: 'play', motion: true, guide: false, destination: 'botanical-guide' },
       { target: 'play', motion: false, guide: true, destination: 'page-folio' },

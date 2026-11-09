@@ -94,11 +94,10 @@ async function main() {
     await expect(page.getByText('Votre collection est complète.')).toBeVisible();
     await page.getByRole('button', { name: 'Passer l’animation' }).click();
     await page.getByRole('button', { name: 'Contempler mon herbier' }).click();
-    await expect(page.getByText('20 / 20 PLANCHES RESTAURÉES')).toBeVisible();
+    await expect(page.getByText('20 / 20 PLANCHES ESTAMPILLÉES')).toBeVisible();
     await page.reload();
-    await openCarnet(page);
     await openScreen(page, 'Le Grand Herbier');
-    await expect(page.getByText('20 / 20 PLANCHES RESTAURÉES')).toBeVisible();
+    await expect(page.getByText('20 / 20 PLANCHES ESTAMPILLÉES')).toBeVisible();
     // The service worker caches a complete installed export, not just the visited screen.
     await page.evaluate(async () => {
       await navigator.serviceWorker.ready;
