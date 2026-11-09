@@ -1,6 +1,5 @@
 import { F } from '../src/components/fonts';
 import { Paper } from '../src/components/Paper';
-import { StampPrompt } from '../src/components/StampPrompt';
 import { PageTurnContext } from '../src/components/PageTurn';
 import React, { useEffect, useRef, useState } from 'react';
 import { View, ScrollView, Pressable, Modal, useWindowDimensions } from 'react-native';
@@ -12,18 +11,14 @@ import levels from '../src/data/levels.json';
 import { species } from '../src/data/botany';
 import { LiquidBoard } from '../src/components/LiquidBoard';
 import { Botanical } from '../src/components/Botanical';
-import { ChapterVignette } from '../src/components/ChapterVignette';
 import { SpellIcon } from '../src/components/SpellIcon';
-import { PageFolio } from '../src/components/PageFolio';
 import { HintScroll } from '../src/components/HintScroll';
-import { HintSlot, emptySeedHint, missingPathHint } from '../src/components/HintSlot';
+import { HintSlot, emptySeedHint, missingPathHint, compactHint } from '../src/components/HintSlot';
 import { MistakeLeaves } from '../src/components/MistakeLeaves';
 import { SceneSizeContext } from '../src/components/SceneSize';
-import {
-  BookScrollView,
-  BookChromeContext,
-  bookHeaderHeight,
-} from '../src/components/BookScrollView';
+import { BookChromeContext } from '../src/components/BookScrollView';
+import { WorkshopHud, WorkshopCaption } from '../src/components/WorkshopChrome';
+import { WorkshopPlate } from '../src/components/WorkshopPlate';
 import { T, Label, Icon, Button, C, ui } from '../src/components/ui';
 import { feedback } from '../src/services/feedback';
 import { playPourSound } from '../src/services/pourSound';
@@ -33,11 +28,9 @@ import { completedByPour, type TubeReward } from '../src/animation/tubeReward';
 import { playVialChime } from '../src/services/vialChime';
 import { preparePageArtwork } from '../src/services/pageArtwork';
 import { RestorationProgress } from '../src/components/RestorationProgress';
-import { useMeasuredSize } from '../src/components/useMeasuredSize';
 import { RestorationResult } from '../src/components/RestorationResult';
 import { workshopLayout } from '../src/layout/workshop';
 type Note = { text: string; kind: 'info' | 'hint'; request: number; pending: boolean };
-const scenePadding = { top: 0, bottom: 20 };
 export default function Atelier() {
   const { save } = useGame();
   if (!save.started) return null;
@@ -48,15 +41,17 @@ export default function Atelier() {
 function Workshop() {
   const reportSceneHeight = React.useContext(SceneSizeContext);
   const turnPage = React.useContext(PageTurnContext);
-  const scroll = useRef<ScrollView>(null);
   const { save, setSave } = useGame(),
-    { width, fontScale } = useWindowDimensions();
-  const { availableWidth } = React.useContext(BookChromeContext);
-  const layout = workshopLayout(width, availableWidth);
+    { width, height, fontScale } = useWindowDimensions();
+  const { availableWidth, availableHeight, hintHeight } = React.useContext(BookChromeContext);
+  const layout = workshopLayout(width, availableWidth, {
+    height: availableHeight || height,
+    tubes: save.board.length,
+    fontScale,
+    hintHeight,
+  });
   const { wide } = layout;
-  const scene = useMeasuredSize(({ height: measured }) =>
-    reportSceneHeight(measured + bookHeaderHeight + scenePadding.top + scenePadding.bottom),
-  );
+  useEffect(() => reportSceneHeight(layout.height), [layout.height, reportSceneHeight]);
   const [replay, setReplay] = useState(!!save.completed[save.current]);
   const [tubeReward, setTubeReward] = useState<TubeReward | null>(null);
   const [winReady, setWinReady] = useState(won(save.board));
@@ -93,7 +88,6 @@ function Workshop() {
   const clearNote = () =>
     setNote((previous) => ({ ...previous, text: '', kind: 'info', pending: false }));
   useEffect(() => {
-    scroll.current?.scrollTo({ y: 0, animated: false });
     setReplay(!!save.completed[save.current]);
     setSelected(null);
     setHint(null);
@@ -280,67 +274,156 @@ function Workshop() {
       stopReveal.current();
       stopChime.current();
       setSealFinished(false);
-      scroll.current?.scrollTo({ y: 0, animated: false });
       setSave((value) => loadLevel(value, current));
       setDismissed(false);
     });
   };
+  const chromeProps = {
+    layout,
+    plant,
+    stage,
+    page: save.current,
+    seeds: save.seeds,
+    motion: save.settings.motion,
+    busy,
+    onOpen: () => setPlateOpen(true),
+  };
+  const actions = (
+    <Paper
+      testID="game-actions"
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 4,
+        paddingVertical: layout.compact ? 2 : 4,
+        paddingHorizontal: 6,
+        borderRadius: 30,
+        backgroundColor: '#f4ead6ee',
+        width: '100%',
+        height: layout.actionsHeight,
+        maxWidth: 420,
+        alignSelf: 'center',
+      }}
+    >
+      {[
+        {
+          name: 'Annuler',
+          icon: 'undo' as const,
+          action: () => {
+            setSave(undo);
+            setSelected(null);
+            setHint(null);
+            clearNote();
+            setTubeReward(null);
+            stopPour.current();
+            stopChime.current();
+          },
+          disabled: !save.history.length || victory,
+        },
+        {
+          name: 'Recommencer',
+          icon: 'restart' as const,
+          action: () => {
+            setSave((v) => loadLevel(v, v.current));
+            setSelected(null);
+            setHint(null);
+            clearNote();
+            setDismissed(false);
+            setTubeReward(null);
+            stopPour.current();
+            stopChime.current();
+          },
+          disabled: false,
+        },
+        { name: 'Indice', icon: 'hint' as const, action: askHint, disabled: victory },
+      ].map((a) => (
+        <Pressable
+          key={a.name}
+          accessibilityLabel={a.name}
+          accessibilityRole="button"
+          accessibilityHint={
+            a.name === 'Indice'
+              ? currentHint(save)
+                ? 'Conseil déjà cueilli, sans nouvelle dépense'
+                : 'Un nouveau conseil coûte une graine'
+              : undefined
+          }
+          onPress={a.action}
+          disabled={busy || a.disabled}
+          style={{
+            alignItems: 'center',
+            gap: 1,
+            flex: 1,
+            minWidth: 0,
+            minHeight: 44,
+            justifyContent: 'center',
+            paddingVertical: 0,
+            paddingHorizontal: 2,
+            opacity: a.disabled ? 0.35 : 1,
+          }}
+        >
+          <SpellIcon size={layout.compact ? 20 : 26} name={a.icon} />
+          <T
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            maxFontSizeMultiplier={1.15}
+            style={{
+              fontFamily: F.handwritingMedium,
+              fontSize: layout.compact ? 16 : 18,
+              lineHeight: layout.compact ? 18 : 20,
+              color: C.green,
+              textAlign: 'center',
+              maxWidth: '100%',
+            }}
+          >
+            {a.name}
+          </T>
+          {!layout.tiny &&
+            !layout.landscape &&
+            !(layout.compact && fontScale > 1.1) &&
+            (a.name === 'Indice' ? (
+              <T
+                testID="hint-seed-price"
+                maxFontSizeMultiplier={1}
+                style={{
+                  fontSize: 10,
+                  lineHeight: 12,
+                  color: C.muted,
+                  fontFamily: F.scientific,
+                  textAlign: 'center',
+                }}
+              >
+                {currentHint(save) ? 'Déjà cueilli' : '1 graine'}
+              </T>
+            ) : (
+              <View style={{ height: 12 }} />
+            ))}
+        </Pressable>
+      ))}
+    </Paper>
+  );
   return (
-    <BookScrollView
-      ref={scroll}
-      style={{ flex: 1 }}
-      contentContainerStyle={{
-        flexGrow: 1,
+    <View
+      testID="workshop-screen"
+      style={{
+        flex: 1,
+        minHeight: 0,
         width: '100%',
         maxWidth: layout.maxWidth,
         alignSelf: 'center',
-        paddingHorizontal: layout.padding,
-        paddingTop: scenePadding.top,
-        paddingBottom: scenePadding.bottom,
+        padding: layout.padding,
       }}
     >
+      <WorkshopHud {...chromeProps} />
       <View
-        ref={scene.ref}
-        collapsable={false}
-        onLayout={scene.onLayout}
-        style={{
-          flexDirection: wide ? 'row' : 'column',
-          gap: layout.gap,
-          alignItems: wide ? 'flex-start' : 'stretch',
-        }}
+        testID="integrated-game-scene"
+        style={{ flex: 1, minHeight: 0, flexDirection: wide ? 'row' : 'column', gap: layout.gap }}
       >
-        <View
-          testID="integrated-game-scene"
-          style={{ width: wide ? layout.boardWidth : undefined }}
-        >
-          <PageFolio page={save.current} />
-          <ChapterVignette
-            plant={plant}
-            chapter={chapter}
-            stage={stage}
-            compact={!wide}
-            narrow={width < 360}
-            busy={busy}
-            onOpen={() => setPlateOpen(true)}
-          />
-          {!wide && (
-            <StampPrompt
-              onPress={() => setPlateOpen(true)}
-              disabled={busy}
-              motion={save.settings.motion}
-            />
-          )}
-
-          {save.current === 1 && width >= 800 && (
-            <T style={{ fontSize: 12, color: C.muted, textAlign: 'center', marginTop: 18 }}>
-              Touchez un flacon, puis un autre pour verser.
-            </T>
-          )}
+        <View style={{ width: layout.boardWidth, height: '100%', minHeight: 0, gap: 4 }}>
+          <WorkshopCaption {...chromeProps} />
           <View
             testID="liquid-play-area"
-            style={{
-              paddingVertical: 2,
-            }}
+            style={{ flex: 1, minHeight: 0, justifyContent: 'center' }}
           >
             {note.kind === 'info' && !!note.text && (
               <MistakeLeaves
@@ -352,6 +435,7 @@ function Workshop() {
             )}
             <LiquidBoard
               initialWidth={layout.boardWidth}
+              maxHeight={layout.boardHeight}
               integrated
               reward={victory && winReady ? null : tubeReward}
               onRewardDone={(id) =>
@@ -368,163 +452,49 @@ function Workshop() {
               onFinish={finishPour}
             />
           </View>
-          <HintSlot key={`${layout.boardWidth}/${fontScale}`} layoutWidth={layout.boardWidth}>
-            {note.kind === 'hint' && (
-              <HintScroll
-                key={note.request}
-                text={note.text}
-                pending={note.pending}
-                motion={save.settings.motion}
-                request={note.request}
-              />
-            )}
-          </HintSlot>
-          <Paper
-            testID="game-actions"
+          <View
+            testID="workshop-footer"
             style={{
-              flexDirection: 'row',
-              justifyContent: 'center',
-              gap: 8,
-              paddingVertical: 6,
-              paddingHorizontal: 12,
-              borderRadius: 30,
-              backgroundColor: '#f4ead6ee',
+              height: layout.footerHeight,
               width: '100%',
-              maxWidth: 420,
-              alignSelf: 'center',
+              flexDirection: layout.landscape ? 'row' : 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 4,
             }}
           >
-            {[
-              {
-                name: 'Annuler',
-                icon: 'undo' as const,
-                action: () => {
-                  setSave(undo);
-                  setSelected(null);
-                  setHint(null);
-                  clearNote();
-                  setTubeReward(null);
-                  stopPour.current();
-                  stopChime.current();
-                },
-                disabled: !save.history.length || victory,
-              },
-              {
-                name: 'Recommencer',
-                icon: 'restart' as const,
-                action: () => {
-                  setSave((v) => loadLevel(v, v.current));
-                  setSelected(null);
-                  setHint(null);
-                  clearNote();
-                  setDismissed(false);
-                  setTubeReward(null);
-                  stopPour.current();
-                  stopChime.current();
-                },
-                disabled: false,
-              },
-              { name: 'Indice', icon: 'hint' as const, action: askHint, disabled: victory },
-            ].map((a) => (
-              <Pressable
-                key={a.name}
-                accessibilityLabel={a.name}
-                accessibilityRole="button"
-                onPress={a.action}
-                disabled={busy || a.disabled}
-                style={{
-                  alignItems: 'center',
-                  gap: 3,
-                  flex: 1,
-                  minWidth: 0,
-                  minHeight: 82,
-                  paddingVertical: 6,
-                  paddingHorizontal: 2,
-                  opacity: a.disabled ? 0.35 : 1,
-                }}
+            <View style={{ width: layout.hintWidth, height: layout.hintHeight }}>
+              <HintSlot
+                key={`${layout.hintWidth}/${fontScale}`}
+                layoutWidth={layout.hintWidth}
+                compact
+                fixedHeight={layout.hintHeight}
               >
-                <SpellIcon size={32} name={a.icon} />
-                <T
-                  style={{
-                    fontFamily: F.handwritingMedium,
-                    fontSize: Math.min(19, width / 19),
-                    lineHeight: 24,
-                    color: C.green,
-                    textAlign: 'center',
-                    maxWidth: '100%',
-                  }}
-                >
-                  {a.name}
-                </T>
-                {a.name === 'Indice' ? (
-                  <T
-                    testID="hint-seed-price"
-                    style={{
-                      fontSize: 10,
-                      lineHeight: 16,
-                      color: C.muted,
-                      fontFamily: F.scientific,
-                      textAlign: 'center',
-                    }}
-                  >
-                    {currentHint(save) ? 'Déjà cueilli' : '1 graine'}
-                  </T>
-                ) : (
-                  <View style={{ height: 16 }} />
+                {note.kind === 'hint' && (
+                  <HintScroll
+                    key={note.request}
+                    text={compactHint(note.text)}
+                    spokenText={note.text}
+                    compact
+                    pending={note.pending}
+                    motion={save.settings.motion}
+                    request={note.request}
+                  />
                 )}
-              </Pressable>
-            ))}
-          </Paper>
-        </View>
-        {wide && (
-          <Paper
-            testID="atelier-full-plate"
-            vitality={stage / 5}
-            style={[
-              ui.card,
-              {
-                flex: wide ? 1 : undefined,
-                alignSelf: 'flex-start',
+              </HintSlot>
+            </View>
+            <View
+              style={{
+                width: layout.landscape ? layout.boardWidth - layout.hintWidth - 4 : '100%',
+                height: layout.actionsHeight,
                 alignItems: 'center',
-                padding: 21,
-                overflow: 'hidden',
-              },
-            ]}
-          >
-            <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}>
-              <Label>PLANCHE {String(plant + 1).padStart(2, '0')}</Label>
-              <Icon name="leaf-outline" size={17} color={C.gold} />
-            </View>
-            <Botanical index={plant} stage={stage} size={wide ? 260 : 280} />
-            <T serif style={{ fontSize: 31, lineHeight: 34, marginTop: 5 }}>
-              {s.name}
-            </T>
-            <T style={{ fontFamily: F.scientific, fontSize: 19, color: C.muted, marginTop: 4 }}>
-              {s.latin}
-            </T>
-            <View style={{ width: '100%', marginTop: 23 }}>
-              <View
-                style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}
-              >
-                <T style={{ fontSize: 11, color: C.muted }}>Restauration de la planche</T>
-                <T style={{ fontSize: 11, color: C.green }}>{Math.min(stage, 4)} / 4 couleurs</T>
-              </View>
-              <RestorationProgress stage={stage} />
-            </View>
-            <Pressable
-              accessibilityRole="link"
-              onPress={() =>
-                router.push({ pathname: '/herbier', params: { plant: String(plant) } })
-              }
-              style={{ paddingTop: 18, paddingBottom: 4 }}
+              }}
             >
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Icon name="eye-outline" size={18} color={C.green} />
-                <T style={{ fontSize: 11, color: C.green }}>Observer la planche</T>
-              </View>
-            </Pressable>
-          </Paper>
-        )}
+              {actions}
+            </View>
+          </View>
+        </View>
+        {wide && <WorkshopPlate plant={plant} stage={stage} />}
       </View>
       <Modal
         visible={plateOpen && save.started}
@@ -619,6 +589,6 @@ function Workshop() {
           />
         )}
       </Modal>
-    </BookScrollView>
+    </View>
   );
 }

@@ -20,11 +20,15 @@ export function HintScroll({
   motion,
   request,
   pending,
+  compact = false,
+  spokenText,
 }: {
   text: string;
   motion: boolean;
   request: number;
   pending: boolean;
+  compact?: boolean;
+  spokenText?: string;
 }) {
   const token = 'hint-scroll-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const value = useRef(new Animated.Value(motion ? 0 : 1)).current;
@@ -83,8 +87,8 @@ export function HintScroll({
         style={{
           flex: 1,
           justifyContent: 'center',
-          paddingHorizontal: 20,
-          paddingVertical: 12,
+          paddingHorizontal: compact ? 14 : 20,
+          paddingVertical: compact ? 6 : 12,
         }}
       >
         {width > 0 && (
@@ -207,7 +211,16 @@ export function HintScroll({
               </Svg>
             </Animated.View>
           ))}
-        <PencilNote text={text} handwritten motion={motion} request={request} ready={ready} bare />
+        <PencilNote
+          text={text}
+          handwritten
+          motion={motion}
+          request={request}
+          ready={ready}
+          bare
+          compact={compact}
+          spokenText={spokenText}
+        />
       </View>
     </View>
   );

@@ -57,7 +57,7 @@ async function main() {
       await page.getByTestId('game-actions').scrollIntoViewIfNeeded();
       await page.waitForTimeout(150);
       const before = await geometry();
-      expect(before.slot).toBeGreaterThanOrEqual(78);
+      expect(before.slot).toBeGreaterThanOrEqual(34);
       expect(before.backdrop).toBeGreaterThanOrEqual(height);
       await expect(page.getByTestId('hint-scroll')).toHaveCount(0);
       // Capture actual painted positions through pending search, unrolling and every letter.
@@ -97,7 +97,7 @@ async function main() {
       await page.getByRole('button', { name: 'Indice', exact: true }).click();
       const expected = seeds
         ? `Versez le flacon ${levels[level - 1].solution[0].from + 1} dans le flacon ${levels[level - 1].solution[0].to + 1}.`
-        : 'Votre réserve est vide. Obtenez trois étoiles sur une page pour gagner une graine.';
+        : 'Votre réserve est vide. Visez trois étoiles.';
       await expect(page.getByTestId('hint-writing-text')).toHaveText(expected, { timeout: 10000 });
       await expect(page.getByTestId('hint-pencil')).toHaveCount(0);
       expect(await geometry()).toEqual(before);

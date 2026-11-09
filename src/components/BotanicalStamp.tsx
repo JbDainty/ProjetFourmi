@@ -12,11 +12,13 @@ export function BotanicalStamp({
   stage,
   onPress,
   disabled = false,
+  size = 78,
 }: {
   index: number;
   stage: number;
   onPress: () => void;
   disabled?: boolean;
+  size?: number;
 }) {
   const { colors, sealed } = restorationState(stage);
   const id = 'stamp-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
@@ -30,8 +32,8 @@ export function BotanicalStamp({
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => ({
-        width: 78,
-        height: 104,
+        width: Math.max(44, size),
+        height: Math.max(44, (size * 104) / 78),
         alignItems: 'center',
         justifyContent: 'center',
         opacity: pressed ? 0.78 : 1,
@@ -39,8 +41,8 @@ export function BotanicalStamp({
       })}
     >
       <Svg
-        width="78"
-        height="104"
+        width={size}
+        height={(size * 104) / 78}
         viewBox="0 0 78 104"
         style={{ position: 'absolute' }}
         pointerEvents="none"
@@ -96,8 +98,8 @@ export function BotanicalStamp({
           <SealMark />
         </G>
       </Svg>
-      <View pointerEvents="none" style={{ marginTop: -12 }}>
-        <Botanical index={index} stage={stage} size={58} labels={false} />
+      <View pointerEvents="none" style={{ marginTop: (-12 * size) / 78 }}>
+        <Botanical index={index} stage={stage} size={(58 * size) / 78} labels={false} />
       </View>
     </Pressable>
   );

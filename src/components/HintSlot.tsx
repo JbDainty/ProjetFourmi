@@ -6,11 +6,17 @@ export const emptySeedHint =
   'Votre réserve est vide. Obtenez trois étoiles sur une page pour gagner une graine.';
 export const missingPathHint =
   'Aucun chemin trouvé. Aucune graine dépensée. Annulez vos derniers mouvements ou recommencez.';
+export const compactHint = (text: string) =>
+  text === emptySeedHint
+    ? 'Votre réserve est vide. Visez trois étoiles.'
+    : text === missingPathHint
+      ? 'Annulez ou recommencez. Aucune graine dépensée.'
+      : text;
 const paragraphs = [emptySeedHint, missingPathHint, 'Versez le flacon 12 dans le flacon 13.'];
 
 const measurements = new Map<string, number[]>();
-export const hintLayoutKey = (width: number, fontScale: number) =>
-  `${Math.min(580, width)}/${fontScale}`;
+export const hintLayoutKey = (width: number, fontScale: number, compact = false) =>
+  `${Math.min(580, width)}/${fontScale}/${compact}`;
 
 /** Measure every possible paragraph before a request, including native font scaling.
  * The parchment is an overlay: neither searching nor typing can move the controls. */
@@ -19,20 +25,27 @@ export function HintSlot({
   layoutWidth,
   measureOnly = false,
   onReady,
+  compact = false,
+  fixedHeight,
 }: {
   children?: React.ReactNode;
   layoutWidth: number;
   measureOnly?: boolean;
-  onReady?: (key: string) => void;
+  onReady?: (key: string, height: number) => void;
+  compact?: boolean;
+  fixedHeight?: number;
 }) {
   const { fontScale } = useWindowDimensions();
-  const key = hintLayoutKey(layoutWidth, fontScale);
+  const key = hintLayoutKey(layoutWidth, fontScale, compact);
   const [heights, setHeights] = useState(() => measurements.get(key) ?? paragraphs.map(() => 0));
+  const height =
+    Math.max((compact ? 22 : 54) * (compact ? Math.min(fontScale, 1.15) : fontScale), ...heights) +
+    (compact ? 12 : 24);
   useEffect(() => {
     if (!heights.every((height) => height > 0)) return;
     measurements.set(key, heights);
-    onReady?.(key);
-  }, [heights, key, onReady]);
+    onReady?.(key, height);
+  }, [heights, key, onReady, height]);
   return (
     <View
       testID={measureOnly ? 'hint-slot-probe' : 'hint-scroll-slot'}
@@ -40,8 +53,8 @@ export function HintSlot({
         width: '100%',
         maxWidth: 580,
         alignSelf: 'center',
-        height: Math.max(54 * fontScale, ...heights) + 24,
-        marginBottom: 8,
+        height: fixedHeight ?? height,
+        marginBottom: compact ? 0 : 8,
       }}
     >
       <View
@@ -55,10 +68,18 @@ export function HintSlot({
           <Text
             key={paragraph}
             accessible={false}
+            maxFontSizeMultiplier={compact ? 1.15 : undefined}
             aria-hidden
             style={[
               handwrittenLettering,
-              { position: 'absolute', top: 12, left: 20, right: 46, opacity: 0 },
+              {
+                position: 'absolute',
+                top: compact ? 6 : 12,
+                left: compact ? 14 : 20,
+                right: compact ? 34 : 46,
+                opacity: 0,
+                ...(compact ? { fontSize: 18, lineHeight: 22 } : {}),
+              },
             ]}
             onLayout={({ nativeEvent: { layout } }) =>
               setHeights((previous) => {
@@ -69,7 +90,7 @@ export function HintSlot({
               })
             }
           >
-            {paragraph}
+            {compact ? compactHint(paragraph) : paragraph}
           </Text>
         ))}
       </View>

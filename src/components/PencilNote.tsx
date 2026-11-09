@@ -17,6 +17,8 @@ type Props = {
   request: number;
   ready?: boolean;
   bare?: boolean;
+  compact?: boolean;
+  spokenText?: string;
 };
 export const handwrittenLettering = {
   includeFontPadding: false,
@@ -32,6 +34,8 @@ export function PencilNote({
   request,
   ready = true,
   bare = false,
+  compact = false,
+  spokenText,
 }: Props) {
   const key = text + '\0' + request;
   const characters = Array.from(text);
@@ -96,7 +100,7 @@ export function PencilNote({
   }, [prefix, width, writing]);
 
   const lettering = handwritten
-    ? handwrittenLettering
+    ? { ...handwrittenLettering, ...(compact ? { fontSize: 18, lineHeight: 22 } : {}) }
     : {
         includeFontPadding: false,
         fontFamily: F.body,
@@ -108,21 +112,22 @@ export function PencilNote({
     <View
       testID={writing ? 'pencil-note-writing' : 'pencil-note-idle'}
       accessible
-      accessibilityLabel={ready ? text : undefined}
+      accessibilityLabel={ready ? (spokenText ?? text) : undefined}
       accessibilityLiveRegion="polite"
       onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
       style={{
-        minHeight: bare ? 27 : 44,
+        minHeight: bare ? (compact ? 22 : 27) : 44,
         backgroundColor: bare ? 'transparent' : '#f4ead6ee',
         borderRadius: bare ? 0 : 18,
         paddingVertical: bare ? 0 : 8,
         paddingLeft: bare ? 0 : 14,
-        paddingRight: bare ? 26 : handwritten ? 36 : 14,
+        paddingRight: bare ? (compact ? 20 : 26) : handwritten ? 36 : 14,
         marginBottom: bare ? 0 : 12,
       }}
     >
       {/* Reserve the final paragraph height so the tubes stay still while writing. */}
       <Text
+        maxFontSizeMultiplier={compact ? 1.15 : undefined}
         accessible={false}
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
@@ -133,6 +138,7 @@ export function PencilNote({
       <Text
         ref={textRef}
         testID="hint-writing-text"
+        maxFontSizeMultiplier={compact ? 1.15 : undefined}
         accessible={false}
         accessibilityElementsHidden
         importantForAccessibility="no-hide-descendants"
@@ -143,7 +149,7 @@ export function PencilNote({
             position: 'absolute',
             top: bare ? 0 : 8,
             left: bare ? 0 : 14,
-            right: bare ? 26 : handwritten ? 36 : 14,
+            right: bare ? (compact ? 20 : 26) : handwritten ? 36 : 14,
             textAlign: handwritten ? 'left' : 'center',
           },
         ]}

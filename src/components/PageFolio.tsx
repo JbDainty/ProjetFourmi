@@ -3,14 +3,22 @@ import { View } from 'react-native';
 import Svg, { G, Path, Circle } from 'react-native-svg';
 import { T, C } from './ui';
 
-export function PageFolio({ page }: { page: number }) {
+export function PageFolio({ page, compact = false }: { page: number; compact?: boolean }) {
   return (
-    <View testID="page-folio" style={{ alignItems: 'center', height: 36, marginBottom: 8 }}>
+    <View
+      testID="page-folio"
+      style={{
+        alignItems: 'center',
+        width: compact ? 108 : undefined,
+        height: compact ? 24 : 36,
+        marginBottom: compact ? 0 : 8,
+      }}
+    >
       <Svg
         pointerEvents="none"
         accessible={false}
-        width="172"
-        height="34"
+        width={compact ? 108 : 172}
+        height={compact ? 24 : 34}
         viewBox="0 0 172 34"
         style={{ position: 'absolute' }}
       >
@@ -26,9 +34,22 @@ export function PageFolio({ page }: { page: number }) {
           <Circle cx="167" cy="19" r="1" />
         </G>
       </Svg>
-      <T serif style={{ fontSize: 12, lineHeight: 29, color: '#826c3e', letterSpacing: 1.3 }}>
+      <T
+        serif
+        maxFontSizeMultiplier={compact ? 1 : undefined}
+        style={{
+          fontSize: compact ? 10 : 12,
+          lineHeight: compact ? 22 : 29,
+          color: '#826c3e',
+          letterSpacing: 1.3,
+        }}
+      >
         PAGE{' '}
-        <T serif style={{ fontSize: 25, lineHeight: 29, color: C.green }}>
+        <T
+          serif
+          maxFontSizeMultiplier={compact ? 1 : undefined}
+          style={{ fontSize: compact ? 19 : 25, lineHeight: compact ? 22 : 29, color: C.green }}
+        >
           {String(page).padStart(2, '0')}
         </T>
       </T>

@@ -40,13 +40,23 @@ function Shell() {
   const viewport = useMeasuredSize(({ width }) => setAvailableWidth(width));
   const [greenhouseReady, setGreenhouseReady] = React.useState(false);
   const [hintReadyKey, setHintReadyKey] = React.useState('');
+  const [hintHeight, setHintHeight] = React.useState(56);
+  const onHintReady = React.useCallback((key: string, measured: number) => {
+    setHintReadyKey(key);
+    setHintHeight(measured);
+  }, []);
   const [workshopRequest, setWorkshopRequest] = React.useState<{
     replace: boolean;
     owner: string;
   } | null>(null);
   const requested = React.useRef(false);
-  const geometry = workshopLayout(width, availableWidth);
-  const measureKey = hintLayoutKey(geometry.boardWidth, fontScale);
+  const geometry = workshopLayout(width, availableWidth, {
+    height: viewport.size.height || height - insets.top - insets.bottom,
+    tubes: save.board.length,
+    fontScale,
+    hintHeight,
+  });
+  const measureKey = hintLayoutKey(geometry.hintWidth, fontScale, true);
   const sceneReady = greenhouseReady && availableWidth > 0 && hintReadyKey === measureKey;
   const onGreenhouseReady = React.useCallback(() => setGreenhouseReady(true), []);
   const openWorkshop = (replace = false) => {
@@ -206,13 +216,14 @@ function Shell() {
           accessible={false}
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
-          style={{ position: 'absolute', top: 0, left: 0, width: geometry.boardWidth, opacity: 0 }}
+          style={{ position: 'absolute', top: 0, left: 0, width: geometry.hintWidth, opacity: 0 }}
         >
           <HintSlot
             key={measureKey}
-            layoutWidth={geometry.boardWidth}
+            layoutWidth={geometry.hintWidth}
             measureOnly
-            onReady={setHintReadyKey}
+            onReady={onHintReady}
+            compact
           />
         </View>
       )}
@@ -230,7 +241,13 @@ function Shell() {
           <SceneSizeContext.Provider value={setSceneHeight}>
             <PageTurnContext.Provider value={turnPage}>
               <BookChromeContext.Provider
-                value={{ header, motion: save.settings.motion, availableWidth }}
+                value={{
+                  header,
+                  motion: save.settings.motion,
+                  availableWidth,
+                  availableHeight: viewport.size.height,
+                  hintHeight,
+                }}
               >
                 <BookActionsContext.Provider
                   value={{

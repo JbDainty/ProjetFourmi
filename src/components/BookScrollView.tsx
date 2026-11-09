@@ -16,10 +16,14 @@ export const BookChromeContext = createContext<{
   header: React.ReactNode;
   motion: boolean;
   availableWidth: number;
+  availableHeight: number;
+  hintHeight: number;
 }>({
   header: null,
   motion: true,
   availableWidth: 0,
+  availableHeight: 0,
+  hintHeight: 56,
 });
 
 /** The book's header and return arrow belong to the page, so nothing covers play. */

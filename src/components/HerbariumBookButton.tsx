@@ -143,7 +143,15 @@ function Opening({ onDone }: { onDone: () => void }) {
 }
 
 /** One direct return to the cabinet; only cached native views move during the gesture. */
-export function HerbariumBookButton({ motion, onHome }: { motion: boolean; onHome: () => void }) {
+export function HerbariumBookButton({
+  motion,
+  onHome,
+  compact = false,
+}: {
+  motion: boolean;
+  onHome: () => void;
+  compact?: boolean;
+}) {
   const [opening, setOpening] = useState(false);
   const activated = useRef(false);
   const activate = () => {
@@ -162,26 +170,43 @@ export function HerbariumBookButton({ motion, onHome }: { motion: boolean; onHom
       disabled={opening}
       onPress={activate}
       style={({ pressed }) => ({
-        width: 62,
-        minHeight: 74,
+        width: compact ? 44 : 62,
+        minHeight: compact ? 44 : 74,
         alignItems: 'center',
         justifyContent: 'center',
         opacity: pressed ? 0.8 : 1,
       })}
     >
-      {opening ? <Opening onDone={onHome} /> : <Glyph />}
-      <T
-        maxFontSizeMultiplier={1.3}
-        style={{
-          fontFamily: F.scientific,
-          fontSize: 12,
-          lineHeight: 16,
-          color: '#6a7652',
-          marginTop: -1,
-        }}
-      >
-        Menu
-      </T>
+      <View style={compact ? { width: 44, height: 38, alignItems: 'center' } : undefined}>
+        <View
+          style={
+            compact
+              ? {
+                  width: 56,
+                  height: 50,
+                  transform: [{ scale: 0.72 }],
+                  transformOrigin: 'top center',
+                }
+              : undefined
+          }
+        >
+          {opening ? <Opening onDone={onHome} /> : <Glyph />}
+        </View>
+      </View>
+      {!compact && (
+        <T
+          maxFontSizeMultiplier={1.3}
+          style={{
+            fontFamily: F.scientific,
+            fontSize: 12,
+            lineHeight: 16,
+            color: '#6a7652',
+            marginTop: -1,
+          }}
+        >
+          Menu
+        </T>
+      )}
     </Pressable>
   );
 }

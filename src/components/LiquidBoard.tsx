@@ -15,6 +15,7 @@ import Svg, {
   ClipPath,
   Rect,
 } from 'react-native-svg';
+import { liquidBoardLayout } from '../layout/liquidBoard';
 import { type Board, type Move, pour } from '../engine/puzzle';
 import { palette, symbols, colorNames } from '../data/botany';
 import { C } from './ui';
@@ -53,6 +54,7 @@ type Props = {
   patterns: boolean;
   integrated?: boolean;
   initialWidth?: number;
+  maxHeight?: number;
   onTap: (index: number) => void;
   onFinish: () => void;
   reward?: TubeReward | null;
@@ -70,14 +72,17 @@ function LiquidBoardDrawing({
   patterns,
   integrated = false,
   initialWidth = 0,
+  maxHeight,
   onTap,
   onFinish,
   reward,
   onRewardDone,
 }: Props) {
   usePrimaryAnimation(!!pouring);
-  const [width, setWidth] = useState(Math.round(initialWidth)),
+  const [measuredWidth, setWidth] = useState(Math.round(initialWidth)),
     [elapsed, setElapsed] = useState(0);
+  const width =
+    maxHeight !== undefined && initialWidth > 0 ? Math.round(initialWidth) : measuredWidth;
   const animationMove = useRef<Move | null>(null);
   const tap = useRef(onTap);
   tap.current = onTap;
@@ -92,18 +97,25 @@ function LiquidBoardDrawing({
   const unique = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const id = (name: string, active = false) =>
     `liquid-${unique}-${active ? 'active' : 'still'}-${name}`;
-  const compact = board.length > 7,
-    scale = Math.min(1, width / 290) * (compact ? 0.88 : 1);
-  const columns = Math.min(
-    board.length,
-    Math.max(2, Math.floor(width / (compact ? 55 : Math.max(54, 66 * scale)))),
+  const fitted = useMemo(
+    () => (maxHeight !== undefined ? liquidBoardLayout(width, maxHeight, board.length) : null),
+    [width, maxHeight, board.length],
   );
-  const rowHeight = GLASS_HEIGHT * scale + 36,
-    top = 90 * scale,
-    rows = Math.ceil(board.length / columns),
-    height = top + rows * rowHeight + 4;
+  const compact = board.length > 7;
+  const scale = fitted?.scale ?? Math.min(1, width / 290) * (compact ? 0.88 : 1);
+  const columns =
+    fitted?.columns ??
+    Math.min(
+      board.length,
+      Math.max(2, Math.floor(width / (compact ? 55 : Math.max(54, 66 * scale)))),
+    );
+  const rowHeight = fitted?.rowHeight ?? GLASS_HEIGHT * scale + 36;
+  const top = fitted?.top ?? 90 * scale;
+  const rows = fitted?.rows ?? Math.ceil(board.length / columns);
+  const height = fitted?.height ?? top + rows * rowHeight + 4;
   const layout = useMemo(
     () =>
+      fitted?.positions ??
       board.map((_, i) => {
         const row = Math.floor(i / columns),
           col = i % columns,
@@ -111,7 +123,7 @@ function LiquidBoardDrawing({
           spacing = width / columns;
         return { x: (width - n * spacing) / 2 + (col + 0.5) * spacing, y: top + row * rowHeight };
       }),
-    [board.length, columns, width, top, rowHeight],
+    [board.length, columns, width, top, rowHeight, maxHeight],
   );
   const racks = useMemo(
     () =>
@@ -213,7 +225,10 @@ function LiquidBoardDrawing({
           d="M-24 9 L-23 137 Q-23 160 0 160 Q23 160 23 137 L24 9"
           fill="none"
           stroke={marked ? C.gold : active ? '#638c83' : '#79918d'}
-          strokeWidth={marked || active ? 1.5 : 0.95}
+          strokeWidth={Math.max(
+            marked || active ? 1.5 : 0.95,
+            fitted ? (marked || active ? 0.95 : 0.7) / scale : 0,
+          )}
           strokeOpacity="0.9"
         />
         <Path
@@ -356,7 +371,7 @@ function LiquidBoardDrawing({
                     y={center.y + 4}
                     textAnchor="middle"
                     fill="#fff8e9"
-                    fontSize="16"
+                    fontSize={fitted ? Math.max(16, 8 / scale) : 16}
                     fontFamily={F.bold}
                   >
                     {symbols[layer.color]}
@@ -580,10 +595,10 @@ function LiquidBoardDrawing({
         {layout.map((p, i) => (
           <G key={`label-${i}`}>
             <Rect
-              x={p.x - 11 * scale}
-              y={p.y + 181 * scale}
-              width={22 * scale}
-              height={14 * scale}
+              x={p.x - (fitted ? 12 : 11 * scale)}
+              y={fitted ? p.y + 180 * scale + 3 : p.y + 181 * scale}
+              width={fitted ? 24 : 22 * scale}
+              height={fitted ? 14 : 14 * scale}
               rx={2 * scale}
               fill="#f5e7c8"
               fillOpacity="0.96"
@@ -592,10 +607,10 @@ function LiquidBoardDrawing({
             />
             <SvgText
               x={p.x}
-              y={p.y + 191 * scale}
+              y={fitted ? p.y + 180 * scale + 13 : p.y + 191 * scale}
               fill={hint?.from === i || hint?.to === i ? '#8b5f29' : '#324b3d'}
               textAnchor="middle"
-              fontSize={10 * scale}
+              fontSize={fitted ? 10 : 10 * scale}
               fontFamily={F.medium}
               letterSpacing="1"
             >
@@ -609,6 +624,7 @@ function LiquidBoardDrawing({
       width,
       height,
       scale,
+      maxHeight,
       board,
       selected,
       hint,
@@ -632,16 +648,16 @@ function LiquidBoardDrawing({
           style={{
             position: 'absolute',
             zIndex: 2,
-            left: p.x - 28 * scale,
-            top: p.y - 12 * scale,
-            width: 56 * scale,
-            height: 190 * scale,
+            left: p.x - Math.max(44, 56 * scale) / 2,
+            top: p.y - (fitted ? 6 : 12) * scale,
+            width: Math.max(44, 56 * scale),
+            height: fitted ? 186 * scale + 18 : 190 * scale,
             minWidth: 44,
             minHeight: 44,
           }}
         />
       )),
-    [layout, board, selected, disabled, scale],
+    [layout, board, selected, disabled, scale, maxHeight],
   );
   return (
     <View

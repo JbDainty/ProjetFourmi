@@ -9,9 +9,11 @@ import { TitleVines } from './TitleVines';
 export function HerbariumTitle({
   compact = false,
   motion = true,
+  hud = false,
 }: {
   compact?: boolean;
   motion?: boolean;
+  hud?: boolean;
 }) {
   const growth = useRef(new Animated.Value(0)).current;
   const [progress, setProgress] = useState(0);
@@ -67,10 +69,11 @@ export function HerbariumTitle({
         {progress > 0 && <TitleVines progress={progress} />}
         <T
           serif
+          maxFontSizeMultiplier={hud ? 1 : undefined}
           style={{
             fontWeight: '700',
-            fontSize: compact ? 32 : 42,
-            lineHeight: compact ? 36 : 46,
+            fontSize: hud ? 26 : compact ? 32 : 42,
+            lineHeight: hud ? 29 : compact ? 36 : 46,
             letterSpacing: 0.5,
             color: C.green,
           }}
@@ -79,9 +82,10 @@ export function HerbariumTitle({
         </T>
         <T
           serif
+          maxFontSizeMultiplier={hud ? 1 : undefined}
           style={{
-            fontSize: compact ? 11 : 13,
-            lineHeight: compact ? 15 : 18,
+            fontSize: hud ? 9 : compact ? 11 : 13,
+            lineHeight: hud ? 12 : compact ? 15 : 18,
             letterSpacing: compact ? 2.6 : 3.5,
             color: '#826c3e',
           }}
@@ -90,7 +94,7 @@ export function HerbariumTitle({
         </T>
         <Svg
           width={compact ? 144 : 184}
-          height={compact ? 11 : 14}
+          height={hud ? 8 : compact ? 11 : 14}
           viewBox="0 0 200 18"
           accessible={false}
           pointerEvents="none"

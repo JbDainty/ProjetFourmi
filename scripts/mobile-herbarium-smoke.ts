@@ -108,7 +108,12 @@ async function main() {
     }
     await page.setViewportSize({ width: 1440, height: 1000 });
     await expect(page.getByTestId('atelier-full-plate')).toBeVisible();
-    await expect(stamp).toHaveCount(0);
+    // The fixed caption keeps the same stamp access across phone and desktop layouts.
+    await expect(stamp).toBeInViewport();
+    await stamp.click();
+    await expect(dialog).toBeVisible();
+    await page.getByRole('button', { name: 'Revenir au jeu' }).click();
+    await expect(dialog).toHaveCount(0);
     await expect(page.getByRole('link', { name: 'Le Grand Herbier', exact: true })).toHaveCount(0);
     await page.screenshot({ path: 'test-results/game-hud-desktop.png', fullPage: true });
     // Observe actual SVG frames while the cover opens; the same menu must then be usable.
