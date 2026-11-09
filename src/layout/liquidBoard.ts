@@ -8,15 +8,24 @@ export function liquidBoardLayout(width: number, maxHeight: number, count: numbe
     const rows = Math.ceil(count / columns);
     const scale = Math.max(
       0.05,
-      Math.min(1.05, (width / columns - 6) / 56, (maxHeight - rows * 26 - 4) / (90 + rows * 180)),
+      Math.min(
+        (width / columns - 6) / 56,
+        (maxHeight - rows * 26 - 4) / (90 + rows * 180),
+        (maxHeight - rows * 20 - 4) / (90 + rows * 186),
+      ),
     );
     const last = count - (rows - 1) * columns;
     const imbalance = (columns - last) / columns;
-    const score = scale - rows * 0.025 - imbalance * 0.015;
+    const usedHeight = 90 * scale + rows * Math.max(180 * scale + 26, 186 * scale + 20) + 4;
+    // Prefer readable glass, then reward a well occupied stage. A fixed scale ceiling
+    // made six tubes stay in one tiny row on taller phones even with room for 3 + 3.
+    const coverage = Math.min(1, usedHeight / maxHeight);
+    const score = scale * (0.65 + 0.35 * coverage) - rows * 0.025 - imbalance * 0.015;
     if (score > best.score) best = { columns, rows, scale, score };
   }
   const { columns, rows, scale } = best;
-  const rowHeight = 180 * scale + 26,
+  // Keep hit cells separated when the larger glass also makes them taller.
+  const rowHeight = Math.max(180 * scale + 26, 186 * scale + 20),
     top = 90 * scale,
     height = top + rows * rowHeight + 4;
   const spacing = width / columns;

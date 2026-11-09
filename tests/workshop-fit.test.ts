@@ -8,6 +8,7 @@ const viewports = [
   [360, 640],
   [393, 760],
   [393, 852],
+  [412, 915],
   [430, 932],
   [600, 960],
   [768, 1024],
@@ -66,5 +67,36 @@ describe('fixed workshop composition', () => {
       const b = liquidBoardLayout(377, maxHeight, 6);
       expect([3, 6]).toContain(b.columns);
     }
+  });
+  it('uses the height of tall phones for six tubes instead of capping their size', () => {
+    for (const [width, height] of [
+      [393, 852],
+      [412, 915],
+      [430, 932],
+      [480, 1000],
+    ]) {
+      const space = workshopLayout(width, width, {
+        height,
+        tubes: 6,
+        fontScale: 1,
+      });
+      const board = liquidBoardLayout(space.boardWidth, space.boardHeight, 6);
+      expect(board.columns).toBe(3);
+      expect(board.rows).toBe(2);
+      expect(board.height / space.boardHeight).toBeGreaterThan(0.95);
+      expect(board.scale).toBeGreaterThan(1.05);
+    }
+  });
+  it('adapts tube size and row count to both the level and available space', () => {
+    const early = liquidBoardLayout(396, 600, 4);
+    const full = liquidBoardLayout(396, 600, 9);
+    expect(early.rows).toBe(1);
+    expect(full.rows).toBe(2);
+    expect(early.glassHeight).toBeGreaterThan(full.glassHeight);
+    expect(liquidBoardLayout(396, 650, 6).glassHeight).toBeGreaterThan(
+      liquidBoardLayout(396, 500, 6).glassHeight,
+    );
+    // A short landscape still uses a single row when there is no height for two.
+    expect(liquidBoardLayout(800, 200, 6).rows).toBe(1);
   });
 });
