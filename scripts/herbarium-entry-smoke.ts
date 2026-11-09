@@ -46,13 +46,7 @@ async function main() {
       const cdp = await page.context().newCDPSession(page);
       await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
       try {
-        await page.goto(url);
-        const book = page.getByRole('button', {
-          name: 'Observer ma planche dans l’herbier',
-          exact: true,
-        });
-        await book.waitFor({ state: 'attached' });
-        await page.evaluate(() => {
+        await page.addInitScript(() => {
           (window as any).plateEntryFrames = [];
           (window as any).plateEntrySampling = true;
           const sample = () => {
@@ -68,11 +62,8 @@ async function main() {
           };
           requestAnimationFrame(sample);
         });
-        await book.evaluate((node: HTMLElement) => {
-          node.click();
-          node.click();
-          node.click();
-        });
+        const plateUrl = `${url}herbier?plant=${Math.floor((scenario.current - 1) / 5)}`;
+        await page.goto(plateUrl);
         await page.waitForFunction(() => (window as any).plateEntryFrames.length > 2);
         const frames = await page.evaluate(
           () =>
@@ -116,7 +107,7 @@ async function main() {
         await expect(page.getByTestId('herbarium-plate')).toHaveCount(0);
         await page.getByRole('button', { name: 'Menu principal', exact: true }).click();
         await expect(page.getByTestId('home-screen')).toBeVisible();
-        await book.evaluate((node: HTMLElement) => node.click());
+        await page.goto(plateUrl);
         await expect(plate).toBeVisible();
         await plate.getByRole('button', { name: 'Fermer la planche', exact: true }).click();
         expect(
@@ -128,7 +119,7 @@ async function main() {
       }
     }
     console.log(
-      'Herbarium entry passed: immediate book taps draw only the selected plate from the first destination frame, no collection mounted underneath, zoom, close/Escape, normal collection dialog, repeated return, five restoration/progress cases, phone/tablet and 4× CPU throttling.',
+      'Herbarium entry passed: direct plate links draw only the selected plate from the first destination frame, no collection mounted underneath, zoom, close/Escape, normal collection dialog, repeated return, five restoration/progress cases, phone/tablet and 4× CPU throttling.',
     );
   } finally {
     await browser.close();

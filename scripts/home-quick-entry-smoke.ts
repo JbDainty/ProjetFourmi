@@ -12,7 +12,7 @@ async function main() {
   try {
     for (const scenario of [
       { target: 'play', motion: true, guide: true, destination: 'page-folio' },
-      { target: 'book', motion: true, guide: true, destination: 'herbarium-direct-plate' },
+      { target: 'herbarium', motion: true, guide: true, destination: 'herbarium-collection-title' },
       { target: 'ecosystem', motion: true, guide: true, destination: 'ecosystems-screen' },
       { target: 'play', motion: true, guide: false, destination: 'botanical-guide' },
       { target: 'play', motion: false, guide: true, destination: 'page-folio' },
@@ -44,8 +44,8 @@ async function main() {
         const selector =
           scenario.target === 'play'
             ? '[data-testid=home-restore-action] button'
-            : scenario.target === 'book'
-              ? '[aria-label="Observer ma planche dans l’herbier"]'
+            : scenario.target === 'herbarium'
+              ? '[aria-label="Herbier"][role=link]'
               : '[aria-label="Écosystèmes"][role=link]';
         await page.waitForFunction((selector) => !!document.querySelector(selector), selector);
         const historyBefore = await page.evaluate(() => history.length);
@@ -106,7 +106,7 @@ async function main() {
       }
     }
     console.log(
-      'Quick menu entry passed: immediate triple taps during the entrance settle the menu before the game, book, ecosystems or first guide; no duplicate destination, unchanged save, reduced motion and 4× CPU throttling.',
+      'Quick menu entry passed: immediate triple taps during the entrance settle the menu before the game, herbarium, ecosystems or first guide; no duplicate destination, unchanged save, reduced motion and 4× CPU throttling.',
     );
   } finally {
     await browser.close();

@@ -30,7 +30,12 @@ async function main() {
     await expect(page.getByTestId('botanical-guide')).toHaveCount(0);
     await expect(page.getByTestId('page-folio')).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Menu principal', exact: true })).toHaveCount(0);
-    await expect(page.getByTestId('herbarium-book-title')).toHaveCount(0);
+    await expect(page.getByTestId('home-garden-background')).toBeVisible();
+    await expect(page.getByTestId('home-living-book')).toHaveCount(0);
+    await expect(
+      page.getByRole('button', { name: 'Observer ma planche dans l’herbier', exact: true }),
+    ).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Herbier', exact: true })).toHaveCount(1);
     await expect(page.getByText('Le cabinet de Dainty', { exact: true })).toHaveCount(0);
     await expect(page.getByTestId('seed-count')).toHaveText('1');
     await expect(page.getByRole('heading', { name: 'Modes de jeu', exact: true })).toBeVisible();
@@ -101,6 +106,8 @@ async function main() {
     await expect(home).toBeVisible();
     expect(await stored()).toEqual(progressed);
     for (const [width, height] of [
+      [320, 400],
+      [320, 432],
       [320, 480],
       [320, 568],
       [360, 640],
@@ -152,16 +159,19 @@ async function main() {
       expect(
         await home.evaluate((node) => node.scrollHeight - node.clientHeight),
       ).toBeLessThanOrEqual(1);
-      expect((await play().boundingBox())!.height).toBeGreaterThanOrEqual(48);
-      const title = (await page.getByTestId('home-modes-title').boundingBox())!;
+      const action = (await play().boundingBox())!;
+      const card = (await page.getByTestId('home-restoration-card').boundingBox())!;
+      expect(action.height).toBeGreaterThanOrEqual(48);
+      expect(action.y + action.height).toBeLessThanOrEqual(card.y + card.height + 1);
+      const masthead = (await page.getByTestId('home-masthead').boundingBox())!;
       const seeds = (await page.getByRole('button', { name: /^Graines dorées/ }).boundingBox())!;
-      expect(Math.abs(title.y + title.height / 2 - (seeds.y + seeds.height / 2))).toBeLessThan(2);
-      expect(seeds.x).toBeGreaterThanOrEqual(title.x + title.width);
+      expect(seeds.y).toBeGreaterThanOrEqual(masthead.y - 1);
+      expect(seeds.y + seeds.height).toBeLessThanOrEqual(masthead.y + masthead.height + 1);
       await page.mouse.wheel(0, 800);
       expect(await page.evaluate(() => window.scrollY)).toBe(0);
       await page.screenshot({ path: `test-results/home-fit-${width}x${height}.png` });
     }
-    // Reserve real space for phone system bars; the measured book shrinks again.
+    // Reserve real space for phone system bars; mode cards adapt to the available area.
     await page.setViewportSize({ width: 360, height: 640 });
     await home.evaluate((node) => {
       node.style.paddingTop = '28px';
@@ -231,7 +241,7 @@ async function main() {
     expect((await stored()).completed).toEqual({});
     expect(errors).toEqual([]);
     console.log(
-      'Home passed: signature → cabinet, direct returning launch, real resume preserving board/history/seeds, optional help and first-play guide, voluntary prologue replay, honest future modes, immutable SVG choreography, 15 phone/tablet/landscape sizes without scrolling, safe areas and adjacent working seed reserve, advanced plant progression, reduced motion and reset.',
+      'Home passed: signature → cabinet, direct returning launch, real resume preserving board/history/seeds, optional help and first-play guide, voluntary prologue replay, honest future modes, immutable SVG choreography, 17 phone/tablet/landscape sizes without scrolling, safe areas and masthead seed reserve, advanced plant progression, reduced motion and reset.',
     );
   } finally {
     await browser.close();

@@ -75,3 +75,7 @@ Les licences des dépendances JavaScript sont également disponibles dans leurs 
 ## Parcours des écosystèmes
 
 `assets/journey/*.png` : cinq paysages réalistes et magiques vus du dessus, issus d’une illustration originale générée pour ce jeu avec `image_gen`. Source conservée dans `art/journey/biomes-atlas.png`, provenance et SHA-256 dans `art/journey/source.json`. Aucun paysage provenant d’une banque d’images externe. Le script `scripts/generate-journey-art.mjs` prépare les panneaux avec redimensionnement, masque de transparence et palette PNG optimisée. Les cadres et médaillons sont des dessins vectoriels originaux dans `JourneyFrame.tsx` et `JourneyMap.tsx`.
+
+## Décor du menu principal
+
+`assets/home/garden.png` : illustration originale générée pour le jeu avec `image_gen`, préparée par `scripts/prepare-home-garden.mjs`. Source et provenance dans `art/home/`. Serre et végétation aux bords, centre calme pour les modes. Le pollen, la fougère et le papillon sont des dessins SVG originaux dans `HomeGarden.tsx`, animés par transformations de vues. `RestorationEmblem.tsx` dessine trois fioles de pigments. L’ancien `cabinet-book.png` n’est plus chargé par le menu.

@@ -1,0 +1,7 @@
+{
+  "source": "art/home/garden-source.png",
+  "sha256": "d988f4f0bdf8251d8246f01f243feba58ecbc7fed3e3fb044459d9206015e662",
+  "creation": "Illustration originale générée pour Herbier des couleurs avec image_gen le 2026-11-09.",
+  "composition": "Serre lumineuse, lianes fleuries, fougères et fleurs sauvages sur les bords ; centre calme pour les cartes du menu. Aucun livre, panneau, texte ou icône peint dans le décor.",
+  "packaging": "scripts/prepare-home-garden.mjs prépare une image 900 × 1600 avec palette PNG optimisée. Le fichier original n’est pas chargé par le jeu."
+}
