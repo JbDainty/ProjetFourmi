@@ -119,6 +119,8 @@ async function main() {
       [820, 1180],
       [1024, 768],
       [1280, 900],
+      [480, 280],
+      [480, 320],
       [568, 280],
       [667, 320],
       [740, 360],
@@ -241,7 +243,7 @@ async function main() {
     expect((await stored()).completed).toEqual({});
     expect(errors).toEqual([]);
     console.log(
-      'Home passed: signature → cabinet, direct returning launch, real resume preserving board/history/seeds, optional help and first-play guide, voluntary prologue replay, honest future modes, immutable SVG choreography, 17 phone/tablet/landscape sizes without scrolling, safe areas and masthead seed reserve, advanced plant progression, reduced motion and reset.',
+      'Home passed: signature → cabinet, direct returning launch, real resume preserving board/history/seeds, optional help and first-play guide, voluntary prologue replay, honest future modes, immutable SVG choreography, 19 phone/tablet/landscape sizes without scrolling, safe areas and masthead seed reserve, advanced plant progression, reduced motion and reset.',
     );
   } finally {
     await browser.close();

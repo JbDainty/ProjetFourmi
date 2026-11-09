@@ -131,7 +131,7 @@ export function HomeScreen() {
   const { fontScale } = useWindowDimensions();
   const measured = useMeasuredSize();
   const frame = measured.size;
-  const horizontal = frame.width >= 560 && frame.width > frame.height * 1.12;
+  const horizontal = frame.width >= 480 && frame.width > frame.height * 1.12;
   const short = horizontal && frame.height < 430;
   const tight = frame.height < 560 || (fontScale > 1.1 && frame.height < 680);
   const padding = short ? 6 : tight ? 8 : 14;
