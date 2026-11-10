@@ -5,7 +5,7 @@ import { plantsForEcosystem } from '../src/data/ecology';
 import { chapters } from '../src/data/botany';
 import { restoration } from '../src/state/model';
 import { useGame } from '../src/state/store';
-import { HerbariumPlate } from './herbier';
+import { HerbariumPlate } from '../src/components/HerbariumPlate';
 import { Button, T, C } from '../src/components/ui';
 import { preparePageArtwork } from '../src/services/pageArtwork';
 export default function Carnet() {

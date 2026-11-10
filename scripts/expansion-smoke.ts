@@ -113,7 +113,9 @@ async function main() {
     await page.screenshot({ path: 'test-results/map-1000.png' });
     await seed(real, 'herbier');
     await expect(page.getByTestId('herbarium-collection-title')).toBeVisible();
-    expect(await page.getByRole('button', { name: /^Ouvrir le carnet / }).count()).toBe(20);
+    expect(await page.getByRole('button', { name: /^Ouvrir le carnet / }).count()).toBe(4);
+    for (let shelf = 0; shelf < 4; shelf++)
+      await page.getByRole('button', { name: 'Suite', exact: true }).click();
     await page
       .getByRole('button', { name: 'Ouvrir le carnet Les sous-bois frais', exact: true })
       .click();
