@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initial, restore, resetProgress, Save } from './model';
 const KEY = 'color-world.save';
@@ -16,20 +16,28 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     [error, setError] = useState('');
   const queue = useRef(Promise.resolve());
   const current = useRef(save);
-  useEffect(() => {
-    AsyncStorage.getItem(KEY)
-      .then((raw) => {
-        const s = restore(raw);
-        current.current = s;
-        update(s);
-        setReady(true);
-      })
-      .catch(() =>
-        setError(
-          'La sauvegarde n’a pas pu être lue. Rechargez l’application pour réessayer. Elle n’a pas été remplacée.',
-        ),
+  const loading = useRef(false);
+  const load = useCallback(async () => {
+    if (loading.current) return;
+    loading.current = true;
+    setError('');
+    try {
+      const raw = await AsyncStorage.getItem(KEY);
+      const s = restore(raw);
+      current.current = s;
+      update(s);
+      setReady(true);
+    } catch {
+      setError(
+        'La sauvegarde n’a pas pu être lue. Réessayez l’ouverture du carnet. Vos données n’ont pas été remplacées.',
       );
+    } finally {
+      loading.current = false;
+    }
   }, []);
+  useEffect(() => {
+    void load();
+  }, [load]);
   const persist = (s: Save) => {
     queue.current = queue.current
       .then(() => AsyncStorage.setItem(KEY, JSON.stringify(s)))
@@ -62,7 +70,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   };
   return (
     <Context.Provider
-      value={{ save, setSave, ready, error, retry: () => persist(current.current), reset }}
+      value={{
+        save,
+        setSave,
+        ready,
+        error,
+        retry: () => (ready ? persist(current.current) : void load()),
+        reset,
+      }}
     >
       {children}
     </Context.Provider>

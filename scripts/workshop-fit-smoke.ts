@@ -44,6 +44,7 @@ async function main() {
     await expect(page.getByRole('button', { name: /^Flacon \d+,/ })).toHaveCount(s.board.length);
     return s;
   };
+  const densityPage = levels.find((level) => level.board.length === 7)!.id;
   const check = async (id: number) => {
     const result = await page.evaluate(() => {
       const root = document.querySelector('[data-testid=workshop-screen]')!;
@@ -127,7 +128,7 @@ async function main() {
       ...new Set(
         [...new Set(levels.map((l) => l.board.length))]
           .map((n) => levels.find((l) => l.board.length === n)!.id)
-          .concat([25, 32, 100]),
+          .concat([densityPage, 32, 1000]),
       ),
     ];
     for (const [width, height] of [
@@ -149,14 +150,16 @@ async function main() {
       for (const id of representatives) {
         await seed(id);
         await check(id);
-        if (width === 412 && id === 25) {
+        if (width === 412 && id === densityPage) {
           const board = (await page.getByTestId('liquid-board-idle').boundingBox())!;
           const area = (await page.getByTestId('liquid-play-area').boundingBox())!;
           expect(board.height / area.height).toBeGreaterThan(0.94);
           const first = (await page.getByRole('button', { name: /^Flacon 1,/ }).boundingBox())!;
-          const fourth = (await page.getByRole('button', { name: /^Flacon 4,/ }).boundingBox())!;
+          const fourth = (await page
+            .getByRole('button', { name: new RegExp(`^Flacon ${levels[id - 1].board.length},`) })
+            .boundingBox())!;
           expect(fourth.y - first.y).toBeGreaterThan(100);
-          await page.screenshot({ path: 'test-results/workshop-density-page25-412x915.png' });
+          await page.screenshot({ path: 'test-results/workshop-density-two-rows-412x915.png' });
         }
       }
       await page.screenshot({ path: `test-results/workshop-fit-${width}x${height}.png` });
@@ -200,7 +203,7 @@ async function main() {
     ).toBe(paid.seeds);
     expect(errors).toEqual([]);
     console.log(
-      'Workshop fit passed: all 100 pages on phone, every tube count on 13 additional phone/tablet/landscape formats, tall-phone page 25 fills the play area in two rows, all controls visible with separated 44-point touch targets, no document or game scroll, stable hint and one seed per new hint.',
+      'Workshop fit passed: all 100 pages on phone, every tube count on 13 additional phone/tablet/landscape formats, tall-phone two-row representative fills the play area in two rows, all controls visible with separated 44-point touch targets, no document or game scroll, stable hint and one seed per new hint.',
     );
   } finally {
     await browser.close();

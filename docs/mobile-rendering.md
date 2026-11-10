@@ -46,6 +46,8 @@ Le registre `primaryAnimations` donne la priorité aux versements, au bilan et a
 
 ## Validation
 
+La [revue complète de l’application](application-review.md) décrit les contrôles actuels sur les 1 000 pages, les 200 espèces et les vingt musiques. Les longs cadres natifs utilisent maintenant `foliageSurfaces` : de petites bandes conservent le dessin sans allouer un grand bitmap pour tout le centre vide. Les dimensions, la couverture du pourtour et l’équivalence visuelle sont vérifiées par `tests/foliage-memory.test.ts` et `scripts/native-foliage-smoke.ts`.
+
 - `npm test` : règles existantes et horloge de versement, y compris annulation, arrière-plan, images manquées et fin unique.
 - `npm run typecheck` : composants et scripts.
 - `tests/native-svg.test.ts` : les 71 décalages littéraux de dégradé du jeu sont acceptés sans avertissement par le parseur SVG natif réel.

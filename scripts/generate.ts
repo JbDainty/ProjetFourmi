@@ -1,6 +1,12 @@
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { Board, Move, pour, won, key } from '../src/engine/puzzle';
 import { solveOptimal } from '../src/engine/optimal';
+// This historical generator predates the eight campaign rules. Never replace
+// an expanded campaign with its original hundred classic puzzles by accident.
+if (JSON.parse(readFileSync('src/data/levels.json', 'utf8')).length > 100)
+  throw Error(
+    'Campagne étendue conservée. Utilisez node --import tsx scripts/expand-levels.ts pour générer les 1 000 pages.',
+  );
 let seed = 84239;
 const random = (n: number) => {
   seed = (seed * 1664525 + 1013904223) >>> 0;

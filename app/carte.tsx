@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { chapters, species } from '../src/data/botany';
 import { useGame } from '../src/state/store';
-import { unlocked, loadLevel } from '../src/state/model';
+import { unlocked, loadLevel, restoration } from '../src/state/model';
 import { T, Icon, C } from '../src/components/ui';
 import { Botanical } from '../src/components/Botanical';
 import { Paper } from '../src/components/Paper';
@@ -204,13 +204,7 @@ export default function Carte() {
               >
                 <Botanical
                   index={Math.floor((selected - 1) / 5)}
-                  stage={Math.min(
-                    4,
-                    Array.from(
-                      { length: 5 },
-                      (_, j) => !!save.completed[Math.floor((selected - 1) / 5) * 5 + j + 1],
-                    ).filter(Boolean).length,
-                  )}
+                  stage={restoration(save, Math.floor((selected - 1) / 5))}
                   size={short ? 70 : Math.min(135, height * 0.18)}
                   labels={false}
                 />

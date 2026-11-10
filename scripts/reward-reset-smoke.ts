@@ -16,7 +16,14 @@ function progressedSave() {
   save = loadLevel(save, 9);
   const next = levels[8].solution[0];
   save = move(save, next.from, next.to);
-  save.settings = { motion: false, sound: false, music: false, haptics: false, patterns: true };
+  save.settings = {
+    ...save.settings,
+    motion: false,
+    sound: false,
+    music: false,
+    haptics: false,
+    patterns: true,
+  };
   return save;
 }
 
@@ -128,19 +135,19 @@ async function rewards(page: Page, url: string) {
     music: false,
     haptics: false,
   };
-  for (const level of levels.slice(0, 99)) {
+  for (const level of levels.slice(0, 999)) {
     finalSave = loadLevel(finalSave, level.id);
     for (const m of level.solution) finalSave = move(finalSave, m.from, m.to);
   }
-  finalSave = loadLevel(finalSave, 100);
-  for (const m of levels[99].solution.slice(0, -1)) finalSave = move(finalSave, m.from, m.to);
+  finalSave = loadLevel(finalSave, 1000);
+  for (const m of levels[999].solution.slice(0, -1)) finalSave = move(finalSave, m.from, m.to);
   await page.evaluate(
     (s) => localStorage.setItem('color-world.save', JSON.stringify(s)),
     finalSave,
   );
   await page.goto(url);
   await openCarnet(page);
-  const last = levels[99].solution.at(-1)!;
+  const last = levels[999].solution.at(-1)!;
   await tube(last.from).click();
   await tube(last.to).click();
   await expect(page.getByTestId('page-earned-stars')).toBeVisible();
@@ -152,8 +159,8 @@ async function rewards(page: Page, url: string) {
   const finalReplay = await page.evaluate(() =>
     JSON.parse(localStorage.getItem('color-world.save')!),
   );
-  expect(finalReplay.current).toBe(100);
-  expect(finalReplay.board).toEqual(levels[99].board);
+  expect(finalReplay.current).toBe(1000);
+  expect(finalReplay.board).toEqual(levels[999].board);
   expect(finalReplay.completed).toEqual(completedBook.completed);
   expect(finalReplay.seeds).toBe(completedBook.seeds);
 }
@@ -230,7 +237,7 @@ async function resetting(page: Page, url: string) {
   expect(await stored()).toEqual({ ...initial(), settings: save.settings });
   await openCarnet(page);
   await expect(page.getByTestId('page-folio')).toHaveText('PAGE 01');
-  await expect(page.getByText('✦', { exact: true }).first()).toBeVisible();
+  await expect(page.getByTestId('seed-count')).toHaveText('1');
 }
 
 async function main() {

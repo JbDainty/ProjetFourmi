@@ -32,7 +32,7 @@ describe('minima exacts', () => {
       expect(remainingLowerBound(level.board)).toBeLessThanOrEqual(exact);
     }
   });
-  it('certifies all 100 stored minima and replays every physical tube index', () => {
+  it('certifies all 1000 stored minima and replays every physical tube index', () => {
     for (const level of levels) {
       const original = clone(level.board),
         exact = solveOptimal(level.board, { rules: level.rules })!;

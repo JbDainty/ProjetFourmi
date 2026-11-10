@@ -1,5 +1,6 @@
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
+import { mechanicIds } from '../src/engine/mechanics';
 import { initial, loadLevel, move, type Save } from '../src/state/model';
 import { attemptPuzzle } from '../src/engine/remix';
 import levels from '../src/data/levels.json';
@@ -18,7 +19,12 @@ async function main() {
   const url = process.env.GAME_TEST_URL || 'http://localhost:8146/';
   const saved = () =>
     page.evaluate(() => JSON.parse(localStorage.getItem('color-world.save')!) as Save);
-  let base = { ...initial(), started: true, guideSeen: true };
+  let base: Save = {
+    ...initial(),
+    started: true,
+    guideSeen: true,
+    seenMechanics: [...mechanicIds],
+  };
   for (const level of levels.slice(0, 32)) {
     base = loadLevel(base, level.id);
     for (const m of level.solution) base = move(base, m.from, m.to);

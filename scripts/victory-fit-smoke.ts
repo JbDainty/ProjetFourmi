@@ -183,7 +183,7 @@ async function main() {
       expect(await stored()).toEqual(awarded);
     }
     await page.setViewportSize({ width: 320, height: 568 });
-    await win(100);
+    await win(1000);
     await page.getByRole('button', { name: 'Passer l’animation', exact: true }).click();
     await fits(page, ['Contempler mon herbier', 'Rejouer la page', 'Ouvrir l’herbier'], 320, 568);
     const final = await stored();

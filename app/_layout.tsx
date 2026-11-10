@@ -234,9 +234,11 @@ function Shell() {
         ref={viewport.ref}
         collapsable={false}
         onLayout={viewport.onLayout}
-        aria-hidden={!save.started || replayOpen}
-        accessibilityElementsHidden={!save.started || replayOpen}
-        importantForAccessibility={!save.started || replayOpen ? 'no-hide-descendants' : 'auto'}
+        aria-hidden={ready && (!save.started || replayOpen)}
+        accessibilityElementsHidden={ready && (!save.started || replayOpen)}
+        importantForAccessibility={
+          ready && (!save.started || replayOpen) ? 'no-hide-descendants' : 'auto'
+        }
       >
         {ready ? (
           <SceneSizeContext.Provider value={setSceneHeight}>
@@ -265,7 +267,28 @@ function Shell() {
           </SceneSizeContext.Provider>
         ) : (
           <View style={{ padding: 40, marginTop: 88 }}>
-            <T>Ouverture du carnet…</T>
+            {error ? (
+              <>
+                <T accessibilityRole="alert">{error}</T>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Réessayer l’ouverture du carnet"
+                  onPress={retry}
+                  style={{
+                    marginTop: 20,
+                    minHeight: 48,
+                    borderRadius: 18,
+                    backgroundColor: C.green,
+                    padding: 16,
+                    alignItems: 'center',
+                  }}
+                >
+                  <T style={{ color: '#fff4dd' }}>Réessayer l’ouverture</T>
+                </Pressable>
+              </>
+            ) : (
+              <T>Ouverture du carnet…</T>
+            )}
           </View>
         )}
       </View>

@@ -2,7 +2,7 @@
 
 La campagne principale comporte maintenant **1 000 pages, 200 espèces et 20 écosystèmes**. Huit mécaniques arrivent progressivement, deux au plus par puzzle ; des pages de respiration alternent avec les défis. L’herbier devient une bibliothèque de carnets à feuilleter et la carte virtualise ses rangées. Les paramètres de la version de test permettent d’ouvrir une page dans une session isolée. Voir [le dossier de l’extension](docs/expansion/README.md).
 
-Jeu de tri de pigments en français, réalisé avec Expo SDK 54, React Native, Expo Router et TypeScript strict. Les cent niveaux se répartissent entre cinq écosystèmes et vingt espèces. Les quatre premières pages rendent progressivement ses couleurs à chaque plante ; la cinquième appose un sceau botanique daté.
+Jeu de tri de pigments en français, réalisé avec Expo SDK 54, React Native, Expo Router et TypeScript strict. Les mille pages se répartissent entre vingt écosystèmes et deux cents espèces. Les quatre premières pages rendent progressivement ses couleurs à chaque plante ; la cinquième appose un sceau botanique daté.
 
 ## Tester le jeu sans rien installer
 
@@ -47,13 +47,13 @@ npm install
 npx expo start --web
 ```
 
-Pour une installation reproductible, utiliser `npm ci` avec le fichier `package-lock.json`. Aucun compte ou secret n’est nécessaire pour jouer. Laisser le prologue ouvrir le livre, signer le carnet avec un pseudo, puis sélectionner un flacon source et sa destination. Le flacon doit être vide ou porter la même couleur au sommet. Un groupe contigu se verse dans la limite des quatre couches. Pour gagner, chaque flacon doit être vide ou contenir quatre couches de la même couleur. Une couleur encore répartie entre des flacons partiellement remplis ne valide pas le niveau. Les 1 000 solutions, les indices et les parcours de référence sont vérifiés avec cette condition. Les configurations de départ et les récompenses déjà enregistrées sont conservées.
+Pour une installation reproductible, utiliser `npm ci` avec le fichier `package-lock.json`. Aucun compte ou secret n’est nécessaire pour jouer. Laisser le prologue ouvrir le livre, signer le carnet avec un pseudo, puis sélectionner un flacon source et sa destination. Le flacon doit être vide ou porter la même couleur au sommet. Sur les pages classiques, un groupe contigu se verse dans la limite des quatre couches. Les pages spéciales présentent leurs capacités et contraintes dans une introduction et dans l’aide. Pour gagner, chaque flacon doit être vide ou contenir quatre couches de la même couleur. Une couleur encore répartie entre des flacons partiellement remplis ne valide pas le niveau. Les 1 000 solutions, les indices et les parcours de référence sont vérifiés avec cette condition. Les configurations de départ et les récompenses déjà enregistrées sont conservées.
 
 La barre propose Annuler, Recommencer, Mélanger et Indice, entourés des lianes originales. Un nouvel indice demande confirmation avant de dépenser une graine ; « Ne plus me prévenir » mémorise ce choix, réversible dans les paramètres. Mélanger utilise une graine pour proposer une nouvelle disposition résoluble pour la même page, après confirmation de la remise à zéro des mouvements. L’herbier acquis reste conservé. Le minimum, les étoiles et les indices sont adaptés au nouveau puzzle certifié. La fiche Aide explique ces commandes. Voir [docs/workshop-fit.md](docs/workshop-fit.md).
 
 Les annulations et reprises sont gratuites. Un nouvel indice coûte une graine ; relire un indice déjà acquis pour cette page et cette disposition des fioles est gratuit, même après annulation, reprise, navigation ou rechargement. Les étoiles sont désormais calculées sur le **minimum exact de versements** de chaque page, enregistré dans `par`. Trois étoiles autorisent ce minimum plus 10 % arrondis au mouvement supérieur, avec au moins un mouvement de marge. Deux étoiles autorisent jusqu’à 150 % du minimum arrondis à l’entier inférieur, avec au moins un mouvement supplémentaire après le seuil des trois étoiles. Au-delà, la réussite vaut une étoile. Exemple : minimum 10, trois étoiles jusqu’à 11, deux jusqu’à 15, une à partir de 16. Le minimum et l’objectif des trois étoiles apparaissent dans le bilan uniquement, après la réussite.
 
-Le bilan affiche les étoiles de la tentative actuelle ; la collection conserve toujours le meilleur score enregistré, y compris les étoiles gagnées avant ce rééquilibrage. Une tentative moins bonne n’efface ni étoiles, ni graines, ni pigments, ni date de première réussite. Chaque tentative terminée avec trois étoiles, y compris une reprise, donne exactement une graine ; une ou deux étoiles n’en donnent pas. Les pigments et dates de première réussite restent uniques. Une nouvelle espèce s’ouvre après cinq pages, un écosystème après vingt. La page 1 000 termine la collection sans charger de page 1 001.
+Le bilan affiche les étoiles de la tentative actuelle ; la collection conserve toujours le meilleur score enregistré, y compris les étoiles gagnées avant ce rééquilibrage. Une tentative moins bonne n’efface ni étoiles, ni graines, ni pigments, ni date de première réussite. Chaque tentative terminée avec trois étoiles, y compris une reprise, donne exactement une graine ; une ou deux étoiles n’en donnent pas. Les pigments et dates de première réussite restent uniques. Une nouvelle espèce s’ouvre après cinq pages ; les écosystèmes et leurs volumes se succèdent selon la carte. La page 1 000 termine la collection sans charger de page 1 001.
 
 Les étoiles du bilan sont des fleurs étoilées originales, dorées et nervurées. Elles éclosent l’une après l’autre, avec un petit rebond et des éclats de pollen qui se dissipent ; les étoiles non obtenues restent en contour. L’effet est fini, se joue une fois par réussite et ne recommence pas à la révélation du pigment. Sans animations, les étoiles apparaissent directement. Un libellé accessible annonce le résultat complet sur trois étoiles.
 
@@ -75,7 +75,7 @@ Une courte mélodie originale de harpe, bois et cordes échantillonnés accompag
 
 Les actions du bilan prennent la forme de rubans botaniques gravés, avec titres Almendra et annotations Alegreya en italique. Au passage à la page suivante et à la sélection d’une page dans la carte, un feuillet patiné se courbe sur toute la surface du jeu, ATH compris. La nouvelle page est chargée une seule fois sous le papier, avant d’être révélée ; les gestes sont bloqués pendant la transition. La progression reste identique et un rechargement ne relance pas cet effet. Sans « Animations douces », le changement est immédiat. `npm run test:book` vérifie cette transition, la mélodie réelle, le silence, la relecture et les boutons sur écran étroit.
 
-Entre deux pages de la même plante, un seul feuillet tourne en 1,5 seconde. Au passage à une autre espèce, cinq feuillets se tournent rapidement et de façon décalée en 2,3 secondes. Le premier referme la plante quittée, puis les intercalaires portent seulement un léger rameau. Une planche d’arrivée montre ensuite **l’espèce de destination**, son nom, son nom latin et son état réel de restauration, avant de révéler le jeu. La destination est mémorisée avant le chargement du niveau ; le changement d’état ne remplace donc pas le spécimen d’arrivée par celui de la plante précédente. Cette logique couvre aussi les changements de chapitre et les retours par la carte à une plante déjà restaurée. Rejouer une page garde le feuillet unique ; la page 100 mène à l’herbier sans inventer d’espèce suivante.
+Entre deux pages de la même plante, un seul feuillet tourne en 1,5 seconde. Au passage à une autre espèce, cinq feuillets se tournent rapidement et de façon décalée en 2,3 secondes. Le premier referme la plante quittée, puis les intercalaires portent seulement un léger rameau. Une planche d’arrivée montre ensuite **l’espèce de destination**, son nom, son nom latin et son état réel de restauration, avant de révéler le jeu. La destination est mémorisée avant le chargement du niveau ; le changement d’état ne remplace donc pas le spécimen d’arrivée par celui de la plante précédente. Cette logique couvre aussi les changements de chapitre et les retours par la carte à une plante déjà restaurée. Rejouer une page garde le feuillet unique ; la page 1 000 mène à l’herbier sans inventer d’espèce suivante.
 
 Un bruitage original de papier de 1,15 seconde accompagne le feuillet unique ; un froissement original de 1,85 seconde accompagne le feuilletage rapide. Ils sont joués à faible volume et synchronisés avec les courbures, sans boucle ni répétition lors du chargement de la nouvelle page. Sur le Web, ils sont préparés depuis un geste du joueur pour respecter les règles de lecture audio du navigateur. Le réglage « Sons de l’atelier » les coupe et arrête une lecture en cours. Les réglages de son et d’animation restent indépendants : sans animation, la page change immédiatement et le son approprié peut continuer à jouer. Les sons sont également embarqués pour le mode hors ligne.
 
@@ -143,12 +143,15 @@ npm run build:web
 npm run test:browser
 ```
 
-Les 27 tests unitaires couvrent les transferts, les refus, la victoire, l’annulation et la reprise, les 100 solutions, le solveur indépendant sur chacun des niveaux, les 100 récompenses, les déblocages, les vingt restaurations, les migrations et la restauration de sauvegardes, ainsi que l’économie. Sept tests portent sur la sortie et le retour dans les porte-tubes, la conservation des volumes à différentes inclinaisons, les couches, l’angle de débordement, le volume en vol, le déroulement temporel et les quantités fractionnaires.
+Les 110 tests automatisés couvrent les 1 000 solutions et leurs minima exacts avec les huit mécaniques, les mélanges, étoiles, graines, sauvegardes et migrations. Ils vérifient aussi les capacités et la physique des fioles, les séquences d’animation, le cycle audio natif et la taille des surfaces graphiques des bordures.
 
-Le contrôle navigateur utilise Playwright et Chromium installé dans `/usr/bin/chromium`. Adapter `executablePath` dans `scripts/browser-smoke.ts` sur une autre machine. Il couvre le carnet signé, l’indice, une résolution jouée par clics, la révélation, le rechargement, les réglages d’accessibilité, la fin du niveau 100, l’herbier complet, le mode hors ligne, l’affichage mobile et l’absence de cadeau quotidien. Pour préparer le dernier niveau, il injecte une sauvegarde créée en résolvant réellement les niveaux 1 à 99 via le moteur ; il ne prétend pas cliquer les cent niveaux dans le navigateur. Les captures sont générées dans `test-results/`.
+Les parcours Playwright sont détaillés dans [la revue complète](docs/application-review.md). Ils couvrent le prologue, l’aide, les menus, les sept écrans, les confirmations, la reprise de sauvegarde, les animations simultanées, les vingt musiques, les carnets et les dernières pages. Le navigateur et les exports Hermes ne remplacent pas une mesure de fluidité et de mémoire sur appareil Android/iOS. Les captures sont générées dans `test-results/`.
 
 ```sh
-npm run levels
+# Régénération volontaire de toute la campagne :
+node --import tsx scripts/expand-levels.ts
+# Vérification des références sans modifier les puzzles :
+npm run levels:calibrate -- --check
 ```
 
 Régénère les cent configurations de manière déterministe. Le générateur utilise des mouvements inverses légaux, rejoue leurs certificats avec le moteur de versement puis calcule une solution minimale exacte. Les tests vérifient de nouveau chaque solution. Les budgets de couleurs augmentent de 2 à 7 et le brassage augmente progressivement. L’unicité est vérifiée indépendamment de l’ordre des flacons. Un équilibrage par des joueurs reste nécessaire.
@@ -217,23 +220,23 @@ Aucun compte, mesure d’audience ou service publicitaire actif. Les ressources 
 - `src/components/fonts.ts` : familles et variantes typographiques embarquées.
 - `src/components/LiquidBoard.tsx` : flacons, filet, gouttes, reflets et mouvements des pigments.
 - `src/engine/puzzle.ts` : règles pures, capacités et solveur.
-- `scripts/generate.ts`, `src/data/levels.json` : génération, solutions minimales et 100 configurations.
+- `scripts/expand-levels.ts`, `src/data/levels.json` : génération certifiée des 1 000 configurations. Le générateur historique `scripts/generate.ts` refuse d’écraser une campagne étendue.
 - `src/engine/optimal.ts`, `scripts/calibrate-stars.ts` : calcul hors ligne des minima exacts, sans modifier les plateaux existants.
 - `src/state/stars.ts` : seuils partagés entre attribution des étoiles et bilan de la tentative.
 - `src/state/model.ts` : progression, récompenses et validation/migration.
 - `src/state/pigments.ts` : découverte des pigments.
 - `src/state/economy.ts` : papiers cosmétiques ; graines et indices dans `src/state/model.ts`.
 - `src/state/store.tsx` : hydratation et persistance asynchrone.
-- `src/data/botany.ts` : vingt fiches et cinq écosystèmes.
+- `src/data/botany.ts`, `ecology.ts`, `expandedSpecies.json` : 200 fiches et 20 écosystèmes.
 - `src/components/Paper.tsx` : texture de papier et vieillissement discret.
 - `src/components/FoliageFrame.tsx` : encadrements végétaux adaptatifs, tiges courbes, feuilles nervurées et rameaux d’angle. Les cadres des planches et des chapitres passent du sépia au vert avec la restauration. Les ornements sont non interactifs et restent dans les marges.
-- `src/components/Botanical.tsx` : vingt planches à rendu aquarelle en atlas PNG, quatre lavis homogènes puis un sceau, détails agrandissables.
+- `src/components/Botanical.tsx` : 200 planches à rendu aquarelle en atlas PNG/WebP, quatre lavis homogènes puis un sceau, détails agrandissables.
 - `src/components/BotanicalStamp.tsx` : aperçu mobile de la planche courante, timbre dentelé et progression partagée avec l’herbier.
 - `src/components/BotanicalIcon.tsx` : pictogrammes botaniques SVG originaux, communs aux commandes et à la navigation.
 - `src/components/SceneVeil.tsx` : lavis continu pour la lisibilité de l’ATH dans la serre ; il reprend le thème de papier sélectionné.
 - `src/services/` : son/haptique et contrat des fournisseurs commerciaux.
 
-Les fiches et niveaux sont séparés de la présentation. Étendre le moteur au-delà de 100 niveaux demande de remplacer les bornes explicites et d’ajouter les données : aucune extension n’est annoncée comme automatique.
+Les fiches et niveaux sont séparés de la présentation. Les bornes actuelles sont de 1 000 pages et 200 espèces ; toute nouvelle extension doit mettre à jour les données, les bornes et les tests.
 
 ## Botanique et ressources
 

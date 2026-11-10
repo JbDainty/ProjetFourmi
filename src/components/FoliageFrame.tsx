@@ -1,6 +1,7 @@
 import React, { useId } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { useMeasuredSize } from './useMeasuredSize';
+import { foliageSurfaces } from '../layout/foliage';
 import Svg, { Defs, LinearGradient, Stop, Path, G, Circle } from 'react-native-svg';
 
 type Props = { vitality?: number; scene?: boolean; compact?: boolean };
@@ -119,11 +120,13 @@ function FoliageFrameDrawing({ vitality = 0.65, scene = false, compact = false }
       collapsable={false}
       onLayout={onLayout}
     >
-      {!!w && !!h && (
+      {foliageSurfaces(w, h, Platform.OS !== 'web').map((surface, surfaceIndex) => (
         <Svg
-          width={w}
-          height={h}
-          viewBox={`0 0 ${w} ${h}`}
+          key={surfaceIndex}
+          width={surface.width}
+          height={surface.height}
+          viewBox={`${surface.x} ${surface.y} ${surface.width} ${surface.height}`}
+          style={{ position: 'absolute', left: surface.x, top: surface.y }}
           pointerEvents="none"
           opacity={scene ? 0.78 : 1}
         >
@@ -145,32 +148,52 @@ function FoliageFrameDrawing({ vitality = 0.65, scene = false, compact = false }
             strokeWidth="0.85"
             opacity="0.62"
           />
-          {leaves.map((p, i) => (
-            <G key={i} transform={`translate(${p.x} ${p.y}) rotate(${p.angle}) scale(${p.scale})`}>
-              <Path
-                d="M0 0 C-5-3-7-9-2-16 C2-11 7-6 0 0Z"
-                fill={`url(#${leafId})`}
-                stroke={ink}
-                strokeWidth="0.5"
-                opacity="0.91"
-              />
-              <Path
-                d="M0-1 Q-1-8-2-14 M-1-5-4-8 M-1-9 2-11"
-                fill="none"
-                stroke={ink}
-                strokeWidth="0.4"
-                opacity="0.58"
-              />
-            </G>
-          ))}
-          {!compact && [
-            cluster(24, 24, 0, 'tl'),
-            cluster(w - 24, 24, 90, 'tr'),
-            cluster(w - 24, h - 24, 180, 'br'),
-            cluster(24, h - 24, 270, 'bl'),
-          ]}
+          {leaves
+            .filter(
+              (p) =>
+                p.x + 22 >= surface.x &&
+                p.x - 22 <= surface.x + surface.width &&
+                p.y + 22 >= surface.y &&
+                p.y - 22 <= surface.y + surface.height,
+            )
+            .map((p, i) => (
+              <G
+                key={i}
+                transform={`translate(${p.x} ${p.y}) rotate(${p.angle}) scale(${p.scale})`}
+              >
+                <Path
+                  d="M0 0 C-5-3-7-9-2-16 C2-11 7-6 0 0Z"
+                  fill={`url(#${leafId})`}
+                  stroke={ink}
+                  strokeWidth="0.5"
+                  opacity="0.91"
+                />
+                <Path
+                  d="M0-1 Q-1-8-2-14 M-1-5-4-8 M-1-9 2-11"
+                  fill="none"
+                  stroke={ink}
+                  strokeWidth="0.4"
+                  opacity="0.58"
+                />
+              </G>
+            ))}
+          {!compact &&
+            [
+              { x: 24, y: 24, angle: 0, key: 'tl' },
+              { x: w - 24, y: 24, angle: 90, key: 'tr' },
+              { x: w - 24, y: h - 24, angle: 180, key: 'br' },
+              { x: 24, y: h - 24, angle: 270, key: 'bl' },
+            ]
+              .filter(
+                (p) =>
+                  p.x + 40 >= surface.x &&
+                  p.x - 40 <= surface.x + surface.width &&
+                  p.y + 40 >= surface.y &&
+                  p.y - 40 <= surface.y + surface.height,
+              )
+              .map((p) => cluster(p.x, p.y, p.angle, p.key))}
         </Svg>
-      )}
+      ))}
     </View>
   );
 }
