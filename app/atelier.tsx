@@ -291,12 +291,13 @@ function Workshop() {
   const actions = (
     <Paper
       testID="game-actions"
+      compactFrame
       style={{
         flexDirection: 'row',
         justifyContent: 'center',
         gap: 4,
-        paddingVertical: layout.compact ? 2 : 4,
-        paddingHorizontal: 6,
+        paddingVertical: 12,
+        paddingHorizontal: layout.actionHorizontalPadding,
         borderRadius: 30,
         backgroundColor: '#f4ead6ee',
         width: '100%',
@@ -352,7 +353,7 @@ function Workshop() {
           disabled={busy || a.disabled}
           style={{
             alignItems: 'center',
-            gap: 1,
+            gap: 2,
             flex: 1,
             minWidth: 0,
             minHeight: 44,
@@ -362,15 +363,16 @@ function Workshop() {
             opacity: a.disabled ? 0.35 : 1,
           }}
         >
-          <SpellIcon size={layout.compact ? 20 : 26} name={a.icon} />
+          <SpellIcon size={layout.actionIconSize} name={a.icon} />
           <T
             numberOfLines={1}
             adjustsFontSizeToFit
             maxFontSizeMultiplier={1.15}
             style={{
               fontFamily: F.handwritingMedium,
-              fontSize: layout.compact ? 16 : 18,
-              lineHeight: layout.compact ? 18 : 20,
+              fontSize: layout.actionLabelSize,
+              lineHeight: layout.actionLabelLine,
+              height: layout.actionLabelHeight,
               color: C.green,
               textAlign: 'center',
               maxWidth: '100%',
@@ -378,9 +380,7 @@ function Workshop() {
           >
             {a.name}
           </T>
-          {!layout.tiny &&
-            !layout.landscape &&
-            !(layout.compact && fontScale > 1.1) &&
+          {layout.showSeedPrice &&
             (a.name === 'Indice' ? (
               <T
                 testID="hint-seed-price"
@@ -388,6 +388,7 @@ function Workshop() {
                 style={{
                   fontSize: 10,
                   lineHeight: 12,
+                  height: 12,
                   color: C.muted,
                   fontFamily: F.scientific,
                   textAlign: 'center',

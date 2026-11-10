@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { useMeasuredSize } from './useMeasuredSize';
 import Svg, { Defs, LinearGradient, Stop, Path, G, Circle } from 'react-native-svg';
 
-type Props = { vitality?: number; scene?: boolean };
+type Props = { vitality?: number; scene?: boolean; compact?: boolean };
 const blend = (a: string, b: string, t: number) =>
   '#' +
   [0, 1, 2]
@@ -17,7 +17,7 @@ const blend = (a: string, b: string, t: number) =>
     )
     .join('');
 /** Responsive marginal foliage. Decorative only: it never intercepts a touch. */
-function FoliageFrameDrawing({ vitality = 0.65, scene = false }: Props) {
+function FoliageFrameDrawing({ vitality = 0.65, scene = false, compact = false }: Props) {
   const { ref, size, onLayout } = useMeasuredSize(undefined, true);
   const token = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const { width: w, height: h } = size,
@@ -27,7 +27,20 @@ function FoliageFrameDrawing({ vitality = 0.65, scene = false }: Props) {
     light = blend('#e0cfa7', '#c1ce9b', life);
   const leafId = `folio-leaf-${token}`;
   const leaves: { x: number; y: number; angle: number; scale: number }[] = [];
-  if (w && h) {
+  if (w && h && compact) {
+    // A toolbar needs a shallow border: page-sized corner flourishes intersected
+    // one another and crossed the button labels when the paper was only 60–80 high.
+    const pairs = Math.max(2, Math.floor((w - 48) / 70));
+    for (let i = 0; i < pairs; i++) {
+      const x = 26 + ((i + 0.5) * (w - 52)) / pairs;
+      leaves.push(
+        { x, y: 12, angle: -25, scale: 0.55 },
+        { x: w - x, y: h - 12, angle: 155, scale: 0.55 },
+      );
+    }
+    for (const y of [20, h - 20])
+      leaves.push({ x: 9, y, angle: -60, scale: 0.6 }, { x: w - 9, y, angle: 60, scale: 0.6 });
+  } else if (w && h) {
     const vertical = Math.max(1, Math.floor((h - 88) / 49)),
       horizontal = Math.max(1, Math.floor((w - 88) / 58));
     for (let i = 0; i < vertical; i++) {
@@ -122,7 +135,11 @@ function FoliageFrameDrawing({ vitality = 0.65, scene = false }: Props) {
             </LinearGradient>
           </Defs>
           <Path
-            d={`M42 12 C${w * 0.28} 9 ${w * 0.35} 15 ${w * 0.5} 12 S${w * 0.77} 15 ${w - 42} 12 Q${w - 11} 9 ${w - 12} 42 C${w - 15} ${h * 0.3} ${w - 9} ${h * 0.36} ${w - 12} ${h * 0.5} S${w - 10} ${h * 0.76} ${w - 12} ${h - 42} Q${w - 9} ${h - 11} ${w - 42} ${h - 12} C${w * 0.73} ${h - 15} ${w * 0.65} ${h - 9} ${w * 0.5} ${h - 12} S${w * 0.23} ${h - 10} 42 ${h - 12} Q9 ${h - 9} 12 ${h - 42} C15 ${h * 0.73} 9 ${h * 0.65} 12 ${h * 0.5} S10 ${h * 0.23} 12 42 Q9 11 42 12Z`}
+            d={
+              compact
+                ? `M24 8 C${w * 0.3} 6 ${w * 0.35} 10 ${w * 0.5} 8 S${w * 0.75} 10 ${w - 24} 8 Q${w - 8} 7 ${w - 8} 22 L${w - 8} ${h - 22} Q${w - 7} ${h - 8} ${w - 24} ${h - 8} C${w * 0.7} ${h - 6} ${w * 0.65} ${h - 10} ${w * 0.5} ${h - 8} S${w * 0.25} ${h - 10} 24 ${h - 8} Q8 ${h - 7} 8 ${h - 22} L8 22 Q7 8 24 8Z`
+                : `M42 12 C${w * 0.28} 9 ${w * 0.35} 15 ${w * 0.5} 12 S${w * 0.77} 15 ${w - 42} 12 Q${w - 11} 9 ${w - 12} 42 C${w - 15} ${h * 0.3} ${w - 9} ${h * 0.36} ${w - 12} ${h * 0.5} S${w - 10} ${h * 0.76} ${w - 12} ${h - 42} Q${w - 9} ${h - 11} ${w - 42} ${h - 12} C${w * 0.73} ${h - 15} ${w * 0.65} ${h - 9} ${w * 0.5} ${h - 12} S${w * 0.23} ${h - 10} 42 ${h - 12} Q9 ${h - 9} 12 ${h - 42} C15 ${h * 0.73} 9 ${h * 0.65} 12 ${h * 0.5} S10 ${h * 0.23} 12 42 Q9 11 42 12Z`
+            }
             fill="none"
             stroke={ink}
             strokeWidth="0.85"
@@ -146,10 +163,12 @@ function FoliageFrameDrawing({ vitality = 0.65, scene = false }: Props) {
               />
             </G>
           ))}
-          {cluster(24, 24, 0, 'tl')}
-          {cluster(w - 24, 24, 90, 'tr')}
-          {cluster(w - 24, h - 24, 180, 'br')}
-          {cluster(24, h - 24, 270, 'bl')}
+          {!compact && [
+            cluster(24, 24, 0, 'tl'),
+            cluster(w - 24, 24, 90, 'tr'),
+            cluster(w - 24, h - 24, 180, 'br'),
+            cluster(24, h - 24, 270, 'bl'),
+          ]}
         </Svg>
       )}
     </View>

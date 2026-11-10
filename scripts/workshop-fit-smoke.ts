@@ -81,6 +81,32 @@ async function main() {
       }
     await expect(page.getByRole('button', { name: 'Indice', exact: true })).toBeInViewport();
     await expect(page.getByRole('button', { name: 'Revenir en haut de la page' })).toHaveCount(0);
+    const actions = page.getByTestId('game-actions');
+    const paper = (await actions.boundingBox())!;
+    const frame = (await actions.getByTestId('botanical-foliage-frame').boundingBox())!;
+    expect(frame).toEqual(paper);
+    const labelTops: number[] = [];
+    for (const name of ['Annuler', 'Recommencer', 'Indice']) {
+      const button = actions.getByRole('button', { name, exact: true });
+      const label = (await button.getByText(name, { exact: true }).boundingBox())!;
+      const icon = (await button.locator('svg').first().boundingBox())!;
+      const inkWidth = await button.getByText(name, { exact: true }).evaluate((node) => {
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        return range.getBoundingClientRect().width;
+      });
+      expect(inkWidth, `${name} must not be truncated`).toBeLessThanOrEqual(label.width + 0.5);
+      labelTops.push(label.y);
+      for (const part of [label, icon]) {
+        expect(part.y).toBeGreaterThanOrEqual(paper.y + 11.9);
+        expect(part.y + part.height).toBeLessThanOrEqual(paper.y + paper.height - 11.9);
+      }
+    }
+    expect(Math.max(...labelTops) - Math.min(...labelTops)).toBeLessThan(0.5);
+    if (await actions.getByTestId('hint-seed-price').count()) {
+      const price = (await actions.getByTestId('hint-seed-price').boundingBox())!;
+      expect(price.y + price.height).toBeLessThanOrEqual(paper.y + paper.height - 11.9);
+    }
   };
   try {
     await page.goto(url);
@@ -93,7 +119,7 @@ async function main() {
       ...new Set(
         [...new Set(levels.map((l) => l.board.length))]
           .map((n) => levels.find((l) => l.board.length === n)!.id)
-          .concat([25, 100]),
+          .concat([25, 32, 100]),
       ),
     ];
     for (const [width, height] of [
@@ -127,6 +153,19 @@ async function main() {
       }
       await page.screenshot({ path: `test-results/workshop-fit-${width}x${height}.png` });
     }
+    // The reported page: labels and seed price stay inside the same paper before
+    // and after the longer "Déjà cueilli" caption replaces "1 graine".
+    await page.setViewportSize({ width: 412, height: 915 });
+    await seed(32);
+    await check(32);
+    const toolbar = page.getByTestId('game-actions');
+    const toolbarBeforeHint = await toolbar.boundingBox();
+    await page.screenshot({ path: 'test-results/workshop-toolbar-page32.png' });
+    await page.getByRole('button', { name: 'Indice', exact: true }).click();
+    await expect(page.getByTestId('hint-seed-price')).toHaveText('Déjà cueilli');
+    await check(32);
+    expect(await toolbar.boundingBox()).toEqual(toolbarBeforeHint);
+    await page.screenshot({ path: 'test-results/workshop-toolbar-page32-hint.png' });
     await page.setViewportSize({ width: 320, height: 400 });
     await seed(100);
     await check(100);

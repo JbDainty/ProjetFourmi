@@ -12,6 +12,8 @@ La géométrie est réduite uniformément : les proportions des tubes et la simu
 
 L’indice est mesuré avec les mêmes dimensions et polices que son affichage final. Son emplacement reste vide avant la demande ; son déroulement et son écriture n’agrandissent pas le pied de page. Les deux messages exceptionnels les plus longs ont une formulation visuelle plus courte, avec leur texte complet conservé pour les lecteurs d’écran. Le coût des indices et la progression ne changent pas.
 
+La barre de commandes dispose d’un cadre feuillu spécifique aux formats bas. Ses petites feuilles restent dans les marges ; les ornements d’angle des grandes pages ne sont pas comprimés autour des boutons. Sa hauteur réserve douze points en haut et en bas, puis la place des icônes, des libellés selon la taille de police et du coût de l’indice lorsqu’il est affiché. Les trois libellés partagent la même ligne et le prix reste à l’intérieur du papier, avant et après la demande d’indice.
+
 ## Vérification
 
 - `npm test` couvre les cent pages sur quinze formats, avec deux facteurs de taille de police : limites du plateau, cibles de 44 points, absence de chevauchement et répartition des rangées. Des régressions spécifiques vérifient le remplissage de la hauteur sur les téléphones hauts et l’ajustement selon le nombre de fioles.

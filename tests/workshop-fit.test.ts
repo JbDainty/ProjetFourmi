@@ -99,4 +99,17 @@ describe('fixed workshop composition', () => {
     // A short landscape still uses a single row when there is no height for two.
     expect(liquidBoardLayout(800, 200, 6).rows).toBe(1);
   });
+  it('keeps action icons, scaled labels and seed price inside the leafy margin', () => {
+    for (const [width, height] of viewports)
+      for (const fontScale of [1, 1.1, 1.3, 2]) {
+        const space = workshopLayout(width, width, { height, tubes: 7, fontScale });
+        const content =
+          space.actionIconSize + 2 + space.actionLabelHeight + (space.showSeedPrice ? 14 : 0);
+        expect(space.actionsHeight - content).toBeGreaterThanOrEqual(24);
+        expect(space.actionsHeight - 24).toBeGreaterThanOrEqual(44);
+        expect(space.actionLabelHeight).toBeGreaterThanOrEqual(
+          space.actionLabelLine * Math.min(1.15, fontScale),
+        );
+      }
+  });
 });
