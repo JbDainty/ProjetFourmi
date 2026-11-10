@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import type { Level } from '../src/data/campaign';
 import { permutedLevel } from '../src/engine/remix';
 export function softenWaves(levels: Level[]) {
@@ -44,6 +43,8 @@ export function softenWaves(levels: Level[]) {
   return levels;
 }
 if (process.argv[1]?.endsWith('wave-relief.ts')) {
-  const levels = JSON.parse(fs.readFileSync('src/data/levels.json', 'utf8')) as Level[];
-  fs.writeFileSync('src/data/levels.json', JSON.stringify(softenWaves(levels)));
+  throw Error(
+    'Le lissage historique est remplacé par scripts/rebalance-campaign.ts ; campagne conservée.',
+  );
+  /* Historical offline pass, retained for provenance. */
 }

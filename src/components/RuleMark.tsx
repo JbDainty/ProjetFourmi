@@ -1,6 +1,14 @@
 import React from 'react';
 import { G, Path, Rect, Circle, Text as SvgText } from 'react-native-svg';
-export function RuleMark({ kind, color = '#5e7753' }: { kind: string; color?: string }) {
+export function RuleMark({
+  kind,
+  color = '#5e7753',
+  accent,
+}: {
+  kind: string;
+  color?: string;
+  accent?: string;
+}) {
   return (
     <G fill="none" stroke={color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
       {(kind === 'mystery' || kind === 'capacity') && (
@@ -8,9 +16,11 @@ export function RuleMark({ kind, color = '#5e7753' }: { kind: string; color?: st
           {kind === 'mystery' ? '?' : '2/3'}
         </SvgText>
       )}
-      {kind === 'locks' || kind === 'lock' ? (
+      {kind === 'locks' || kind === 'lock' || kind === 'unlock' ? (
         <>
-          <Path d="M-5-1V-6A5 5 0 0 1 5-6V-1" />
+          <Path
+            d={kind === 'unlock' ? 'M-5-1V-6A5 5 0 0 1 5-6L7-7' : 'M-5-1V-6A5 5 0 0 1 5-6V-1'}
+          />
           <Rect x="-8" y="-1" width="16" height="13" rx="3" fill="#ead9ae" />
           <Circle cy="4" r="1.5" />
           <Path d="M0 6V8" />
@@ -36,7 +46,7 @@ export function RuleMark({ kind, color = '#5e7753' }: { kind: string; color?: st
       ) : null}
       {kind === 'crystal' ? (
         <>
-          <Path d="M0-12 8-2 4 10-4 10-8-2Z M0-12 0 10M-8-2H8" fill="#e1e9df" />
+          <Path d="M0-12 8-2 4 10-4 10-8-2Z M0-12 0 10M-8-2H8" fill={accent ?? '#e1e9df'} />
         </>
       ) : null}
       {kind === 'links' ? (

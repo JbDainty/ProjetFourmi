@@ -1,0 +1,55 @@
+{
+  "campaign": 4,
+  "replaced": 667,
+  "bands": [
+    {
+      "from": 1,
+      "to": 50,
+      "minColors": 2,
+      "minMoves": 4,
+      "meanMoves": 6.1
+    },
+    {
+      "from": 51,
+      "to": 150,
+      "minColors": 3,
+      "minMoves": 6,
+      "meanMoves": 7.3
+    },
+    {
+      "from": 151,
+      "to": 350,
+      "minColors": 3,
+      "minMoves": 7,
+      "meanMoves": 9.1
+    },
+    {
+      "from": 351,
+      "to": 650,
+      "minColors": 4,
+      "minMoves": 9,
+      "meanMoves": 11.6
+    },
+    {
+      "from": 651,
+      "to": 1000,
+      "minColors": 4,
+      "minMoves": 10,
+      "meanMoves": 12.5
+    }
+  ],
+  "multipleInstances": {
+    "mystery": 97,
+    "gates": 22,
+    "crystals": 68,
+    "filters": 96,
+    "pipettes": 86,
+    "collectors": 32
+  },
+  "proof": "Archived exact optima; unchanged attained optimum for constraint-only extensions; partial-pour extensions recertified by IDA*",
+  "reliefPositions": [
+    0,
+    1,
+    4
+  ]
+}

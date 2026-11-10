@@ -1,5 +1,5 @@
-import { RuleMark } from './RuleMark';
-import { capacity, completeTube, blocked, crystalOpen } from '../engine/puzzle';
+import { TubeInsignia, tubeRuleHint } from './TubeInsignia';
+import { capacity, completeTube } from '../engine/puzzle';
 import type { Rules } from '../engine/mechanics';
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { AppState, StyleSheet, View, Pressable } from 'react-native';
@@ -293,6 +293,7 @@ function LiquidBoardDrawing({
             strokeWidth="0.8"
           />
         ))}
+        <TubeInsignia board={board} rules={rules} tube={i} unitScale={scale} />
       </G>
     );
   };
@@ -623,73 +624,11 @@ function LiquidBoardDrawing({
             fill="none"
             stroke="#779767"
             strokeWidth="1.6"
-            strokeDasharray="3 3"
+            strokeLinecap="round"
           />
         ))}
         {layout.map((p, i) => (
           <G key={`label-${i}`}>
-            {!!rules?.mechanics.length && (
-              <G transform={`translate(${p.x} ${p.y + 150 * scale})`}>
-                {rules.filters
-                  ?.filter((f) => f.tube === i)
-                  .map((f) => (
-                    <Circle
-                      key="filter"
-                      cy={-132 * Math.cbrt(capacity(rules, i) / 4) * scale}
-                      r={7}
-                      fill={palette[f.color]}
-                      stroke="#f9edca"
-                      strokeWidth="1.5"
-                    />
-                  ))}
-                <G
-                  transform={`translate(0 ${-125 * Math.cbrt(capacity(rules, i) / 4) * scale}) scale(${Math.max(0.7, scale * 0.7)})`}
-                >
-                  <RuleMark
-                    kind={
-                      blocked(board, i, rules)
-                        ? 'lock'
-                        : rules.gates?.some((g) => g.key === i)
-                          ? 'brush'
-                          : rules.pipettes?.includes(i)
-                            ? 'pipette'
-                            : rules.collectors?.includes(i)
-                              ? 'conservation'
-                              : ''
-                    }
-                  />
-                </G>
-                {rules.crystals
-                  ?.filter((c) => c.tube === i && !crystalOpen(board, c.color, rules))
-                  .map((c) => (
-                    <G key="crystal">
-                      <Circle
-                        cy={-20 * scale}
-                        r={10}
-                        fill="#e9e9df"
-                        stroke={palette[c.color]}
-                        strokeWidth="2"
-                      />
-                      <SvgText
-                        y={-20 * scale + 5}
-                        textAnchor="middle"
-                        fontSize="15"
-                        fill={palette[c.color]}
-                      >
-                        ◇
-                      </SvgText>
-                    </G>
-                  ))}
-                {capacity(rules, i) !== 4 && (
-                  <G transform={`translate(0 ${-42 * scale})`}>
-                    <Circle r="7" fill="#eee3c4" stroke="#849875" />
-                    <SvgText y="4" textAnchor="middle" fontSize="11" fill="#48644a">
-                      {capacity(rules, i)}
-                    </SvgText>
-                  </G>
-                )}
-              </G>
-            )}
             <Rect
               x={p.x - (fitted ? 12 : 11 * scale)}
               y={fitted ? p.y + 180 * scale + 3 : p.y + 181 * scale}
@@ -740,11 +679,7 @@ function LiquidBoardDrawing({
           key={i}
           accessibilityRole="button"
           accessibilityLabel={`Flacon ${i + 1}, ${board[i].length ? board[i].map((c, j) => (known?.[i]?.[j] === false ? 'teinte mystère' : colorNames[c].toLocaleLowerCase('fr'))).join(', ') : 'vide'}`}
-          accessibilityHint={
-            rules
-              ? `Capacité ${capacity(rules, i)}. ${blocked(board, i, rules) ? 'Fiole verrouillée. ' : ''}${rules.collectors?.includes(i) ? 'Reçoit seulement. ' : ''}${rules.pipettes?.includes(i) ? 'Verse une mesure. ' : ''}`
-              : undefined
-          }
+          accessibilityHint={tubeRuleHint(board, rules, i)}
           accessibilityState={{ selected: selected === i, disabled }}
           disabled={disabled}
           onPress={() => tap.current(i)}

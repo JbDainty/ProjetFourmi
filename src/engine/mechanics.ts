@@ -25,25 +25,25 @@ export const mechanicDetails: Record<Mechanic, { name: string; symbol: string; i
     name: 'Teintes mystères',
     symbol: '?',
     intro:
-      'Les couches marquées ? se révèlent lorsqu’elles arrivent au sommet. Une teinte découverte reste visible.',
+      'Les fioles au verre givré cachent certaines couches avec un ?. Elles se révèlent au sommet et restent ensuite visibles. Plusieurs fioles peuvent être mystérieuses.',
   },
   locks: {
     name: 'Le pinceau et le verrou',
     symbol: '⚿',
     intro:
-      'Complétez la fiole marquée du pinceau pour ouvrir la fiole verrouillée. Le pinceau reste ensuite à sa place.',
+      'Complétez la fiole au pinceau gravé pour ouvrir les verrous aux bagues assorties. Un pinceau peut ouvrir plusieurs fioles ; il reste ensuite à sa place.',
   },
   capacity: {
     name: 'Petites fioles',
     symbol: '⅔',
     intro:
-      'Lisez les graduations : certaines fioles contiennent seulement deux ou trois mesures. Elles sont terminées une fois pleines d’une seule teinte.',
+      'Le chiffre gravé au pied du verre indique deux ou trois mesures, au lieu de quatre. Ces petites fioles sont terminées une fois pleines d’une seule teinte.',
   },
   crystal: {
     name: 'Teinte cristallisée',
     symbol: '◇',
     intro:
-      'Complétez une fiole de la couleur indiquée par le cristal. Il fond alors et libère la couche figée ; les couches au-dessus restent mobiles.',
+      'Complétez une fiole de la couleur du cristal serti dans le verre. Le givre fond et libère la couche figée ; les couches au-dessus restent mobiles. Plusieurs cristaux peuvent fondre ensemble.',
   },
   links: {
     name: 'Fioles sœurs',
@@ -55,18 +55,18 @@ export const mechanicDetails: Record<Mechanic, { name: string; symbol: string; i
     name: 'Compte-gouttes',
     symbol: '·',
     intro:
-      'La fiole à pipette verse une seule mesure à la fois. Un geste vaut toujours un mouvement.',
+      'La fiole équipée d’un compte-gouttes en laiton verse une seule mesure à la fois. Un geste vaut toujours un mouvement.',
   },
   filter: {
     name: 'Filtre de pétale',
     symbol: '▽',
     intro:
-      'La pastille au col indique la seule couleur que cette fiole peut recevoir. À la fin, elle doit être vide ou remplie de cette couleur. Vous pouvez la vider normalement.',
+      'Le pétale coloré dans la bague du col indique la seule couleur acceptée. La fiole doit finir vide ou remplie de cette couleur. Vous pouvez la vider normalement.',
   },
   conservation: {
     name: 'Fiole de conservation',
     symbol: '↓',
     intro:
-      'Cette fiole reçoit les couleurs, mais ne peut pas être reversée. Choisissez sa couleur avant de la remplir.',
+      'La bague à flèche descendante et le pied cerclé désignent une fiole qui reçoit les couleurs sans pouvoir les reverser. Choisissez sa couleur avant de la remplir.',
   },
 };

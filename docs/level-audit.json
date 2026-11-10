@@ -1,6 +1,8 @@
 {
+  "campaign": 4,
   "count": 1000,
-  "seed": "0x43167",
+  "seed": "0x74696e74",
+  "templateSeed": "0x43167",
   "mechanics": [
     "mystery",
     "locks",
@@ -23,18 +25,18 @@
   ],
   "maxPerPage": 2,
   "exactMinimum": true,
-  "relief": "wave positions 0, 1 and 4 after introductions",
+  "relief": "wave positions 0, 1 and 4, with progression floors",
   "difficultyCounts": {
     "douce": 10,
     "découverte": 8,
-    "équilibrée": 165,
-    "respiration": 353,
-    "soutenue": 464
+    "respiration": 370,
+    "équilibrée": 510,
+    "soutenue": 102
   },
   "minimumRange": [
-    3,
+    4,
     18
   ],
-  "meanFirstHundred": 6.15,
-  "meanLastHundred": 9.56
+  "meanFirstHundred": 6.75,
+  "meanLastHundred": 12.76
 }

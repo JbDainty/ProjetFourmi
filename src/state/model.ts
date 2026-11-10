@@ -1,10 +1,10 @@
-import levels, { legacyLevels } from '../data/campaign';
+import levels, { legacyLevels, campaign3Levels } from '../data/campaign';
 import { initialKnowledge, moveKnowledge, revealTop } from '../engine/knowledge';
 import { mechanicIds, type Mechanic } from '../engine/mechanics';
 import { Board, clone, pour, won, capacity, type Move } from '../engine/puzzle';
 import { discoverPigment, Pigment } from './pigments';
 import { pageStars } from './stars';
-import { attemptPuzzle, newRemix, validRemix, type Remix } from '../engine/remix';
+import { attemptPuzzle, campaignPool, newRemix, validRemix, type Remix } from '../engine/remix';
 
 export type Settings = {
   sound: boolean;
@@ -16,7 +16,7 @@ export type Settings = {
 };
 export type Save = {
   version: 2;
-  campaign?: 3;
+  campaign?: 3 | 4;
   known?: boolean[][];
   historyKnown?: boolean[][][];
   seenMechanics?: Mechanic[];
@@ -25,7 +25,7 @@ export type Save = {
   guideSeen: boolean;
   nickname: string;
   attemptRewarded: boolean;
-  paidHints: Record<string, Move>;
+  paidHints: Record<string, Move & { context?: string }>;
   current: number;
   completed: Record<string, { stars: number; date: string }>;
   seeds: number;
@@ -42,7 +42,7 @@ export type Save = {
 export function initial(): Save {
   return {
     version: 2,
-    campaign: 3,
+    campaign: 4,
     started: false,
     guideSeen: false,
     nickname: '',
@@ -96,7 +96,7 @@ export function loadLevel(s: Save, id: number): Save {
     moves: 0,
     attemptRewarded: false,
     remix: undefined,
-    campaign: 3,
+    campaign: 4,
     known: initialKnowledge(levels[id - 1].board, levels[id - 1].rules),
     historyKnown: [],
   };
@@ -195,7 +195,7 @@ export function remixPage(s: Save, random = Math.random): Save {
 export function restore(raw: string | null): Save {
   if (!raw) return initial();
   const v = JSON.parse(raw) as Save;
-  if (v.campaign !== 3 && v.current >= 1 && v.current <= 100) {
+  if (v.campaign !== 4 && v.campaign !== 3 && v.current >= 1 && v.current <= 100) {
     const original = legacyLevels[(v.remix?.level ?? v.current) - 1];
     v.remix = {
       level: v.remix?.level ?? v.current,
@@ -203,7 +203,20 @@ export function restore(raw: string | null): Save {
       colors: v.remix?.colors ?? [...new Set(original.board.flat())].sort(),
       legacy: true,
     };
-    v.campaign = 3;
+    v.campaign = 4;
+  } else if (v.campaign === 3) {
+    const original = (v.remix?.legacy ? legacyLevels : campaign3Levels)[
+      (v.remix?.level ?? v.current) - 1
+    ];
+    if (!original) throw Error('Ancienne page invalide.');
+    v.remix = {
+      level: v.current,
+      order: original.board.map((_, i) => i),
+      colors: [...new Set(original.board.flat())].sort(),
+      ...v.remix,
+      ...(v.remix?.legacy ? {} : { campaign: 3 }),
+    };
+    v.campaign = 4;
   }
   if (v.testSession) {
     if (!v.testSession.returnSave || v.testSession.returnSave.testSession)
@@ -231,11 +244,8 @@ export function restore(raw: string | null): Save {
     v.seeds < 0
   )
     throw Error('Sauvegarde invalide.');
-  const expected = (v.remix?.legacy ? legacyLevels : levels)[v.current - 1].board
-    .flat()
-    .sort()
-    .join(',');
-  if (v.board.length !== (v.remix?.legacy ? legacyLevels : levels)[v.current - 1].board.length)
+  const expected = campaignPool(v.remix)[v.current - 1].board.flat().sort().join(',');
+  if (v.board.length !== campaignPool(v.remix)[v.current - 1].board.length)
     throw Error('Nombre de fioles invalide.');
   if (v.remix !== undefined && !validRemix(v.current, v.remix)) throw Error('Mélange invalide.');
   if (v.board.some((t, i) => t.length > capacity(activeRules(v), i)))
@@ -325,10 +335,12 @@ export function restore(raw: string | null): Save {
         id > 1000 ||
         !validBoard(board) ||
         (board.flat().sort().join(',') !== levels[id - 1].board.flat().sort().join(',') &&
+          board.flat().sort().join(',') !== campaign3Levels[id - 1].board.flat().sort().join(',') &&
           (id > 100 ||
             board.flat().sort().join(',') !==
               legacyLevels[id - 1].board.flat().sort().join(','))) ||
         !hint ||
+        (hint.context !== undefined && typeof hint.context !== 'string') ||
         !Number.isInteger(hint.from) ||
         !Number.isInteger(hint.to) ||
         !pour(board, hint.from, hint.to)
@@ -378,7 +390,19 @@ export function normalizeNickname(value: string): string {
     .slice(0, 24);
 }
 const hintKey = (s: Save) => `${s.current}|${JSON.stringify(s.board)}`;
-export const currentHint = (s: Save): Move | undefined => s.paidHints[hintKey(s)];
+const hintContext = (s: Save) =>
+  `${s.remix?.legacy ? 'legacy' : s.remix?.campaign === 3 ? '3' : '4'}:${JSON.stringify(activeRules(s) ?? null)}`;
+export const currentHint = (s: Save): Move | undefined => {
+  const h = s.paidHints[hintKey(s)];
+  if (
+    !h ||
+    (h.context !== undefined
+      ? h.context !== hintContext(s)
+      : !s.remix?.legacy && s.remix?.campaign !== 3 && s.current > 10)
+  )
+    return;
+  return { from: h.from, to: h.to };
+};
 /** Charge only for a valid, newly revealed suggestion; duplicate taps are idempotent. */
 export function purchaseHint(s: Save, suggestion: Move): Save {
   if (
@@ -391,6 +415,6 @@ export function purchaseHint(s: Save, suggestion: Move): Save {
   return {
     ...s,
     seeds: s.seeds - 1,
-    paidHints: { ...s.paidHints, [hintKey(s)]: { ...suggestion } },
+    paidHints: { ...s.paidHints, [hintKey(s)]: { ...suggestion, context: hintContext(s) } },
   };
 }

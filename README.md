@@ -1,6 +1,6 @@
 # Herbier des couleurs
 
-La campagne principale comporte maintenant **1 000 pages, 200 espèces et 20 écosystèmes**. Huit mécaniques arrivent progressivement, deux au plus par puzzle ; des pages de respiration alternent avec les défis. L’herbier devient une bibliothèque de carnets à feuilleter et la carte virtualise ses rangées. Les paramètres de la version de test permettent d’ouvrir une page dans une session isolée. Voir [le dossier de l’extension](docs/expansion/README.md).
+La campagne principale comporte maintenant **1 000 pages, 200 espèces et 20 écosystèmes**. Huit mécaniques arrivent progressivement, deux types au plus par puzzle et parfois plusieurs fioles par type ; les pages de respiration conservent un socle de difficulté adapté à la progression. L’herbier devient une bibliothèque de carnets à feuilleter et la carte virtualise ses rangées. Les paramètres de la version de test permettent d’ouvrir une page dans une session isolée. Voir [le dossier de l’extension](docs/expansion/README.md).
 
 Jeu de tri de pigments en français, réalisé avec Expo SDK 54, React Native, Expo Router et TypeScript strict. Les mille pages se répartissent entre vingt écosystèmes et deux cents espèces. Les quatre premières pages rendent progressivement ses couleurs à chaque plante ; la cinquième appose un sceau botanique daté.
 
@@ -143,7 +143,7 @@ npm run build:web
 npm run test:browser
 ```
 
-Les 110 tests automatisés couvrent les 1 000 solutions et leurs minima exacts avec les huit mécaniques, les mélanges, étoiles, graines, sauvegardes et migrations. Ils vérifient aussi les capacités et la physique des fioles, les séquences d’animation, le cycle audio natif et la taille des surfaces graphiques des bordures.
+Les 113 tests automatisés couvrent les 1 000 solutions et leurs minima exacts avec les huit mécaniques, les mélanges, étoiles, graines, sauvegardes et migrations. Ils vérifient aussi les capacités et la physique des fioles, les séquences d’animation, le cycle audio natif et la taille des surfaces graphiques des bordures.
 
 Les parcours Playwright sont détaillés dans [la revue complète](docs/application-review.md). Ils couvrent le prologue, l’aide, les menus, les sept écrans, les confirmations, la reprise de sauvegarde, les animations simultanées, les vingt musiques, les carnets et les dernières pages. Le navigateur et les exports Hermes ne remplacent pas une mesure de fluidité et de mémoire sur appareil Android/iOS. Les captures sont générées dans `test-results/`.
 

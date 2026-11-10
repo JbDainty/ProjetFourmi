@@ -1,7 +1,16 @@
-import levels, { legacyLevels, type Level } from '../data/campaign';
+import levels, { legacyLevels, campaign3Levels, type Level } from '../data/campaign';
+import { difficultyProfile } from '../data/difficulty';
 import { pour, type Board, type Move } from './puzzle';
 import type { Rules } from './mechanics';
-export type Remix = { level: number; order: number[]; colors: number[]; legacy?: boolean };
+export type Remix = {
+  level: number;
+  order: number[];
+  colors: number[];
+  legacy?: boolean;
+  campaign?: 3;
+};
+export const campaignPool = (remix?: Remix) =>
+  remix?.legacy ? legacyLevels : remix?.campaign === 3 ? campaign3Levels : levels;
 const permutation = (a: unknown, n: number): a is number[] =>
   Array.isArray(a) &&
   a.length === n &&
@@ -12,17 +21,34 @@ const inventory = (b: Board) =>
     .flat()
     .sort((a, b) => a - b)
     .join(',');
-const signature = (l: Level) =>
-  JSON.stringify([
+const signatureCache = new WeakMap<Level, string>();
+const signature = (l: Level) => {
+  const cached = signatureCache.get(l);
+  if (cached) return cached;
+  const value = JSON.stringify([
     l.rules?.mechanics.slice().sort() ?? [],
     l.board.length,
     l.board.flat().reduce((a, c) => {
       a[c] = (a[c] ?? 0) + 1;
       return a;
     }, [] as number[]),
+    [
+      l.rules?.mystery?.length,
+      l.rules?.gates?.length,
+      l.rules?.crystals?.length,
+      l.rules?.links?.length,
+      l.rules?.pipettes?.length,
+      l.rules?.filters?.length,
+      l.rules?.collectors?.length,
+    ],
+    l.rules?.capacities?.slice().sort(),
   ]);
+  signatureCache.set(l, value);
+  return value;
+};
 export function validRemix(page: number, value: Remix): boolean {
-  const pool = value?.legacy ? legacyLevels : levels,
+  if (value?.campaign !== undefined && (value.campaign !== 3 || value.legacy)) return false;
+  const pool = campaignPool(value),
     source = pool[value?.level - 1],
     original = pool[page - 1];
   if (
@@ -54,7 +80,7 @@ function remapRules(r: Rules | undefined, m: Remix): Rules | undefined {
   };
 }
 export function attemptPuzzle(page: number, remix?: Remix): Level {
-  const source = (remix?.legacy ? legacyLevels : levels)[(remix?.level ?? page) - 1];
+  const source = campaignPool(remix)[(remix?.level ?? page) - 1];
   if (!remix) return source;
   return permutedLevel(source, remix);
 }
@@ -70,10 +96,17 @@ export function permutedLevel(source: Level, remix: Remix): Level {
   };
 }
 export function newRemix(page: number, previous?: Remix, random = Math.random): Remix {
-  const pool = previous?.legacy ? legacyLevels : levels,
+  const pool = campaignPool(previous),
     source = pool[page - 1];
+  const profile = difficultyProfile(page);
+  const sourceSignature = signature(source);
   const candidates = pool.filter(
-    (l) => signature(l) === signature(source) && l.id !== (previous?.level ?? page),
+    (l) =>
+      signature(l) === sourceSignature &&
+      l.id !== (previous?.level ?? page) &&
+      (previous?.legacy ||
+        previous?.campaign === 3 ||
+        (l.par >= profile.minimum && l.par <= Math.max(source.par, profile.minimum + 4))),
   );
   const choices = candidates.length ? candidates : [source];
   const shuffle = (n: number) => {
@@ -98,6 +131,7 @@ export function newRemix(page: number, previous?: Remix, random = Math.random): 
     order: shuffle(source.board.length),
     colors,
     ...(previous?.legacy ? { legacy: true } : {}),
+    ...(previous?.campaign === 3 ? { campaign: 3 as const } : {}),
   };
 }
 export function certifiedHint(page: number, board: Board, remix?: Remix): Move | undefined {
