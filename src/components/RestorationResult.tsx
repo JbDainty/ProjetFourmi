@@ -3,7 +3,7 @@ import { Platform, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { type Save, restoration } from '../state/model';
 import { pageStars, starLimits } from '../state/stars';
-import levels from '../data/levels.json';
+import { attemptPuzzle } from '../engine/remix';
 import { species } from '../data/botany';
 import { botanicalFact } from '../data/botanicalFacts';
 import { restorationTitles } from '../animation/restoration';
@@ -92,7 +92,7 @@ function ResultFolio({
   const sealPage = save.current % 5 === 0;
   const sealActive = sealPage && reveal && !sealFinished && revealAnimated;
   const motion = save.settings.motion && !(sealPage && reveal);
-  const minimum = levels[save.current - 1].par;
+  const minimum = attemptPuzzle(save.current, save.remix).par;
   const target = starLimits(minimum).three;
   const stars = pageStars(save.moves, minimum);
   const best = save.completed[save.current]?.stars ?? 0;

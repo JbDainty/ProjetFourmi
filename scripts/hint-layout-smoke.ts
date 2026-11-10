@@ -1,3 +1,4 @@
+import { requestHint } from './hint-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { initial, loadLevel, move } from '../src/state/model';
@@ -94,7 +95,7 @@ async function main() {
           { once: true, capture: true },
         );
       });
-      await page.getByRole('button', { name: 'Indice', exact: true }).click();
+      await requestHint(page);
       const expected = seeds
         ? `Versez le flacon ${levels[level - 1].solution[0].from + 1} dans le flacon ${levels[level - 1].solution[0].to + 1}.`
         : 'Votre réserve est vide. Visez trois étoiles.';
@@ -118,7 +119,7 @@ async function main() {
       expect(text.y).toBeGreaterThanOrEqual(paper.y);
       expect(text.y + text.height).toBeLessThanOrEqual(paper.y + paper.height);
       await page.screenshot({ path: `test-results/hint-stable-${width}-${level}.png` });
-      await page.getByRole('button', { name: 'Indice', exact: true }).click();
+      await requestHint(page);
       expect(await geometry()).toEqual(before);
       await page.getByRole('button', { name: /^Flacon 1,/ }).click();
       await expect(page.getByTestId('hint-scroll')).toHaveCount(0);

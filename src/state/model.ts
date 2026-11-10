@@ -2,6 +2,7 @@ import levels from '../data/levels.json';
 import { Board, clone, pour, won, type Move } from '../engine/puzzle';
 import { discoverPigment, Pigment } from './pigments';
 import { pageStars } from './stars';
+import { attemptPuzzle, newRemix, validRemix, type Remix } from '../engine/remix';
 
 export type Settings = {
   sound: boolean;
@@ -9,6 +10,7 @@ export type Settings = {
   haptics: boolean;
   patterns: boolean;
   motion: boolean;
+  confirmHints?: boolean;
 };
 export type Save = {
   version: 2;
@@ -24,6 +26,7 @@ export type Save = {
   board: Board;
   history: Board[];
   moves: number;
+  remix?: Remix;
   settings: Settings;
   theme: string;
   owned: string[];
@@ -44,7 +47,14 @@ export function initial(): Save {
     board: clone(levels[0].board),
     history: [],
     moves: 0,
-    settings: { sound: true, music: true, haptics: true, patterns: false, motion: true },
+    settings: {
+      sound: true,
+      music: true,
+      haptics: true,
+      patterns: false,
+      motion: true,
+      confirmHints: true,
+    },
     theme: 'ivoire',
     owned: ['ivoire'],
     daily: null,
@@ -67,13 +77,14 @@ export function loadLevel(s: Save, id: number): Save {
     history: [],
     moves: 0,
     attemptRewarded: false,
+    remix: undefined,
   };
 }
 export function reward(s: Save, now = new Date().toISOString()): Save {
   if (!won(s.board) || s.attemptRewarded) return s;
   const id = s.current,
     first = !s.completed[id],
-    stars = pageStars(s.moves, levels[id - 1].par);
+    stars = pageStars(s.moves, attemptPuzzle(id, s.remix).par);
 
   return {
     ...s,
@@ -104,6 +115,19 @@ export function undo(s: Save): Save {
     moves: Math.max(0, s.moves - 1),
   };
 }
+/** Start a new certified puzzle for the same page, retaining the earned collection. */
+export function remixPage(s: Save, random = Math.random): Save {
+  if (won(s.board)) return s;
+  const remix = newRemix(s.current, s.remix, random);
+  return {
+    ...s,
+    remix,
+    board: clone(attemptPuzzle(s.current, remix).board),
+    history: [],
+    moves: 0,
+    attemptRewarded: false,
+  };
+}
 export function restore(raw: string | null): Save {
   if (!raw) return initial();
   const v = JSON.parse(raw) as Save;
@@ -129,6 +153,7 @@ export function restore(raw: string | null): Save {
   )
     throw Error('Sauvegarde invalide.');
   const expected = levels[v.current - 1].board.flat().sort().join(',');
+  if (v.remix !== undefined && !validRemix(v.current, v.remix)) throw Error('Mélange invalide.');
   if (v.board.flat().sort().join(',') !== expected) throw Error('Contenu des flacons invalide.');
   if (
     !Array.isArray(v.history) ||

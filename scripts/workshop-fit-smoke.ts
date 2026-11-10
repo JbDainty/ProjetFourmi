@@ -1,3 +1,4 @@
+import { requestHint } from './hint-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { initial, loadLevel, move } from '../src/state/model';
@@ -86,8 +87,9 @@ async function main() {
     const frame = (await actions.getByTestId('botanical-foliage-frame').boundingBox())!;
     expect(frame).toEqual(paper);
     const labelTops: number[] = [];
-    for (const name of ['Annuler', 'Recommencer', 'Indice']) {
+    for (const name of ['Annuler', 'Recommencer', 'Mélanger', 'Indice']) {
       const button = actions.getByRole('button', { name, exact: true });
+      if (!(await button.getByText(name, { exact: true }).count())) continue;
       const label = (await button.getByText(name, { exact: true }).boundingBox())!;
       const icon = (await button.locator('svg').first().boundingBox())!;
       const inkWidth = await button.getByText(name, { exact: true }).evaluate((node) => {
@@ -102,7 +104,7 @@ async function main() {
         expect(part.y + part.height).toBeLessThanOrEqual(paper.y + paper.height - 11.9);
       }
     }
-    expect(Math.max(...labelTops) - Math.min(...labelTops)).toBeLessThan(0.5);
+    if (labelTops.length) expect(Math.max(...labelTops) - Math.min(...labelTops)).toBeLessThan(0.5);
     if (await actions.getByTestId('hint-seed-price').count()) {
       const price = (await actions.getByTestId('hint-seed-price').boundingBox())!;
       expect(price.y + price.height).toBeLessThanOrEqual(paper.y + paper.height - 11.9);
@@ -161,8 +163,8 @@ async function main() {
     const toolbar = page.getByTestId('game-actions');
     const toolbarBeforeHint = await toolbar.boundingBox();
     await page.screenshot({ path: 'test-results/workshop-toolbar-page32.png' });
-    await page.getByRole('button', { name: 'Indice', exact: true }).click();
-    await expect(page.getByTestId('hint-seed-price')).toHaveText('Déjà cueilli');
+    await requestHint(page);
+    await expect(page.getByTestId('hint-seed-price')).toHaveCount(0);
     await check(32);
     expect(await toolbar.boundingBox()).toEqual(toolbarBeforeHint);
     await page.screenshot({ path: 'test-results/workshop-toolbar-page32-hint.png' });
@@ -172,7 +174,7 @@ async function main() {
     const before = await page.evaluate(() => localStorage.getItem('color-world.save'));
     const positions = () => page.getByTestId('game-actions').boundingBox();
     const bounds = await positions();
-    await page.getByRole('button', { name: 'Indice', exact: true }).click();
+    await requestHint(page);
     await expect(page.getByTestId('hint-writing-text')).toHaveText(
       `Versez le flacon ${levels[99].solution[0].from + 1} dans le flacon ${levels[99].solution[0].to + 1}.`,
     );
@@ -186,7 +188,7 @@ async function main() {
     expect(await page.evaluate(() => scrollY)).toBe(0);
     const paid = await page.evaluate(() => JSON.parse(localStorage.getItem('color-world.save')!));
     expect(paid.seeds).toBe(JSON.parse(before!).seeds - 1);
-    await page.getByRole('button', { name: 'Indice', exact: true }).click();
+    await requestHint(page);
     expect(
       (await page.evaluate(() => JSON.parse(localStorage.getItem('color-world.save')!))).seeds,
     ).toBe(paid.seeds);

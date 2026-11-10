@@ -602,12 +602,17 @@ export function BotanicalGuide({
               {
                 icon: 'seed-outline',
                 title: 'Une graine pour éclairer le chemin',
-                text: 'Vous commencez avec une graine. Chaque réussite à trois étoiles en rapporte une nouvelle. Un nouvel indice coûte une graine ; relire le même indice dans la même situation reste gratuit.',
+                text: 'Vous commencez avec une graine. Chaque réussite à trois étoiles en rapporte une nouvelle. Un nouvel indice coûte une graine, après confirmation. Vous pouvez cocher « Ne plus me prévenir » et réactiver cet avertissement dans les paramètres. Relire le même indice dans la même situation reste gratuit.',
               },
               {
                 icon: 'arrow-undo-outline',
                 title: 'Prenez le temps d’essayer',
                 text: 'Annuler revient au geste précédent. Recommencer remet les fioles en place. Ces deux actions ne dépensent aucune graine : vous pouvez chercher à votre rythme.',
+              },
+              {
+                icon: 'refresh-outline',
+                title: 'Mélanger pour repartir autrement',
+                text: 'Bloqué ? Mélanger propose gratuitement une nouvelle disposition résoluble pour la même page. Après confirmation, les mouvements repartent à zéro. Les étoiles et les pages déjà gagnées restent conservées. Le minimum et les objectifs des étoiles correspondent au nouveau mélange.',
               },
             ].map((item) => (
               <View

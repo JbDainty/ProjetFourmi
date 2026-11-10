@@ -1,3 +1,4 @@
+import { requestHint } from './hint-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { initial, move } from '../src/state/model';
@@ -80,7 +81,7 @@ async function main() {
       320,
     );
     await page.screenshot({ path: 'test-results/mistake-leaves-narrow.png', fullPage: true });
-    await page.getByRole('button', { name: 'Indice', exact: true }).click();
+    await requestHint(page);
     await expect(leaf).toHaveCount(0);
     await expect(page.getByTestId('hint-scroll')).toBeVisible();
     await expect(page.getByTestId('hint-pencil')).toBeVisible();

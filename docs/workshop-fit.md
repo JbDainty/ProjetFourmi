@@ -1,6 +1,6 @@
 # Atelier sur une seule vue
 
-Les cent pages de jeu occupent la zone sûre disponible, sans défilement du plateau ni de la page. Le menu, les graines, les fioles, l’indice et les trois commandes restent accessibles ensemble. Les pages du carnet gardent leur propre défilement ; la carte conserve son défilement intérieur.
+Les cent pages de jeu occupent la zone sûre disponible, sans défilement du plateau ni de la page. Le menu, les graines, les fioles, l’indice et les quatre commandes restent accessibles ensemble. Les pages du carnet gardent leur propre défilement ; la carte conserve son défilement intérieur.
 
 ## Composition
 
@@ -12,7 +12,9 @@ La géométrie est réduite uniformément : les proportions des tubes et la simu
 
 L’indice est mesuré avec les mêmes dimensions et polices que son affichage final. Son emplacement reste vide avant la demande ; son déroulement et son écriture n’agrandissent pas le pied de page. Les deux messages exceptionnels les plus longs ont une formulation visuelle plus courte, avec leur texte complet conservé pour les lecteurs d’écran. Le coût des indices et la progression ne changent pas.
 
-La barre de commandes dispose d’un cadre feuillu spécifique aux formats bas. Ses petites feuilles restent dans les marges ; les ornements d’angle des grandes pages ne sont pas comprimés autour des boutons. Sa hauteur réserve douze points en haut et en bas, puis la place des icônes, des libellés selon la taille de police et du coût de l’indice lorsqu’il est affiché. Les trois libellés partagent la même ligne et le prix reste à l’intérieur du papier, avant et après la demande d’indice.
+La barre retrouve les lianes et les ornements d’angle du cadre original, avec vingt-six points réservés au-dessus et en dessous des quatre commandes. Les libellés ajustent leur taille à leur cellule ; sur un paysage très court, seuls les symboles sont visibles, avec leurs noms accessibles complets. Aucun prix n’est écrit sous Indice : une fenêtre confirme la dépense d’une graine, avec une case « Ne plus me prévenir ». Ce choix persiste et peut être réactivé dans les paramètres. Relire un indice acquis et demander un indice sans graine n’ouvre pas cette confirmation.
+
+Mélanger ouvre une confirmation gratuite, puis redistribue les couleurs de la même page avec un fondu. Il démarre une nouvelle tentative (mouvements et historique remis à zéro), sans modifier les acquis. La disposition provient d’un puzzle de même capacité et de même nombre de couleurs, dont le minimum exact et la solution sont certifiés hors ligne. Les indices et le calcul des étoiles utilisent cette référence après permutation des tubes et des couleurs. Le mélange et ses paramètres sont sauvegardés. Les gestes sont bloqués pendant le fondu ; quitter la scène interrompt l’animation. Recommencer et Rejouer retrouvent la disposition originale de la page.
 
 ## Vérification
 

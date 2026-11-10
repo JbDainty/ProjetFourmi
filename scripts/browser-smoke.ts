@@ -1,3 +1,4 @@
+import { requestHint } from './hint-test-helper';
 import { openCarnet, openScreen } from './navigation-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
@@ -20,7 +21,7 @@ async function main() {
     await page.goto(testUrl);
     await openCarnet(page);
     await page.screenshot({ path: 'test-results/atelier-desktop.png', fullPage: true });
-    await page.getByRole('button', { name: 'Indice', exact: true }).click();
+    await requestHint(page);
     await expect(page.getByTestId('hint-writing-text')).toHaveText(
       `Versez le flacon ${levels[0].solution[0].from + 1} dans le flacon ${levels[0].solution[0].to + 1}.`,
     );
@@ -42,7 +43,7 @@ async function main() {
         expect(partial.completed['1']).toBeUndefined();
         expect(partial.pigments).toHaveLength(0);
         await expect(page.getByTestId('victory-living-paper')).not.toBeVisible();
-        await page.getByRole('button', { name: 'Indice', exact: true }).click();
+        await requestHint(page);
         await expect(page.getByTestId('hint-writing-text')).toContainText('Votre réserve est vide');
       }
     }

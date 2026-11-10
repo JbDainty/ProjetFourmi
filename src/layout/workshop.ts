@@ -17,20 +17,21 @@ export function workshopLayout(
   const boardWidth = wide ? (content - gap) * 0.64 : content;
   const hudHeight = landscape ? 48 : tiny ? 60 : 56;
   const captionHeight = tiny || landscape ? 0 : compact ? 80 : 92;
-  const hintWidth = landscape ? Math.max(180, boardWidth * 0.53 - 4) : Math.min(580, boardWidth);
-  const narrowActions = landscape && boardWidth - hintWidth - 4 < 280;
-  const actionHorizontalPadding = narrowActions ? 14 : 18;
-  const showSeedPrice = !tiny && !landscape && !(compact && (options?.fontScale || 1) > 1.1);
+  const hintWidth = landscape ? Math.max(180, boardWidth * 0.44 - 4) : Math.min(580, boardWidth);
+  const actionsWidth = Math.min(480, landscape ? boardWidth - hintWidth - 4 : boardWidth);
+  const actionHorizontalPadding = 24;
+  const showActionLabels = !landscape || actionsWidth >= 320;
   const actionIconSize = compact ? 20 : 24;
-  const actionLabelSize = narrowActions ? 12 : compact ? 16 : 18;
+  const cellWidth = (actionsWidth - actionHorizontalPadding * 2 - 12) / 4;
+  const actionLabelSize = Math.min(compact ? 16 : 18, Math.floor(((cellWidth - 4) / 4.7) * 2) / 2);
   const actionLabelLine = compact ? 18 : 20;
   const actionLabelHeight = Math.ceil(actionLabelLine * Math.min(options?.fontScale || 1, 1.15));
   const actionContentHeight = Math.max(
     44,
-    actionIconSize + 2 + actionLabelHeight + (showSeedPrice ? 14 : 0),
+    actionIconSize + (showActionLabels ? 2 + actionLabelHeight : 0),
   );
-  // Twelve points protect the content from the marginal leaves on both edges.
-  const actionsHeight = actionContentHeight + 24;
+  // Original page foliage needs breathing room above and below the four controls.
+  const actionsHeight = actionContentHeight + 52;
   const hintHeight = options?.hintHeight || 56;
   const footerHeight = landscape
     ? Math.max(actionsHeight, hintHeight)
@@ -57,7 +58,8 @@ export function workshopLayout(
     actionLabelLine,
     actionLabelHeight,
     actionHorizontalPadding,
-    showSeedPrice,
+    showActionLabels,
+    actionsWidth,
     hintWidth,
     hintHeight,
     footerHeight,

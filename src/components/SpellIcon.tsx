@@ -1,7 +1,7 @@
 import React, { useId } from 'react';
 import Svg, { Defs, LinearGradient, Stop, G, Path, Circle, Ellipse } from 'react-native-svg';
 
-export type SpellIconName = 'undo' | 'restart' | 'hint';
+export type SpellIconName = 'undo' | 'restart' | 'hint' | 'mix';
 function Leaf({ x, y, angle, size = 1 }: { x: number; y: number; angle: number; size?: number }) {
   return (
     <G transform={`translate(${x} ${y}) rotate(${angle}) scale(${size})`}>
@@ -47,6 +47,20 @@ export function SpellIcon({ name, size = 36 }: { name: SpellIconName; size?: num
         </LinearGradient>
       </Defs>
       <G strokeLinecap="round" strokeLinejoin="round">
+        {name === 'mix' && (
+          <>
+            <Path
+              d="M10 18 C28 12 31 49 53 44 M44 36 54 44 44 50 M10 46 C28 51 32 14 53 20 M44 12 54 20 44 27"
+              fill="none"
+              stroke={`url(#${id})`}
+              strokeWidth="2"
+            />
+            <Leaf x={19} y={23} angle={-40} size={0.5} />
+            <Leaf x={23} y={43} angle={45} size={0.48} />
+            <Star x={35} y={32} size={0.7} />
+            <Star x={13} y={9} size={0.45} />
+          </>
+        )}
         {name === 'undo' && (
           <>
             <Path

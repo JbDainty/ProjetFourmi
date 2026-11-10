@@ -84,7 +84,7 @@ describe('fixed workshop composition', () => {
       expect(board.columns).toBe(3);
       expect(board.rows).toBe(2);
       expect(board.height / space.boardHeight).toBeGreaterThan(0.95);
-      expect(board.scale).toBeGreaterThan(1.05);
+      if (width >= 412) expect(board.scale).toBeGreaterThan(1.05);
     }
   });
   it('adapts tube size and row count to both the level and available space', () => {
@@ -99,14 +99,17 @@ describe('fixed workshop composition', () => {
     // A short landscape still uses a single row when there is no height for two.
     expect(liquidBoardLayout(800, 200, 6).rows).toBe(1);
   });
-  it('keeps action icons, scaled labels and seed price inside the leafy margin', () => {
+  it('keeps four controls inside the original leafy margin', () => {
     for (const [width, height] of viewports)
       for (const fontScale of [1, 1.1, 1.3, 2]) {
         const space = workshopLayout(width, width, { height, tubes: 7, fontScale });
         const content =
-          space.actionIconSize + 2 + space.actionLabelHeight + (space.showSeedPrice ? 14 : 0);
-        expect(space.actionsHeight - content).toBeGreaterThanOrEqual(24);
-        expect(space.actionsHeight - 24).toBeGreaterThanOrEqual(44);
+          space.actionIconSize + (space.showActionLabels ? 2 + space.actionLabelHeight : 0);
+        expect(space.actionsHeight - content).toBeGreaterThanOrEqual(52);
+        expect(space.actionsHeight - 52).toBeGreaterThanOrEqual(44);
+        expect(
+          (space.actionsWidth - space.actionHorizontalPadding * 2 - 12) / 4,
+        ).toBeGreaterThanOrEqual(44);
         expect(space.actionLabelHeight).toBeGreaterThanOrEqual(
           space.actionLabelLine * Math.min(1.15, fontScale),
         );

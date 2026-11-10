@@ -93,6 +93,7 @@ async function main() {
     await openScreen(page, 'L’Atelier');
     const hint = page.getByRole('button', { name: 'Indice', exact: true });
     await hint.dblclick();
+    await page.getByRole('button', { name: 'Utiliser une graine', exact: true }).click();
     await expect(page.getByTestId('hint-writing-text')).toHaveText(
       'Versez le flacon 1 dans le flacon 3.',
     );

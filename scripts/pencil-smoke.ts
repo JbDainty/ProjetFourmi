@@ -1,3 +1,4 @@
+import { requestHint } from './hint-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import levels from '../src/data/levels.json';
@@ -76,7 +77,7 @@ async function main() {
         requestAnimationFrame(sample);
       }, { once: true, capture: true });
     `);
-    await page.getByRole('button', { name: 'Indice', exact: true }).click();
+    await requestHint(page);
     await expect(page.getByTestId('hint-scroll-unrolling')).toBeVisible();
     await expect(note).toHaveText('');
     await expect(page.getByTestId('hint-pencil')).toHaveCount(0);
@@ -128,13 +129,13 @@ async function main() {
     ).toBeGreaterThan(40);
     await page.screenshot({ path: 'test-results/pencil-note-complete.png', fullPage: true });
     // Asking again rewinds the paper; a tube touch cancels either phase.
-    await page.getByRole('button', { name: 'Indice', exact: true }).click();
+    await requestHint(page);
     await expect(page.getByTestId('hint-scroll-unrolling')).toBeVisible();
     await expect(note).toHaveText('');
     await page.getByRole('button', { name: /^Flacon 2,/ }).click();
     await expect(page.getByTestId('hint-scroll')).toHaveCount(0);
     await page.getByRole('button', { name: /^Flacon 2,/ }).click();
-    await page.getByRole('button', { name: 'Indice', exact: true }).click();
+    await requestHint(page);
     await expect(page.getByTestId('hint-pencil')).toBeVisible();
     await page.getByRole('button', { name: /^Flacon 2,/ }).click();
     await expect(page.getByTestId('hint-scroll')).toHaveCount(0);
@@ -143,7 +144,7 @@ async function main() {
     await openScreen(page, 'Paramètres');
     await page.getByRole('switch', { name: 'Animations douces' }).click();
     await openScreen(page, 'L’Atelier');
-    await page.getByRole('button', { name: 'Indice', exact: true }).click();
+    await requestHint(page);
     await expect(note).toHaveText(fullHint);
     await expect(page.getByTestId('hint-scroll-open')).toBeVisible();
     await expect(page.getByTestId('hint-scroll-unrolling')).toHaveCount(0);

@@ -2,12 +2,30 @@ import { F } from '../src/components/fonts';
 import { Paper } from '../src/components/Paper';
 import { PageTurnContext } from '../src/components/PageTurn';
 import React, { useEffect, useRef, useState } from 'react';
-import { View, ScrollView, Pressable, Modal, useWindowDimensions } from 'react-native';
+import {
+  Animated,
+  Platform,
+  View,
+  ScrollView,
+  Pressable,
+  Modal,
+  useWindowDimensions,
+} from 'react-native';
 import { router, Redirect } from 'expo-router';
 import { useGame } from '../src/state/store';
-import { loadLevel, move, undo, restoration, currentHint, purchaseHint } from '../src/state/model';
+import {
+  loadLevel,
+  move,
+  undo,
+  restoration,
+  currentHint,
+  purchaseHint,
+  remixPage,
+} from '../src/state/model';
+import { certifiedHint } from '../src/engine/remix';
+import { WorkshopConfirm } from '../src/components/WorkshopConfirm';
+import { usePrimaryAnimation } from '../src/components/usePrimaryAnimation';
 import { won, solve, pour, Move } from '../src/engine/puzzle';
-import levels from '../src/data/levels.json';
 import { species } from '../src/data/botany';
 import { LiquidBoard } from '../src/components/LiquidBoard';
 import { Botanical } from '../src/components/Botanical';
@@ -56,6 +74,11 @@ function Workshop() {
   const [tubeReward, setTubeReward] = useState<TubeReward | null>(null);
   const [winReady, setWinReady] = useState(won(save.board));
   const hintPending = useRef(false);
+  const [confirm, setConfirm] = useState<'hint' | 'mix' | null>(null);
+  const mixOpacity = useRef(new Animated.Value(1)).current;
+  const mixAnimation = useRef<Animated.CompositeAnimation | null>(null);
+  const mixPending = useRef(false);
+  const mixFrame = useRef<number | null>(null);
   const rewardId = useRef(0),
     revealPlayed = useRef(false);
   const stopPour = useRef<() => void>(() => {}),
@@ -72,6 +95,7 @@ function Workshop() {
     [dismissed, setDismissed] = useState(false),
     [plateOpen, setPlateOpen] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  usePrimaryAnimation(busy && mixPending.current);
   const plant = Math.floor((save.current - 1) / 5),
     s = species[plant],
     chapter = Math.floor((save.current - 1) / 20),
@@ -79,6 +103,11 @@ function Workshop() {
     sealPage = save.current % 5 === 0,
     victory = won(save.board);
   useEffect(() => {
+    mixAnimation.current?.stop();
+    if (mixFrame.current !== null) cancelAnimationFrame(mixFrame.current);
+    mixPending.current = false;
+    mixOpacity.setValue(1);
+    setConfirm(null);
     if (!victory) return;
     preparePageArtwork(plant, stage);
     const nextPlant = Math.floor(save.current / 5);
@@ -108,6 +137,8 @@ function Workshop() {
   }, [save.current]);
   useEffect(
     () => () => {
+      mixAnimation.current?.stop();
+      if (mixFrame.current !== null) cancelAnimationFrame(mixFrame.current);
       if (timer.current) clearTimeout(timer.current);
       stopPour.current();
       stopReveal.current();
@@ -209,8 +240,8 @@ function Workshop() {
     const boardKey = JSON.stringify(save.board),
       page = save.current;
     timer.current = setTimeout(() => {
-      const isInitial = boardKey === JSON.stringify(levels[page - 1].board);
-      let suggestion = owned ?? (isInitial ? levels[page - 1].solution : solve(save.board))?.[0];
+      let suggestion =
+        owned ?? certifiedHint(page, save.board, save.remix) ?? solve(save.board)?.[0];
       if (suggestion) {
         const proposed = suggestion;
         let accepted = false;
@@ -233,6 +264,61 @@ function Workshop() {
       hintPending.current = false;
       setBusy(false);
     }, 60);
+  };
+  const requestHint = () => {
+    if (busy || victory || hintPending.current || mixPending.current) return;
+    if (!currentHint(save) && save.seeds > 0 && save.settings.confirmHints !== false)
+      setConfirm('hint');
+    else askHint();
+  };
+  const mixColors = () => {
+    if (busy || victory || mixPending.current) return;
+    mixPending.current = true;
+    setBusy(true);
+    setSelected(null);
+    setHint(null);
+    clearNote();
+    setTubeReward(null);
+    stopPour.current();
+    stopChime.current();
+    const current = save.current,
+      before = JSON.stringify(save.board);
+    const apply = () => {
+      setSave((v) =>
+        v.current === current && JSON.stringify(v.board) === before ? remixPage(v) : v,
+      );
+    };
+    if (!save.settings.motion) {
+      apply();
+      mixPending.current = false;
+      setBusy(false);
+      return;
+    }
+    const out = Animated.timing(mixOpacity, {
+      toValue: 0,
+      duration: 180,
+      useNativeDriver: Platform.OS !== 'web',
+    });
+    mixAnimation.current = out;
+    out.start(({ finished }) => {
+      if (!finished) return;
+      apply();
+      // Reveal only after React has committed the new mixture under the hidden glass.
+      mixFrame.current = requestAnimationFrame(() => {
+        const enter = Animated.timing(mixOpacity, {
+          toValue: 1,
+          duration: 280,
+          useNativeDriver: Platform.OS !== 'web',
+        });
+        mixAnimation.current = enter;
+        enter.start(({ finished }) => {
+          if (finished) {
+            mixPending.current = false;
+            setBusy(false);
+          }
+        });
+      });
+    });
   };
   const restorePigment = (animate = true) => {
     if (revealPlayed.current) return;
@@ -291,18 +377,17 @@ function Workshop() {
   const actions = (
     <Paper
       testID="game-actions"
-      compactFrame
       style={{
         flexDirection: 'row',
         justifyContent: 'center',
         gap: 4,
-        paddingVertical: 12,
+        paddingVertical: 26,
         paddingHorizontal: layout.actionHorizontalPadding,
         borderRadius: 30,
         backgroundColor: '#f4ead6ee',
         width: '100%',
         height: layout.actionsHeight,
-        maxWidth: 420,
+        maxWidth: 480,
         alignSelf: 'center',
       }}
     >
@@ -336,7 +421,13 @@ function Workshop() {
           },
           disabled: false,
         },
-        { name: 'Indice', icon: 'hint' as const, action: askHint, disabled: victory },
+        {
+          name: 'Mélanger',
+          icon: 'mix' as const,
+          action: () => setConfirm('mix'),
+          disabled: victory,
+        },
+        { name: 'Indice', icon: 'hint' as const, action: requestHint, disabled: victory },
       ].map((a) => (
         <Pressable
           key={a.name}
@@ -364,41 +455,24 @@ function Workshop() {
           }}
         >
           <SpellIcon size={layout.actionIconSize} name={a.icon} />
-          <T
-            numberOfLines={1}
-            adjustsFontSizeToFit
-            maxFontSizeMultiplier={1.15}
-            style={{
-              fontFamily: F.handwritingMedium,
-              fontSize: layout.actionLabelSize,
-              lineHeight: layout.actionLabelLine,
-              height: layout.actionLabelHeight,
-              color: C.green,
-              textAlign: 'center',
-              maxWidth: '100%',
-            }}
-          >
-            {a.name}
-          </T>
-          {layout.showSeedPrice &&
-            (a.name === 'Indice' ? (
-              <T
-                testID="hint-seed-price"
-                maxFontSizeMultiplier={1}
-                style={{
-                  fontSize: 10,
-                  lineHeight: 12,
-                  height: 12,
-                  color: C.muted,
-                  fontFamily: F.scientific,
-                  textAlign: 'center',
-                }}
-              >
-                {currentHint(save) ? 'Déjà cueilli' : '1 graine'}
-              </T>
-            ) : (
-              <View style={{ height: 12 }} />
-            ))}
+          {layout.showActionLabels && (
+            <T
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              maxFontSizeMultiplier={1.15}
+              style={{
+                fontFamily: F.handwritingMedium,
+                fontSize: layout.actionLabelSize,
+                lineHeight: layout.actionLabelLine,
+                height: layout.actionLabelHeight,
+                color: C.green,
+                textAlign: 'center',
+                maxWidth: '100%',
+              }}
+            >
+              {a.name}
+            </T>
+          )}
         </Pressable>
       ))}
     </Paper>
@@ -434,24 +508,29 @@ function Workshop() {
                 onDismiss={clearNote}
               />
             )}
-            <LiquidBoard
-              initialWidth={layout.boardWidth}
-              maxHeight={layout.boardHeight}
-              integrated
-              reward={victory && winReady ? null : tubeReward}
-              onRewardDone={(id) =>
-                setTubeReward((previous) => (previous?.id === id ? null : previous))
-              }
-              board={save.board}
-              selected={selected}
-              hint={hint}
-              pouring={pouring}
-              disabled={busy || victory}
-              motion={save.settings.motion}
-              patterns={save.settings.patterns}
-              onTap={tap}
-              onFinish={finishPour}
-            />
+            <Animated.View
+              style={{ opacity: mixOpacity }}
+              testID={mixPending.current ? 'workshop-mixing' : 'workshop-mixture-ready'}
+            >
+              <LiquidBoard
+                initialWidth={layout.boardWidth}
+                maxHeight={layout.boardHeight}
+                integrated
+                reward={victory && winReady ? null : tubeReward}
+                onRewardDone={(id) =>
+                  setTubeReward((previous) => (previous?.id === id ? null : previous))
+                }
+                board={save.board}
+                selected={selected}
+                hint={hint}
+                pouring={pouring}
+                disabled={busy || victory}
+                motion={save.settings.motion}
+                patterns={save.settings.patterns}
+                onTap={tap}
+                onFinish={finishPour}
+              />
+            </Animated.View>
           </View>
           <View
             testID="workshop-footer"
@@ -497,6 +576,22 @@ function Workshop() {
         </View>
         {wide && <WorkshopPlate plant={plant} stage={stage} />}
       </View>
+      {confirm && (
+        <WorkshopConfirm
+          kind={confirm}
+          motion={save.settings.motion}
+          onCancel={() => setConfirm(null)}
+          onConfirm={(skip) => {
+            const kind = confirm;
+            setConfirm(null);
+            if (kind === 'hint') {
+              if (skip)
+                setSave((v) => ({ ...v, settings: { ...v.settings, confirmHints: false } }));
+              askHint();
+            } else mixColors();
+          }}
+        />
+      )}
       <Modal
         visible={plateOpen && save.started}
         transparent
