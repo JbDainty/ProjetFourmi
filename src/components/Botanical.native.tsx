@@ -13,6 +13,9 @@ type Props = { index: number; stage: number; size?: number; labels?: boolean };
  * entire atlas into several offscreen bitmaps every time Android paints it. */
 function BotanicalDrawing({ index, stage, size = 330, labels = true }: Props) {
   const restored = restorationState(stage);
+  // The first two washes share one strip on new plates. Clip a single cached
+  // bitmap rather than decoding an atlas or adding more Expo update resources.
+  const packed = index >= 20 && restored.colors < 2;
   const ink = '#806c4d';
   return (
     <View
@@ -22,13 +25,21 @@ function BotanicalDrawing({ index, stage, size = 330, labels = true }: Props) {
       pointerEvents="none"
       style={{ width: size, height: size * 1.36 }}
     >
-      <Image
-        source={botanicalRasters[index][restored.colors]}
-        resizeMode="contain"
-        fadeDuration={0}
-        accessible={false}
-        style={[StyleSheet.absoluteFill, { width: size, height: size * 1.36 }]}
-      />
+      <View style={[StyleSheet.absoluteFill, { overflow: 'hidden' }]}>
+        <Image
+          source={botanicalRasters[index][restored.colors]}
+          resizeMode={packed ? 'stretch' : 'contain'}
+          fadeDuration={0}
+          accessible={false}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: packed ? -restored.colors * size : 0,
+            width: packed ? size * 2 : size,
+            height: size * 1.36,
+          }}
+        />
+      </View>
       {restored.sealed && <PlateSeal size={size} />}
       {labels && (
         <View
