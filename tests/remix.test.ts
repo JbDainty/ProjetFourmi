@@ -22,6 +22,20 @@ for (const level of levels) {
   for (const m of level.solution) unlocked = move(unlocked, m.from, m.to);
 }
 describe('certified mixtures', () => {
+  it('requires one seed and charges only a committed mixture, including the last seed', () => {
+    const start = initial();
+    const mixed = remixPage(start, random);
+    expect(mixed.seeds).toBe(0);
+    expect(mixed.remix).toBeDefined();
+    expect(
+      remixPage(mixed, () => {
+        throw Error('No randomization without a seed');
+      }),
+    ).toBe(mixed);
+    expect(restore(JSON.stringify(mixed)).seeds).toBe(0);
+    expect(start.seeds).toBe(1);
+    expect(start.remix).toBeUndefined();
+  });
   it('keeps every page’s colors and tube count with a real solution and exact inherited minimum', () => {
     for (const level of levels)
       for (let i = 0; i < 3; i++) {
@@ -31,7 +45,7 @@ describe('certified mixtures', () => {
         expect(mixed.board.length).toBe(start.board.length);
         expect(mixed.board.flat().sort()).toEqual(start.board.flat().sort());
         expect(validRemix(level.id, mixed.remix!)).toBe(true);
-        expect(mixed.seeds).toBe(start.seeds);
+        expect(mixed.seeds).toBe(start.seeds - 1);
         expect(mixed.completed).toEqual(start.completed);
         const attempt = attemptPuzzle(level.id, mixed.remix);
         expect(attempt.par).toBe(attempt.solution.length);

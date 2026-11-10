@@ -272,7 +272,7 @@ function Workshop() {
     else askHint();
   };
   const mixColors = () => {
-    if (busy || victory || mixPending.current) return;
+    if (busy || victory || mixPending.current || save.seeds < 1) return;
     mixPending.current = true;
     setBusy(true);
     setSelected(null);
@@ -424,7 +424,16 @@ function Workshop() {
         {
           name: 'Mélanger',
           icon: 'mix' as const,
-          action: () => setConfirm('mix'),
+          action: () => {
+            if (save.seeds < 1) {
+              setNote((previous) => ({
+                text: emptySeedHint,
+                kind: 'hint',
+                request: previous.request + 1,
+                pending: false,
+              }));
+            } else setConfirm('mix');
+          },
           disabled: victory,
         },
         { name: 'Indice', icon: 'hint' as const, action: requestHint, disabled: victory },

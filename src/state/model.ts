@@ -117,11 +117,12 @@ export function undo(s: Save): Save {
 }
 /** Start a new certified puzzle for the same page, retaining the earned collection. */
 export function remixPage(s: Save, random = Math.random): Save {
-  if (won(s.board)) return s;
+  if (won(s.board) || s.seeds < 1) return s;
   const remix = newRemix(s.current, s.remix, random);
   return {
     ...s,
     remix,
+    seeds: s.seeds - 1,
     board: clone(attemptPuzzle(s.current, remix).board),
     history: [],
     moves: 0,

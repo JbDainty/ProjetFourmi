@@ -61,11 +61,11 @@ async function main() {
     await button('Continuer à chercher').click();
     expect(await saved()).toEqual(before);
     await button('Mélanger').click();
-    await button('Mélanger cette page').click();
+    await button('Mélanger pour une graine').click();
     const mixed = await saved();
     expect(mixed.remix).toBeDefined();
     expect(mixed.board).not.toEqual(before.board);
-    expect(mixed.seeds).toBe(before.seeds);
+    expect(mixed.seeds).toBe(before.seeds - 1);
     expect(mixed.completed).toEqual(before.completed);
     expect(mixed.moves).toBe(0);
     expect(mixed.history).toEqual([]);
@@ -78,14 +78,14 @@ async function main() {
     await expect(page.getByTestId('hint-writing-text')).toHaveText(
       `Versez le flacon ${certificate.solution[0].from + 1} dans le flacon ${certificate.solution[0].to + 1}.`,
     );
-    expect((await saved()).seeds).toBe(before.seeds - 1);
+    expect((await saved()).seeds).toBe(before.seeds - 2);
     for (const m of certificate.solution) {
       await page.getByRole('button', { name: new RegExp(`^Flacon ${m.from + 1},`) }).click();
       await page.getByRole('button', { name: new RegExp(`^Flacon ${m.to + 1},`) }).click();
     }
     await expect(page.getByTestId('victory-summary')).toBeVisible();
     expect((await saved()).moves).toBe(certificate.par);
-    expect((await saved()).seeds).toBe(before.seeds);
+    expect((await saved()).seeds).toBe(before.seeds - 1);
     await expect(page.getByTestId('page-star-target')).toHaveAttribute(
       'aria-label',
       new RegExp(`Minimum possible : ${certificate.par} mouvements`),
@@ -93,7 +93,7 @@ async function main() {
     // The compositor-only mixture locks every control and never mutates a hidden page.
     await seed({ ...base, settings: { ...base.settings, motion: true } });
     await button('Mélanger').click();
-    await button('Mélanger cette page').click();
+    await button('Mélanger pour une graine').click();
     await expect(page.getByTestId('workshop-mixing')).toBeVisible();
     await expect(button('Indice')).toBeDisabled();
     await expect(page.getByTestId('workshop-mixture-ready')).toBeVisible();
@@ -101,12 +101,16 @@ async function main() {
     await page.screenshot({ path: 'test-results/remixed-page32.png' });
     const stable = await saved();
     await button('Mélanger').click();
-    await button('Mélanger cette page').click();
+    await button('Mélanger pour une graine').click();
     await page.goBack();
     await expect(page.getByTestId('home-screen')).toBeVisible();
     await page.waitForTimeout(650);
     expect((await saved()).board).toEqual(stable.board);
     await seed({ ...base, seeds: 0 });
+    const empty = await saved();
+    await button('Mélanger').click();
+    await expect(page.getByTestId('workshop-confirm')).toHaveCount(0);
+    expect(await saved()).toEqual(empty);
     await button('Indice').click();
     await expect(page.getByTestId('workshop-confirm')).toHaveCount(0);
     expect((await saved()).seeds).toBe(0);

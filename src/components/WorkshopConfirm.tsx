@@ -57,7 +57,7 @@ export function WorkshopConfirm({
             <T style={{ fontSize: 16, textAlign: 'center', color: C.muted }}>
               {hint
                 ? 'Un nouvel indice utilise une graine. Relire cet indice dans la même situation reste gratuit.'
-                : 'Les couleurs seront redistribuées dans une nouvelle disposition résoluble de cette page. Les mouvements repartent à zéro. Votre herbier et vos étoiles gagnées sont conservés. Ce mélange est gratuit.'}
+                : 'Ce mélange utilise une graine. Les couleurs seront redistribuées dans une nouvelle disposition résoluble de cette page. Les mouvements repartent à zéro. Votre herbier et vos étoiles gagnées sont conservés.'}
             </T>
             {hint && (
               <Pressable
@@ -93,7 +93,7 @@ export function WorkshopConfirm({
                 onConfirm(skip);
               }}
             >
-              {hint ? 'Utiliser une graine' : 'Mélanger cette page'}
+              {hint ? 'Utiliser une graine' : 'Mélanger pour une graine'}
             </Button>
             <Button secondary style={{ width: '100%' }} onPress={onCancel}>
               Continuer à chercher

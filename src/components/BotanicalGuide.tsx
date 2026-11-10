@@ -612,7 +612,7 @@ export function BotanicalGuide({
               {
                 icon: 'refresh-outline',
                 title: 'Mélanger pour repartir autrement',
-                text: 'Bloqué ? Mélanger propose gratuitement une nouvelle disposition résoluble pour la même page. Après confirmation, les mouvements repartent à zéro. Les étoiles et les pages déjà gagnées restent conservées. Le minimum et les objectifs des étoiles correspondent au nouveau mélange.',
+                text: 'Bloqué ? Mélanger utilise une graine pour proposer une nouvelle disposition résoluble pour la même page. Après confirmation, les mouvements repartent à zéro. Les étoiles et les pages déjà gagnées restent conservées. Le minimum et les objectifs des étoiles correspondent au nouveau mélange.',
               },
             ].map((item) => (
               <View
