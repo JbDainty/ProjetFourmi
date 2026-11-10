@@ -5,17 +5,18 @@ import { Botanical } from '../src/components/Botanical';
 
 /** Build-time cache of the existing illustration, not a mobile Canvas renderer. */
 export async function paintBotanical(index: number, stage: number) {
+  const resolution = index < 20 ? 540 : 360;
   const host = document.createElement('div');
   document.body.appendChild(host);
   const root = createRoot(host);
   try {
     flushSync(() =>
-      root.render(<Botanical index={index} stage={stage} size={540} labels={false} />),
+      root.render(<Botanical index={index} stage={stage} size={resolution} labels={false} />),
     );
     const svg = host.querySelector('svg')!;
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    svg.setAttribute('width', '540');
-    svg.setAttribute('height', '735');
+    svg.setAttribute('width', String(resolution));
+    svg.setAttribute('height', String(Math.ceil(resolution * 1.36)));
     const url = URL.createObjectURL(new Blob([svg.outerHTML], { type: 'image/svg+xml' }));
     try {
       const image = new Image();
@@ -25,10 +26,10 @@ export async function paintBotanical(index: number, stage: number) {
         image.src = url;
       });
       const canvas = document.createElement('canvas');
-      canvas.width = 540;
-      canvas.height = 735;
+      canvas.width = resolution;
+      canvas.height = Math.ceil(resolution * 1.36);
       canvas.getContext('2d')!.drawImage(image, 0, 0);
-      return canvas.toDataURL('image/png');
+      return canvas.toDataURL(index < 20 ? 'image/png' : 'image/webp', 0.91);
     } finally {
       URL.revokeObjectURL(url);
     }

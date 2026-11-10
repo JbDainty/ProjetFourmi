@@ -13,6 +13,7 @@ const types = {
   '.svg': 'image/svg+xml',
   '.ttf': 'font/ttf',
   '.png': 'image/png',
+  '.webp': 'image/webp',
   '.jpg': 'image/jpeg',
   '.mp4': 'video/mp4',
   '.wav': 'audio/wav',

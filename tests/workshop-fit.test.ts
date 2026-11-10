@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { workshopLayout } from '../src/layout/workshop';
 import { liquidBoardLayout } from '../src/layout/liquidBoard';
-import levels from '../src/data/levels.json';
+import levels from '../src/data/campaign';
 const viewports = [
   [320, 400],
   [320, 480],

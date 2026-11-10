@@ -1,3 +1,5 @@
+import addedSpecies from './expandedSpecies.json';
+import { extraEcosystems } from './ecology';
 export type Species = {
   name: string;
   latin: string;
@@ -20,6 +22,7 @@ export const chapters = [
   { name: 'Les montagnes alpines', subtitle: 'Un herbier près des nuages', color: '#8588a2' },
   { name: 'La flore méditerranéenne', subtitle: 'Les parfums de la garrigue', color: '#b99a68' },
 ];
+chapters.push(...extraEcosystems);
 const make = (
   name: string,
   latin: string,
@@ -264,3 +267,44 @@ export const colorNames = [
   'Terre de Sienne',
 ];
 export const symbols = ['✦', '≋', '●', '◆', '＋', '∴', '━'];
+
+const familyColors: Record<string, string> = {
+  Asteraceae: '#cfab5e',
+  Lamiaceae: '#9782aa',
+  Rosaceae: '#d7b4ba',
+  Poaceae: '#b4aa7a',
+  Ericaceae: '#b2829c',
+  Brassicaceae: '#d5bd62',
+};
+species.push(
+  ...addedSpecies.map((s) => ({
+    ...s,
+    habitat: chapters[s.ecosystem].name,
+    bloom:
+      s.form === 'fern'
+        ? 'Sans fleurs : reproduction par spores'
+        : s.form === 'conifer'
+          ? 'Cônes reproducteurs au printemps'
+          : s.ecosystem === 6
+            ? 'Mars — juin'
+            : s.ecosystem === 12
+              ? 'Mars — mai'
+              : 'Mai — septembre',
+    color: s.facts.includes('bleu')
+      ? '#718db6'
+      : s.facts.includes('jaune')
+        ? '#c7af59'
+        : s.facts.includes('rose')
+          ? '#bd819b'
+          : s.facts.includes('blanc')
+            ? '#e2decc'
+            : (familyColors[s.family] ?? '#8caa7c'),
+    organs: [
+      'Port de la plante',
+      'Feuillage',
+      'Floraison',
+      'Détails botaniques',
+      'Sceau du botaniste',
+    ],
+  })),
+);

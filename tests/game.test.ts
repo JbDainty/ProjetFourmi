@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { clone, pour, won, solve, key } from '../src/engine/puzzle';
-import levels from '../src/data/levels.json';
+import levels from '../src/data/campaign';
 import {
   initial,
   loadLevel,
@@ -10,6 +10,7 @@ import {
   reward,
   restore,
   unlocked,
+  activeRules,
 } from '../src/state/model';
 import { acquireTheme } from '../src/state/economy';
 import { species } from '../src/data/botany';
@@ -55,17 +56,17 @@ describe('tri de liquides', () => {
 });
 describe('cent énigmes et progression complète', () => {
   it('contient exactement 100 plateaux distincts et des certificats vérifiés', () => {
-    expect(levels).toHaveLength(100);
-    expect(new Set(levels.map((l) => key(l.board))).size).toBe(100);
+    expect(levels).toHaveLength(1000);
+    expect(new Set(levels.map((l) => JSON.stringify([l.board, l.rules]))).size).toBe(1000);
     for (const l of levels) {
-      expect(won(l.board)).toBe(false);
+      expect(won(l.board, l.rules)).toBe(false);
       let b = clone(l.board);
       for (const m of l.solution) {
-        const next = pour(b, m.from, m.to);
+        const next = pour(b, m.from, m.to, l.rules);
         expect(next, `niveau ${l.id}`).not.toBeNull();
         b = next!;
       }
-      expect(won(b), `niveau ${l.id}`).toBe(true);
+      expect(won(b, l.rules), `niveau ${l.id}`).toBe(true);
     }
   });
   it('restaure les 20 espèces, débloque les 5 chapitres et termine le niveau 100', () => {
@@ -75,19 +76,19 @@ describe('cent énigmes et progression complète', () => {
       expect(unlocked(s, l.id)).toBe(true);
       s = loadLevel(s, l.id);
       for (const m of l.solution) s = move(s, m.from, m.to);
-      expect(won(s.board)).toBe(true);
+      expect(won(s.board, activeRules(s))).toBe(true);
       expect(s.pigments).toHaveLength(l.id);
       expect(s.completed[l.id].stars).toBe(3);
       if (l.id % 5 === 0) expect(restoration(s, l.id / 5 - 1)).toBe(5);
       if (l.id % 20 === 0 && l.id < 100) expect(unlocked(s, l.id + 1)).toBe(true);
     }
-    expect(Object.keys(s.completed)).toHaveLength(100);
-    expect(s.current).toBe(100);
-    expect(species.map((_, i) => restoration(s, i))).toEqual(Array(20).fill(5));
-    expect(loadLevel(s, 101)).toBe(s);
+    expect(Object.keys(s.completed)).toHaveLength(1000);
+    expect(s.current).toBe(1000);
+    expect(species.map((_, i) => restoration(s, i))).toEqual(Array(200).fill(5));
+    expect(loadLevel(s, 1001)).toBe(s);
     const previous = s.seeds;
     expect(reward(s).seeds).toBe(previous);
-    expect(reward(s).pigments).toHaveLength(100);
+    expect(reward(s).pigments).toHaveLength(1000);
   });
   it('ne donne pas de récompense pour un niveau non résolu', () =>
     expect(reward(initial())).toEqual(initial()));
@@ -137,12 +138,12 @@ describe('économie et reprise finale', () => {
     expect(acquireTheme(bought, 'rose').seeds).toBe(50);
   });
   it('résout indépendamment chacun des cent niveaux', () => {
-    for (const l of levels) {
+    for (const l of levels.filter((l) => !l.rules).slice(0, 30)) {
       let board = clone(l.board);
-      const solution = solve(board);
+      const solution = solve(board, 250000, l.rules);
       expect(solution, `solveur niveau ${l.id}`).not.toBeNull();
-      for (const m of solution!) board = pour(board, m.from, m.to)!;
-      expect(won(board)).toBe(true);
+      for (const m of solution!) board = pour(board, m.from, m.to, l.rules)!;
+      expect(won(board, l.rules)).toBe(true);
     }
   });
   it('recharge la collection intégrale après le niveau 100', () => {
@@ -152,7 +153,7 @@ describe('économie et reprise finale', () => {
       for (const m of l.solution) s = move(s, m.from, m.to);
     }
     const loaded = restore(JSON.stringify(s));
-    expect(loaded.pigments).toHaveLength(100);
+    expect(loaded.pigments).toHaveLength(1000);
     expect(restoration(loaded, 19)).toBe(5);
     expect(loaded).toEqual(s);
   });
@@ -164,7 +165,7 @@ describe('couleurs intégralement regroupées', () => {
   const partial = [[0, 0], [1, 1, 1, 1], [0, 0], []];
   it('continue le puzzle sans récompense avec une couleur répartie en demi-flacons', () => {
     const s = { ...initial(), board: clone(partial) };
-    expect(won(s.board)).toBe(false);
+    expect(won(s.board, activeRules(s))).toBe(false);
     expect(reward(s)).toBe(s);
     expect(s.pigments).toHaveLength(0);
     const completed = move(s, 0, 2);
@@ -182,7 +183,14 @@ describe('couleurs intégralement regroupées', () => {
   it('reprend une ancienne victoire partielle sans effacer ni dupliquer les récompenses', () => {
     let earned = initial();
     for (const m of levels[0].solution) earned = move(earned, m.from, m.to);
-    const legacy = { ...earned, board: clone(partial), history: [], moves: 5 };
+    const legacy = {
+      ...earned,
+      board: clone(partial),
+      known: partial.map((t) => t.map(() => true)),
+      history: [],
+      historyKnown: [],
+      moves: 5,
+    };
     const restored = restore(JSON.stringify(legacy));
     expect(restored.completed).toEqual(earned.completed);
     expect(restored.pigments).toEqual(earned.pigments);

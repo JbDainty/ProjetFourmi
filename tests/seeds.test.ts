@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import levels from '../src/data/levels.json';
+import levels from '../src/data/campaign';
 import {
   currentHint,
   initial,

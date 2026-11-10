@@ -4,8 +4,9 @@ export const ROW_HEIGHT = 132;
 export const MAP_WIDTH = 360;
 /** The explored route ends at the first unfinished page, even while replaying an old page. */
 export function journeyFrontier(save: Save) {
+  if (save.testSession) return 1000;
   let id = 1;
-  while (id < 100 && save.completed[id]) id++;
+  while (id < 1000 && save.completed[id]) id++;
   return id;
 }
 export function journeyLayout(frontier: number, minimumHeight = 0) {

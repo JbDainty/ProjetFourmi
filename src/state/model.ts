@@ -1,5 +1,7 @@
-import levels from '../data/levels.json';
-import { Board, clone, pour, won, type Move } from '../engine/puzzle';
+import levels, { legacyLevels } from '../data/campaign';
+import { initialKnowledge, moveKnowledge, revealTop } from '../engine/knowledge';
+import { mechanicIds, type Mechanic } from '../engine/mechanics';
+import { Board, clone, pour, won, capacity, type Move } from '../engine/puzzle';
 import { discoverPigment, Pigment } from './pigments';
 import { pageStars } from './stars';
 import { attemptPuzzle, newRemix, validRemix, type Remix } from '../engine/remix';
@@ -14,6 +16,11 @@ export type Settings = {
 };
 export type Save = {
   version: 2;
+  campaign?: 3;
+  known?: boolean[][];
+  historyKnown?: boolean[][][];
+  seenMechanics?: Mechanic[];
+  testSession?: { returnSave: Save };
   started: boolean;
   guideSeen: boolean;
   nickname: string;
@@ -35,6 +42,7 @@ export type Save = {
 export function initial(): Save {
   return {
     version: 2,
+    campaign: 3,
     started: false,
     guideSeen: false,
     nickname: '',
@@ -45,6 +53,8 @@ export function initial(): Save {
     seeds: 1,
     pigments: [],
     board: clone(levels[0].board),
+    known: initialKnowledge(levels[0].board, levels[0].rules),
+    historyKnown: [],
     history: [],
     moves: 0,
     settings: {
@@ -62,14 +72,22 @@ export function initial(): Save {
 }
 /** A new journey keeps accessibility preferences, never earned progress or themes. */
 export function resetProgress(s: Save): Save {
-  return { ...initial(), settings: { ...s.settings } };
+  return {
+    ...initial(),
+    settings: { ...s.settings },
+    ...(s.testSession ? { testSession: s.testSession, seeds: 50 } : {}),
+  };
 }
 export const restoration = (s: Save, index: number) =>
-  Array.from({ length: 5 }, (_, i) => !!s.completed[String(index * 5 + i + 1)]).filter(Boolean)
-    .length;
-export const unlocked = (s: Save, id: number) => id === 1 || !!s.completed[String(id - 1)];
+  s.testSession && index === Math.floor((s.current - 1) / 5)
+    ? ((s.current - 1) % 5) + (won(s.board, activeRules(s)) ? 1 : 0)
+    : Array.from({ length: 5 }, (_, i) => !!s.completed[String(index * 5 + i + 1)]).filter(Boolean)
+        .length;
+export const unlocked = (s: Save, id: number) =>
+  !!s.testSession || id === 1 || !!s.completed[String(id - 1)];
+export const activeRules = (s: Save) => attemptPuzzle(s.current, s.remix).rules;
 export function loadLevel(s: Save, id: number): Save {
-  if (id < 1 || id > 100 || !unlocked(s, id)) return s;
+  if (id < 1 || id > 1000 || !unlocked(s, id)) return s;
   return {
     ...s,
     current: id,
@@ -78,10 +96,14 @@ export function loadLevel(s: Save, id: number): Save {
     moves: 0,
     attemptRewarded: false,
     remix: undefined,
+    campaign: 3,
+    known: initialKnowledge(levels[id - 1].board, levels[id - 1].rules),
+    historyKnown: [],
   };
 }
 export function reward(s: Save, now = new Date().toISOString()): Save {
-  if (!won(s.board) || s.attemptRewarded) return s;
+  if (!won(s.board, activeRules(s)) || s.attemptRewarded) return s;
+  if (s.testSession) return { ...s, attemptRewarded: true };
   const id = s.current,
     first = !s.completed[id],
     stars = pageStars(s.moves, attemptPuzzle(id, s.remix).par);
@@ -101,29 +123,70 @@ export function reward(s: Save, now = new Date().toISOString()): Save {
   };
 }
 export function move(s: Save, from: number, to: number): Save {
-  if (won(s.board)) return s;
-  const board = pour(s.board, from, to);
+  if (won(s.board, activeRules(s))) return s;
+  const board = pour(s.board, from, to, activeRules(s));
   if (!board) return s;
-  return reward({ ...s, board, history: [...s.history, s.board], moves: s.moves + 1 });
+  return reward({
+    ...s,
+    board,
+    known: moveKnowledge(
+      s.board,
+      board,
+      s.known ?? initialKnowledge(s.board, activeRules(s)),
+      from,
+      to,
+    ),
+    historyKnown: [
+      ...(s.historyKnown ?? s.history.map((b) => initialKnowledge(b))),
+      s.known ?? initialKnowledge(s.board, activeRules(s)),
+    ],
+    history: [...s.history, s.board],
+    moves: s.moves + 1,
+  });
 }
 export function undo(s: Save): Save {
-  if (!s.history.length || won(s.board)) return s;
+  if (!s.history.length || won(s.board, activeRules(s))) return s;
+  const board = s.history.at(-1)!;
+  const prior = s.historyKnown?.at(-1) ?? board.map((t) => t.map(() => true));
+  const known = prior.map((t, i) =>
+    t.map((v, d) => v || (board[i][d] === s.board[i][d] && s.known?.[i]?.[d] === true)),
+  );
   return {
     ...s,
-    board: s.history.at(-1)!,
+    board,
     history: s.history.slice(0, -1),
+    known,
+    historyKnown: s.historyKnown?.slice(0, -1),
     moves: Math.max(0, s.moves - 1),
   };
 }
 /** Start a new certified puzzle for the same page, retaining the earned collection. */
 export function remixPage(s: Save, random = Math.random): Save {
-  if (won(s.board) || s.seeds < 1) return s;
-  const remix = newRemix(s.current, s.remix, random);
+  if (won(s.board, activeRules(s)) || s.seeds < 1) return s;
+  let remix = newRemix(s.current, s.remix, random);
+  for (
+    let attempt = 0;
+    attempt < 8 &&
+    JSON.stringify(attemptPuzzle(s.current, remix).board) === JSON.stringify(s.board);
+    attempt++
+  )
+    remix = newRemix(s.current, s.remix, random);
+  if (JSON.stringify(attemptPuzzle(s.current, remix).board) === JSON.stringify(s.board)) {
+    remix.order.push(remix.order.shift()!);
+    if (JSON.stringify(attemptPuzzle(s.current, remix).board) === JSON.stringify(s.board)) {
+      [remix.colors[0], remix.colors[1]] = [remix.colors[1], remix.colors[0]];
+    }
+  }
   return {
     ...s,
     remix,
     seeds: s.seeds - 1,
     board: clone(attemptPuzzle(s.current, remix).board),
+    known: initialKnowledge(
+      attemptPuzzle(s.current, remix).board,
+      attemptPuzzle(s.current, remix).rules,
+    ),
+    historyKnown: [],
     history: [],
     moves: 0,
     attemptRewarded: false,
@@ -132,6 +195,21 @@ export function remixPage(s: Save, random = Math.random): Save {
 export function restore(raw: string | null): Save {
   if (!raw) return initial();
   const v = JSON.parse(raw) as Save;
+  if (v.campaign !== 3 && v.current >= 1 && v.current <= 100) {
+    const original = legacyLevels[(v.remix?.level ?? v.current) - 1];
+    v.remix = {
+      level: v.remix?.level ?? v.current,
+      order: v.remix?.order ?? original.board.map((_, i) => i),
+      colors: v.remix?.colors ?? [...new Set(original.board.flat())].sort(),
+      legacy: true,
+    };
+    v.campaign = 3;
+  }
+  if (v.testSession) {
+    if (!v.testSession.returnSave || v.testSession.returnSave.testSession)
+      throw Error('Session de test invalide.');
+    v.testSession = { returnSave: restore(JSON.stringify(v.testSession.returnSave)) };
+  }
   if (v.version !== 2 && (v as { version: number }).version !== 1)
     throw Error('Version de sauvegarde non prise en charge.');
   const validBoard = (b: unknown): b is Board =>
@@ -145,7 +223,7 @@ export function restore(raw: string | null): Save {
   if (
     !Number.isInteger(v.current) ||
     v.current < 1 ||
-    v.current > 100 ||
+    v.current > 1000 ||
     !validBoard(v.board) ||
     !v.completed ||
     !Array.isArray(v.pigments) ||
@@ -153,25 +231,40 @@ export function restore(raw: string | null): Save {
     v.seeds < 0
   )
     throw Error('Sauvegarde invalide.');
-  const expected = levels[v.current - 1].board.flat().sort().join(',');
+  const expected = (v.remix?.legacy ? legacyLevels : levels)[v.current - 1].board
+    .flat()
+    .sort()
+    .join(',');
+  if (v.board.length !== (v.remix?.legacy ? legacyLevels : levels)[v.current - 1].board.length)
+    throw Error('Nombre de fioles invalide.');
   if (v.remix !== undefined && !validRemix(v.current, v.remix)) throw Error('Mélange invalide.');
+  if (v.board.some((t, i) => t.length > capacity(activeRules(v), i)))
+    throw Error('Capacité de fiole invalide.');
   if (v.board.flat().sort().join(',') !== expected) throw Error('Contenu des flacons invalide.');
   if (
     !Array.isArray(v.history) ||
-    !v.history.every((b) => validBoard(b) && b.flat().sort().join(',') === expected)
+    !v.history.every(
+      (b) =>
+        validBoard(b) &&
+        b.length === v.board.length &&
+        b.every((t, i) => t.length <= capacity(activeRules(v), i)) &&
+        b.flat().sort().join(',') === expected,
+    )
   )
     throw Error('Historique invalide.');
   if (!Number.isInteger(v.moves) || v.moves < 0 || typeof v.started !== 'boolean')
     throw Error('Progression invalide.');
   for (const [id, entry] of Object.entries(v.completed))
     if (
-      !/^([1-9][0-9]?|100)$/.test(id) ||
+      !Number.isInteger(Number(id)) ||
+      Number(id) < 1 ||
+      Number(id) > 1000 ||
       !entry ||
       ![1, 2, 3].includes(entry.stars) ||
       !Number.isFinite(Date.parse(entry.date))
     )
       throw Error('Niveau enregistré invalide.');
-  for (let id = 2; id <= 100; id++)
+  for (let id = 2; id <= 1000; id++)
     if (v.completed[id] && !v.completed[id - 1]) throw Error('Progression discontinue.');
   if (!unlocked(v, v.current)) throw Error('Niveau verrouillé.');
 
@@ -191,6 +284,27 @@ export function restore(raw: string | null): Save {
     )
       throw Error('Pigment invalide.');
   }
+  if (
+    v.seenMechanics !== undefined &&
+    (!Array.isArray(v.seenMechanics) || !v.seenMechanics.every((m) => mechanicIds.includes(m)))
+  )
+    throw Error('Mécaniques découvertes invalides.');
+  const validKnown = (known: unknown, b: Board) =>
+    Array.isArray(known) &&
+    known.length === b.length &&
+    known.every(
+      (t, i) =>
+        Array.isArray(t) && t.length === b[i].length && t.every((x) => typeof x === 'boolean'),
+    );
+  if (v.known !== undefined && !validKnown(v.known, v.board))
+    throw Error('Teintes révélées invalides.');
+  if (
+    v.historyKnown !== undefined &&
+    (!Array.isArray(v.historyKnown) ||
+      v.historyKnown.length !== v.history.length ||
+      !v.historyKnown.every((k, i) => validKnown(k, v.history[i])))
+  )
+    throw Error('Historique des teintes invalide.');
   if (v.nickname !== undefined && (typeof v.nickname !== 'string' || v.nickname.length > 80))
     throw Error('Pseudo invalide.');
   if (v.guideSeen !== undefined && typeof v.guideSeen !== 'boolean')
@@ -208,9 +322,12 @@ export function restore(raw: string | null): Save {
         divider < 1 ||
         !Number.isInteger(id) ||
         id < 1 ||
-        id > 100 ||
+        id > 1000 ||
         !validBoard(board) ||
-        board.flat().sort().join(',') !== levels[id - 1].board.flat().sort().join(',') ||
+        (board.flat().sort().join(',') !== levels[id - 1].board.flat().sort().join(',') &&
+          (id > 100 ||
+            board.flat().sort().join(',') !==
+              legacyLevels[id - 1].board.flat().sort().join(','))) ||
         !hint ||
         !Number.isInteger(hint.from) ||
         !Number.isInteger(hint.to) ||
@@ -236,8 +353,11 @@ export function restore(raw: string | null): Save {
     // Existing signed carnets keep their place; the guide remains available from Aide.
     guideSeen: v.guideSeen ?? v.started,
     nickname: typeof v.nickname === 'string' ? normalizeNickname(v.nickname) : '',
-    attemptRewarded: v.attemptRewarded ?? (!!v.completed[v.current] && won(v.board)),
+    attemptRewarded:
+      v.attemptRewarded ?? (!!v.completed[v.current] && won(v.board, activeRules(v))),
     paidHints: v.paidHints ?? {},
+    known: revealTop(v.board, v.known ?? initialKnowledge(v.board, activeRules(v))),
+    historyKnown: v.historyKnown ?? v.history.map((b) => b.map((t) => t.map(() => true))),
     settings: {
       ...initial().settings,
       ...v.settings,
@@ -262,10 +382,10 @@ export const currentHint = (s: Save): Move | undefined => s.paidHints[hintKey(s)
 /** Charge only for a valid, newly revealed suggestion; duplicate taps are idempotent. */
 export function purchaseHint(s: Save, suggestion: Move): Save {
   if (
-    won(s.board) ||
+    won(s.board, activeRules(s)) ||
     currentHint(s) ||
     s.seeds < 1 ||
-    !pour(s.board, suggestion.from, suggestion.to)
+    !pour(s.board, suggestion.from, suggestion.to, activeRules(s))
   )
     return s;
   return {

@@ -1,3 +1,4 @@
+import { ecosystemForPage } from '../src/data/ecology';
 import React, { useCallback, useContext, useRef, useState } from 'react';
 import { View, Pressable, Modal, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -24,7 +25,7 @@ export default function Carte() {
   const { height, width } = useWindowDimensions();
   const short = height < 550;
   const frontier = journeyFrontier(save);
-  const [biome, setBiome] = useState(Math.floor((save.current - 1) / 20));
+  const [biome, setBiome] = useState(ecosystemForPage(save.current));
   const [selected, setSelected] = useState<number | null>(null);
   const launching = useRef(false);
   const choose = useCallback((id: number) => {
@@ -33,7 +34,7 @@ export default function Carte() {
   }, []);
   const chapter = chapters[biome];
   const total = Object.entries(save.completed)
-    .filter(([id]) => Math.floor((Number(id) - 1) / 20) === biome)
+    .filter(([id]) => ecosystemForPage(Number(id)) === biome)
     .reduce((sum, [, result]) => sum + result.stars, 0);
   const selectedSpecies = selected ? species[Math.floor((selected - 1) / 5)] : null;
   const completed = selected ? save.completed[selected] : null;

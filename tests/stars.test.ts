@@ -3,7 +3,7 @@ import { type Board, clone, key, pour, won } from '../src/engine/puzzle';
 import { solveOptimal, remainingLowerBound, OptimalSearchLimit } from '../src/engine/optimal';
 import { pageStars, starLimits } from '../src/state/stars';
 import { initial, move, reward, restore } from '../src/state/model';
-import levels from '../src/data/levels.json';
+import levels from '../src/data/campaign';
 
 // Independent breadth-first reference: no heuristic or move-pruning rules.
 function breadthFirstMinimum(board: Board): number | null {
@@ -35,12 +35,12 @@ describe('minima exacts', () => {
   it('certifies all 100 stored minima and replays every physical tube index', () => {
     for (const level of levels) {
       const original = clone(level.board),
-        exact = solveOptimal(level.board)!;
+        exact = solveOptimal(level.board, { rules: level.rules })!;
       expect(exact.minimum, `page ${level.id}`).toBe(level.par);
       expect(level.solution).toHaveLength(level.par);
       let board = original;
-      for (const m of exact.solution) board = pour(board, m.from, m.to)!;
-      expect(won(board)).toBe(true);
+      for (const m of exact.solution) board = pour(board, m.from, m.to, level.rules)!;
+      expect(won(board, level.rules)).toBe(true);
       expect(level.board).toEqual(original);
     }
   });

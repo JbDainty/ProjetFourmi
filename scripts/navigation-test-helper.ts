@@ -41,4 +41,6 @@ export async function openCarnet(page: Page, nickname = 'Camille') {
     await expect(guide).toHaveCount(0);
   }
   await expect(playing).toBeVisible();
+  if (await page.getByTestId('mechanic-introduction').isVisible())
+    await page.getByRole('button', { name: 'J’ai compris', exact: true }).click();
 }

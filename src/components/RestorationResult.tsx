@@ -99,13 +99,13 @@ function ResultFolio({
   const showDetails = !tight;
   const showFact = viewport.height >= (horizontal ? 420 : 620);
   const title =
-    save.current === 100
+    save.current === 1000
       ? 'Votre collection est complète.'
       : sealPage
         ? s.name
         : restorationTitles[(save.current - 1) % 5];
   const continueLabel =
-    save.current === 100
+    save.current === 1000
       ? 'Contempler mon herbier'
       : sealPage
         ? 'Découvrir l’espèce suivante'
@@ -174,7 +174,11 @@ function ResultFolio({
             flexShrink: 1,
           }}
         >
-          {stars === 3 ? '+1 graine' : '★★★ = une graine'}
+          {save.testSession
+            ? 'Essai : aucun gain enregistré'
+            : stars === 3
+              ? '+1 graine'
+              : '★★★ = une graine'}
         </T>
       </View>
       {showDetails && (
@@ -289,7 +293,7 @@ function ResultFolio({
           disabled={sealPage && !sealFinished}
           label={continueLabel}
         >
-          {save.current === 100 ? 'Mon herbier' : sealPage ? 'Espèce suivante' : 'Page suivante'}
+          {save.current === 1000 ? 'Mon herbier' : sealPage ? 'Espèce suivante' : 'Page suivante'}
         </VictoryAction>
       )}
       <View style={{ width: '100%', maxWidth: 350, flexDirection: 'row', gap: 6 }}>

@@ -1,0 +1,40 @@
+{
+  "count": 1000,
+  "seed": "0x43167",
+  "mechanics": [
+    "mystery",
+    "locks",
+    "capacity",
+    "crystal",
+    "links",
+    "pipette",
+    "filter",
+    "conservation"
+  ],
+  "introductions": [
+    11,
+    21,
+    36,
+    51,
+    71,
+    91,
+    111,
+    131
+  ],
+  "maxPerPage": 2,
+  "exactMinimum": true,
+  "relief": "wave positions 0, 1 and 4 after introductions",
+  "difficultyCounts": {
+    "douce": 10,
+    "découverte": 8,
+    "équilibrée": 165,
+    "respiration": 353,
+    "soutenue": 464
+  },
+  "minimumRange": [
+    3,
+    18
+  ],
+  "meanFirstHundred": 6.15,
+  "meanLastHundred": 9.56
+}

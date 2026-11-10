@@ -1,3 +1,4 @@
+import { ecosystemForPage, ecosystemForPlant } from '../data/ecology';
 import React from 'react';
 import { View } from 'react-native';
 import { router } from 'expo-router';
@@ -21,8 +22,19 @@ type Props = {
   motion: boolean;
   busy: boolean;
   onOpen: () => void;
+  testMode?: boolean;
 };
-export function WorkshopHud({ layout, plant, stage, page, seeds, motion, busy, onOpen }: Props) {
+export function WorkshopHud({
+  layout,
+  plant,
+  stage,
+  page,
+  seeds,
+  motion,
+  busy,
+  onOpen,
+  testMode,
+}: Props) {
   const small = layout.tiny || layout.landscape;
   return (
     <View
@@ -63,7 +75,16 @@ export function WorkshopHud({ layout, plant, stage, page, seeds, motion, busy, o
         </>
       ) : (
         <View style={{ flex: 1, alignItems: 'center' }}>
-          <HerbariumTitle hud compact motion={motion} />
+          {testMode ? (
+            <View style={{ alignItems: 'center' }}>
+              <T serif style={{ fontSize: 23 }}>
+                Page d’essai {page}
+              </T>
+              <T style={{ fontSize: 10 }}>Réserve fictive · aucun gain</T>
+            </View>
+          ) : (
+            <HerbariumTitle hud compact motion={motion} />
+          )}
         </View>
       )}
       <SeedPouch compact count={seeds} motion={motion} />
@@ -72,7 +93,7 @@ export function WorkshopHud({ layout, plant, stage, page, seeds, motion, busy, o
 }
 export function WorkshopCaption({ layout, plant, stage, page, busy, onOpen }: Props) {
   if (!layout.captionHeight) return null;
-  const chapter = Math.floor(plant / 4);
+  const chapter = ecosystemForPlant(plant);
   return (
     <View
       testID="chapter-vignette"

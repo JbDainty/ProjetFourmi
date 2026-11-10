@@ -1,3 +1,4 @@
+import { expandedIllustrationAtlases } from '../data/expandedIllustrations';
 import React, { useId } from 'react';
 import Svg, {
   Image as SvgImage,
@@ -27,16 +28,20 @@ function BotanicalDrawing({ index, stage, size = 330, labels = true }: Props) {
   const token = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const uid = (name: string) => `botanical-${token}-${name}`;
   const s = species[index],
-    local = index % 4,
+    local = index < 20 ? index % 4 : (index - 20) % 9,
     chapter = Math.floor(index / 4),
     restored = restorationState(stage);
   const wash = restorationWash(stage);
-  const atlas = illustrationAtlases[chapter];
+  const atlas =
+    index < 20
+      ? illustrationAtlases[chapter]
+      : expandedIllustrationAtlases[Math.floor((index - 20) / 9)];
   const bounds = atlas.bounds[local];
-  const left = Math.max(0, bounds[0] - 6),
-    top = Math.max(0, bounds[1] - 6);
-  const right = Math.min(atlas.width, bounds[2] + 6),
-    bottom = Math.min(atlas.height, bounds[3] + 6);
+  const margin = index < 20 ? 6 : 0;
+  const left = Math.max(0, bounds[0] - margin),
+    top = Math.max(0, bounds[1] - margin);
+  const right = Math.min(atlas.width, bounds[2] + margin),
+    bottom = Math.min(atlas.height, bounds[3] + margin);
   const factor = Math.min(308 / (right - left), 462 / (bottom - top));
   const frame = {
     x: 26 + (308 - (right - left) * factor) / 2,

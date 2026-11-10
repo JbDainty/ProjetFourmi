@@ -1,3 +1,6 @@
+import { blocked, crystalOpen, capacity } from '../src/engine/puzzle';
+import { colorNames } from '../src/data/botany';
+import { MechanicIntroduction } from '../src/components/MechanicIntroduction';
 import { F } from '../src/components/fonts';
 import { Paper } from '../src/components/Paper';
 import { PageTurnContext } from '../src/components/PageTurn';
@@ -21,11 +24,13 @@ import {
   currentHint,
   purchaseHint,
   remixPage,
+  activeRules,
 } from '../src/state/model';
 import { certifiedHint } from '../src/engine/remix';
 import { WorkshopConfirm } from '../src/components/WorkshopConfirm';
 import { usePrimaryAnimation } from '../src/components/usePrimaryAnimation';
 import { won, solve, pour, Move } from '../src/engine/puzzle';
+import { ecosystemForPage } from '../src/data/ecology';
 import { species } from '../src/data/botany';
 import { LiquidBoard } from '../src/components/LiquidBoard';
 import { Botanical } from '../src/components/Botanical';
@@ -69,10 +74,12 @@ function Workshop() {
     hintHeight,
   });
   const { wide } = layout;
+  const rules = activeRules(save);
+  const introductions = (rules?.mechanics ?? []).filter((m) => !save.seenMechanics?.includes(m));
   useEffect(() => reportSceneHeight(layout.height), [layout.height, reportSceneHeight]);
   const [replay, setReplay] = useState(!!save.completed[save.current]);
   const [tubeReward, setTubeReward] = useState<TubeReward | null>(null);
-  const [winReady, setWinReady] = useState(won(save.board));
+  const [winReady, setWinReady] = useState(won(save.board, rules));
   const hintPending = useRef(false);
   const [confirm, setConfirm] = useState<'hint' | 'mix' | null>(null);
   const mixOpacity = useRef(new Animated.Value(1)).current;
@@ -98,10 +105,10 @@ function Workshop() {
   usePrimaryAnimation(busy && mixPending.current);
   const plant = Math.floor((save.current - 1) / 5),
     s = species[plant],
-    chapter = Math.floor((save.current - 1) / 20),
+    chapter = ecosystemForPage(save.current),
     stage = restoration(save, plant),
     sealPage = save.current % 5 === 0,
-    victory = won(save.board);
+    victory = won(save.board, rules);
   useEffect(() => {
     mixAnimation.current?.stop();
     if (mixFrame.current !== null) cancelAnimationFrame(mixFrame.current);
@@ -111,7 +118,7 @@ function Workshop() {
     if (!victory) return;
     preparePageArtwork(plant, stage);
     const nextPlant = Math.floor(save.current / 5);
-    if (save.current < 100 && nextPlant !== plant)
+    if (save.current < 1000 && nextPlant !== plant)
       preparePageArtwork(nextPlant, restoration(save, nextPlant));
   }, [victory, save.current, plant, stage]);
   const clearNote = () =>
@@ -163,8 +170,8 @@ function Workshop() {
     if (dismissed || !victory) stopReveal.current();
   }, [dismissed, victory]);
   const commitPour = (from: number, to: number) => {
-    const after = pour(save.board, from, to);
-    if (after && completedByPour(save.board, after, to)) {
+    const after = pour(save.board, from, to, rules);
+    if (after && completedByPour(save.board, after, to, rules)) {
       setTubeReward({ id: ++rewardId.current, tube: to, color: after[to][0] });
       stopChime.current();
       stopChime.current = playVialChime(save.settings.sound);
@@ -172,7 +179,7 @@ function Workshop() {
     setSave((value) => move(value, from, to));
   };
   const tap = (index: number) => {
-    if (busy || victory) return;
+    if (busy || victory || introductions.length) return;
     setHint(null);
     clearNote();
     if (selected === null) {
@@ -183,11 +190,29 @@ function Workshop() {
       setSelected(null);
       return;
     }
-    const after = pour(save.board, selected, index);
+    const after = pour(save.board, selected, index, rules);
     if (!after) {
       setNote((previous) => ({
         ...previous,
-        text: 'Versez sur une couleur identique\nou dans un flacon vide.',
+        text: (() => {
+          const gate = rules?.gates?.find(
+            (g) => (g.tube === selected || g.tube === index) && blocked(save.board, g.tube, rules),
+          );
+          if (gate) return `Complétez la fiole ${gate.key + 1} au pinceau pour ouvrir ce verrou.`;
+          if (rules?.collectors?.includes(selected))
+            return 'Cette fiole conserve les teintes : elle reçoit, mais ne se reverse pas.';
+          const frost = rules?.crystals?.find(
+            (c) => c.tube === selected && !crystalOpen(save.board, c.color, rules),
+          );
+          if (frost)
+            return `Complétez une fiole ${colorNames[frost.color].toLowerCase()} pour libérer le cristal.`;
+          const filter = rules?.filters?.find((f) => f.tube === index);
+          if (filter)
+            return `Ce filtre reçoit seulement la teinte ${colorNames[filter.color].toLowerCase()}.`;
+          if (rules?.links?.some((pair) => pair.includes(index)))
+            return 'Ces fioles sœurs doivent recevoir la même teinte au sommet.';
+          return 'Versez sur une couleur identique\nou dans un flacon vide.';
+        })(),
         kind: 'info',
         request: previous.request + 1,
         pending: false,
@@ -241,7 +266,9 @@ function Workshop() {
       page = save.current;
     timer.current = setTimeout(() => {
       let suggestion =
-        owned ?? certifiedHint(page, save.board, save.remix) ?? solve(save.board)?.[0];
+        owned ??
+        certifiedHint(page, save.board, save.remix) ??
+        solve(save.board, 70000, rules)?.[0];
       if (suggestion) {
         const proposed = suggestion;
         let accepted = false;
@@ -336,7 +363,7 @@ function Workshop() {
   const next = () => {
     if (sealPage && !sealFinished) return;
     setDismissed(true);
-    if (save.current < 100) {
+    if (save.current < 1000) {
       const target = save.current + 1;
       turnPage(target, () => setSave((v) => loadLevel(v, target)));
     } else router.push('/herbier');
@@ -372,6 +399,7 @@ function Workshop() {
     seeds: save.seeds,
     motion: save.settings.motion,
     busy,
+    testMode: !!save.testSession,
     onOpen: () => setPlateOpen(true),
   };
   const actions = (
@@ -450,7 +478,7 @@ function Workshop() {
               : undefined
           }
           onPress={a.action}
-          disabled={busy || a.disabled}
+          disabled={busy || a.disabled || introductions.length > 0}
           style={{
             alignItems: 'center',
             gap: 2,
@@ -530,10 +558,12 @@ function Workshop() {
                   setTubeReward((previous) => (previous?.id === id ? null : previous))
                 }
                 board={save.board}
+                rules={rules}
+                known={save.known}
                 selected={selected}
                 hint={hint}
                 pouring={pouring}
-                disabled={busy || victory}
+                disabled={busy || victory || introductions.length > 0}
                 motion={save.settings.motion}
                 patterns={save.settings.patterns}
                 onTap={tap}
@@ -585,6 +615,18 @@ function Workshop() {
         </View>
         {wide && <WorkshopPlate plant={plant} stage={stage} />}
       </View>
+      {!!introductions.length && (
+        <MechanicIntroduction
+          mechanics={introductions}
+          motion={save.settings.motion}
+          onClose={() =>
+            setSave((s) => ({
+              ...s,
+              seenMechanics: [...new Set([...(s.seenMechanics ?? []), ...introductions])],
+            }))
+          }
+        />
+      )}
       {confirm && (
         <WorkshopConfirm
           kind={confirm}

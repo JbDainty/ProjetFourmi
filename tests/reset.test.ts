@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { initial, loadLevel, move, resetProgress, restore } from '../src/state/model';
 import { acquireTheme } from '../src/state/economy';
-import levels from '../src/data/levels.json';
+import levels from '../src/data/campaign';
 
 it('resets the journey and cosmetics to a fresh save while preserving accessibility preferences', () => {
   let save = { ...initial(), started: true };

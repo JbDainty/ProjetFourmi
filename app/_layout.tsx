@@ -1,3 +1,4 @@
+import { ecosystemForPage, ecosystemForPlant } from '../src/data/ecology';
 import React from 'react';
 import { View, Pressable, useWindowDimensions, Platform } from 'react-native';
 import { Slot, usePathname, router } from 'expo-router';
@@ -175,7 +176,7 @@ function Shell() {
         music={ready && save.settings.music}
         sound={save.settings.sound}
         started={ready && save.started && !replayOpen && path !== '/aide'}
-        ecosystem={Math.floor((save.current - 1) / 20)}
+        ecosystem={ecosystemForPage(save.current)}
       />
       <PaperTexture background />
       <View

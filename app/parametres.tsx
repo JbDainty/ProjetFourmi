@@ -1,3 +1,4 @@
+import { TestPageTools } from '../src/components/TestPageTools';
 import { BookScrollView } from '../src/components/BookScrollView';
 import Constants from 'expo-constants';
 import { F } from '../src/components/fonts';
@@ -31,7 +32,7 @@ export default function Parametres() {
       key: 'music',
       name: 'Musique du livre',
       detail:
-        'Introduction magique, puis cinq ambiances de harpe, cordes et bois doux, réduites pendant les bruitages.',
+        'Introduction magique, puis vingt ambiances de harpe, cordes et bois doux, réduites pendant les bruitages.',
     },
     {
       key: 'haptics',
@@ -52,6 +53,7 @@ export default function Parametres() {
   return (
     <BookScrollView contentContainerStyle={ui.page}>
       <Label>À VOTRE RYTHME</Label>
+      <TestPageTools />
       <T serif style={ui.title}>
         {save.nickname ? `Le carnet de ${save.nickname}` : 'Les réglages du carnet'}
       </T>

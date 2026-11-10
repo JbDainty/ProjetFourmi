@@ -5,7 +5,11 @@ import { species } from './botany';
 const annotations = species.map((plant) => [
   ...(plant.facts.match(/[^.!?]+[.!?]*/g) || []).map((sentence) => sentence.trim()),
   `Son habitat : ${plant.habitat.charAt(0).toLocaleLowerCase('fr') + plant.habitat.slice(1)}.`,
-  `Sa floraison s’observe généralement entre ${plant.bloom.toLocaleLowerCase('fr').replace(' — ', ' et ')}.`,
+  plant.form === 'fern'
+    ? 'Cette fougère se reproduit par des spores et ne porte pas de fleurs.'
+    : plant.form === 'conifer'
+      ? 'Ses organes reproducteurs sont des cônes, et non des fleurs.'
+      : `Sa floraison s’observe généralement entre ${plant.bloom.toLocaleLowerCase('fr').replace(' — ', ' et ')}.`,
 ]);
 
 export function botanicalFact(page: number, context: 'play' | 'reveal' = 'play'): string {

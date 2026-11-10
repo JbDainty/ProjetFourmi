@@ -5,7 +5,7 @@ import {
   restorationWash,
 } from '../src/animation/restoration';
 import { initial, loadLevel, move, restoration, restore } from '../src/state/model';
-import levels from '../src/data/levels.json';
+import levels from '../src/data/campaign';
 
 function paint(rgb: number[], stage: number) {
   const { matrix } = restorationWash(stage);

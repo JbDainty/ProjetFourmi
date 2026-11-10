@@ -1,3 +1,4 @@
+import { mechanicIds } from '../src/engine/mechanics';
 import { requestHint } from './hint-test-helper';
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
@@ -16,7 +17,12 @@ async function main() {
   const url = process.env.GAME_TEST_URL || 'http://localhost:8124/';
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
-  let base = { ...initial(), started: true, guideSeen: true };
+  let base: ReturnType<typeof initial> = {
+    ...initial(),
+    started: true,
+    guideSeen: true,
+    seenMechanics: [...mechanicIds],
+  };
   for (const l of levels) {
     base = loadLevel(base, l.id);
     for (const m of l.solution) base = move(base, m.from, m.to);

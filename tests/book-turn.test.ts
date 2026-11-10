@@ -2,7 +2,7 @@ import { expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { planBookTurn } from '../src/animation/book';
 import { initial, loadLevel, move } from '../src/state/model';
-import levels from '../src/data/levels.json';
+import levels from '../src/data/campaign';
 
 it('plans every species boundary with the destination specimen and its actual restoration', () => {
   let save = { ...initial(), started: true },
@@ -12,7 +12,7 @@ it('plans every species boundary with the destination specimen and its actual re
     for (const m of level.solution) save = move(save, m.from, m.to);
     const replay = planBookTurn(save, level.id, 1);
     expect(replay.kind).toBe('single');
-    if (level.id === 100) continue;
+    if (level.id === 1000) continue;
     const turn = planBookTurn(save, level.id + 1, 2);
     if (level.id % 5 === 0) {
       boundaries++;
@@ -27,12 +27,12 @@ it('plans every species boundary with the destination specimen and its actual re
       expect(turn.targetStage).toBe(turn.stage);
     }
   }
-  expect(boundaries).toBe(19);
+  expect(boundaries).toBe(199);
   const backwards = planBookTurn(save, 2, 3);
   expect(backwards.kind).toBe('species');
   expect(backwards.targetPlant).toBe(0);
   expect(backwards.targetStage).toBe(5);
-  expect(() => planBookTurn(save, 101, 4)).toThrow(RangeError);
+  expect(() => planBookTurn(save, 1001, 4)).toThrow(RangeError);
   expect(() => planBookTurn(save, 0, 4)).toThrow(RangeError);
 });
 

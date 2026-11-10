@@ -27,7 +27,7 @@ describe('exploration path', () => {
   });
   it('does not invent a page beyond the finished collection', () => {
     const s = initial();
-    for (let id = 1; id <= 100; id++) s.completed[id] = { stars: 3, date: '2026-11-08T00:00:00Z' };
-    expect(journeyFrontier(s)).toBe(100);
+    for (let id = 1; id <= 1000; id++) s.completed[id] = { stars: 3, date: '2026-11-08T00:00:00Z' };
+    expect(journeyFrontier(s)).toBe(1000);
   });
 });

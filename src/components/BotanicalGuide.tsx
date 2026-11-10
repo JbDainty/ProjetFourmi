@@ -1,3 +1,4 @@
+import { mechanicIds, mechanicDetails } from '../engine/mechanics';
 import React, { useEffect, useId, useRef, useState } from 'react';
 import {
   Animated,
@@ -636,6 +637,16 @@ export function BotanicalGuide({
                   </T>
                   <T style={[s.prose, { marginTop: 5 }]}>{item.text}</T>
                 </View>
+              </View>
+            ))}
+          </Chapter>
+          <Chapter number="V" title="Les secrets des fioles">
+            {mechanicIds.map((id) => (
+              <View key={id} style={{ marginTop: 16 }}>
+                <T serif style={{ fontSize: 23 }}>
+                  {mechanicDetails[id].name}
+                </T>
+                <T style={s.prose}>{mechanicDetails[id].intro}</T>
               </View>
             ))}
           </Chapter>

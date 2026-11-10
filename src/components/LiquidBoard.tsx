@@ -1,3 +1,6 @@
+import { RuleMark } from './RuleMark';
+import { capacity, completeTube, blocked, crystalOpen } from '../engine/puzzle';
+import type { Rules } from '../engine/mechanics';
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { AppState, StyleSheet, View, Pressable } from 'react-native';
 import { framePlayback } from '../animation/framePlayback';
@@ -46,6 +49,8 @@ import {
 
 type Props = {
   board: Board;
+  rules?: Rules;
+  known?: boolean[][];
   selected: number | null;
   hint: Move | null;
   pouring: Move | null;
@@ -60,10 +65,12 @@ type Props = {
   reward?: TubeReward | null;
   onRewardDone?: (id: number) => void;
 };
-type Pose = { x: number; y: number; angle: number };
+type Pose = { x: number; y: number; angle: number; scale: number };
 const emptySample = samplePour(0, 1);
 function LiquidBoardDrawing({
   board,
+  rules,
+  known,
   selected,
   hint,
   pouring,
@@ -140,10 +147,10 @@ function LiquidBoardDrawing({
       }),
     [width, scale, rows, columns, board.length, rowHeight, top],
   );
-  const baseLayers = useMemo(() => board.map(layers), [board]);
+  const baseLayers = useMemo(() => board.map((t, i) => layers(t, known?.[i])), [board, known]);
   const after = useMemo(
-    () => (pouring ? pour(board, pouring.from, pouring.to) : null),
-    [board, pouring],
+    () => (pouring ? pour(board, pouring.from, pouring.to, rules) : null),
+    [board, pouring, rules],
   );
   const count = pouring && after ? board[pouring.from].length - after[pouring.from].length : 0;
   const color = pouring ? (board[pouring.from].at(-1) ?? 0) : 0;
@@ -177,19 +184,26 @@ function LiquidBoardDrawing({
   const time = motion && pouring ? elapsed / 1000 : 0;
   const poses: Pose[] = layout.map((p, i) => ({
     ...p,
-    y: p.y - (selected === i && !pouring ? 10 * scale : 0),
+    y:
+      p.y +
+      160 * scale * (1 - Math.cbrt(capacity(rules, i) / 4)) -
+      (selected === i && !pouring ? 10 * scale : 0),
+    scale: scale * Math.cbrt(capacity(rules, i) / 4),
     angle: 0,
   }));
   let spout: Point | null = null,
     landing: Point | null = null;
   if (pouring && width && layout[pouring.to]) {
-    const source = layout[pouring.from],
-      target = layout[pouring.to],
+    const source = poses[pouring.from],
+      target = poses[pouring.to],
       direction = target.x >= width / 2 ? 1 : -1;
     const units = board[pouring.from].length - count * state.sent;
-    const angle = contactAngle(units) * direction * (1 - state.settling * 0.09);
-    const lip = rotate({ x: direction * 20 * scale, y: 12 * scale }, angle);
-    const hold = { x: target.x - lip.x, y: target.y + MOUTH_Y * scale - 45 * scale - lip.y };
+    const angle =
+      contactAngle((units * 4) / capacity(rules, pouring.from)) *
+      direction *
+      (1 - state.settling * 0.09);
+    const lip = rotate({ x: direction * 20 * source.scale, y: 12 * source.scale }, angle);
+    const hold = { x: target.x - lip.x, y: target.y + MOUTH_Y * target.scale - 45 * scale - lip.y };
     const approach = state.approach;
     const elevated = {
       x: mix(source.x, hold.x, approach),
@@ -201,19 +215,27 @@ function LiquidBoardDrawing({
       x: mix(elevated.x, source.x, state.returnTravel),
       y: mix(elevated.y, source.y - 94 * scale, state.returnTravel) + 94 * scale * state.insertion,
       angle: angle * approach * (1 - state.returnTravel),
+      scale: source.scale,
     };
     const actualLip = rotate(
-      { x: direction * 20 * scale, y: 12 * scale },
+      { x: direction * 20 * source.scale, y: 12 * source.scale },
       poses[pouring.from].angle,
     );
     spout = { x: poses[pouring.from].x + actualLip.x, y: poses[pouring.from].y + actualLip.y };
     landing = {
       x: target.x,
-      y: target.y + surfacePlane(board[pouring.to].length + count * state.arrived, 0) * scale,
+      y:
+        target.y +
+        surfacePlane(
+          ((board[pouring.to].length + count * state.arrived) * 4) / capacity(rules, pouring.to),
+          0,
+        ) *
+          target.scale,
     };
   }
   const front = (i: number, activeLayer = false) => {
     const p = poses[i],
+      scale = p.scale,
       active = selected === i,
       marked = hint?.from === i || hint?.to === i;
     return (
@@ -259,13 +281,13 @@ function LiquidBoardDrawing({
           stroke="#fdf9eb"
           strokeWidth="0.7"
         />
-        {Array.from({ length: 4 }, (_, tick) => (
+        {Array.from({ length: capacity(rules, i) }, (_, tick) => (
           <Line
             key={tick}
             x1="17"
             x2="21"
-            y1={36 + tick * 29}
-            y2={36 + tick * 29}
+            y1={36 + tick * (116 / capacity(rules, i))}
+            y2={36 + tick * (116 / capacity(rules, i))}
             stroke="#faf8df"
             strokeOpacity="0.56"
             strokeWidth="0.8"
@@ -276,6 +298,7 @@ function LiquidBoardDrawing({
   };
   const renderTube = (i: number, activeLayer = false) => {
     const p = poses[i],
+      scale = p.scale,
       moving = pouring?.from === i,
       target = pouring?.to === i;
     const stock = moving
@@ -293,7 +316,7 @@ function LiquidBoardDrawing({
     const plane = (units: number) => {
       let found = planes.get(units);
       if (found === undefined) {
-        found = surfacePlane(units, fluidAngle);
+        found = surfacePlane((units * 4) / capacity(rules, i), fluidAngle);
         planes.set(units, found);
       }
       return found;
@@ -318,8 +341,7 @@ function LiquidBoardDrawing({
     const receiving = target && state.arrived > 0 && state.arrived < 1;
     const wave =
       (motion ? 0.65 : 0) + (receiving ? 1.5 : target ? 1.2 * Math.exp(-state.settling * 5) : 0);
-    const levelComplete =
-      board[i].length === 4 && board[i].every((c) => c === board[i][0]) && !moving;
+    const levelComplete = completeTube(board, i, rules) && !moving;
     return (
       <G
         key={`tube${i}`}
@@ -342,13 +364,15 @@ function LiquidBoardDrawing({
               <G key={j}>
                 <Path
                   d={d}
-                  fill={`url(#${id(`pigment${layer.color}`, activeLayer)})`}
+                  fill={
+                    layer.hidden ? '#a397ad' : `url(#${id(`pigment${layer.color}`, activeLayer)})`
+                  }
                   fillOpacity="0.96"
                 />
                 <Path
                   d={d}
                   fill={`url(#${id(`sheen${layer.color}`, activeLayer)})`}
-                  opacity="0.32"
+                  opacity={layer.hidden ? 0 : 0.32}
                 />
                 {layer.units > 0.35 &&
                   [0, 1, 2].map((k) => {
@@ -365,7 +389,7 @@ function LiquidBoardDrawing({
                       />
                     );
                   })}
-                {patterns && layer.units > 0.3 && (
+                {(patterns || layer.hidden) && layer.units > 0.3 && (
                   <SvgText
                     x={center.x}
                     y={center.y + 4}
@@ -374,7 +398,7 @@ function LiquidBoardDrawing({
                     fontSize={fitted ? Math.max(16, 8 / scale) : 16}
                     fontFamily={F.bold}
                   >
-                    {symbols[layer.color]}
+                    {layer.hidden ? '?' : symbols[layer.color]}
                   </SvgText>
                 )}
               </G>
@@ -592,8 +616,80 @@ function LiquidBoardDrawing({
             front
           />
         ))}
+        {rules?.links?.map(([a, b], i) => (
+          <Path
+            key={`link-${i}`}
+            d={`M${layout[a].x} ${layout[a].y + 165 * scale} Q${width / 2} ${Math.max(layout[a].y, layout[b].y) + 190 * scale} ${layout[b].x} ${layout[b].y + 165 * scale}`}
+            fill="none"
+            stroke="#779767"
+            strokeWidth="1.6"
+            strokeDasharray="3 3"
+          />
+        ))}
         {layout.map((p, i) => (
           <G key={`label-${i}`}>
+            {!!rules?.mechanics.length && (
+              <G transform={`translate(${p.x} ${p.y + 150 * scale})`}>
+                {rules.filters
+                  ?.filter((f) => f.tube === i)
+                  .map((f) => (
+                    <Circle
+                      key="filter"
+                      cy={-132 * Math.cbrt(capacity(rules, i) / 4) * scale}
+                      r={7}
+                      fill={palette[f.color]}
+                      stroke="#f9edca"
+                      strokeWidth="1.5"
+                    />
+                  ))}
+                <G
+                  transform={`translate(0 ${-125 * Math.cbrt(capacity(rules, i) / 4) * scale}) scale(${Math.max(0.7, scale * 0.7)})`}
+                >
+                  <RuleMark
+                    kind={
+                      blocked(board, i, rules)
+                        ? 'lock'
+                        : rules.gates?.some((g) => g.key === i)
+                          ? 'brush'
+                          : rules.pipettes?.includes(i)
+                            ? 'pipette'
+                            : rules.collectors?.includes(i)
+                              ? 'conservation'
+                              : ''
+                    }
+                  />
+                </G>
+                {rules.crystals
+                  ?.filter((c) => c.tube === i && !crystalOpen(board, c.color, rules))
+                  .map((c) => (
+                    <G key="crystal">
+                      <Circle
+                        cy={-20 * scale}
+                        r={10}
+                        fill="#e9e9df"
+                        stroke={palette[c.color]}
+                        strokeWidth="2"
+                      />
+                      <SvgText
+                        y={-20 * scale + 5}
+                        textAnchor="middle"
+                        fontSize="15"
+                        fill={palette[c.color]}
+                      >
+                        ◇
+                      </SvgText>
+                    </G>
+                  ))}
+                {capacity(rules, i) !== 4 && (
+                  <G transform={`translate(0 ${-42 * scale})`}>
+                    <Circle r="7" fill="#eee3c4" stroke="#849875" />
+                    <SvgText y="4" textAnchor="middle" fontSize="11" fill="#48644a">
+                      {capacity(rules, i)}
+                    </SvgText>
+                  </G>
+                )}
+              </G>
+            )}
             <Rect
               x={p.x - (fitted ? 12 : 11 * scale)}
               y={fitted ? p.y + 180 * scale + 3 : p.y + 181 * scale}
@@ -633,6 +729,8 @@ function LiquidBoardDrawing({
       racks,
       layout,
       stillDefinitions,
+      rules,
+      known,
     ],
   );
   const touchTargets = useMemo(
@@ -641,7 +739,12 @@ function LiquidBoardDrawing({
         <Pressable
           key={i}
           accessibilityRole="button"
-          accessibilityLabel={`Flacon ${i + 1}, ${board[i].length ? board[i].map((c) => colorNames[c].toLocaleLowerCase('fr')).join(', ') : 'vide'}`}
+          accessibilityLabel={`Flacon ${i + 1}, ${board[i].length ? board[i].map((c, j) => (known?.[i]?.[j] === false ? 'teinte mystère' : colorNames[c].toLocaleLowerCase('fr'))).join(', ') : 'vide'}`}
+          accessibilityHint={
+            rules
+              ? `Capacité ${capacity(rules, i)}. ${blocked(board, i, rules) ? 'Fiole verrouillée. ' : ''}${rules.collectors?.includes(i) ? 'Reçoit seulement. ' : ''}${rules.pipettes?.includes(i) ? 'Verse une mesure. ' : ''}`
+              : undefined
+          }
           accessibilityState={{ selected: selected === i, disabled }}
           disabled={disabled}
           onPress={() => tap.current(i)}
@@ -657,7 +760,7 @@ function LiquidBoardDrawing({
           }}
         />
       )),
-    [layout, board, selected, disabled, scale, maxHeight],
+    [layout, board, known, rules, selected, disabled, scale, maxHeight],
   );
   return (
     <View

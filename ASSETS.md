@@ -79,3 +79,9 @@ Les licences des dépendances JavaScript sont également disponibles dans leurs 
 ## Décor du menu principal
 
 `assets/home/garden.png` : illustration originale générée pour le jeu avec `image_gen`, préparée par `scripts/prepare-home-garden.mjs`. Source et provenance dans `art/home/`. Serre et végétation aux bords, centre calme pour les modes. Le pollen, la fougère et le papillon sont des dessins SVG originaux dans `HomeGarden.tsx`, animés par transformations de vues. `RestorationEmblem.tsx` dessine trois fioles de pigments. L’ancien `cabinet-book.png` n’est plus chargé par le menu.
+
+## Extension à 200 espèces — 10 novembre 2026
+
+Les vingt atlas `assets/illustrations/expansion-*.webp` (neuf spécimens chacun) et les quinze paysages `assets/journey/ecosystem-*.webp` sont des créations originales générées avec OpenAI pour cette extension. Les noms, caractères morphologiques et l’ordre des plantes sont enregistrés dans `docs/expansion/species.tsv` ; les limites des dessins figurent dans `docs/expansion/art-bounds.json`. Les formats WebP compressent les livrables ; les états de lavis mobiles sont compilés depuis le rendu réel de l’application. Les anciennes illustrations ne sont pas remplacées. Ces planches ludiques ne constituent pas des clés d’identification scientifique.
+
+Les quinze nouvelles musiques `assets/music/ecosystem-*.mp3` sont des compositions originales sous CC0-1.0 utilisant les instruments FluidR3 GM sous MIT. `scripts/generate-expansion-music.py` contient leurs partitions reproductibles ; `scripts/expansion-music-manifest.json` documente tempo, durée, instruments et SHA256. Les licences existantes s’appliquent aux mêmes instruments. Aucun morceau commercial n’a été ajouté.

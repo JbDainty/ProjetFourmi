@@ -17,7 +17,7 @@ export type TurningPage = {
 /** Snapshot both plates before committing the new level; never reuse the old
  * specimen as the destination, including chapter boundaries and map jumps. */
 export function planBookTurn(save: Save, target: number, id: number): TurningPage {
-  if (!Number.isInteger(target) || target < 1 || target > 100)
+  if (!Number.isInteger(target) || target < 1 || target > 1000)
     throw new RangeError('Invalid book page');
   const plant = Math.floor((save.current - 1) / 5);
   const targetPlant = Math.floor((target - 1) / 5);

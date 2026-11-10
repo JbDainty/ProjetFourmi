@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import levels from '../src/data/levels.json';
+import levels from '../src/data/campaign';
 import { attemptPuzzle, validRemix } from '../src/engine/remix';
 import {
   initial,
@@ -51,11 +51,11 @@ describe('certified mixtures', () => {
         expect(attempt.par).toBe(attempt.solution.length);
         let b = mixed.board;
         for (const m of attempt.solution) {
-          const next = pour(b, m.from, m.to);
+          const next = pour(b, m.from, m.to, attempt.rules);
           expect(next).not.toBeNull();
           b = next!;
         }
-        expect(won(b)).toBe(true);
+        expect(won(b, attempt.rules)).toBe(true);
         expect(restore(JSON.stringify(mixed))).toEqual(mixed);
       }
   });

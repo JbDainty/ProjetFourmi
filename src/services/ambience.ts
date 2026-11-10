@@ -15,6 +15,21 @@ export const ambienceTracks = [
   { title: 'Reflets des roseaux', source: require('../../assets/music/zones-humides.mp3') },
   { title: 'Lumière des cimes', source: require('../../assets/music/montagnes.mp3') },
   { title: 'Brise de garrigue', source: require('../../assets/music/mediterranee.mp3') },
+  { title: 'Le chant des haies', source: require('../../assets/music/ecosystem-05.mp3') },
+  { title: 'Les branches en fleurs', source: require('../../assets/music/ecosystem-06.mp3') },
+  { title: 'La terre au matin', source: require('../../assets/music/ecosystem-07.mp3') },
+  { title: 'Les parfums tranquilles', source: require('../../assets/music/ecosystem-08.mp3') },
+  { title: 'Le sommeil des dunes', source: require('../../assets/music/ecosystem-09.mp3') },
+  { title: 'Les bruyères d’ivoire', source: require('../../assets/music/ecosystem-10.mp3') },
+  { title: 'L’eau entre les saules', source: require('../../assets/music/ecosystem-11.mp3') },
+  { title: 'La lumière des houppiers', source: require('../../assets/music/ecosystem-12.mp3') },
+  { title: 'L’ombre des aiguilles', source: require('../../assets/music/ecosystem-13.mp3') },
+  { title: 'Les fleurs près de la porte', source: require('../../assets/music/ecosystem-14.mp3') },
+  { title: 'La mémoire des pierres', source: require('../../assets/music/ecosystem-15.mp3') },
+  { title: 'L’or des moissons', source: require('../../assets/music/ecosystem-16.mp3') },
+  { title: 'Les herbes du soleil', source: require('../../assets/music/ecosystem-17.mp3') },
+  { title: 'Les chemins retrouvés', source: require('../../assets/music/ecosystem-18.mp3') },
+  { title: 'La clairière secrète', source: require('../../assets/music/ecosystem-19.mp3') },
 ] as const;
 export const ambienceVolume = 0.08;
 type Voice = { chapter: number; level: (gain: number, ms: number) => void; stop: () => void };
@@ -170,6 +185,13 @@ function bufferFor(index: number, context: AudioContext) {
         })
         .then((bytes) => context.decodeAudioData(bytes)),
     );
+  while (buffers.size > 2) {
+    const oldest =
+      [...buffers.keys()].find((k) => k !== index && k !== current?.chapter) ??
+      [...buffers.keys()].find((k) => k !== index);
+    if (oldest === undefined) break;
+    buffers.delete(oldest);
+  }
   return buffers.get(index)!;
 }
 /** Decode the opening track while the book is being signed; never play yet. */
@@ -177,7 +199,7 @@ export function prepareAmbience(ecosystem: number) {
   if (Platform.OS !== 'web') return;
   const context = sharedAudioContext();
   if (!context) return;
-  const index = Math.max(0, Math.min(4, ecosystem));
+  const index = Math.max(0, Math.min(ambienceTracks.length - 1, ecosystem));
   void bufferFor(index, context).catch(() => buffers.delete(index));
 }
 let pendingChapter: number | undefined;
@@ -257,7 +279,7 @@ export function unlockAmbience() {
     });
 }
 export function configureAmbience(active: boolean, ecosystem: number) {
-  const next = Math.max(0, Math.min(4, ecosystem));
+  const next = Math.max(0, Math.min(ambienceTracks.length - 1, ecosystem));
   if (enabled !== active || chapter !== next) {
     recoveryAttempts = 0;
     generation++;

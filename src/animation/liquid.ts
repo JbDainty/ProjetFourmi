@@ -3,7 +3,7 @@
  * This is an illustration model, not a general-purpose fluid solver.
  */
 export type Point = { x: number; y: number };
-export type Layer = { color: number; units: number };
+export type Layer = { color: number; units: number; hidden?: boolean };
 export const GLASS_HEIGHT = 160;
 export const MOUTH_Y = 10;
 export const INNER_HALF_WIDTH = 20;
@@ -142,12 +142,13 @@ export const polygonPath = (points: Point[]) =>
   points.length
     ? 'M' + points.map((p) => `${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join('L') + 'Z'
     : '';
-export function layers(tube: number[]): Layer[] {
+export function layers(tube: number[], known?: boolean[]): Layer[] {
   const result: Layer[] = [];
-  for (const color of tube) {
+  for (const [index, color] of tube.entries()) {
+    const hidden = known?.[index] === false;
     const top = result.at(-1);
-    if (top?.color === color) top.units++;
-    else result.push({ color, units: 1 });
+    if (top?.color === color && !!top.hidden === hidden) top.units++;
+    else result.push({ color, units: 1, ...(hidden ? { hidden: true } : {}) });
   }
   return result;
 }

@@ -11,7 +11,9 @@ import {
   BackHandler,
   Platform,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { chapters } from '../src/data/botany';
+import { plantsForEcosystem } from '../src/data/ecology';
 import { species } from '../src/data/botany';
 import { useGame } from '../src/state/store';
 import { restoration, unlocked, type Save } from '../src/state/model';
@@ -36,6 +38,7 @@ export default function Herbier() {
   const [direct, setDirect] = useState(initialPlant !== null);
   const [pigments, setPigments] = useState(false);
   const [zoom, setZoom] = useState(false);
+  const [pigmentPage, setPigmentPage] = useState(0);
   const closePlate = useCallback(() => {
     select(null);
     setDirect(false);
@@ -60,7 +63,7 @@ export default function Herbier() {
       <T testID="herbarium-collection-title" serif style={ui.title}>
         Le Grand Herbier
       </T>
-      <T style={ui.muted}>Vingt rencontres avec le vivant. Une couleur après l’autre.</T>
+      <T style={ui.muted}>Deux cents rencontres, réunies en carnets. Une couleur après l’autre.</T>
       <View
         style={[ui.row, { marginVertical: 25, justifyContent: 'space-between', flexWrap: 'wrap' }]}
       >
@@ -72,14 +75,14 @@ export default function Herbier() {
             Pigments et sceaux
           </Button>
         </View>
-        <Label>{complete} / 20 PLANCHES ESTAMPILLÉES</Label>
+        <Label>{complete} / 200 PLANCHES ESTAMPILLÉES</Label>
       </View>
       {pigments ? (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 14 }}>
           {save.pigments.length === 0 ? (
             <T style={ui.muted}>Votre premier pigment vous attend à l’atelier.</T>
           ) : (
-            save.pigments.map((p) => (
+            save.pigments.slice(pigmentPage * 20, pigmentPage * 20 + 20).map((p) => (
               <Paper key={p.id} style={[ui.card, { width: width < 600 ? '100%' : 230 }]}>
                 {p.id % 5 === 0 ? (
                   <View style={{ height: 75, alignItems: 'center' }}>
@@ -110,59 +113,66 @@ export default function Herbier() {
         </View>
       ) : (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 18 }}>
-          {species.map((s, i) => {
-            const stage = restoration(save, i),
-              open = unlocked(save, i * 5 + 1);
+          {chapters.map((eco, i) => {
+            const plants = plantsForEcosystem(i),
+              done = plants.filter((p) => restoration(save, p) === 5).length;
             return (
               <Pressable
+                key={eco.name}
                 accessibilityRole="button"
-                accessibilityLabel={`Observer ${s.name}`}
-                key={s.latin}
-                onPress={() => {
-                  select(i);
-                  setZoom(false);
-                }}
-                style={[
-                  ui.card,
-                  {
-                    width: width < 600 ? '100%' : width < 1100 ? '47%' : '31%',
-                    padding: 24,
-                    alignItems: 'center',
-                  },
-                ]}
+                accessibilityLabel={`Ouvrir le carnet ${eco.name}`}
+                onPress={() =>
+                  router.push({ pathname: '/carnet' as any, params: { ecosystem: String(i) } })
+                }
+                style={{ width: width < 600 ? '100%' : '47%', minHeight: 190 }}
               >
-                <PaperTexture framed vitality={stage / 5} />
-                <View
-                  style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}
+                <Paper
+                  style={{
+                    padding: 28,
+                    borderRadius: 24,
+                    backgroundColor: '#f4ead6',
+                    height: '100%',
+                    gap: 8,
+                  }}
+                  vitality={done / 10}
                 >
-                  <Label>PL. {String(i + 1).padStart(2, '0')}</Label>
-                  <Icon
-                    name={
-                      stage === 5
-                        ? 'checkmark-circle-outline'
-                        : open
-                          ? 'ellipse-outline'
-                          : 'lock-closed-outline'
-                    }
-                    color={C.gold}
-                    size={16}
-                  />
-                </View>
-                <Botanical index={i} stage={stage} size={180} labels={false} />
-                <T serif style={{ fontSize: 25 }}>
-                  {s.name}
-                </T>
-                <T style={{ fontFamily: F.scientific, fontSize: 17, color: C.muted }}>{s.latin}</T>
-                <View style={{ width: '100%', marginTop: 18 }}>
-                  {open ? (
-                    <RestorationProgress stage={stage} compact />
-                  ) : (
-                    <T style={{ textAlign: 'center', fontSize: 10, color: C.muted }}>À DÉCOUVRIR</T>
-                  )}
-                </View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
+                    <View style={{ backgroundColor: eco.color, padding: 12, borderRadius: 10 }}>
+                      <Icon name="book-outline" size={44} color="#eee5c6" />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Label>CARNET {String(i + 1).padStart(2, '0')}</Label>
+                      <T serif style={{ fontSize: 25, lineHeight: 29 }}>
+                        {eco.name}
+                      </T>
+                    </View>
+                  </View>
+                  <T style={{ fontFamily: F.scientific, color: C.muted }}>{eco.subtitle}</T>
+                  <T>
+                    {done} / {plants.length} planches estampillées
+                  </T>
+                </Paper>
               </Pressable>
             );
           })}
+        </View>
+      )}
+      {pigments && save.pigments.length > 20 && (
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
+          <Button
+            secondary
+            disabled={pigmentPage === 0}
+            onPress={() => setPigmentPage((p) => p - 1)}
+          >
+            Précédents
+          </Button>
+          <Button
+            secondary
+            disabled={(pigmentPage + 1) * 20 >= save.pigments.length}
+            onPress={() => setPigmentPage((p) => p + 1)}
+          >
+            Suivants
+          </Button>
         </View>
       )}
       <Modal
@@ -188,7 +198,7 @@ export default function Herbier() {
 
 /** Linked entries draw the actual plate as their first native view, without presenting a Modal
  * over twenty freshly mounted collection cards. Collection entries retain their existing dialog. */
-function HerbariumPlate({
+export function HerbariumPlate({
   selected,
   save,
   width,

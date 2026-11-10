@@ -1,0 +1,1442 @@
+[
+  {
+    "ecosystem": 0,
+    "name": "Pâquerette",
+    "latin": "Bellis perennis",
+    "family": "Asteraceae",
+    "form": "daisy",
+    "facts": "Petits capitules blancs, souvent rosés au revers, et rosette de feuilles spatulées."
+  },
+  {
+    "ecosystem": 0,
+    "name": "Renoncule âcre",
+    "latin": "Ranunculus acris",
+    "family": "Ranunculaceae",
+    "form": "buttercup",
+    "facts": "Cinq pétales jaunes brillants et feuilles profondément divisées."
+  },
+  {
+    "ecosystem": 0,
+    "name": "Véronique petit-chêne",
+    "latin": "Veronica chamaedrys",
+    "family": "Plantaginaceae",
+    "form": "speedwell",
+    "facts": "Petites corolles bleues et feuilles opposées dentées."
+  },
+  {
+    "ecosystem": 0,
+    "name": "Brunelle commune",
+    "latin": "Prunella vulgaris",
+    "family": "Lamiaceae",
+    "form": "spike",
+    "facts": "Épis courts de fleurs violettes et feuilles opposées."
+  },
+  {
+    "ecosystem": 0,
+    "name": "Crételle des prés",
+    "latin": "Cynosurus cristatus",
+    "family": "Poaceae",
+    "form": "grass",
+    "facts": "Épis fins à épillets serrés sur une tige grêle."
+  },
+  {
+    "ecosystem": 0,
+    "name": "Flouve odorante",
+    "latin": "Anthoxanthum odoratum",
+    "family": "Poaceae",
+    "form": "grass",
+    "facts": "Panicule étroite et feuilles linéaires typiques des graminées."
+  },
+  {
+    "ecosystem": 1,
+    "name": "Violette de Rivin",
+    "latin": "Viola riviniana",
+    "family": "Violaceae",
+    "form": "violet",
+    "facts": "Fleurs violettes à éperon clair et feuilles en cœur."
+  },
+  {
+    "ecosystem": 1,
+    "name": "Primevère élevée",
+    "latin": "Primula elatior",
+    "family": "Primulaceae",
+    "form": "primrose",
+    "facts": "Ombelle de fleurs jaune pâle au-dessus d’une rosette gaufrée."
+  },
+  {
+    "ecosystem": 1,
+    "name": "Jacinthe des bois",
+    "latin": "Hyacinthoides non-scripta",
+    "family": "Asparagaceae",
+    "form": "bellflower",
+    "facts": "Clochettes bleues inclinées et longues feuilles rubanées."
+  },
+  {
+    "ecosystem": 1,
+    "name": "Sceau-de-Salomon multiflore",
+    "latin": "Polygonatum multiflorum",
+    "family": "Asparagaceae",
+    "form": "lily",
+    "facts": "Fleurs blanchâtres pendantes sous une tige arquée à feuilles alternes."
+  },
+  {
+    "ecosystem": 1,
+    "name": "Mélique uniflore",
+    "latin": "Melica uniflora",
+    "family": "Poaceae",
+    "form": "grass",
+    "facts": "Panicule légère et épillets brun pourpré."
+  },
+  {
+    "ecosystem": 1,
+    "name": "Luzule des bois",
+    "latin": "Luzula sylvatica",
+    "family": "Juncaceae",
+    "form": "grass",
+    "facts": "Feuilles larges à longs poils blancs sur les marges."
+  },
+  {
+    "ecosystem": 2,
+    "name": "Massette à larges feuilles",
+    "latin": "Typha latifolia",
+    "family": "Typhaceae",
+    "form": "reed",
+    "facts": "Longues feuilles dressées et inflorescence brune cylindrique."
+  },
+  {
+    "ecosystem": 2,
+    "name": "Roseau commun",
+    "latin": "Phragmites australis",
+    "family": "Poaceae",
+    "form": "reed",
+    "facts": "Grande graminée à feuilles rubanées et panicule plumeuse."
+  },
+  {
+    "ecosystem": 2,
+    "name": "Jonc épars",
+    "latin": "Juncus effusus",
+    "family": "Juncaceae",
+    "form": "rush",
+    "facts": "Tiges vertes cylindriques portant une inflorescence latérale."
+  },
+  {
+    "ecosystem": 2,
+    "name": "Myosotis des marais",
+    "latin": "Myosotis scorpioides",
+    "family": "Boraginaceae",
+    "form": "forgetmenot",
+    "facts": "Petites fleurs bleues à gorge jaune et feuilles allongées."
+  },
+  {
+    "ecosystem": 2,
+    "name": "Lysimaque commune",
+    "latin": "Lysimachia vulgaris",
+    "family": "Primulaceae",
+    "form": "spike",
+    "facts": "Grappes de fleurs jaunes à cinq pétales."
+  },
+  {
+    "ecosystem": 2,
+    "name": "Rubanier dressé",
+    "latin": "Sparganium erectum",
+    "family": "Typhaceae",
+    "form": "reed",
+    "facts": "Feuilles en rubans et inflorescences arrondies sur des rameaux."
+  },
+  {
+    "ecosystem": 3,
+    "name": "Achillée millefeuille",
+    "latin": "Achillea millefolium",
+    "family": "Asteraceae",
+    "form": "yarrow",
+    "facts": "Feuillage très finement découpé et petits capitules blancs en plateau."
+  },
+  {
+    "ecosystem": 3,
+    "name": "Silène enflé",
+    "latin": "Silene vulgaris",
+    "family": "Caryophyllaceae",
+    "form": "campion",
+    "facts": "Calice renflé nervuré et pétales blancs divisés."
+  },
+  {
+    "ecosystem": 3,
+    "name": "Alchémille commune",
+    "latin": "Alchemilla vulgaris",
+    "family": "Rosaceae",
+    "form": "lady-mantle",
+    "facts": "Feuilles plissées à lobes arrondis et minuscules fleurs jaune vert."
+  },
+  {
+    "ecosystem": 3,
+    "name": "Géranium des bois",
+    "latin": "Geranium sylvaticum",
+    "family": "Geraniaceae",
+    "form": "geranium",
+    "facts": "Fleurs bleu violet à cinq pétales et feuilles palmées."
+  },
+  {
+    "ecosystem": 3,
+    "name": "Raiponce en épi",
+    "latin": "Phyteuma spicatum",
+    "family": "Campanulaceae",
+    "form": "spike",
+    "facts": "Épi dense de petites fleurs crème ou bleutées."
+  },
+  {
+    "ecosystem": 3,
+    "name": "Épilobe en épi",
+    "latin": "Chamaenerion angustifolium",
+    "family": "Onagraceae",
+    "form": "spike",
+    "facts": "Longues grappes roses et feuilles étroites alternes."
+  },
+  {
+    "ecosystem": 4,
+    "name": "Thym commun",
+    "latin": "Thymus vulgaris",
+    "family": "Lamiaceae",
+    "form": "thyme",
+    "facts": "Petites feuilles étroites et fleurs rosées sur des rameaux ligneux."
+  },
+  {
+    "ecosystem": 4,
+    "name": "Sauge officinale",
+    "latin": "Salvia officinalis",
+    "family": "Lamiaceae",
+    "form": "sage",
+    "facts": "Feuilles gris vert gaufrées et fleurs violet bleuté."
+  },
+  {
+    "ecosystem": 4,
+    "name": "Fenouil commun",
+    "latin": "Foeniculum vulgare",
+    "family": "Apiaceae",
+    "form": "umbel",
+    "facts": "Feuilles filiformes et larges ombelles jaunes."
+  },
+  {
+    "ecosystem": 4,
+    "name": "Immortelle commune",
+    "latin": "Helichrysum stoechas",
+    "family": "Asteraceae",
+    "form": "yarrow",
+    "facts": "Feuillage étroit grisâtre et groupes de petits capitules jaunes."
+  },
+  {
+    "ecosystem": 4,
+    "name": "Origan commun",
+    "latin": "Origanum vulgare",
+    "family": "Lamiaceae",
+    "form": "oregano",
+    "facts": "Petites fleurs roses réunies au sommet de tiges ramifiées."
+  },
+  {
+    "ecosystem": 4,
+    "name": "Mauve à petites fleurs",
+    "latin": "Malva parviflora",
+    "family": "Malvaceae",
+    "form": "mallow",
+    "facts": "Feuilles arrondies lobées et petites fleurs pâles."
+  },
+  {
+    "ecosystem": 5,
+    "name": "Aubépine monogyne",
+    "latin": "Crataegus monogyna",
+    "family": "Rosaceae",
+    "form": "branch",
+    "facts": "Rameaux épineux, feuilles lobées et bouquets de fleurs blanches."
+  },
+  {
+    "ecosystem": 5,
+    "name": "Prunellier",
+    "latin": "Prunus spinosa",
+    "family": "Rosaceae",
+    "form": "branch",
+    "facts": "Petites fleurs blanches apparaissant avant les feuilles."
+  },
+  {
+    "ecosystem": 5,
+    "name": "Sureau noir",
+    "latin": "Sambucus nigra",
+    "family": "Adoxaceae",
+    "form": "branch",
+    "facts": "Feuilles composées opposées et grandes inflorescences crème en plateau."
+  },
+  {
+    "ecosystem": 5,
+    "name": "Églantier",
+    "latin": "Rosa canina",
+    "family": "Rosaceae",
+    "form": "rose",
+    "facts": "Fleurs roses à cinq pétales et feuilles à folioles dentées."
+  },
+  {
+    "ecosystem": 5,
+    "name": "Noisetier",
+    "latin": "Corylus avellana",
+    "family": "Betulaceae",
+    "form": "branch",
+    "facts": "Feuilles arrondies dentées et longs chatons pendants."
+  },
+  {
+    "ecosystem": 5,
+    "name": "Fusain d’Europe",
+    "latin": "Euonymus europaeus",
+    "family": "Celastraceae",
+    "form": "branch",
+    "facts": "Petites fleurs verdâtres et capsules roses montrant des graines orange."
+  },
+  {
+    "ecosystem": 5,
+    "name": "Troène commun",
+    "latin": "Ligustrum vulgare",
+    "family": "Oleaceae",
+    "form": "branch",
+    "facts": "Feuilles opposées ovales et petites grappes de fleurs blanches."
+  },
+  {
+    "ecosystem": 5,
+    "name": "Cornouiller sanguin",
+    "latin": "Cornus sanguinea",
+    "family": "Cornaceae",
+    "form": "branch",
+    "facts": "Feuilles opposées à nervures arquées et rameaux rougeâtres."
+  },
+  {
+    "ecosystem": 5,
+    "name": "Viorne obier",
+    "latin": "Viburnum opulus",
+    "family": "Adoxaceae",
+    "form": "branch",
+    "facts": "Feuilles lobées et inflorescences blanches à grandes fleurs périphériques."
+  },
+  {
+    "ecosystem": 5,
+    "name": "Clématite des haies",
+    "latin": "Clematis vitalba",
+    "family": "Ranunculaceae",
+    "form": "vine",
+    "facts": "Liane à fleurs blanc crème et fruits prolongés de longues arêtes plumeuses."
+  },
+  {
+    "ecosystem": 6,
+    "name": "Pommier domestique",
+    "latin": "Malus domestica",
+    "family": "Rosaceae",
+    "form": "branch",
+    "facts": "Boutons roses et fleurs blanches à cinq pétales."
+  },
+  {
+    "ecosystem": 6,
+    "name": "Poirier commun",
+    "latin": "Pyrus communis",
+    "family": "Rosaceae",
+    "form": "branch",
+    "facts": "Fleurs blanches et feuilles ovales finement dentées."
+  },
+  {
+    "ecosystem": 6,
+    "name": "Prunier domestique",
+    "latin": "Prunus domestica",
+    "family": "Rosaceae",
+    "form": "branch",
+    "facts": "Fleurs blanches généralement réunies par petits groupes."
+  },
+  {
+    "ecosystem": 6,
+    "name": "Cerisier acide",
+    "latin": "Prunus cerasus",
+    "family": "Rosaceae",
+    "form": "branch",
+    "facts": "Bouquets de fleurs blanches et feuilles dentées."
+  },
+  {
+    "ecosystem": 6,
+    "name": "Cognassier",
+    "latin": "Cydonia oblonga",
+    "family": "Rosaceae",
+    "form": "branch",
+    "facts": "Grandes fleurs isolées rose pâle et feuilles au revers duveteux."
+  },
+  {
+    "ecosystem": 6,
+    "name": "Noyer commun",
+    "latin": "Juglans regia",
+    "family": "Juglandaceae",
+    "form": "branch",
+    "facts": "Grandes feuilles composées et chatons verts pendants."
+  },
+  {
+    "ecosystem": 6,
+    "name": "Châtaignier",
+    "latin": "Castanea sativa",
+    "family": "Fagaceae",
+    "form": "branch",
+    "facts": "Longues feuilles fortement dentées et inflorescences crème dressées."
+  },
+  {
+    "ecosystem": 6,
+    "name": "Néflier",
+    "latin": "Mespilus germanica",
+    "family": "Rosaceae",
+    "form": "branch",
+    "facts": "Fleurs blanches isolées et fruits bruns à calice persistant."
+  },
+  {
+    "ecosystem": 6,
+    "name": "Groseillier rouge",
+    "latin": "Ribes rubrum",
+    "family": "Grossulariaceae",
+    "form": "branch",
+    "facts": "Feuilles lobées et grappes pendantes de petites fleurs verdâtres."
+  },
+  {
+    "ecosystem": 6,
+    "name": "Cassissier",
+    "latin": "Ribes nigrum",
+    "family": "Grossulariaceae",
+    "form": "branch",
+    "facts": "Feuilles palmées et grappes de petites fleurs teintées de rose."
+  },
+  {
+    "ecosystem": 7,
+    "name": "Carotte cultivée",
+    "latin": "Daucus carota subsp. sativus",
+    "family": "Apiaceae",
+    "form": "umbel",
+    "facts": "Feuilles très découpées et ombelles blanches au cours de la seconde année."
+  },
+  {
+    "ecosystem": 7,
+    "name": "Navet",
+    "latin": "Brassica rapa subsp. rapa",
+    "family": "Brassicaceae",
+    "form": "crucifer",
+    "facts": "Feuilles rugueuses et fleurs jaunes à quatre pétales."
+  },
+  {
+    "ecosystem": 7,
+    "name": "Radis cultivé",
+    "latin": "Raphanus sativus",
+    "family": "Brassicaceae",
+    "form": "crucifer",
+    "facts": "Fleurs à quatre pétales blancs ou rosés, souvent veinés."
+  },
+  {
+    "ecosystem": 7,
+    "name": "Chou potager",
+    "latin": "Brassica oleracea",
+    "family": "Brassicaceae",
+    "form": "crucifer",
+    "facts": "Feuilles épaisses et fleurs jaunes à quatre pétales."
+  },
+  {
+    "ecosystem": 7,
+    "name": "Poireau",
+    "latin": "Allium ampeloprasum",
+    "family": "Amaryllidaceae",
+    "form": "allium",
+    "facts": "Feuilles plates en rubans et grande ombelle sphérique."
+  },
+  {
+    "ecosystem": 7,
+    "name": "Oignon",
+    "latin": "Allium cepa",
+    "family": "Amaryllidaceae",
+    "form": "allium",
+    "facts": "Feuilles creuses et ombelle arrondie de petites fleurs pâles."
+  },
+  {
+    "ecosystem": 7,
+    "name": "Laitue cultivée",
+    "latin": "Lactuca sativa",
+    "family": "Asteraceae",
+    "form": "lettuce",
+    "facts": "Tige ramifiée portant de petits capitules jaunes."
+  },
+  {
+    "ecosystem": 7,
+    "name": "Pois cultivé",
+    "latin": "Pisum sativum",
+    "family": "Fabaceae",
+    "form": "pea",
+    "facts": "Fleurs papilionacées et feuilles terminées par des vrilles."
+  },
+  {
+    "ecosystem": 7,
+    "name": "Fève",
+    "latin": "Vicia faba",
+    "family": "Fabaceae",
+    "form": "pea",
+    "facts": "Fleurs blanches marquées de taches sombres sur les ailes."
+  },
+  {
+    "ecosystem": 7,
+    "name": "Courge commune",
+    "latin": "Cucurbita pepo",
+    "family": "Cucurbitaceae",
+    "form": "vine",
+    "facts": "Grandes feuilles lobées, vrilles et corolles jaunes en entonnoir."
+  },
+  {
+    "ecosystem": 8,
+    "name": "Persil",
+    "latin": "Petroselinum crispum",
+    "family": "Apiaceae",
+    "form": "umbel",
+    "facts": "Feuilles divisées et ombelles de petites fleurs jaune vert."
+  },
+  {
+    "ecosystem": 8,
+    "name": "Ciboulette",
+    "latin": "Allium schoenoprasum",
+    "family": "Amaryllidaceae",
+    "form": "allium",
+    "facts": "Feuilles tubulaires fines et têtes florales mauves."
+  },
+  {
+    "ecosystem": 8,
+    "name": "Coriandre",
+    "latin": "Coriandrum sativum",
+    "family": "Apiaceae",
+    "form": "umbel",
+    "facts": "Feuilles supérieures très découpées et petites ombelles blanches."
+  },
+  {
+    "ecosystem": 8,
+    "name": "Aneth",
+    "latin": "Anethum graveolens",
+    "family": "Apiaceae",
+    "form": "umbel",
+    "facts": "Feuillage filiforme et ombelles jaunes."
+  },
+  {
+    "ecosystem": 8,
+    "name": "Cerfeuil cultivé",
+    "latin": "Anthriscus cerefolium",
+    "family": "Apiaceae",
+    "form": "umbel",
+    "facts": "Feuilles tendres finement divisées et petites ombelles blanches."
+  },
+  {
+    "ecosystem": 8,
+    "name": "Basilic",
+    "latin": "Ocimum basilicum",
+    "family": "Lamiaceae",
+    "form": "spike",
+    "facts": "Feuilles ovales opposées et petites fleurs blanches en épis."
+  },
+  {
+    "ecosystem": 8,
+    "name": "Mélisse officinale",
+    "latin": "Melissa officinalis",
+    "family": "Lamiaceae",
+    "form": "mint",
+    "facts": "Feuilles opposées gaufrées et petites fleurs blanches à l’aisselle des feuilles."
+  },
+  {
+    "ecosystem": 8,
+    "name": "Menthe verte",
+    "latin": "Mentha spicata",
+    "family": "Lamiaceae",
+    "form": "mint",
+    "facts": "Feuilles dentées et épis étroits de petites fleurs rosées."
+  },
+  {
+    "ecosystem": 8,
+    "name": "Estragon",
+    "latin": "Artemisia dracunculus",
+    "family": "Asteraceae",
+    "form": "spike",
+    "facts": "Feuilles longues étroites et petits capitules verdâtres."
+  },
+  {
+    "ecosystem": 8,
+    "name": "Sarriette des jardins",
+    "latin": "Satureja hortensis",
+    "family": "Lamiaceae",
+    "form": "thyme",
+    "facts": "Petites feuilles étroites et fleurs pâles réunies aux nœuds."
+  },
+  {
+    "ecosystem": 9,
+    "name": "Oyat",
+    "latin": "Ammophila arenaria",
+    "family": "Poaceae",
+    "form": "grass",
+    "facts": "Longues feuilles rigides enroulées et épis dressés couleur paille."
+  },
+  {
+    "ecosystem": 9,
+    "name": "Criste marine",
+    "latin": "Crithmum maritimum",
+    "family": "Apiaceae",
+    "form": "umbel",
+    "facts": "Feuilles charnues divisées et ombelles jaune vert."
+  },
+  {
+    "ecosystem": 9,
+    "name": "Bette maritime",
+    "latin": "Beta vulgaris subsp. maritima",
+    "family": "Amaranthaceae",
+    "form": "spike",
+    "facts": "Feuilles épaisses luisantes et petits glomérules verdâtres."
+  },
+  {
+    "ecosystem": 9,
+    "name": "Roquette de mer",
+    "latin": "Cakile maritima",
+    "family": "Brassicaceae",
+    "form": "crucifer",
+    "facts": "Feuilles charnues découpées et fleurs lilas à quatre pétales."
+  },
+  {
+    "ecosystem": 9,
+    "name": "Soude brûlée",
+    "latin": "Salsola kali",
+    "family": "Amaranthaceae",
+    "form": "spike",
+    "facts": "Rameaux ramifiés à petites feuilles charnues pointues."
+  },
+  {
+    "ecosystem": 9,
+    "name": "Pourpier de mer",
+    "latin": "Honckenya peploides",
+    "family": "Caryophyllaceae",
+    "form": "campion",
+    "facts": "Petites feuilles charnues opposées et fleurs blanches."
+  },
+  {
+    "ecosystem": 9,
+    "name": "Obione faux-pourpier",
+    "latin": "Halimione portulacoides",
+    "family": "Amaranthaceae",
+    "form": "branch",
+    "facts": "Feuilles ovales charnues gris argenté."
+  },
+  {
+    "ecosystem": 9,
+    "name": "Salicorne annuelle",
+    "latin": "Salicornia europaea",
+    "family": "Amaranthaceae",
+    "form": "succulent",
+    "facts": "Tiges charnues articulées portant des fleurs presque invisibles."
+  },
+  {
+    "ecosystem": 9,
+    "name": "Chiendent des dunes",
+    "latin": "Elymus farctus",
+    "family": "Poaceae",
+    "form": "grass",
+    "facts": "Feuilles gris vert et épis à épillets alternes."
+  },
+  {
+    "ecosystem": 9,
+    "name": "Liseron des dunes",
+    "latin": "Calystegia soldanella",
+    "family": "Convolvulaceae",
+    "form": "vine",
+    "facts": "Feuilles arrondies charnues et corolles roses en entonnoir."
+  },
+  {
+    "ecosystem": 10,
+    "name": "Callune commune",
+    "latin": "Calluna vulgaris",
+    "family": "Ericaceae",
+    "form": "heather",
+    "facts": "Petites feuilles en écailles et nombreuses fleurs rose mauve."
+  },
+  {
+    "ecosystem": 10,
+    "name": "Bruyère cendrée",
+    "latin": "Erica cinerea",
+    "family": "Ericaceae",
+    "form": "heather",
+    "facts": "Petites feuilles en verticilles et fleurs pourpres en grelot."
+  },
+  {
+    "ecosystem": 10,
+    "name": "Ajonc d’Europe",
+    "latin": "Ulex europaeus",
+    "family": "Fabaceae",
+    "form": "branch",
+    "facts": "Rameaux épineux et fleurs jaunes papilionacées."
+  },
+  {
+    "ecosystem": 10,
+    "name": "Genêt à balais",
+    "latin": "Cytisus scoparius",
+    "family": "Fabaceae",
+    "form": "branch",
+    "facts": "Rameaux verts anguleux et grandes fleurs jaunes."
+  },
+  {
+    "ecosystem": 10,
+    "name": "Molinie bleue",
+    "latin": "Molinia caerulea",
+    "family": "Poaceae",
+    "form": "grass",
+    "facts": "Touffes de feuilles étroites et panicules fines dressées."
+  },
+  {
+    "ecosystem": 10,
+    "name": "Fougère aigle",
+    "latin": "Pteridium aquilinum",
+    "family": "Dennstaedtiaceae",
+    "form": "fern",
+    "facts": "Grandes frondes triangulaires plusieurs fois divisées."
+  },
+  {
+    "ecosystem": 10,
+    "name": "Potentille tormentille",
+    "latin": "Potentilla erecta",
+    "family": "Rosaceae",
+    "form": "buttercup",
+    "facts": "Petites fleurs jaunes le plus souvent à quatre pétales."
+  },
+  {
+    "ecosystem": 10,
+    "name": "Polygale commun",
+    "latin": "Polygala vulgaris",
+    "family": "Polygalaceae",
+    "form": "spike",
+    "facts": "Petites fleurs bleues, roses ou blanches à ailes latérales."
+  },
+  {
+    "ecosystem": 10,
+    "name": "Danthonie décombante",
+    "latin": "Danthonia decumbens",
+    "family": "Poaceae",
+    "form": "grass",
+    "facts": "Petite graminée en touffe à panicule courte peu ramifiée."
+  },
+  {
+    "ecosystem": 10,
+    "name": "Bourdaine",
+    "latin": "Frangula alnus",
+    "family": "Rhamnaceae",
+    "form": "branch",
+    "facts": "Feuilles ovales entières et petites fleurs verdâtres."
+  },
+  {
+    "ecosystem": 11,
+    "name": "Aulne glutineux",
+    "latin": "Alnus glutinosa",
+    "family": "Betulaceae",
+    "form": "branch",
+    "facts": "Feuilles arrondies et petits cônes ligneux persistants."
+  },
+  {
+    "ecosystem": 11,
+    "name": "Saule blanc",
+    "latin": "Salix alba",
+    "family": "Salicaceae",
+    "form": "branch",
+    "facts": "Feuilles allongées au revers argenté et chatons printaniers."
+  },
+  {
+    "ecosystem": 11,
+    "name": "Peuplier noir",
+    "latin": "Populus nigra",
+    "family": "Salicaceae",
+    "form": "branch",
+    "facts": "Feuilles triangulaires dentées et chatons pendants."
+  },
+  {
+    "ecosystem": 11,
+    "name": "Reine-des-prés",
+    "latin": "Filipendula ulmaria",
+    "family": "Rosaceae",
+    "form": "yarrow",
+    "facts": "Feuilles composées et inflorescences mousseuses blanc crème."
+  },
+  {
+    "ecosystem": 11,
+    "name": "Eupatoire chanvrine",
+    "latin": "Eupatorium cannabinum",
+    "family": "Asteraceae",
+    "form": "yarrow",
+    "facts": "Feuilles divisées et petits capitules roses en bouquets."
+  },
+  {
+    "ecosystem": 11,
+    "name": "Houblon",
+    "latin": "Humulus lupulus",
+    "family": "Cannabaceae",
+    "form": "vine",
+    "facts": "Tige grimpante à feuilles lobées et inflorescences femelles en cônes."
+  },
+  {
+    "ecosystem": 11,
+    "name": "Liseron des haies",
+    "latin": "Calystegia sepium",
+    "family": "Convolvulaceae",
+    "form": "vine",
+    "facts": "Grandes fleurs blanches en entonnoir et feuilles en flèche."
+  },
+  {
+    "ecosystem": 11,
+    "name": "Ortie dioïque",
+    "latin": "Urtica dioica",
+    "family": "Urticaceae",
+    "form": "spike",
+    "facts": "Feuilles opposées dentées et grappes de petites fleurs verdâtres."
+  },
+  {
+    "ecosystem": 11,
+    "name": "Angélique des bois",
+    "latin": "Angelica sylvestris",
+    "family": "Apiaceae",
+    "form": "umbel",
+    "facts": "Grandes feuilles composées et ombelles blanches ou rosées."
+  },
+  {
+    "ecosystem": 11,
+    "name": "Baldingère faux-roseau",
+    "latin": "Phalaris arundinacea",
+    "family": "Poaceae",
+    "form": "reed",
+    "facts": "Feuilles larges et panicule ramifiée compacte."
+  },
+  {
+    "ecosystem": 12,
+    "name": "Chêne pédonculé",
+    "latin": "Quercus robur",
+    "family": "Fagaceae",
+    "form": "branch",
+    "facts": "Feuilles lobées à court pétiole et glands portés par un pédoncule."
+  },
+  {
+    "ecosystem": 12,
+    "name": "Hêtre commun",
+    "latin": "Fagus sylvatica",
+    "family": "Fagaceae",
+    "form": "branch",
+    "facts": "Feuilles ovales au bord ondulé et bourgeons longs pointus."
+  },
+  {
+    "ecosystem": 12,
+    "name": "Tilleul à petites feuilles",
+    "latin": "Tilia cordata",
+    "family": "Malvaceae",
+    "form": "branch",
+    "facts": "Feuilles en cœur et grappes florales accompagnées d’une longue bractée."
+  },
+  {
+    "ecosystem": 12,
+    "name": "Érable champêtre",
+    "latin": "Acer campestre",
+    "family": "Sapindaceae",
+    "form": "branch",
+    "facts": "Feuilles à lobes arrondis et fruits ailés opposés."
+  },
+  {
+    "ecosystem": 12,
+    "name": "Merisier",
+    "latin": "Prunus avium",
+    "family": "Rosaceae",
+    "form": "branch",
+    "facts": "Bouquets de fleurs blanches et feuilles dentées à long pétiole."
+  },
+  {
+    "ecosystem": 12,
+    "name": "Frêne élevé",
+    "latin": "Fraxinus excelsior",
+    "family": "Oleaceae",
+    "form": "branch",
+    "facts": "Feuilles composées et bourgeons noirs caractéristiques."
+  },
+  {
+    "ecosystem": 12,
+    "name": "Orme champêtre",
+    "latin": "Ulmus minor",
+    "family": "Ulmaceae",
+    "form": "branch",
+    "facts": "Feuilles dentées à base asymétrique et fruits ailés arrondis."
+  },
+  {
+    "ecosystem": 12,
+    "name": "Charme commun",
+    "latin": "Carpinus betulus",
+    "family": "Betulaceae",
+    "form": "branch",
+    "facts": "Feuilles doublement dentées aux nervures bien marquées."
+  },
+  {
+    "ecosystem": 12,
+    "name": "Bouleau verruqueux",
+    "latin": "Betula pendula",
+    "family": "Betulaceae",
+    "form": "branch",
+    "facts": "Feuilles triangulaires dentées et chatons fins pendants."
+  },
+  {
+    "ecosystem": 12,
+    "name": "Tremble",
+    "latin": "Populus tremula",
+    "family": "Salicaceae",
+    "form": "branch",
+    "facts": "Feuilles arrondies portées par un pétiole aplati."
+  },
+  {
+    "ecosystem": 13,
+    "name": "Pin sylvestre",
+    "latin": "Pinus sylvestris",
+    "family": "Pinaceae",
+    "form": "conifer",
+    "facts": "Aiguilles réunies par deux et petits cônes ovoïdes."
+  },
+  {
+    "ecosystem": 13,
+    "name": "Pin maritime",
+    "latin": "Pinus pinaster",
+    "family": "Pinaceae",
+    "form": "conifer",
+    "facts": "Longues aiguilles par deux et grands cônes ligneux."
+  },
+  {
+    "ecosystem": 13,
+    "name": "Pin parasol",
+    "latin": "Pinus pinea",
+    "family": "Pinaceae",
+    "form": "conifer",
+    "facts": "Longues aiguilles par deux et cônes globuleux."
+  },
+  {
+    "ecosystem": 13,
+    "name": "Épicéa commun",
+    "latin": "Picea abies",
+    "family": "Pinaceae",
+    "form": "conifer",
+    "facts": "Aiguilles insérées tout autour du rameau et cônes pendants."
+  },
+  {
+    "ecosystem": 13,
+    "name": "Sapin pectiné",
+    "latin": "Abies alba",
+    "family": "Pinaceae",
+    "form": "conifer",
+    "facts": "Aiguilles plates à deux bandes claires dessous et cônes dressés."
+  },
+  {
+    "ecosystem": 13,
+    "name": "Mélèze d’Europe",
+    "latin": "Larix decidua",
+    "family": "Pinaceae",
+    "form": "conifer",
+    "facts": "Aiguilles souples en bouquets et petits cônes dressés."
+  },
+  {
+    "ecosystem": 13,
+    "name": "Genévrier commun",
+    "latin": "Juniperus communis",
+    "family": "Cupressaceae",
+    "form": "conifer",
+    "facts": "Aiguilles piquantes en verticilles de trois et cônes charnus bleutés."
+  },
+  {
+    "ecosystem": 13,
+    "name": "Fougère mâle",
+    "latin": "Dryopteris filix-mas",
+    "family": "Dryopteridaceae",
+    "form": "fern",
+    "facts": "Frondes dressées divisées, portant des sores arrondis au revers."
+  },
+  {
+    "ecosystem": 13,
+    "name": "Myrtille",
+    "latin": "Vaccinium myrtillus",
+    "family": "Ericaceae",
+    "form": "branch",
+    "facts": "Rameaux verts anguleux et petites fleurs en grelot rosées."
+  },
+  {
+    "ecosystem": 13,
+    "name": "Canche flexueuse",
+    "latin": "Avenella flexuosa",
+    "family": "Poaceae",
+    "form": "grass",
+    "facts": "Feuilles très fines et panicule aérienne à rameaux sinueux."
+  },
+  {
+    "ecosystem": 14,
+    "name": "Souci officinal",
+    "latin": "Calendula officinalis",
+    "family": "Asteraceae",
+    "form": "daisy",
+    "facts": "Capitules orange ou jaunes et feuilles allongées."
+  },
+  {
+    "ecosystem": 14,
+    "name": "Cosmos bipenné",
+    "latin": "Cosmos bipinnatus",
+    "family": "Asteraceae",
+    "form": "daisy",
+    "facts": "Feuillage finement divisé et grands capitules roses ou blancs."
+  },
+  {
+    "ecosystem": 14,
+    "name": "Grande capucine",
+    "latin": "Tropaeolum majus",
+    "family": "Tropaeolaceae",
+    "form": "nasturtium",
+    "facts": "Feuilles rondes peltées et fleurs orange ou jaunes à éperon."
+  },
+  {
+    "ecosystem": 14,
+    "name": "Pensée des jardins",
+    "latin": "Viola x wittrockiana",
+    "family": "Violaceae",
+    "form": "violet",
+    "facts": "Fleurs à cinq pétales, souvent marquées de taches centrales."
+  },
+  {
+    "ecosystem": 14,
+    "name": "Rose trémière",
+    "latin": "Alcea rosea",
+    "family": "Malvaceae",
+    "form": "mallow",
+    "facts": "Grande hampe portant de larges fleurs et feuilles arrondies lobées."
+  },
+  {
+    "ecosystem": 14,
+    "name": "Bourrache officinale",
+    "latin": "Borago officinalis",
+    "family": "Boraginaceae",
+    "form": "star",
+    "facts": "Fleurs bleues étoilées et feuillage couvert de poils raides."
+  },
+  {
+    "ecosystem": 14,
+    "name": "Zinnia élégant",
+    "latin": "Zinnia elegans",
+    "family": "Asteraceae",
+    "form": "daisy",
+    "facts": "Capitules colorés dressés et feuilles opposées entières."
+  },
+  {
+    "ecosystem": 14,
+    "name": "Œillet d’Inde",
+    "latin": "Tagetes patula",
+    "family": "Asteraceae",
+    "form": "marigold",
+    "facts": "Capitules orange ou jaunes et feuilles divisées dentées."
+  },
+  {
+    "ecosystem": 14,
+    "name": "Julienne des dames",
+    "latin": "Hesperis matronalis",
+    "family": "Brassicaceae",
+    "form": "crucifer",
+    "facts": "Grappes de fleurs mauves ou blanches à quatre pétales."
+  },
+  {
+    "ecosystem": 14,
+    "name": "Giroflée des murailles",
+    "latin": "Erysimum cheiri",
+    "family": "Brassicaceae",
+    "form": "crucifer",
+    "facts": "Fleurs jaunes à orangées et feuilles étroites."
+  },
+  {
+    "ecosystem": 15,
+    "name": "Pariétaire de Judée",
+    "latin": "Parietaria judaica",
+    "family": "Urticaceae",
+    "form": "spike",
+    "facts": "Petites feuilles ovales et fleurs verdâtres à l’aisselle des feuilles."
+  },
+  {
+    "ecosystem": 15,
+    "name": "Cymbalaire des murs",
+    "latin": "Cymbalaria muralis",
+    "family": "Plantaginaceae",
+    "form": "vine",
+    "facts": "Petites feuilles lobées et fleurs lilas à gorge jaune."
+  },
+  {
+    "ecosystem": 15,
+    "name": "Capillaire des murailles",
+    "latin": "Asplenium trichomanes",
+    "family": "Aspleniaceae",
+    "form": "fern",
+    "facts": "Frondes étroites à petites divisions arrondies sur un axe sombre."
+  },
+  {
+    "ecosystem": 15,
+    "name": "Rue des murailles",
+    "latin": "Asplenium ruta-muraria",
+    "family": "Aspleniaceae",
+    "form": "fern",
+    "facts": "Petites frondes divisées en segments en coin."
+  },
+  {
+    "ecosystem": 15,
+    "name": "Orpin âcre",
+    "latin": "Sedum acre",
+    "family": "Crassulaceae",
+    "form": "succulent",
+    "facts": "Petites feuilles charnues serrées et fleurs jaunes étoilées."
+  },
+  {
+    "ecosystem": 15,
+    "name": "Orpin blanc",
+    "latin": "Sedum album",
+    "family": "Crassulaceae",
+    "form": "succulent",
+    "facts": "Feuilles charnues cylindriques et petites étoiles blanches."
+  },
+  {
+    "ecosystem": 15,
+    "name": "Joubarbe des toits",
+    "latin": "Sempervivum tectorum",
+    "family": "Crassulaceae",
+    "form": "succulent",
+    "facts": "Rosettes de feuilles charnues pointues et hampes à fleurs roses."
+  },
+  {
+    "ecosystem": 15,
+    "name": "Nombril-de-Vénus",
+    "latin": "Umbilicus rupestris",
+    "family": "Crassulaceae",
+    "form": "succulent",
+    "facts": "Feuilles arrondies déprimées au centre et fleurs pendantes en épi."
+  },
+  {
+    "ecosystem": 15,
+    "name": "Laiteron maraîcher",
+    "latin": "Sonchus oleraceus",
+    "family": "Asteraceae",
+    "form": "lettuce",
+    "facts": "Feuilles lobées et petits capitules jaunes."
+  },
+  {
+    "ecosystem": 15,
+    "name": "Scolopendre",
+    "latin": "Asplenium scolopendrium",
+    "family": "Aspleniaceae",
+    "form": "fern",
+    "facts": "Frondes entières allongées à base en cœur."
+  },
+  {
+    "ecosystem": 16,
+    "name": "Matricaire camomille",
+    "latin": "Matricaria chamomilla",
+    "family": "Asteraceae",
+    "form": "daisy",
+    "facts": "Petits capitules blancs à cœur jaune bombé et feuilles finement divisées."
+  },
+  {
+    "ecosystem": 16,
+    "name": "Pensée des champs",
+    "latin": "Viola arvensis",
+    "family": "Violaceae",
+    "form": "violet",
+    "facts": "Petites fleurs crème et jaunes, parfois légèrement violacées."
+  },
+  {
+    "ecosystem": 16,
+    "name": "Moutarde des champs",
+    "latin": "Sinapis arvensis",
+    "family": "Brassicaceae",
+    "form": "crucifer",
+    "facts": "Fleurs jaunes à quatre pétales et longues siliques."
+  },
+  {
+    "ecosystem": 16,
+    "name": "Mouron des champs",
+    "latin": "Lysimachia arvensis",
+    "family": "Primulaceae",
+    "form": "star",
+    "facts": "Petites fleurs rouges ou bleues à cinq pétales et feuilles opposées."
+  },
+  {
+    "ecosystem": 16,
+    "name": "Capselle bourse-à-pasteur",
+    "latin": "Capsella bursa-pastoris",
+    "family": "Brassicaceae",
+    "form": "crucifer",
+    "facts": "Petites fleurs blanches et fruits plats en forme de cœur."
+  },
+  {
+    "ecosystem": 16,
+    "name": "Vesce commune",
+    "latin": "Vicia sativa",
+    "family": "Fabaceae",
+    "form": "pea",
+    "facts": "Fleurs pourpres et feuilles composées terminées par une vrille."
+  },
+  {
+    "ecosystem": 16,
+    "name": "Coquelourde des jardins",
+    "latin": "Silene coronaria",
+    "family": "Caryophyllaceae",
+    "form": "campion",
+    "facts": "Feuillage gris argenté et fleurs rose pourpré à cinq pétales."
+  },
+  {
+    "ecosystem": 16,
+    "name": "Blé tendre",
+    "latin": "Triticum aestivum",
+    "family": "Poaceae",
+    "form": "grass",
+    "facts": "Épi dressé formé d’épillets disposés de part et d’autre de l’axe."
+  },
+  {
+    "ecosystem": 16,
+    "name": "Avoine cultivée",
+    "latin": "Avena sativa",
+    "family": "Poaceae",
+    "form": "grass",
+    "facts": "Panicule ouverte portant des épillets pendants."
+  },
+  {
+    "ecosystem": 16,
+    "name": "Seigle cultivé",
+    "latin": "Secale cereale",
+    "family": "Poaceae",
+    "form": "grass",
+    "facts": "Épis fins allongés et longues arêtes."
+  },
+  {
+    "ecosystem": 17,
+    "name": "Lotier corniculé",
+    "latin": "Lotus corniculatus",
+    "family": "Fabaceae",
+    "form": "pea",
+    "facts": "Petites fleurs jaunes groupées et feuilles à cinq folioles apparentes."
+  },
+  {
+    "ecosystem": 17,
+    "name": "Carotte sauvage",
+    "latin": "Daucus carota",
+    "family": "Apiaceae",
+    "form": "umbel",
+    "facts": "Feuilles découpées et ombelles blanches se refermant en nid après floraison."
+  },
+  {
+    "ecosystem": 17,
+    "name": "Plantain lancéolé",
+    "latin": "Plantago lanceolata",
+    "family": "Plantaginaceae",
+    "form": "spike",
+    "facts": "Feuilles étroites nervurées et épis bruns entourés d’étamines claires."
+  },
+  {
+    "ecosystem": 17,
+    "name": "Sauge des prés",
+    "latin": "Salvia pratensis",
+    "family": "Lamiaceae",
+    "form": "sage",
+    "facts": "Grappes de fleurs bleu violet à lèvre supérieure arquée."
+  },
+  {
+    "ecosystem": 17,
+    "name": "Scabieuse colombaire",
+    "latin": "Scabiosa columbaria",
+    "family": "Caprifoliaceae",
+    "form": "daisy",
+    "facts": "Têtes florales mauves et feuilles de la tige très découpées."
+  },
+  {
+    "ecosystem": 17,
+    "name": "Petite pimprenelle",
+    "latin": "Sanguisorba minor",
+    "family": "Rosaceae",
+    "form": "clover",
+    "facts": "Feuilles composées dentées et petites têtes florales verdâtres."
+  },
+  {
+    "ecosystem": 17,
+    "name": "Centaurée jacée",
+    "latin": "Centaurea jacea",
+    "family": "Asteraceae",
+    "form": "cornflower",
+    "facts": "Capitules pourpres et bractées à appendices bruns."
+  },
+  {
+    "ecosystem": 17,
+    "name": "Gaillet jaune",
+    "latin": "Galium verum",
+    "family": "Rubiaceae",
+    "form": "spike",
+    "facts": "Feuilles étroites en verticilles et nombreuses petites fleurs jaunes."
+  },
+  {
+    "ecosystem": 17,
+    "name": "Knautie des champs",
+    "latin": "Knautia arvensis",
+    "family": "Caprifoliaceae",
+    "form": "daisy",
+    "facts": "Têtes florales mauves sur de longues tiges velues."
+  },
+  {
+    "ecosystem": 17,
+    "name": "Dactyle aggloméré",
+    "latin": "Dactylis glomerata",
+    "family": "Poaceae",
+    "form": "grass",
+    "facts": "Panicule portant des groupes d’épillets serrés."
+  },
+  {
+    "ecosystem": 18,
+    "name": "Grande bardane",
+    "latin": "Arctium lappa",
+    "family": "Asteraceae",
+    "form": "thistle",
+    "facts": "Grandes feuilles et capitules pourpres entourés de bractées crochues."
+  },
+  {
+    "ecosystem": 18,
+    "name": "Mauve sylvestre",
+    "latin": "Malva sylvestris",
+    "family": "Malvaceae",
+    "form": "mallow",
+    "facts": "Fleurs roses veinées de pourpre et feuilles arrondies lobées."
+  },
+  {
+    "ecosystem": 18,
+    "name": "Molène bouillon-blanc",
+    "latin": "Verbascum thapsus",
+    "family": "Scrophulariaceae",
+    "form": "spike",
+    "facts": "Feuilles couvertes de feutre et grand épi de fleurs jaunes."
+  },
+  {
+    "ecosystem": 18,
+    "name": "Chicorée sauvage",
+    "latin": "Cichorium intybus",
+    "family": "Asteraceae",
+    "form": "daisy",
+    "facts": "Capitules bleus sur des tiges ramifiées rigides."
+  },
+  {
+    "ecosystem": 18,
+    "name": "Mélilot blanc",
+    "latin": "Melilotus albus",
+    "family": "Fabaceae",
+    "form": "spike",
+    "facts": "Longues grappes de petites fleurs blanches et feuilles trifoliées."
+  },
+  {
+    "ecosystem": 18,
+    "name": "Armoise commune",
+    "latin": "Artemisia vulgaris",
+    "family": "Asteraceae",
+    "form": "spike",
+    "facts": "Feuilles découpées au revers blanchâtre et petits capitules brunâtres."
+  },
+  {
+    "ecosystem": 18,
+    "name": "Réséda jaune",
+    "latin": "Reseda lutea",
+    "family": "Resedaceae",
+    "form": "spike",
+    "facts": "Grappes de petites fleurs jaune vert et feuilles découpées."
+  },
+  {
+    "ecosystem": 18,
+    "name": "Linaire commune",
+    "latin": "Linaria vulgaris",
+    "family": "Plantaginaceae",
+    "form": "spike",
+    "facts": "Fleurs jaunes à gorge orangée et long éperon."
+  },
+  {
+    "ecosystem": 18,
+    "name": "Grande chélidoine",
+    "latin": "Chelidonium majus",
+    "family": "Papaveraceae",
+    "form": "poppy",
+    "facts": "Fleurs jaunes à quatre pétales et feuilles profondément lobées."
+  },
+  {
+    "ecosystem": 18,
+    "name": "Séneçon commun",
+    "latin": "Senecio vulgaris",
+    "family": "Asteraceae",
+    "form": "spike",
+    "facts": "Petits capitules jaunes généralement dépourvus de ligules."
+  },
+  {
+    "ecosystem": 19,
+    "name": "Lierre terrestre",
+    "latin": "Glechoma hederacea",
+    "family": "Lamiaceae",
+    "form": "mint",
+    "facts": "Tiges rampantes, feuilles arrondies crénelées et fleurs violettes."
+  },
+  {
+    "ecosystem": 19,
+    "name": "Épiaire des bois",
+    "latin": "Stachys sylvatica",
+    "family": "Lamiaceae",
+    "form": "sage",
+    "facts": "Feuilles opposées en cœur et petites fleurs pourpres."
+  },
+  {
+    "ecosystem": 19,
+    "name": "Ficaire",
+    "latin": "Ficaria verna",
+    "family": "Ranunculaceae",
+    "form": "buttercup",
+    "facts": "Feuilles luisantes en cœur et fleurs jaunes à nombreux pétales."
+  },
+  {
+    "ecosystem": 19,
+    "name": "Oxalis petite-oseille",
+    "latin": "Oxalis acetosella",
+    "family": "Oxalidaceae",
+    "form": "clover",
+    "facts": "Trois folioles en cœur et fleurs blanches veinées de rose."
+  },
+  {
+    "ecosystem": 19,
+    "name": "Bugle rampant",
+    "latin": "Ajuga reptans",
+    "family": "Lamiaceae",
+    "form": "spike",
+    "facts": "Épis de fleurs bleues et stolons rampants."
+  },
+  {
+    "ecosystem": 19,
+    "name": "Benoîte urbaine",
+    "latin": "Geum urbanum",
+    "family": "Rosaceae",
+    "form": "buttercup",
+    "facts": "Petites fleurs jaunes à cinq pétales et fruits à crochets."
+  },
+  {
+    "ecosystem": 19,
+    "name": "Ail des ours",
+    "latin": "Allium ursinum",
+    "family": "Amaryllidaceae",
+    "form": "allium",
+    "facts": "Feuilles larges et ombelles de petites fleurs blanches étoilées."
+  },
+  {
+    "ecosystem": 19,
+    "name": "Lamier blanc",
+    "latin": "Lamium album",
+    "family": "Lamiaceae",
+    "form": "sage",
+    "facts": "Feuilles opposées dentées et fleurs blanches à deux lèvres."
+  },
+  {
+    "ecosystem": 19,
+    "name": "Stellaire holostée",
+    "latin": "Stellaria holostea",
+    "family": "Caryophyllaceae",
+    "form": "campion",
+    "facts": "Fleurs blanches à pétales fendus et feuilles étroites opposées."
+  },
+  {
+    "ecosystem": 19,
+    "name": "Mercuriale vivace",
+    "latin": "Mercurialis perennis",
+    "family": "Euphorbiaceae",
+    "form": "spike",
+    "facts": "Feuilles opposées dentées et petites fleurs verdâtres discrètes."
+  }
+]
