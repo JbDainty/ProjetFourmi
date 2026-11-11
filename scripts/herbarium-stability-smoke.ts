@@ -64,7 +64,7 @@ async function main() {
       const books = await page.locator('[data-testid^="herbarium-book-"]').all();
       for (const book of books) {
         const bounds = (await book.boundingBox())!;
-        expect(bounds.height).toBeLessThan(300);
+        expect(bounds.height).toBeLessThanOrEqual(390);
         expect(bounds.x).toBeGreaterThanOrEqual(0);
         expect(bounds.x + bounds.width).toBeLessThanOrEqual(width + 1);
       }

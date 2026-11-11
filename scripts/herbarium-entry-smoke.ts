@@ -97,14 +97,16 @@ async function main() {
         await expect(plate.getByText('Touchez pour réduire la planche')).toBeVisible();
         await page.keyboard.press('Escape');
         await expect(plate).toHaveCount(0);
+        await expect(page).not.toHaveURL(/[?&]plant=/);
         await expect(page.getByTestId('herbarium-collection-title')).toBeVisible();
-        await expect(page.getByRole('button', { name: /^Observer (?!ma planche)/ })).toHaveCount(
-          20,
-        );
-        await page.getByRole('button', { name: 'Observer Coquelicot', exact: true }).click();
+        await expect(page.getByRole('button', { name: /^Ouvrir le carnet / })).toHaveCount(4);
+        await page
+          .getByRole('button', { name: 'Ouvrir le carnet Les prairies fleuries', exact: true })
+          .click();
+        await expect(page.getByTestId('ecosystem-album')).toBeVisible();
         await expect(page.getByTestId('herbarium-plate')).toBeVisible();
         await page.getByRole('button', { name: 'Fermer la planche', exact: true }).click();
-        await expect(page.getByTestId('herbarium-plate')).toHaveCount(0);
+        await expect(page.getByTestId('ecosystem-album')).toHaveCount(0);
         await page.getByRole('button', { name: 'Menu principal', exact: true }).click();
         await expect(page.getByTestId('home-screen')).toBeVisible();
         await page.goto(plateUrl);
@@ -119,7 +121,7 @@ async function main() {
       }
     }
     console.log(
-      'Herbarium entry passed: direct plate links draw only the selected plate from the first destination frame, no collection mounted underneath, zoom, close/Escape, normal collection dialog, repeated return, five restoration/progress cases, phone/tablet and 4× CPU throttling.',
+      'Herbarium entry passed: direct links draw only the requested plate from the first destination frame, zoom, close/Escape, bounded four-book library and album return, repeated entry, five restoration/progress cases, phone/tablet and 4× CPU throttling.',
     );
   } finally {
     await browser.close();

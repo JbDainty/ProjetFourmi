@@ -1,20 +1,29 @@
-import { BookScrollView } from '../src/components/BookScrollView';
-import { HerbariumShelf } from '../src/components/HerbariumShelf';
-import { F } from '../src/components/fonts';
-import { Paper } from '../src/components/Paper';
-import React, { useCallback, useState } from 'react';
-import { View, useWindowDimensions } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import React, { useCallback, useContext, useState } from 'react';
+import { Pressable, View, useWindowDimensions } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 import { species } from '../src/data/botany';
 import { useGame } from '../src/state/store';
 import { restoration } from '../src/state/model';
 import { HerbariumPlate } from '../src/components/HerbariumPlate';
-import { BotanicalSeal } from '../src/components/BotanicalSeal';
-import { T, Label, Button, C, ui } from '../src/components/ui';
+import { HerbariumShelf } from '../src/components/HerbariumShelf';
+import { HerbariumPigments } from '../src/components/HerbariumPigments';
+import { HerbariumBookButton } from '../src/components/HerbariumBookButton';
+import { SeedPouch } from '../src/components/SeedPouch';
+import { BookChromeContext } from '../src/components/BookScrollView';
+import { useMeasuredSize } from '../src/components/useMeasuredSize';
+import { herbariumLayout } from '../src/layout/herbarium';
+import { F } from '../src/components/fonts';
+import { T, C, Icon } from '../src/components/ui';
+
 export default function Herbier() {
   const { save } = useGame(),
     params = useLocalSearchParams<{ plant?: string }>(),
-    { width } = useWindowDimensions();
+    window = useWindowDimensions();
+  const chrome = useContext(BookChromeContext),
+    measured = useMeasuredSize();
+  const width = measured.size.width || chrome.availableWidth || window.width;
+  const height = measured.size.height || chrome.availableHeight || window.height;
+  const layout = herbariumLayout(width, height, window.fontScale);
   const linkedPlant = Number(params.plant);
   const initialPlant =
     params.plant !== undefined &&
@@ -23,16 +32,19 @@ export default function Herbier() {
     linkedPlant < species.length
       ? linkedPlant
       : null;
-  const [selected, select] = useState<number | null>(initialPlant);
-  const [direct, setDirect] = useState(initialPlant !== null);
-  const [pigments, setPigments] = useState(false);
-  const [zoom, setZoom] = useState(false);
-  const [pigmentPage, setPigmentPage] = useState(0);
+  const [selected, select] = useState<number | null>(initialPlant),
+    [direct, setDirect] = useState(initialPlant !== null);
+  const [pigments, setPigments] = useState(false),
+    [zoom, setZoom] = useState(false),
+    [pigmentStart, setPigmentStart] = useState(0),
+    [opening, setOpening] = useState(false);
   const closePlate = useCallback(() => {
+    // A closed deep link must return to the library after an album visit too.
+    router.setParams({ plant: undefined });
     select(null);
     setDirect(false);
   }, []);
-  if (direct && selected !== null) {
+  if (direct && selected !== null)
     return (
       <HerbariumPlate
         selected={selected}
@@ -44,90 +56,147 @@ export default function Herbier() {
         direct
       />
     );
-  }
   const complete = species.filter((_, i) => restoration(save, i) === 5).length;
   return (
-    <BookScrollView contentContainerStyle={ui.page}>
-      <Label>LA COLLECTION BOTANIQUE</Label>
-      <T testID="herbarium-collection-title" serif style={ui.title}>
-        Le Grand Herbier
-      </T>
-      <T style={ui.muted}>Deux cents rencontres, réunies en carnets. Une couleur après l’autre.</T>
+    <View
+      ref={measured.ref}
+      collapsable={false}
+      onLayout={measured.onLayout}
+      testID="herbarium-library-screen"
+      style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}
+    >
       <View
-        style={[ui.row, { marginVertical: 25, justifyContent: 'space-between', flexWrap: 'wrap' }]}
+        style={{
+          flex: 1,
+          minHeight: 0,
+          width: '100%',
+          maxWidth: 1160,
+          alignSelf: 'center',
+          padding: layout.padding,
+        }}
       >
-        <View style={[ui.row, { flexWrap: 'wrap' }]}>
-          <Button icon="book-outline" secondary={pigments} onPress={() => setPigments(false)}>
-            Les planches
-          </Button>
-          <Button icon="water-outline" secondary={!pigments} onPress={() => setPigments(true)}>
-            Pigments et sceaux
-          </Button>
-        </View>
-        <Label>{complete} / 200 PLANCHES ESTAMPILLÉES</Label>
-      </View>
-      {pigments ? (
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 14 }}>
-          {save.pigments.length === 0 ? (
-            <T style={ui.muted}>Votre premier pigment vous attend à l’atelier.</T>
-          ) : (
-            save.pigments.slice(pigmentPage * 8, pigmentPage * 8 + 8).map((p) => (
-              <Paper
-                key={p.id}
-                frame={false}
-                style={[
-                  ui.card,
-                  { width: width < 600 ? '100%' : 230, borderWidth: 0.7, borderColor: C.line },
-                ]}
+        <View
+          testID="game-hud"
+          style={{ height: layout.hudHeight, flexDirection: 'row', alignItems: 'center', gap: 6 }}
+        >
+          <HerbariumBookButton
+            compact
+            motion={save.settings.motion && !opening}
+            onHome={() => router.dismissTo('/')}
+          />
+          <View style={{ flex: 1, minWidth: 0, alignItems: 'center' }}>
+            <T
+              testID="herbarium-collection-title"
+              accessibilityRole="header"
+              serif
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.75}
+              maxFontSizeMultiplier={1.2}
+              style={{
+                fontSize: layout.short ? 23 : 31,
+                lineHeight: layout.short ? 29 : 37,
+                color: C.green,
+                textAlign: 'center',
+              }}
+            >
+              Le Grand Herbier
+            </T>
+            {!layout.short && (
+              <T
+                numberOfLines={1}
+                maxFontSizeMultiplier={1.1}
+                style={{ fontFamily: F.scientific, fontSize: 12, lineHeight: 16, color: C.muted }}
               >
-                {p.id % 5 === 0 ? (
-                  <View style={{ height: 75, alignItems: 'center' }}>
-                    <BotanicalSeal size={74} />
-                  </View>
-                ) : (
-                  <View
-                    style={{
-                      height: 75,
-                      backgroundColor: p.shade,
-                      borderRadius: 14,
-                      marginBottom: 16,
-                    }}
-                  />
-                )}
-                <T serif style={{ fontSize: 24 }}>
-                  {p.id % 5 === 0 ? 'Sceau du botaniste' : p.name}
-                </T>
-                <T style={{ fontSize: 12, color: C.muted }}>{species[p.species].name}</T>
-                <T style={{ fontFamily: F.scientific, fontSize: 16 }}>{species[p.species].latin}</T>
-                <T style={{ fontSize: 10, marginTop: 10, color: C.muted }}>
-                  {p.id % 5 === 0 ? 'Apposé' : 'Découvert'} le{' '}
-                  {new Date(p.discovered).toLocaleDateString('fr-FR')}
-                </T>
-              </Paper>
-            ))
-          )}
+                Vingt carnets, deux cents rencontres.
+              </T>
+            )}
+          </View>
+          <SeedPouch compact count={save.seeds} motion={save.settings.motion && !opening} />
         </View>
-      ) : (
-        <HerbariumShelf save={save} />
-      )}
-      {pigments && save.pigments.length > 8 && (
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
-          <Button
-            secondary
-            disabled={pigmentPage === 0}
-            onPress={() => setPigmentPage((p) => p - 1)}
-          >
-            Précédents
-          </Button>
-          <Button
-            secondary
-            disabled={(pigmentPage + 1) * 8 >= save.pigments.length}
-            onPress={() => setPigmentPage((p) => p + 1)}
-          >
-            Suivants
-          </Button>
+        <View style={{ height: layout.tabHeight, flexDirection: 'row', gap: 8 }}>
+          {[
+            {
+              name: 'Les planches',
+              icon: 'book-outline' as const,
+              active: !pigments,
+              value: false,
+            },
+            {
+              name: 'Pigments et sceaux',
+              icon: 'water-outline' as const,
+              active: pigments,
+              value: true,
+            },
+          ].map((tab) => (
+            <Pressable
+              key={tab.name}
+              accessibilityRole="button"
+              accessibilityLabel={tab.name}
+              accessibilityState={{ selected: tab.active }}
+              onPress={() => setPigments(tab.value)}
+              style={({ pressed }) => ({
+                flex: 1,
+                minWidth: 0,
+                minHeight: 44,
+                borderRadius: 15,
+                borderWidth: 0.8,
+                borderColor: tab.active ? '#8f8151' : '#c5b58d',
+                backgroundColor: tab.active ? '#365c49' : '#efe4c777',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'row',
+                gap: 6,
+                paddingHorizontal: 8,
+                opacity: pressed ? 0.8 : 1,
+              })}
+            >
+              <Icon
+                name={tab.icon}
+                size={width < 360 ? 16 : 19}
+                color={tab.active ? '#eee1b8' : '#607353'}
+              />
+              <T
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.82}
+                maxFontSizeMultiplier={1.2}
+                style={{
+                  fontFamily: F.scientific,
+                  fontSize: width < 360 ? 13 : 16,
+                  lineHeight: 20,
+                  color: tab.active ? '#fff1cd' : C.green,
+                }}
+              >
+                {tab.name}
+              </T>
+            </Pressable>
+          ))}
         </View>
-      )}
-    </BookScrollView>
+        <View
+          style={{ height: layout.summaryHeight, alignItems: 'center', justifyContent: 'center' }}
+        >
+          <T
+            testID="herbarium-collection-progress"
+            numberOfLines={1}
+            maxFontSizeMultiplier={1.15}
+            style={{ fontSize: 10, lineHeight: 14, letterSpacing: 1, color: C.muted }}
+          >
+            {complete} / 200 PLANCHES ESTAMPILLÉES
+          </T>
+        </View>
+        <View style={{ height: 12 }} />
+        {pigments ? (
+          <HerbariumPigments
+            save={save}
+            layout={layout}
+            anchor={pigmentStart}
+            onPage={setPigmentStart}
+          />
+        ) : (
+          <HerbariumShelf save={save} layout={layout} onBusyChange={setOpening} />
+        )}
+      </View>
+    </View>
   );
 }

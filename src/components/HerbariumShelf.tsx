@@ -1,198 +1,220 @@
-import React, { memo, useState } from 'react';
-import { Pressable, View, useWindowDimensions } from 'react-native';
-import Svg, { Circle, G, Path } from 'react-native-svg';
-import { router, useLocalSearchParams, type Href } from 'expo-router';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Animated, AppState, Easing, Platform, Pressable, View } from 'react-native';
+import { router, useLocalSearchParams, useFocusEffect, type Href } from 'expo-router';
 import { chapters } from '../data/botany';
 import { plantsForEcosystem } from '../data/ecology';
 import { restoration, type Save } from '../state/model';
+import type { HerbariumLayout } from '../layout/herbarium';
 import { F } from './fonts';
 import { Button, C, T } from './ui';
+import { AntiqueHerbarium, OpeningHerbarium } from './AntiqueHerbarium';
+import { useAmbientMotion } from './usePrimaryAnimation';
+import { preparePageArtwork } from '../services/pageArtwork';
 
-const BOOKS_PER_SHELF = 4;
-/** Small engraved cover, with no measured SVG frame, texture or decoded plant image. */
-const BookEngraving = memo(function BookEngraving() {
-  return (
-    <Svg width={52} height={48} viewBox="0 0 70 64" accessible={false}>
-      <G fill="none" stroke="#e6d29a" strokeLinecap="round" strokeLinejoin="round">
-        <Path
-          d="M35 57Q40 31 32 10M36 44Q15 42 18 26Q37 29 36 44M36 34Q56 32 52 18Q36 21 36 34M32 19Q20 12 29 5Q39 10 32 19"
-          strokeWidth="1.3"
-        />
-        <Path
-          d="M20 55Q11 42 14 30M48 55Q58 44 58 32M24 53Q35 49 46 53"
-          strokeWidth=".65"
-          opacity=".65"
-        />
-        <Circle cx="35" cy="59" r="1.5" fill="#e6d29a" />
-      </G>
-    </Svg>
+/** One shared native clock lights one binding at a time; no SVG frame updates. */
+function useBindingLight(enabled: boolean) {
+  const active = useAmbientMotion(enabled),
+    value = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    let run: Animated.CompositeAnimation | undefined;
+    const sync = (foreground: boolean) => {
+      run?.stop();
+      value.setValue(0);
+      if (!active || !foreground) return;
+      run = Animated.loop(
+        Animated.timing(value, {
+          toValue: 1,
+          duration: 14000,
+          easing: Easing.linear,
+          useNativeDriver: Platform.OS !== 'web',
+          isInteraction: false,
+        }),
+      );
+      run.start();
+    };
+    sync(AppState.currentState !== 'background' && AppState.currentState !== 'inactive');
+    const listener = AppState.addEventListener('change', (state) => sync(state === 'active'));
+    return () => {
+      listener.remove();
+      run?.stop();
+      value.stopAnimation();
+    };
+  }, [active, value]);
+  return value;
+}
+export function HerbariumShelf({
+  save,
+  layout,
+  onBusyChange,
+}: {
+  save: Save;
+  layout: HerbariumLayout;
+  onBusyChange: (busy: boolean) => void;
+}) {
+  const params = useLocalSearchParams<{ shelf?: string; volume?: string }>();
+  const remembered =
+    params.volume !== undefined ? Number(params.volume) : Number(params.shelf ?? 0) * 4;
+  const [anchor, setAnchor] = useState(
+    Number.isInteger(remembered) && remembered >= 0 && remembered < chapters.length
+      ? remembered
+      : 0,
   );
-});
-
-export function HerbariumShelf({ save }: { save: Save }) {
-  const params = useLocalSearchParams<{ shelf?: string }>();
-  const remembered = Number(params.shelf);
-  const [shelf, setShelf] = useState(
-    Number.isInteger(remembered) && remembered >= 0 && remembered < 5 ? remembered : 0,
+  const [opening, setOpening] = useState<number | null>(null),
+    [focused, setFocused] = useState(true);
+  const activated = useRef(false),
+    alive = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      alive.current = true;
+      activated.current = false;
+      setOpening(null);
+      setFocused(true);
+      onBusyChange(false);
+      return () => {
+        alive.current = false;
+        setFocused(false);
+      };
+    }, [onBusyChange]),
   );
-  const { width, fontScale } = useWindowDimensions();
-  const count = Math.ceil(chapters.length / BOOKS_PER_SHELF);
-  const first = shelf * BOOKS_PER_SHELF;
+  useEffect(() => () => onBusyChange(false), [onBusyChange]);
+  const previousPageSize = useRef(layout.booksPerPage);
+  useEffect(() => {
+    if (previousPageSize.current === layout.booksPerPage) return;
+    previousPageSize.current = layout.booksPerPage;
+    // A resize can move the chosen volume onto another page. Cancel its old
+    // pose rather than leaving an invisible opening locked in progress.
+    activated.current = false;
+    setOpening(null);
+    onBusyChange(false);
+  }, [layout.booksPerPage, onBusyChange]);
+  const light = useBindingLight(save.settings.motion && focused && opening === null);
+  const perPage = layout.booksPerPage,
+    first = Math.floor(anchor / perPage) * perPage;
+  const page = first / perPage,
+    count = Math.ceil(chapters.length / perPage);
   const turnShelf = (next: number) => {
-    setShelf(next);
-    router.setParams({ shelf: String(next) });
+    if (activated.current) return;
+    const start = Math.max(0, Math.min(chapters.length - 1, next));
+    setAnchor(start);
+    router.setParams({ shelf: String(Math.floor(start / 4)), volume: String(start) });
   };
-  const coverHeight =
-    Math.max(182, Math.min(232, (width - 70) * 0.57)) +
-    Math.max(0, Math.min(fontScale, 1.8) - 1) * 70;
+  const enter = (index: number) => {
+    if (!alive.current || !activated.current) return;
+    router.push(`/carnet?ecosystem=${index}` as Href);
+  };
+  const open = (index: number) => {
+    if (activated.current || !alive.current) return;
+    activated.current = true;
+    const plant = plantsForEcosystem(index)[0];
+    preparePageArtwork(plant, restoration(save, plant));
+    if (!save.settings.motion) {
+      enter(index);
+      return;
+    }
+    onBusyChange(true);
+    setOpening(index);
+  };
   return (
-    <View testID="herbarium-shelf" style={{ width: '100%', maxWidth: 740, alignSelf: 'center' }}>
-      <T
-        style={{ color: C.muted, marginBottom: 14, fontFamily: F.scientific, textAlign: 'center' }}
-      >
-        Choisissez un livre, puis feuilletez ses dix planches.
-      </T>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 14 }}>
-        {chapters.slice(first, first + BOOKS_PER_SHELF).map((eco, offset) => {
-          const index = first + offset;
-          const plants = plantsForEcosystem(index);
-          const done = plants.filter((p) => restoration(save, p) === 5).length;
-          return (
-            <Pressable
-              key={index}
-              testID={`herbarium-book-${index}`}
-              accessibilityRole="button"
-              accessibilityLabel={`Ouvrir le carnet ${eco.name}`}
-              accessibilityHint={`${done} planches estampillées sur ${plants.length}`}
-              onPress={() => router.push(`/carnet?ecosystem=${index}` as Href)}
-              style={({ pressed }) => ({
-                width: '47%',
-                flexGrow: 1,
-                flexBasis: '45%',
-                height: coverHeight,
-                backgroundColor:
-                  '#' +
-                  eco.color
-                    .slice(1)
-                    .match(/../g)!
-                    .map((v) =>
-                      Math.round(parseInt(v, 16) * 0.67)
-                        .toString(16)
-                        .padStart(2, '0'),
-                    )
-                    .join(''),
-                borderColor: '#a98e58',
-                borderWidth: 1,
-                borderRadius: 9,
-                borderTopLeftRadius: 4,
-                borderBottomLeftRadius: 4,
-                padding: 13,
-                paddingLeft: 21,
-                opacity: pressed ? 0.8 : 1,
-                overflow: 'hidden',
-              })}
-            >
-              <View
-                pointerEvents="none"
-                style={{
-                  position: 'absolute',
-                  left: 5,
-                  top: 0,
-                  bottom: 0,
-                  width: 5,
-                  backgroundColor: '#263d3333',
-                  borderRightWidth: 1,
-                  borderRightColor: '#e2cb8d66',
-                }}
+    <View
+      testID="herbarium-shelf"
+      style={{ flex: 1, minHeight: 0, width: '100%', alignItems: 'center' }}
+    >
+      <View style={{ flex: 1, minHeight: 0, justifyContent: 'center', alignItems: 'center' }}>
+        <View
+          testID="herbarium-volume-grid"
+          style={{
+            width: layout.gridWidth,
+            height: layout.gridHeight,
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: layout.gap,
+          }}
+        >
+          {chapters.slice(first, first + perPage).map((eco, offset) => {
+            const index = first + offset,
+              plants = plantsForEcosystem(index),
+              done = plants.filter((p) => restoration(save, p) === 5).length;
+            const art = (
+              <AntiqueHerbarium
+                index={index}
+                title={eco.name}
+                color={eco.color}
+                done={done}
+                total={plants.length}
+                width={layout.bookWidth}
+                height={layout.bookHeight}
+                glimmer={light}
               />
-              <View
-                pointerEvents="none"
-                style={{
-                  position: 'absolute',
-                  left: 14,
-                  right: 7,
-                  top: 7,
-                  bottom: 7,
-                  borderWidth: 0.7,
-                  borderRadius: 8,
-                  borderColor: '#efe1af8c',
-                }}
-              />
-              <T
-                maxFontSizeMultiplier={1.3}
-                style={{
-                  fontSize: 9,
-                  lineHeight: 14,
-                  color: '#fff3cf',
-                  letterSpacing: 1.5,
-                  textAlign: 'center',
-                }}
+            );
+            return (
+              <Pressable
+                key={index}
+                testID={`herbarium-book-${index}`}
+                accessibilityRole="button"
+                accessibilityLabel={`Ouvrir le carnet ${eco.name}`}
+                accessibilityHint={`${done} planches estampillées sur ${plants.length}`}
+                accessibilityState={{ busy: opening === index, disabled: opening !== null }}
+                disabled={opening !== null}
+                onPress={() => open(index)}
+                style={({ pressed }) => ({
+                  width: layout.bookWidth,
+                  height: layout.bookHeight,
+                  opacity: pressed ? 0.86 : 1,
+                })}
               >
-                CARNET {String(index + 1).padStart(2, '0')}
-              </T>
-              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 3 }}>
-                <BookEngraving />
-                <T
-                  serif
-                  maxFontSizeMultiplier={1.3}
-                  style={{
-                    fontSize: width < 360 ? 19 : 22,
-                    lineHeight: width < 360 ? 22 : 25,
-                    textAlign: 'center',
-                    color: '#fff5d8',
-                  }}
-                >
-                  {eco.name}
-                </T>
-              </View>
-              <T
-                maxFontSizeMultiplier={1.3}
-                style={{
-                  fontFamily: F.scientific,
-                  fontSize: 12,
-                  lineHeight: 17,
-                  color: '#fff3cf',
-                  textAlign: 'center',
-                  marginTop: 6,
-                }}
-              >
-                {done} / {plants.length} estampillées
-              </T>
-            </Pressable>
-          );
-        })}
+                {opening === index ? (
+                  <OpeningHerbarium onDone={() => enter(index)}>{art}</OpeningHerbarium>
+                ) : (
+                  art
+                )}
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
       <View
         style={{
+          width: '100%',
+          maxWidth: 500,
+          height: layout.pagerHeight,
+          marginTop: layout.gap,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: 8,
-          marginTop: 18,
         }}
       >
         <Button
           secondary
           icon="arrow-undo-outline"
-          disabled={shelf === 0}
-          onPress={() => turnShelf(shelf - 1)}
-          style={{ paddingHorizontal: 10 }}
+          disabled={page === 0 || opening !== null}
+          onPress={() => turnShelf(first - perPage)}
+          style={{ minHeight: 44, paddingVertical: 8, paddingHorizontal: 10 }}
         >
           Avant
         </Button>
-        <T
-          testID="herbarium-shelf-page"
-          accessibilityLiveRegion="polite"
-          style={{ color: C.muted, fontFamily: F.scientific }}
-        >
-          {shelf + 1} / {count}
-        </T>
+        <View style={{ alignItems: 'center' }}>
+          <T
+            maxFontSizeMultiplier={1.15}
+            style={{ fontFamily: F.scientific, color: C.muted, fontSize: 11, lineHeight: 15 }}
+          >
+            Carnets {String(first + 1).padStart(2, '0')}–
+            {String(Math.min(first + perPage, chapters.length)).padStart(2, '0')}
+          </T>
+          <T
+            testID="herbarium-shelf-page"
+            accessibilityLiveRegion="polite"
+            style={{ color: C.green, fontFamily: F.scientific, fontSize: 13, lineHeight: 17 }}
+          >
+            {page + 1} / {count}
+          </T>
+        </View>
         <Button
           secondary
           icon="arrow-forward-outline"
-          disabled={shelf + 1 === count}
-          onPress={() => turnShelf(shelf + 1)}
-          style={{ paddingHorizontal: 10 }}
+          disabled={page + 1 === count || opening !== null}
+          onPress={() => turnShelf(first + perPage)}
+          style={{ minHeight: 44, paddingVertical: 8, paddingHorizontal: 10 }}
         >
           Suite
         </Button>
