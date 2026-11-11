@@ -1,6 +1,7 @@
 import { chromium, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
-import { initial } from '../src/state/model';
+import { initial, loadLevel } from '../src/state/model';
+import { mechanicIds } from '../src/engine/mechanics';
 import levels from '../src/data/levels.json';
 import { openCarnet, openHome, openScreen } from './navigation-test-helper';
 
@@ -37,6 +38,7 @@ async function main() {
     await expect.poll(async () => JSON.parse((await stored())!).moves).toBe(1);
     await expect(page.getByTestId('liquid-board-idle')).toBeAttached();
     const progress = await stored();
+    await expect(menu().getByText('Menu', { exact: true })).toBeVisible();
     await page.screenshot({ path: 'test-results/central-menu-button.png' });
     await page.evaluate(() => {
       (window as any).menuSvgChanges = 0;
@@ -53,6 +55,10 @@ async function main() {
     // Rapid taps must produce one finite return, with immutable SVG drawings.
     await menu().dispatchEvent('click');
     await menu().dispatchEvent('click');
+    await expect(page.getByTestId('menu-book-folio-0')).toBeAttached();
+    await expect(page.getByTestId('menu-book-folio-1')).toBeAttached();
+    await page.waitForTimeout(230);
+    await page.screenshot({ path: 'test-results/central-menu-book-opening.png' });
     await expect(home).toBeVisible();
     expect(await page.evaluate(() => (window as any).menuSvgChanges)).toBe(0);
     expect(await page.evaluate(() => (window as any).menuMotionFrames.size)).toBeGreaterThan(1);
@@ -89,9 +95,43 @@ async function main() {
     await page.screenshot({ path: 'test-results/central-menu-home.png' });
     await openCarnet(page);
     expect(await stored()).toBe(staticSave);
+    // The same readable compact book must fit dense trial pages and the
+    // 48-point landscape HUD without changing the play area's scroll behavior.
+    for (const [width, height] of [
+      [320, 400],
+      [412, 915],
+      [932, 430],
+      [768, 1024],
+    ]) {
+      await page.setViewportSize({ width, height });
+      const trial = loadLevel({ ...fixture, testSession: { returnSave: fixture } }, 870);
+      trial.seenMechanics = [...mechanicIds];
+      trial.settings = { ...fixture.settings, motion: false };
+      await page.evaluate(
+        (s) => localStorage.setItem('color-world.save', JSON.stringify(s)),
+        trial,
+      );
+      await page.goto(url + 'atelier');
+      await expect(page.getByTestId('page-folio')).toHaveText('PAGE 870');
+      await expect(menu().getByText('Menu', { exact: true })).toBeVisible();
+      const button = (await menu().boundingBox())!,
+        hud = (await page.getByTestId('game-hud').boundingBox())!;
+      expect(button.width).toBeGreaterThanOrEqual(44);
+      expect(button.height).toBeGreaterThanOrEqual(44);
+      expect(button.y).toBeGreaterThanOrEqual(hud.y);
+      expect(button.y + button.height).toBeLessThanOrEqual(hud.y + hud.height + 0.1);
+      expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeLessThanOrEqual(
+        height + 1,
+      );
+      await page.screenshot({ path: `test-results/menu-book-${width}x${height}.png` });
+      const untouched = await stored();
+      await menu().click();
+      await expect(home).toBeVisible();
+      expect(await stored()).toBe(untouched);
+    }
     expect(errors).toEqual([]);
     console.log(
-      'Central menu passed: engraved Menu return, finite native-layer motion with unchanged SVG, rapid-tap guard, all five destinations and their return paths, real game resume and reduced motion; no intermediate menu.',
+      'Central menu passed: gilt botanical book and readable Menu label; two turning folios and immutable SVG; rapid-tap guard; all five destinations and return paths; real game resume; reduced motion; dense page 870 on four phone/tablet/landscape formats without scroll or HUD overlap.',
     );
   } finally {
     await browser.close();
