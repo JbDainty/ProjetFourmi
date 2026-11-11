@@ -1,4 +1,5 @@
 import { mechanicIds, mechanicDetails } from '../engine/mechanics';
+import { MechanicVials } from './MechanicVials';
 import React, { useEffect, useId, useRef, useState } from 'react';
 import {
   Animated,
@@ -652,6 +653,9 @@ export function BotanicalGuide({
                 <T serif style={{ fontSize: 23 }}>
                   {mechanicDetails[id].name}
                 </T>
+                <View style={{ alignItems: 'center', marginVertical: 8 }}>
+                  <MechanicVials mechanic={id} />
+                </View>
                 <T style={s.prose}>{mechanicDetails[id].intro}</T>
               </View>
             ))}

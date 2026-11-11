@@ -34,15 +34,23 @@ describe('fixed workshop composition', () => {
             layout.boardWidth,
             layout.boardHeight,
             level.board.length,
+            level.rules?.links,
+            level.rules?.pipettes?.length || level.rules?.gates?.length ? 20 : 6,
           );
+          for (const [a, b] of level.rules?.links ?? []) {
+            expect(board.positions[a].row, `linked row on page ${level.id}`).toBe(
+              board.positions[b].row,
+            );
+            expect(Math.abs(board.order.indexOf(a) - board.order.indexOf(b))).toBe(1);
+          }
           expect(board.height, `${width}×${height} page ${level.id}`).toBeLessThanOrEqual(
             layout.boardHeight + 0.001,
           );
           const targets = board.positions.map((p) => ({
             x: p.x - Math.max(44, 56 * board.scale) / 2,
-            y: p.y - 6 * board.scale,
+            y: p.y - board.touchTop,
             w: Math.max(44, 56 * board.scale),
-            h: 186 * board.scale + 18,
+            h: board.touchHeight,
           }));
           for (const t of targets) {
             expect(t.x).toBeGreaterThanOrEqual(-0.01);

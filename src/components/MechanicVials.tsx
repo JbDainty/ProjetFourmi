@@ -2,6 +2,7 @@ import React from 'react';
 import Svg, { G, Path, Rect, Text as SvgText } from 'react-native-svg';
 import type { Mechanic, Rules } from '../engine/mechanics';
 import { TubeInsignia } from './TubeInsignia';
+import { BotanicalCoupling } from './BotanicalCoupling';
 
 /** The lesson uses the same physical fittings as the playable glass. */
 export function MechanicVials({ mechanic }: { mechanic: Mechanic }) {
@@ -17,6 +18,7 @@ export function MechanicVials({ mechanic }: { mechanic: Mechanic }) {
     ...(mechanic === 'filter' ? { filters: [{ tube: 1, color: 1 }] } : {}),
     ...(mechanic === 'conservation' ? { collectors: [1] } : {}),
   };
+  const centers = mechanic === 'links' ? [102, 148] : [54, 196];
   return (
     <Svg width={250} height={114} viewBox="0 0 250 114" accessible={false}>
       {[0, 1].map((tube) => {
@@ -24,7 +26,7 @@ export function MechanicVials({ mechanic }: { mechanic: Mechanic }) {
         return (
           <G
             key={tube}
-            transform={`translate(${tube ? 196 : 54} ${102 - 160 * scale}) scale(${scale})`}
+            transform={`translate(${centers[tube]} ${102 - 160 * scale}) scale(${scale})`}
           >
             <Path
               d="M-24 9-23 137Q-23 160 0 160Q23 160 23 137L24 9Z"
@@ -51,12 +53,21 @@ export function MechanicVials({ mechanic }: { mechanic: Mechanic }) {
           </G>
         );
       })}
-      <Path
-        d="M94 55Q125 32 156 55M146 44 156 55 143 60"
-        fill="none"
-        stroke="#8a9e6d"
-        strokeWidth="1.8"
-      />
+      {mechanic === 'links' ? (
+        <BotanicalCoupling
+          a={{ x: centers[0], y: 102 - 160 * 0.58 }}
+          b={{ x: centers[1], y: 102 - 160 * 0.58 }}
+          scale={0.58}
+          focused
+        />
+      ) : (
+        <Path
+          d="M94 55Q125 32 156 55M146 44 156 55 143 60"
+          fill="none"
+          stroke="#8a9e6d"
+          strokeWidth="1.8"
+        />
+      )}
     </Svg>
   );
 }

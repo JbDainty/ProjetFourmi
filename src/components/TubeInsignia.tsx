@@ -5,6 +5,7 @@ import { blocked, crystalOpen, gateOpen, capacity } from '../engine/puzzle';
 import type { Rules } from '../engine/mechanics';
 import { palette, colorNames } from '../data/botany';
 import { RuleMark } from './RuleMark';
+import { F } from './fonts';
 
 const brass = '#a17a3e';
 const ivory = '#f6e8bd';
@@ -52,11 +53,13 @@ export const TubeInsignia = memo(function TubeInsignia({
   rules,
   tube,
   unitScale,
+  selected = null,
 }: {
   board: Board;
   rules?: Rules;
   tube: number;
   unitScale: number;
+  selected?: number | null;
 }) {
   if (!rules) return null;
   const gate = rules.gates?.find((g) => g.tube === tube);
@@ -74,10 +77,23 @@ export const TubeInsignia = memo(function TubeInsignia({
   const crystals = rules.crystals?.filter((c) => c.tube === tube) ?? [];
   const mystery = rules.mystery?.includes(tube);
   const linked = rules.links?.some((pair) => pair.includes(tube));
+  const focused =
+    selected === tube ||
+    (selected !== null &&
+      (rules.links?.some((pair) => pair.includes(tube) && pair.includes(selected)) ||
+        rules.gates?.some(
+          (g) => (g.key === selected && g.tube === tube) || (g.key === tube && g.tube === selected),
+        ) ||
+        crystals.some((c) => board[selected]?.at(-1) === c.color)));
   const boost = Math.min(1.25, Math.max(1, 0.8 / unitScale));
   const emblem = (kind: string, y: number, tint = metal, active = true) => (
     <G key={kind} transform={`translate(0 ${y}) scale(${boost})`} opacity={active ? 1 : 0.45}>
-      <Path d={plate} fill={ivory} stroke={tint} strokeWidth="1.25" />
+      <Path
+        d={plate}
+        fill={focused ? '#fff0bd' : ivory}
+        stroke={focused ? '#ceac55' : tint}
+        strokeWidth={focused ? 1.8 : 1.25}
+      />
       <Path
         d="M-13-8Q-7-11 0-13Q7-11 13-8M-12 7 0 11 12 7"
         stroke="#fff7dc"
@@ -104,6 +120,19 @@ export const TubeInsignia = memo(function TubeInsignia({
             stroke="#eae2ef"
             strokeWidth="2.1"
             strokeOpacity=".8"
+          />
+          <Path
+            d="M-21 38Q0 44 21 38L20 45Q0 52-20 45Z"
+            fill="#dedce7"
+            fillOpacity=".42"
+            stroke="#f2eee5"
+            strokeWidth=".9"
+          />
+          <Path
+            d="M-18 69-14 73-18 77-22 73ZM18 96 22 100 18 104 14 100Z"
+            fill="#f2eee5"
+            stroke="#a297b2"
+            strokeWidth=".6"
           />
           <Path
             d="M-19 61-13 54M-20 86-14 80M-18 112-12 105M19 61 13 54M20 86 14 80M18 112 12 105"
@@ -146,17 +175,74 @@ export const TubeInsignia = memo(function TubeInsignia({
             strokeOpacity={locked ? 0.8 : 0.4}
             fill="none"
           />
+          {locked && (
+            <Path
+              testID={`tube-sealed-mouth-${tube}`}
+              d="M-23 9Q0 0 23 9L22 16Q0 23-22 16Z M-18 7Q0-1 18 7"
+              fill="#536952"
+              stroke={metal}
+              strokeWidth="1.1"
+            />
+          )}
+          {locked && (
+            <Path
+              d="M-20 36Q-27 53-21 68M20 36Q27 53 21 68M-21 59Q-14 56-16 50M21 59Q14 56 16 50"
+              fill="none"
+              stroke="#77906a"
+              strokeWidth="1.8"
+            />
+          )}
           {emblem(locked ? 'lock' : 'unlock', 49, metal, !gateOpen(board, gate.key, rules))}
+          {!locked && (
+            <Path
+              testID={`tube-open-mouth-${tube}`}
+              d="M-24 12Q-31 2-23-6L-17-7M20 15Q28 15 27 7"
+              fill="none"
+              stroke={metal}
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          )}
         </G>
       )}
-      {isKey && <G testID={`tube-brush-${tube}`}>{emblem('brush', gate ? 101 : 49, metal)}</G>}
+      {isKey && (
+        <G testID={`tube-brush-${tube}`}>
+          <Path
+            d="M13 15 18-14Q20-18 22-14L18 16Z"
+            fill="#ae8753"
+            stroke="#ead395"
+            strokeWidth=".8"
+          />
+          <Path
+            d="M13 13 18 14 17 20Q16 28 11 29Q9 22 13 13Z"
+            fill="#5d8661"
+            stroke="#e9d5a2"
+            strokeWidth=".8"
+          />
+          <Path d="M14 11 19 12M13 14 18 15" stroke="#eee0ac" strokeWidth="1.2" />
+          {emblem('brush', gate ? 101 : 49, metal)}
+        </G>
+      )}
       {pipette && (
         <G testID={`tube-pipette-${tube}`}>
           <Path
-            d="M-9 11V15Q0 20 9 15V11M0 29V37"
+            d="M-9 6V-4Q-9-18 0-18Q9-18 9-4V6Z"
+            fill="#466d59"
+            stroke="#293f35"
+            strokeWidth="1.2"
+          />
+          <Path d="M-5-4V-8Q-5-13-1-13" fill="none" stroke="#91aa83" strokeWidth="1.5" />
+          <Path
+            d="M-12 6Q0 1 12 6L11 14Q0 19-11 14Z"
             fill="#c9b37c"
             stroke={brass}
             strokeWidth="1.2"
+          />
+          <Path
+            d="M-3 17V34L0 39 3 34V17M0 42Q-5 48 0 51Q5 48 0 42Z"
+            fill="#c1d6c4"
+            stroke="#678779"
+            strokeWidth=".9"
           />
           {emblem('pipette', gate || isKey ? 101 : 49)}
         </G>
@@ -170,17 +256,36 @@ export const TubeInsignia = memo(function TubeInsignia({
             strokeWidth="2"
             fill="none"
           />
+          <Path
+            d="M-21 140Q-28 151-17 157Q0 166 17 157Q28 151 21 140L17 151Q0 160-17 151Z"
+            fill="#9caa77"
+            stroke={brass}
+            strokeWidth="1.2"
+          />
+          <Path
+            d="M-14 153-10 145M-4 157-3 149M5 157 5 149M14 153 10 145M-5 22 0 27 5 22"
+            fill="none"
+            stroke="#e9d99f"
+            strokeWidth="1.1"
+          />
         </G>
       )}
       {filter && (
         <G testID={`tube-filter-${tube}`}>
           <Path
-            d="M-12 21 0 35 12 21Z"
+            d="M-14 16 0 35 14 16Z"
             fill={palette[filter.color]}
             stroke={ivory}
             strokeWidth="1.2"
           />
-          <Circle cy="25" r="3" fill="#fff6d5" />
+          <Path
+            d="M0 15Q-15 17-14 5Q-3 3 0 15ZM0 15Q15 17 14 5Q3 3 0 15ZM0 15Q-8 4 0-2Q8 4 0 15Z"
+            fill={palette[filter.color]}
+            stroke="#f3e7be"
+            strokeWidth="1.1"
+          />
+          <Circle cy="15" r="3.5" fill="#f3da8d" stroke={brass} strokeWidth=".7" />
+          <Path d="M-9 20 0 31 9 20" fill="none" stroke="#fff4d0" strokeWidth=".9" />
         </G>
       )}
       {crystals.map((c, i) => (
@@ -189,6 +294,26 @@ export const TubeInsignia = memo(function TubeInsignia({
           testID={`tube-crystal-${tube}`}
           opacity={crystalOpen(board, c.color, rules) ? 0.35 : 1}
         >
+          {!crystalOpen(board, c.color, rules) && (
+            <G
+              testID={`tube-frozen-layer-${tube}`}
+              transform={`translate(0 ${151 - ((c.depth + 0.5) * 116) / capacity(rules, tube)})`}
+            >
+              <Path
+                d="M-22-8-10-12-4-7 4-12 12-8 22-10V9L11 13 4 8-4 12-12 8-22 11Z"
+                fill="#e5edf0"
+                fillOpacity=".32"
+                stroke="#e6f1e9"
+                strokeWidth=".9"
+              />
+              <Path
+                d="M-17-10-12 0-18 9M17-10 12 0 18 9M-12 0-5-3M12 0 5 3M-1-7 2-2-1 3-4-2Z"
+                fill="none"
+                stroke="#fcf7e3"
+                strokeWidth="1.3"
+              />
+            </G>
+          )}
           <Path
             d="M-19 116-14 122-20 127M19 116 14 122 20 127M-15 142-8 138M15 142 8 138"
             stroke="#ecf4e9"
@@ -206,13 +331,13 @@ export const TubeInsignia = memo(function TubeInsignia({
       {linked && (
         <G testID={`tube-coupling-${tube}`}>
           <Path
-            d="M-20 144Q0 151 20 144L19 151Q0 159-19 151Z"
-            fill="#91a478"
-            stroke="#576b47"
-            strokeWidth="1"
+            d="M-23 139Q0 147 23 139L22 150Q0 160-22 150Z"
+            fill={focused ? '#83975d' : '#5d7d54'}
+            stroke="#af965a"
+            strokeWidth="1.3"
           />
           <Path
-            d="M-13 148Q-9 139-3 147Q3 139 9 149M-3 147 0 153"
+            d="M-21 142Q0 150 21 142M-16 148Q-14 138-5 145M16 148Q14 138 5 145M-5 150C-10 143 1 143 0 148C-1 153 10 153 5 146"
             fill="none"
             stroke={ivory}
             strokeWidth="1"
@@ -220,17 +345,9 @@ export const TubeInsignia = memo(function TubeInsignia({
         </G>
       )}
       {capacity(rules, tube) !== 4 && (
-        <G testID={`tube-capacity-${tube}`}>
-          <Ellipse
-            cy="146"
-            rx="9"
-            ry="7"
-            fill="#eee6cb"
-            fillOpacity=".9"
-            stroke="#5c7866"
-            strokeWidth=".8"
-          />
-          <SvgText y="150" textAnchor="middle" fontSize="13" fill="#355741">
+        <G testID={`tube-capacity-${tube}`} transform={`translate(0 ${linked ? -23 : 0})`}>
+          <Ellipse cy="146" rx="11" ry="9" fill="#f3e7bd" stroke="#9c804a" strokeWidth="1.2" />
+          <SvgText y="151" textAnchor="middle" fontFamily={F.bold} fontSize="15" fill="#355741">
             {capacity(rules, tube)}
           </SvgText>
         </G>

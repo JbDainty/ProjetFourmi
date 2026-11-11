@@ -49,19 +49,19 @@ export const mechanicDetails: Record<Mechanic, { name: string; symbol: string; i
     name: 'Fioles sœurs',
     symbol: '∞',
     intro:
-      'Le lien végétal relie deux fioles : elles acceptent la même teinte au sommet. Deux fioles pleines doivent partager leur couleur. Videz une fiole pour changer de teinte.',
+      'Les deux fioles côte à côte partagent une attache de feuillage et de laiton. Elles acceptent la même teinte au sommet. Pleines, elles doivent avoir la même couleur ; videz-en une pour changer de teinte. Chacune peut se soulever pour verser.',
   },
   pipette: {
     name: 'Compte-gouttes',
     symbol: '·',
     intro:
-      'La fiole équipée d’un compte-gouttes en laiton verse une seule mesure à la fois. Un geste vaut toujours un mouvement.',
+      'Le bouchon vert et sa pipette en laiton versent une seule mesure à la fois. Un geste vaut toujours un mouvement.',
   },
   filter: {
     name: 'Filtre de pétale',
     symbol: '▽',
     intro:
-      'Le pétale coloré dans la bague du col indique la seule couleur acceptée. La fiole doit finir vide ou remplie de cette couleur. Vous pouvez la vider normalement.',
+      'La fleur au col forme un filtre : la fiole ne reçoit que la couleur de ses pétales. Elle doit finir vide ou pleine de cette teinte. Vous pouvez la vider normalement.',
   },
   conservation: {
     name: 'Fiole de conservation',

@@ -1,4 +1,5 @@
 import { TubeInsignia, tubeRuleHint } from './TubeInsignia';
+import { BotanicalCoupling } from './BotanicalCoupling';
 import { capacity, completeTube } from '../engine/puzzle';
 import type { Rules } from '../engine/mechanics';
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
@@ -105,8 +106,17 @@ function LiquidBoardDrawing({
   const id = (name: string, active = false) =>
     `liquid-${unique}-${active ? 'active' : 'still'}-${name}`;
   const fitted = useMemo(
-    () => (maxHeight !== undefined ? liquidBoardLayout(width, maxHeight, board.length) : null),
-    [width, maxHeight, board.length],
+    () =>
+      maxHeight !== undefined
+        ? liquidBoardLayout(
+            width,
+            maxHeight,
+            board.length,
+            rules?.links,
+            rules?.pipettes?.length || rules?.gates?.length ? 20 : 6,
+          )
+        : null,
+    [width, maxHeight, board.length, rules?.links, rules?.pipettes, rules?.gates],
   );
   const compact = board.length > 7;
   const scale = fitted?.scale ?? Math.min(1, width / 290) * (compact ? 0.88 : 1);
@@ -128,24 +138,26 @@ function LiquidBoardDrawing({
           col = i % columns,
           n = Math.min(columns, board.length - row * columns),
           spacing = width / columns;
-        return { x: (width - n * spacing) / 2 + (col + 0.5) * spacing, y: top + row * rowHeight };
+        return {
+          x: (width - n * spacing) / 2 + (col + 0.5) * spacing,
+          y: top + row * rowHeight,
+          row,
+        };
       }),
-    [board.length, columns, width, top, rowHeight, maxHeight],
+    [fitted, board.length, columns, width, top, rowHeight],
   );
   const racks = useMemo(
     () =>
       Array.from({ length: rows }, (_, row) => {
-        const n = Math.min(columns, board.length - row * columns),
-          spacing = width / columns;
         return {
-          centers: Array.from(
-            { length: n },
-            (_, col) => (width - n * spacing) / 2 + (col + 0.5) * spacing,
-          ),
+          centers: layout
+            .filter((p) => p.row === row)
+            .map((p) => p.x)
+            .sort((a, b) => a - b),
           y: top + row * rowHeight,
         };
       }),
-    [width, scale, rows, columns, board.length, rowHeight, top],
+    [layout, rows, rowHeight, top],
   );
   const baseLayers = useMemo(() => board.map((t, i) => layers(t, known?.[i])), [board, known]);
   const after = useMemo(
@@ -293,7 +305,7 @@ function LiquidBoardDrawing({
             strokeWidth="0.8"
           />
         ))}
-        <TubeInsignia board={board} rules={rules} tube={i} unitScale={scale} />
+        <TubeInsignia board={board} rules={rules} tube={i} unitScale={scale} selected={selected} />
       </G>
     );
   };
@@ -618,13 +630,14 @@ function LiquidBoardDrawing({
           />
         ))}
         {rules?.links?.map(([a, b], i) => (
-          <Path
-            key={`link-${i}`}
-            d={`M${layout[a].x} ${layout[a].y + 165 * scale} Q${width / 2} ${Math.max(layout[a].y, layout[b].y) + 190 * scale} ${layout[b].x} ${layout[b].y + 165 * scale}`}
-            fill="none"
-            stroke="#779767"
-            strokeWidth="1.6"
-            strokeLinecap="round"
+          <BotanicalCoupling
+            key={i}
+            a={layout[a]}
+            b={layout[b]}
+            scale={scale}
+            focused={selected === a || selected === b || hint?.from === a || hint?.from === b}
+            lifted={selected === a || selected === b || pouring?.from === a || pouring?.from === b}
+            ready={!board[a].length || !board[b].length || board[a].at(-1) === board[b].at(-1)}
           />
         ))}
         {layout.map((p, i) => (
@@ -687,9 +700,9 @@ function LiquidBoardDrawing({
             position: 'absolute',
             zIndex: 2,
             left: p.x - Math.max(44, 56 * scale) / 2,
-            top: p.y - (fitted ? 6 : 12) * scale,
+            top: p.y - (fitted?.touchTop ?? 12 * scale),
             width: Math.max(44, 56 * scale),
-            height: fitted ? 186 * scale + 18 : 190 * scale,
+            height: fitted?.touchHeight ?? 190 * scale,
             minWidth: 44,
             minHeight: 44,
           }}
@@ -731,7 +744,7 @@ function LiquidBoardDrawing({
               {front(pouring.to, true)}
               {stream()}
               {racks
-                .filter((_, row) => row === Math.floor(pouring.to / columns))
+                .filter((_, row) => row === layout[pouring.to].row)
                 .map((rack, row) => (
                   <TubeRack
                     key={row}
