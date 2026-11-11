@@ -1,7 +1,19 @@
 import React, { memo, useId } from 'react';
 import { Animated, Image, StyleSheet, View } from 'react-native';
-import Svg, { Circle, Defs, Ellipse, G, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
+import Svg, {
+  Circle,
+  Defs,
+  Ellipse,
+  G,
+  LinearGradient,
+  Path,
+  Pattern,
+  Rect,
+  Stop,
+} from 'react-native-svg';
 import { F } from './fonts';
+import { herbariumBindings } from '../data/herbariumBindings';
+import { herbariumPortraits } from '../data/herbariumPortraits';
 import { T } from './ui';
 import { useNativeProgress } from './useNativeProgress';
 import { usePrimaryAnimation } from './usePrimaryAnimation';
@@ -32,39 +44,113 @@ const specimens = [
 ];
 
 const Medallion = memo(function Medallion({ index, size }: { index: number; size: number }) {
+  const id = 'cameo-' + useId().replace(/[^a-zA-Z0-9_-]/g, '');
+  const portrait = size >= 46;
   return (
-    <Svg width={size} height={size} viewBox="0 0 100 100" accessible={false}>
-      <Circle cx="50" cy="50" r="43" fill="#172d2822" stroke={gold} strokeWidth=".7" />
-      <Circle
-        cx="50"
-        cy="50"
-        r="39"
-        fill="none"
-        stroke={gold}
-        strokeWidth=".35"
-        strokeDasharray="1 5"
-      />
-      <Path
-        d="M17 72Q4 42 27 23M83 72Q96 42 73 23M14 53Q5 45 10 36Q18 40 14 53ZM86 53Q95 45 90 36Q82 40 86 53Z"
-        fill="#c4b27633"
-        stroke={gold}
-        strokeWidth=".7"
-      />
-      <G
-        transform="translate(50 55) scale(.78)"
-        fill="none"
-        stroke={gold}
-        strokeWidth="1.55"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+    <View testID={`antique-medallion-${index}`} style={{ width: size, height: size }}>
+      <Svg
+        width={size}
+        height={size}
+        style={StyleSheet.absoluteFill}
+        viewBox="0 0 100 100"
+        accessible={false}
       >
-        <Path d={specimens[index % specimens.length]} />
-      </G>
-      <Path
-        d="m50 3 1.3 4 4 1.3-4 1.3-1.3 4-1.3-4-4-1.3 4-1.3ZM50 85 53 89 50 93 47 89Z"
-        fill={gold}
-      />
-    </Svg>
+        <Defs>
+          <LinearGradient id={`${id}-metal`} x1="0" y1="0" x2="1" y2="1">
+            <Stop stopColor="#fff1c0" />
+            <Stop offset="0.22" stopColor="#c4a566" />
+            <Stop offset="0.48" stopColor="#80643b" />
+            <Stop offset="0.68" stopColor="#e7cf94" />
+            <Stop offset="1" stopColor="#745a34" />
+          </LinearGradient>
+          <LinearGradient id={`${id}-ivory`} x1="0" y1="0" x2="1" y2="1">
+            <Stop stopColor="#faf0d0" />
+            <Stop offset="0.6" stopColor="#e6d6b0" />
+            <Stop offset="1" stopColor="#c2af87" />
+          </LinearGradient>
+        </Defs>
+        <Ellipse cx="51" cy="53" rx="34" ry="41" fill="#101b15" opacity=".32" />
+        <Ellipse
+          cx="50"
+          cy="49"
+          rx="34"
+          ry="41"
+          fill={`url(#${id}-metal)`}
+          stroke="#503e27"
+          strokeWidth=".9"
+        />
+        <Ellipse
+          cx="50"
+          cy="49"
+          rx="30"
+          ry="37"
+          fill={portrait ? `url(#${id}-ivory)` : '#294438'}
+          stroke="#f1d99e"
+          strokeWidth=".8"
+        />
+        <Ellipse
+          cx="50"
+          cy="49"
+          rx="27.5"
+          ry="34.5"
+          fill="none"
+          stroke="#8c754b"
+          strokeWidth=".6"
+        />
+        <Path
+          d="M15 73Q4 46 17 25M85 73Q96 46 83 25M14 53Q3 44 10 35Q18 40 14 53ZM86 53Q97 44 90 35Q82 40 86 53Z"
+          fill="#bca16a"
+          stroke="#ead39c"
+          strokeWidth=".7"
+        />
+        {!portrait && (
+          <G
+            transform="translate(50 55) scale(.7)"
+            fill="none"
+            stroke={gold}
+            strokeWidth="1.6"
+            strokeLinecap="round"
+          >
+            <Path d={specimens[index % specimens.length]} />
+          </G>
+        )}
+        <Path
+          d="M31 18Q19 30 19 48M68 82Q80 69 81 51"
+          stroke="#fff1c5"
+          strokeWidth="1.3"
+          opacity=".7"
+          fill="none"
+        />
+        <Path
+          d="M47 6 50 1 53 6 50 11ZM46 91 50 88 54 91 50 95Z"
+          fill={`url(#${id}-metal)`}
+          stroke="#f2d89e"
+          strokeWidth=".6"
+        />
+      </Svg>
+      {portrait && (
+        <View
+          style={{
+            position: 'absolute',
+            left: size * 0.23,
+            right: size * 0.23,
+            top: size * 0.16,
+            bottom: size * 0.14,
+            borderRadius: size * 0.28,
+            overflow: 'hidden',
+          }}
+        >
+          <Image
+            testID={`antique-botanical-portrait-${index}`}
+            accessible={false}
+            source={herbariumPortraits[index]}
+            resizeMode="contain"
+            fadeDuration={0}
+            style={[StyleSheet.absoluteFill, { width: '100%', height: '100%', opacity: 0.9 }]}
+          />
+        </View>
+      )}
+    </View>
   );
 });
 
@@ -107,8 +193,38 @@ const Binding = memo(function Binding({
           <Stop offset="0.72" stopColor="#e4c984" />
           <Stop offset="1" stopColor="#836a39" />
         </LinearGradient>
+        <LinearGradient id={`${id}-spine`} x1="0" y1="0" x2="1" y2="0">
+          <Stop stopColor="#081510" stopOpacity="0.55" />
+          <Stop offset="0.45" stopColor="#fff1c0" stopOpacity="0.06" />
+          <Stop offset="0.8" stopColor="#081510" stopOpacity="0.35" />
+          <Stop offset="1" stopColor="#e4c78a" stopOpacity="0.24" />
+        </LinearGradient>
+        <Pattern id={`${id}-grain`} patternUnits="userSpaceOnUse" width="11" height="13">
+          <Circle cx="2" cy="3" r="0.55" fill="#10120d" opacity="0.15" />
+          <Circle cx="8" cy="10" r="0.4" fill="#fff1cf" opacity="0.09" />
+          <Path
+            d="M6 1Q5 4 7 5M1 9 3 8M9 6 10 7"
+            fill="none"
+            stroke="#1b1914"
+            strokeWidth="0.45"
+            opacity="0.12"
+          />
+        </Pattern>
       </Defs>
+      <Rect x="9" y="2" width={width - 16} height={height - 11} rx="6" fill={`url(#${id}-grain)`} />
       <Rect x="8" y="1" width={width - 14} height={height - 8} rx="7" fill={`url(#${id}-light)`} />
+      <Rect x="1" y="4" width="11" height={height - 16} rx="2" fill={`url(#${id}-spine)`} />
+      <Rect
+        x={left + 2}
+        y="10"
+        width={Math.max(1, right - left - 4)}
+        height={Math.max(1, bottom - 12)}
+        rx="8"
+        fill="none"
+        stroke="#102014"
+        strokeOpacity="0.32"
+        strokeWidth="2.2"
+      />
       <Path
         d={`M${left + 9} 8H${right - 9}Q${right} 8 ${right} 17V${bottom - 9}Q${right} ${bottom} ${right - 9} ${bottom}H${left + 9}Q${left} ${bottom} ${left} ${bottom - 9}V17Q${left} 8 ${left + 9} 8Z`}
         fill="none"
@@ -134,8 +250,30 @@ const Binding = memo(function Binding({
           stroke="#f3dfaa"
           strokeWidth=".4"
         >
-          <Path d="M0 0H25L18 4Q10 4 9 11L4 24 0 26ZM4 5Q4 16 8 14Q13 8 19 8M3 3 12 3 3 12" />
-          <Circle cx="3" cy="3" r="1.3" fill="#5a4b2d" />
+          <Path
+            transform="translate(1.1 1.4)"
+            d="M0 0H25L18 4Q10 4 9 11L4 24 0 26Z"
+            fill="#171b10"
+            opacity="0.3"
+            stroke="none"
+          />
+          <Path d="M0 0H25L21 3Q10 3 9 11L4 24 0 26Z" />
+          <Path
+            d="M3 4Q3 17 6 17Q12 7 20 7M4 12 9 7M3 3H15M1 4V20"
+            fill="none"
+            stroke="#f9e9b6"
+            strokeWidth="0.65"
+          />
+          <Path
+            d="M6 4Q6 10 3 13M11 3 17 1M4 19 2 23"
+            fill="none"
+            stroke="#6e5a38"
+            strokeWidth="0.65"
+            opacity="0.7"
+          />
+          <Circle cx="3.2" cy="3.4" r="1.5" fill="#80683f" />
+          <Circle cx="2.8" cy="2.9" r="0.8" fill="#f7df9a" stroke="none" />
+          <Circle cx="17" cy="2" r="0.7" fill="#6a5838" stroke="none" />
         </G>
       ))}
       {[0.18, 0.36, 0.65, 0.83].map((p, i) => (
@@ -145,16 +283,47 @@ const Binding = memo(function Binding({
         </G>
       ))}
       <Path
+        transform="translate(0.8 1.4)"
+        d={`M${width - 13} ${height * 0.48}h12v18h-12l-5-9Z`}
+        fill="#152018"
+        opacity="0.4"
+      />
+      <Path
         d={`M${width - 13} ${height * 0.48}h12v18h-12l-5-9Z`}
         fill={`url(#${id}-gold)`}
         stroke="#665536"
         strokeWidth=".7"
       />
+      <Ellipse
+        cx={width - 7}
+        cy={height * 0.48 + 8}
+        rx="3.2"
+        ry="4.3"
+        fill={herbariumBindings[index].enamel}
+        stroke="#80673e"
+        strokeWidth="0.8"
+      />
       <Path
-        d={`M${width - 10} ${height * 0.48 + 4}l3-2 3 5-3 4-3-2Z`}
-        fill={['#799b79', '#b5ad77', '#87aaa4', '#a6a3be', '#c2a677'][index % 5]}
-        stroke="#f2dfae"
-        strokeWidth=".6"
+        d={`M${width - 8} ${height * 0.48 + 6}q0-2 2-2M${width - 12} ${height * 0.48 + 2}h8M${width - 13} ${height * 0.48 + 14}h8`}
+        fill="none"
+        stroke="#fff3cf"
+        strokeWidth="0.75"
+        opacity="0.8"
+      />
+      <Circle
+        cx={width - 14}
+        cy={height * 0.48 + 8}
+        r="1.2"
+        fill="#a28853"
+        stroke="#f3dfaa"
+        strokeWidth="0.45"
+      />
+      <Path
+        d={`M${left + 5} 35q-2 12 0 20M${right - 4} ${height * 0.78}l-1 13M20 ${bottom - 3}l18-1`}
+        fill="none"
+        stroke="#d4b780"
+        strokeWidth="0.8"
+        opacity="0.15"
       />
       <Path d={`M3 8V${height - 13}`} stroke="#f6e1a6" strokeOpacity=".4" strokeWidth=".8" />
     </Svg>
@@ -164,7 +333,6 @@ const Binding = memo(function Binding({
 type Props = {
   index: number;
   title: string;
-  color: string;
   done: number;
   total: number;
   width: number;
@@ -174,7 +342,6 @@ type Props = {
 export const AntiqueHerbarium = memo(function AntiqueHerbarium({
   index,
   title,
-  color,
   done,
   total,
   width,
@@ -185,17 +352,7 @@ export const AntiqueHerbarium = memo(function AntiqueHerbarium({
     small = height < 280;
   const emblem = tiny ? 0 : Math.min(small ? (height < 200 ? 32 : 50) : 78, height * 0.25);
   const titleSize = tiny ? 14 : small ? 17 : Math.min(29, width * 0.13);
-  const leather =
-    '#' +
-    color
-      .slice(1)
-      .match(/../g)!
-      .map((v) =>
-        Math.round(parseInt(v, 16) * 0.53)
-          .toString(16)
-          .padStart(2, '0'),
-      )
-      .join('');
+  const leather = herbariumBindings[index % herbariumBindings.length].leather;
   const start = (index % 4) * 0.24;
   return (
     <View testID={`antique-binding-${index}`} style={{ width, height }} pointerEvents="none">
@@ -231,6 +388,7 @@ export const AntiqueHerbarium = memo(function AntiqueHerbarium({
         />
       </View>
       <View
+        testID={`antique-leather-${index}`}
         style={{
           position: 'absolute',
           left: 0,
@@ -256,7 +414,7 @@ export const AntiqueHerbarium = memo(function AntiqueHerbarium({
             height: height * 4,
             left: -width * 0.28,
             top: -height * 0.28,
-            opacity: 0.42,
+            opacity: 0.12,
           }}
         />
         <View

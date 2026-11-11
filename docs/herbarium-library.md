@@ -7,13 +7,17 @@ ou un affichage avec un texte agrandi passent à deux carnets par page.
 La grille adopte une rangée en paysage. Les pigments utilisent aussi une grille
 et une pagination calculées à partir de la place disponible.
 
-Les reliures possèdent vingt gravures botaniques originales, un cuir patiné, des
-coins de laiton, des nerfs au dos, une tranche de papier, un fermoir serti et des
-dorures. Les textures proviennent des ressources déjà présentes dans le jeu.
-Le catalogue monte au plus quatre couvertures de 320 × 390 points, sans charger
-les illustrations des 200 espèces. Un seul bitmap de cuir et une tranche sont
-partagés entre les couvertures ; le cadrage du cuir évite les inscriptions de la
-texture de l’introduction. Les gravures et les cadres restent statiques.
+Les vingt teintes de cuir sont indépendantes des couleurs des paysages : bordeaux,
+forêt, pétrole, indigo, cognac, prune et autres nuances vieillies. Un grain neutre
+et une texture légère préservent leur différence. Les coins de laiton rivetés,
+les nerfs au dos, la tranche et le fermoir émaillé possèdent des creux, des reflets
+et des traces de patine. Les grandes couvertures portent une miniature botanique
+dans un médaillon d’ivoire et de métal ; les plus compactes gardent une gravure.
+Les images proviennent des ressources déjà présentes dans le jeu.
+Le catalogue monte au plus quatre couvertures de 320 × 390 points et quatre
+portraits décoratifs, sans monter les 200 illustrations ni filtrer un atlas.
+Le bitmap de cuir et la tranche sont partagés ; le cadrage évite les inscriptions
+de la texture de l’introduction. Les dessins et les cadres restent statiques.
 
 Un unique cycle natif éclaire successivement les dorures. Il s’arrête en arrière-plan,
 lors d’une animation prioritaire et lorsque les animations sont désactivées.

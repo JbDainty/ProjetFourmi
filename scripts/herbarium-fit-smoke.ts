@@ -129,7 +129,7 @@ async function main() {
     const unchanged = await stored();
     await page
       .getByRole('button', { name: /^Ouvrir le carnet / })
-      .first()
+      .last()
       .dispatchEvent('click');
     await expect(page.getByTestId('antique-book-opening')).toBeVisible();
     await page.setViewportSize({ width: 320, height: 400 });

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Animated, AppState, Easing, Platform, Pressable, View } from 'react-native';
 import { router, useLocalSearchParams, useFocusEffect, type Href } from 'expo-router';
 import { chapters } from '../data/botany';
@@ -77,19 +77,17 @@ export function HerbariumShelf({
     }, [onBusyChange]),
   );
   useEffect(() => () => onBusyChange(false), [onBusyChange]);
-  const previousPageSize = useRef(layout.booksPerPage);
-  useEffect(() => {
-    if (previousPageSize.current === layout.booksPerPage) return;
-    previousPageSize.current = layout.booksPerPage;
-    // A resize can move the chosen volume onto another page. Cancel its old
-    // pose rather than leaving an invisible opening locked in progress.
+  const perPage = layout.booksPerPage,
+    first = Math.floor(anchor / perPage) * perPage;
+  useLayoutEffect(() => {
+    // Keep a new tap if its book remains visible after resizing. Cancel only
+    // a volume removed from this spread, before the next frame can be touched.
+    if (opening === null || (opening >= first && opening < first + perPage)) return;
     activated.current = false;
     setOpening(null);
     onBusyChange(false);
-  }, [layout.booksPerPage, onBusyChange]);
+  }, [first, perPage, opening, onBusyChange]);
   const light = useBindingLight(save.settings.motion && focused && opening === null);
-  const perPage = layout.booksPerPage,
-    first = Math.floor(anchor / perPage) * perPage;
   const page = first / perPage,
     count = Math.ceil(chapters.length / perPage);
   const turnShelf = (next: number) => {
@@ -138,7 +136,6 @@ export function HerbariumShelf({
               <AntiqueHerbarium
                 index={index}
                 title={eco.name}
-                color={eco.color}
                 done={done}
                 total={plants.length}
                 width={layout.bookWidth}

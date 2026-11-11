@@ -42,7 +42,7 @@ async function main() {
     await page.getByRole('button', { name: 'Fermer la planche', exact: true }).click();
     await expect(page.getByTestId('herbarium-shelf')).toBeVisible();
 
-    // Worst collection size: only a shelf of four covers is mounted, with no plant images.
+    // Worst collection size: only four covers and their bounded decorative portraits.
     const full: Save = { ...real, completed: {}, pigments: [] };
     for (let id = 1; id <= 1000; id++) {
       full.completed[id] = { stars: 3, date: '2026-11-10T12:00:00Z' };
@@ -75,7 +75,9 @@ async function main() {
     await page.setViewportSize({ width: 412, height: 915 });
     await page.screenshot({ path: 'test-results/herbarium-light-shelf.png', fullPage: true });
     const visited: number[] = [];
+    const coverColors: string[] = [];
     for (let shelf = 0; shelf < 5; shelf++) {
+      await expect(page.locator('[data-testid^="antique-botanical-portrait-"]')).toHaveCount(4);
       await expect(page.getByTestId('herbarium-shelf-page')).toHaveText(`${shelf + 1} / 5`);
       for (let book = 0; book < 4; book++) {
         const index = shelf * 4 + book;
@@ -86,10 +88,16 @@ async function main() {
           }),
         ).toBeVisible();
         visited.push(index);
+        coverColors.push(
+          await page
+            .getByTestId(`antique-leather-${index}`)
+            .evaluate((node) => getComputedStyle(node).backgroundColor),
+        );
       }
       if (shelf < 4) await page.getByRole('button', { name: 'Suite', exact: true }).click();
     }
     expect(visited).toEqual(Array.from({ length: 20 }, (_, i) => i));
+    expect(new Set(coverColors).size).toBe(20);
     await page
       .getByRole('button', { name: `Ouvrir le carnet ${chapters[19].name}`, exact: true })
       .click();
