@@ -104,7 +104,7 @@ async function main() {
         viewport.width,
       );
       for (const name of [
-        'Une teinte, une fiole',
+        'Des fioles pleines et unies',
         'Réveiller une planche',
         'Les trésors du jardin',
       ])

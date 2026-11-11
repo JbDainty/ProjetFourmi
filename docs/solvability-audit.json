@@ -1,0 +1,68 @@
+{
+  "campaign": 4,
+  "seed": 140714022,
+  "certified": {
+    "current": 1000,
+    "previous": 1000,
+    "legacy": 100,
+    "mixtures": 3000,
+    "transfers": 52756
+  },
+  "capacities": {
+    "2": 102,
+    "3": 112,
+    "4": 6298
+  },
+  "mechanics": {
+    "mystery": 97,
+    "locks": 99,
+    "capacity": 107,
+    "crystal": 83,
+    "links": 97,
+    "pipette": 117,
+    "filter": 103,
+    "conservation": 88
+  },
+  "randomPlay": {
+    "pages": 1000,
+    "states": 17798,
+    "moveComparisons": 808532,
+    "legalMoves": 100218,
+    "capacityDeadEnds": 17
+  },
+  "offCertificateSearch": {
+    "positions": 34,
+    "solved": 24,
+    "blocked": 10,
+    "limited": 0,
+    "worstMs": 16
+  },
+  "irreversibleExamples": [
+    {
+      "page": 314,
+      "board": [[3], [1, 1, 1], [2, 2, 2, 2], [1], [0, 0, 0, 0], [0, 0], [3, 3, 3]]
+    },
+    {
+      "page": 430,
+      "board": [
+        [2, 3, 0, 3],
+        [1, 1, 3],
+        [0],
+        [1, 2],
+        [3, 1, 5, 2],
+        [4, 4, 4, 5],
+        [4, 5, 5, 2],
+        [0, 0]
+      ]
+    },
+    {
+      "page": 491,
+      "board": [[3, 3, 1], [4], [2, 2, 1], [3, 3, 4, 1], [0, 2, 2, 4], [0, 0, 1, 0], [4]]
+    }
+  ],
+  "limitations": [
+    "Every starting puzzle and sampled mixture has a full independently replayed solution; this is not an exhaustive traversal of every player-reachable state.",
+    "Irreversible conservation, completed keys and completed crystal triggers can create dead ends after an unsuitable choice; undo/restart remain available.",
+    "A bounded hint search is reported as incomplete, never as a proof of impossibility."
+  ]
+}

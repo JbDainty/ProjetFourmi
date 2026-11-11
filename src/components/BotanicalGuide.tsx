@@ -493,7 +493,7 @@ export function BotanicalGuide({
             <FirstPour motion={motion} />
           </Chapter>
 
-          <Chapter number="II" title="Une teinte, une fiole">
+          <Chapter number="II" title="Des fioles pleines et unies">
             <T style={s.prose}>
               Versez dans une fiole vide, ou sur une couleur identique. Une fiole pleine ne peut
               plus recevoir de liquide.
@@ -504,12 +504,18 @@ export function BotanicalGuide({
               <CarnetIllustration name="atelier" size={narrow ? 56 : 70} />
               <View style={{ flex: 1 }}>
                 <T style={[s.prose, { fontFamily: F.bold, color: C.green }]}>
-                  Pour achever la page, chaque couleur doit remplir une fiole entière : quatre
-                  mesures de la même teinte.
+                  Pour achever la page, chaque fiole occupée doit être pleine d’une seule teinte.
+                  Les fioles habituelles contiennent quatre mesures ; les petites en contiennent
+                  deux ou trois, selon le chiffre gravé.
                 </T>
                 <T style={[s.prose, { marginTop: 6 }]}>
-                  Les fioles restantes sont vides. Deux demi-fioles de même couleur ne suffisent
-                  pas.
+                  Les autres fioles restent vides. Une même couleur peut remplir plusieurs petites
+                  fioles : six mesures se répartissent par exemple en deux fioles de trois.
+                </T>
+                <T style={[s.prose, { marginTop: 6 }]}>
+                  La coche indique une fiole pleine et unie, pas un verrou. Vous pouvez encore la
+                  reverser pour faire de la place, sauf si un pinceau, un cristal ou la conservation
+                  la retient.
                 </T>
               </View>
             </View>

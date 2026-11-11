@@ -5,14 +5,23 @@ import { handwrittenLettering } from './PencilNote';
 export const emptySeedHint =
   'Votre réserve est vide. Obtenez trois étoiles sur une page pour gagner une graine.';
 export const missingPathHint =
-  'Aucun chemin trouvé. Aucune graine dépensée. Annulez vos derniers mouvements ou recommencez.';
+  'La recherche n’a pas abouti. Aucune graine dépensée. Vous pouvez annuler ou recommencer.';
+export const blockedPathHint =
+  'Cette disposition n’a plus d’issue. Aucune graine dépensée. Revenez en arrière avec Annuler.';
 export const compactHint = (text: string) =>
   text === emptySeedHint
     ? 'Votre réserve est vide. Visez trois étoiles.'
-    : text === missingPathHint
-      ? 'Annulez ou recommencez. Aucune graine dépensée.'
+    : text === missingPathHint || text === blockedPathHint
+      ? text === blockedPathHint
+        ? 'Disposition bloquée. Annulez ; aucune graine dépensée.'
+        : 'Recherche incomplète. Aucune graine dépensée.'
       : text;
-const paragraphs = [emptySeedHint, missingPathHint, 'Versez le flacon 12 dans le flacon 13.'];
+const paragraphs = [
+  emptySeedHint,
+  missingPathHint,
+  blockedPathHint,
+  'Versez le flacon 12 dans le flacon 13.',
+];
 
 const measurements = new Map<string, number[]>();
 export const hintLayoutKey = (width: number, fontScale: number, compact = false) =>

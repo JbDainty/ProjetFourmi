@@ -25,7 +25,7 @@ export type Save = {
   guideSeen: boolean;
   nickname: string;
   attemptRewarded: boolean;
-  paidHints: Record<string, Move & { context?: string }>;
+  paidHints: Record<string, Move & { context?: string; revision?: number }>;
   current: number;
   completed: Record<string, { stars: number; date: string }>;
   seeds: number;
@@ -341,6 +341,7 @@ export function restore(raw: string | null): Save {
               legacyLevels[id - 1].board.flat().sort().join(','))) ||
         !hint ||
         (hint.context !== undefined && typeof hint.context !== 'string') ||
+        (hint.revision !== undefined && (!Number.isInteger(hint.revision) || hint.revision < 1)) ||
         !Number.isInteger(hint.from) ||
         !Number.isInteger(hint.to) ||
         !pour(board, hint.from, hint.to)
@@ -392,7 +393,7 @@ export function normalizeNickname(value: string): string {
 const hintKey = (s: Save) => `${s.current}|${JSON.stringify(s.board)}`;
 const hintContext = (s: Save) =>
   `${s.remix?.legacy ? 'legacy' : s.remix?.campaign === 3 ? '3' : '4'}:${JSON.stringify(activeRules(s) ?? null)}`;
-export const currentHint = (s: Save): Move | undefined => {
+export const hintPurchased = (s: Save): boolean => {
   const h = s.paidHints[hintKey(s)];
   if (
     !h ||
@@ -400,7 +401,12 @@ export const currentHint = (s: Save): Move | undefined => {
       ? h.context !== hintContext(s)
       : !s.remix?.legacy && s.remix?.campaign !== 3 && s.current > 10)
   )
-    return;
+    return false;
+  return true;
+};
+export const currentHint = (s: Save): Move | undefined => {
+  const h = s.paidHints[hintKey(s)];
+  if (!hintPurchased(s) || h.revision !== 1 || !pour(s.board, h.from, h.to, activeRules(s))) return;
   return { from: h.from, to: h.to };
 };
 /** Charge only for a valid, newly revealed suggestion; duplicate taps are idempotent. */
@@ -408,13 +414,16 @@ export function purchaseHint(s: Save, suggestion: Move): Save {
   if (
     won(s.board, activeRules(s)) ||
     currentHint(s) ||
-    s.seeds < 1 ||
+    (!hintPurchased(s) && s.seeds < 1) ||
     !pour(s.board, suggestion.from, suggestion.to, activeRules(s))
   )
     return s;
   return {
     ...s,
-    seeds: s.seeds - 1,
-    paidHints: { ...s.paidHints, [hintKey(s)]: { ...suggestion, context: hintContext(s) } },
+    seeds: s.seeds - (hintPurchased(s) ? 0 : 1),
+    paidHints: {
+      ...s.paidHints,
+      [hintKey(s)]: { ...suggestion, context: hintContext(s), revision: 1 },
+    },
   };
 }

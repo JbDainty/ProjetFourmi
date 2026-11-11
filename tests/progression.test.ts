@@ -7,6 +7,7 @@ import { initialKnowledge, moveKnowledge } from '../src/engine/knowledge';
 import {
   activeRules,
   currentHint,
+  hintPurchased,
   initial,
   loadLevel,
   move,
@@ -97,8 +98,11 @@ it('preserves campaign-three attempts, histories and bought hints while adopting
     expect(after.completed).toEqual(before.completed);
     expect(after.pigments).toEqual(before.pigments);
     expect(after.seeds).toBe(2);
+    expect(hintPurchased(after)).toBe(true);
+    expect(currentHint(after)).toBeUndefined();
+    after = purchaseHint(after, source.solution[1]);
+    expect(after.seeds).toBe(2);
     expect(currentHint(after)).toEqual(source.solution[1]);
-    expect(purchaseHint(after, source.solution[1]).seeds).toBe(2);
     expect(restore(JSON.stringify(after))).toEqual(after);
     const mixed = remixPage(after, () => 0.37);
     expect(mixed.remix?.campaign).toBe(3);

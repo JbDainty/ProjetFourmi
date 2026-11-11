@@ -37,7 +37,7 @@ export const mechanicDetails: Record<Mechanic, { name: string; symbol: string; i
     name: 'Petites fioles',
     symbol: '⅔',
     intro:
-      'Le chiffre gravé au pied du verre indique deux ou trois mesures, au lieu de quatre. Ces petites fioles sont terminées une fois pleines d’une seule teinte.',
+      'Le chiffre gravé indique deux ou trois mesures. Une teinte peut remplir plusieurs petites fioles : six mesures se répartissent en 3 + 3. Chaque fiole occupée doit être pleine et unie ; les autres peuvent rester vides.',
   },
   crystal: {
     name: 'Teinte cristallisée',

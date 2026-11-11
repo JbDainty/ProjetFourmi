@@ -22,6 +22,7 @@ import {
   undo,
   restoration,
   currentHint,
+  hintPurchased,
   purchaseHint,
   remixPage,
   activeRules,
@@ -29,14 +30,21 @@ import {
 import { certifiedHint } from '../src/engine/remix';
 import { WorkshopConfirm } from '../src/components/WorkshopConfirm';
 import { usePrimaryAnimation } from '../src/components/usePrimaryAnimation';
-import { won, solve, pour, Move } from '../src/engine/puzzle';
+import { won, pour, Move } from '../src/engine/puzzle';
+import { findHintPath } from '../src/engine/hintSearch';
 import { ecosystemForPage } from '../src/data/ecology';
 import { species } from '../src/data/botany';
 import { LiquidBoard } from '../src/components/LiquidBoard';
 import { Botanical } from '../src/components/Botanical';
 import { SpellIcon } from '../src/components/SpellIcon';
 import { HintScroll } from '../src/components/HintScroll';
-import { HintSlot, emptySeedHint, missingPathHint, compactHint } from '../src/components/HintSlot';
+import {
+  HintSlot,
+  emptySeedHint,
+  missingPathHint,
+  blockedPathHint,
+  compactHint,
+} from '../src/components/HintSlot';
 import { MistakeLeaves } from '../src/components/MistakeLeaves';
 import { SceneSizeContext } from '../src/components/SceneSize';
 import { BookChromeContext } from '../src/components/BookScrollView';
@@ -102,6 +110,7 @@ function Workshop() {
     [dismissed, setDismissed] = useState(false),
     [plateOpen, setPlateOpen] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hintSearchAbort = useRef<AbortController | null>(null);
   usePrimaryAnimation(busy && mixPending.current);
   const plant = Math.floor((save.current - 1) / 5),
     s = species[plant],
@@ -134,6 +143,7 @@ function Workshop() {
     setPlateOpen(false);
     setTubeReward(null);
     if (timer.current) clearTimeout(timer.current);
+    hintSearchAbort.current?.abort();
     hintPending.current = false;
     setBusy(false);
     setPouring(null);
@@ -147,6 +157,7 @@ function Workshop() {
       mixAnimation.current?.stop();
       if (mixFrame.current !== null) cancelAnimationFrame(mixFrame.current);
       if (timer.current) clearTimeout(timer.current);
+      hintSearchAbort.current?.abort();
       stopPour.current();
       stopReveal.current();
       stopChime.current();
@@ -244,7 +255,7 @@ function Workshop() {
   const askHint = () => {
     if (busy || victory || hintPending.current) return;
     const owned = currentHint(save);
-    if (!owned && save.seeds < 1) {
+    if (!hintPurchased(save) && save.seeds < 1) {
       setNote((previous) => ({
         text: emptySeedHint,
         kind: 'hint',
@@ -264,11 +275,21 @@ function Workshop() {
     setBusy(true);
     const boardKey = JSON.stringify(save.board),
       page = save.current;
-    timer.current = setTimeout(() => {
-      let suggestion =
-        owned ??
-        certifiedHint(page, save.board, save.remix) ??
-        solve(save.board, 70000, rules)?.[0];
+    hintSearchAbort.current?.abort();
+    const controller = new AbortController();
+    hintSearchAbort.current = controller;
+    timer.current = setTimeout(async () => {
+      let suggestion = owned ?? certifiedHint(page, save.board, save.remix);
+      let blocked = false;
+      if (!suggestion) {
+        const result = await findHintPath(save.board, rules, { signal: controller.signal }).catch(
+          () => ({ status: 'limit' as const, expanded: 0 }),
+        );
+        if (controller.signal.aborted || result.status === 'cancelled') return;
+        if (result.status === 'found') suggestion = result.path[0];
+        blocked = result.status === 'blocked';
+      }
+      if (controller.signal.aborted) return;
       if (suggestion) {
         const proposed = suggestion;
         let accepted = false;
@@ -286,7 +307,9 @@ function Workshop() {
         pending: false,
         text: suggestion
           ? `Versez le flacon ${suggestion.from + 1} dans le flacon ${suggestion.to + 1}.`
-          : missingPathHint,
+          : blocked
+            ? blockedPathHint
+            : missingPathHint,
       }));
       hintPending.current = false;
       setBusy(false);
@@ -294,7 +317,7 @@ function Workshop() {
   };
   const requestHint = () => {
     if (busy || victory || hintPending.current || mixPending.current) return;
-    if (!currentHint(save) && save.seeds > 0 && save.settings.confirmHints !== false)
+    if (!hintPurchased(save) && save.seeds > 0 && save.settings.confirmHints !== false)
       setConfirm('hint');
     else askHint();
   };
@@ -472,7 +495,7 @@ function Workshop() {
           accessibilityRole="button"
           accessibilityHint={
             a.name === 'Indice'
-              ? currentHint(save)
+              ? hintPurchased(save)
                 ? 'Conseil déjà cueilli, sans nouvelle dépense'
                 : 'Un nouveau conseil coûte une graine'
               : undefined
