@@ -78,8 +78,10 @@ type RackProps = {
   front?: boolean;
 };
 function TubeRackDrawing({ centers, y, scale, width, prefix, front = false }: RackProps) {
-  const left = Math.max(4, centers[0] - 35 * scale),
-    right = Math.min(width - 4, centers.at(-1)! + 35 * scale),
+  // Every holder spans the same bench, including sparse rows and paired vials.
+  // Tube centers determine the holes, never the size of the wooden structure.
+  const left = 4,
+    right = width - 4,
     guide = y + 76 * scale,
     base = y + 168 * scale;
   const topPath = (at: number) =>
@@ -244,7 +246,7 @@ function RackStandDrawing({
     bottom = racks.at(-1)!.y + 180 * scale;
   return (
     <G id="greenhouse-tier-stand" pointerEvents="none">
-      {[5, width - 12 * scale].map((x, i) => (
+      {[4, width - 4 - 7 * scale].map((x, i) => (
         <G key={i}>
           <Rect
             x={x}
@@ -268,7 +270,7 @@ function RackStandDrawing({
       {racks.slice(0, -1).map((r, i) => (
         <G key={i}>
           <Path
-            d={`M${11 * scale} ${r.y + 179 * scale} l${18 * scale} ${20 * scale} M${width - 11 * scale} ${r.y + 179 * scale} l${-18 * scale} ${20 * scale}`}
+            d={`M${4 + 7 * scale} ${r.y + 179 * scale} l${18 * scale} ${20 * scale} M${width - 4 - 7 * scale} ${r.y + 179 * scale} l${-18 * scale} ${20 * scale}`}
             fill="none"
             stroke="#66735b"
             strokeWidth={3 * scale}
